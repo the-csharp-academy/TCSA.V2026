@@ -14,6 +14,7 @@ using TCSA.V2026.Data.Helpers;
 using TCSA.V2026.Data.Models;
 using TCSA.V2026.Data.Models.Options;
 using TCSA.V2026.Services;
+using TCSA.V2026.Services.Challenges;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -54,6 +55,10 @@ builder.Services.AddScoped<IPeerReviewService, PeerReviewService>();
 builder.Services.AddScoped<ICommunityService, CommunityService>();
 builder.Services.AddScoped<IChallengeService, ChallengeService>();
 builder.Services.AddScoped<ICodewarsService, CodewarsService>();
+builder.Services.AddKeyedScoped<IChallengePlatformService, CodewarsService>(ChallengePlatform.CodeWars);
+builder.Services.AddKeyedScoped<IChallengePlatformService, LeetCodeService>(ChallengePlatform.LeetCode);
+builder.Services.AddScoped<IChallengePlatformFactory, ChallengePlatformFactory>();
+builder.Services.AddScoped<ChallengeManager>();
 builder.Services.AddScoped<IDiscordService, DiscordService>();
 builder.Services.AddScoped<IActivityService, ActivityService>();
 builder.Services.AddScoped<IGithubService, GithubService>();

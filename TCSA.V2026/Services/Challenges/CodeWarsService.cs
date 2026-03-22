@@ -3,22 +3,21 @@ using Microsoft.EntityFrameworkCore;
 using System.Net;
 using System.Text.Json;
 using TCSA.V2026.Data;
+using TCSA.V2026.Data.DTOs;
 using TCSA.V2026.Data.Helpers.ProjectsSubHelpers;
 using TCSA.V2026.Data.Models;
 using TCSA.V2026.Data.Models.Responses;
 using TCSA.V2026.Models.Responses;
 
-namespace TCSA.V2026.Services;
+namespace TCSA.V2026.Services.Challenges;
 
 public interface ICodewarsService
 {
     Task<int> MarkSqlProjectAsCompleted(int projectId, string userId);
-    Task MarkChallengeAsComplete(int challengeId, string userId);
-    Task<BaseResponse> Sync(string? username, int challengeId, string externalId, string userId);
     Task<CodeWarsResponse> GetCodeWarsCompletedChallenges(string? username, List<CodeWarsChallenge> challenges);
 }
 
-public class CodewarsService : ICodewarsService
+public class CodewarsService : ICodewarsService, IChallengePlatformService
 {
     private readonly IDbContextFactory<ApplicationDbContext> _factory;
     private readonly HttpClient _httpClient;
@@ -82,9 +81,10 @@ public class CodewarsService : ICodewarsService
         return codeWarsResponse;
     }
 
-    public async Task<BaseResponse> Sync(string? username, int challengeId, string externalId, string userId)
+    public async Task<BaseResponse> SyncChallenge(SyncChallengeRequest request)
     {
         var result = new BaseResponse();
+        var username = request.PlatformCredentials.CodeWarsUsername;
 
         if (username == null)
         {
@@ -107,11 +107,11 @@ public class CodewarsService : ICodewarsService
         string jsonResponse = await response.Content.ReadAsStringAsync();
         CodeWarsApiResponse apiResponse = JsonSerializer.Deserialize<CodeWarsApiResponse>(jsonResponse);
 
-        if (apiResponse.data.Any(x => x.id == externalId))
+        if (apiResponse.data.Any(x => x.id == request.ExternalId))
         {
             try
             {
-                await MarkChallengeAsComplete(challengeId, userId);
+                await MarkChallengeAsCompleted(new MarkChallengeCompletedRequest(request.ChallengeId, request.UserId));
 
                 return result;
             }
@@ -130,23 +130,23 @@ public class CodewarsService : ICodewarsService
         }
     }
 
-    public async Task MarkChallengeAsComplete(int challengeId, string userId)
+    public async Task MarkChallengeAsCompleted(MarkChallengeCompletedRequest request)
     {
         using (var context = _factory.CreateDbContext())
         {
             var project = context.UserChallenges.Add(new UserChallenge
             {
-                UserId = userId,
-                ChallengeId = challengeId,
+                UserId = request.UserId,
+                ChallengeId = request.ChallengeId,
                 CompletedAt = DateTime.UtcNow
             });
 
             var user = await context.AspNetUsers
-                .Where(x => x.Id == userId)
+                .Where(x => x.Id == request.UserId)
                 .FirstOrDefaultAsync();
 
             var challenge = await context.Challenges
-                .Where(c => c.Id == challengeId)
+                .Where(c => c.Id == request.ChallengeId)
                 .FirstOrDefaultAsync();
 
             user.ExperiencePoints += challenge.ExperiencePoints;

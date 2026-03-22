@@ -111,6 +111,7 @@ public class UserService : IUserService
                 dbUser.LinkedInUrl = user.LinkedInUrl;
                 dbUser.Country = user.Country;
                 dbUser.CodeWarsUsername = user.CodeWarsUsername;
+                dbUser.LeetCodeUsername = user.LeetCodeUsername;
 
                 await context.SaveChangesAsync();
 
