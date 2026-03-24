@@ -190,7 +190,7 @@ internal static class StandAloneProjectsHelper
                 {
                     new Paragraph
                     {
-                        Body="The C# Academy's curriculum is hard to complete. Getting to black belt will take you at least a few months if you're disciplined and consistent. And most of the curriculum involves building stuff suggested by us. The objective of this projects is to let you express yourself. Throughout your journey you might have ideas of projects to create. We want to encourage you act on these ideas. Although having a set roadmap gives you an useful structure, your motivation will sky rocket if you're building things that you care about. And we will reward you for that!"
+                        Body="The C# Academy's curriculum is hard to complete. Getting to black belt will take you at least a few months if you're disciplined and consistent. And most of the curriculum involves building stuff suggested by us. The objective of this projects is to let you express yourself. Throughout your journey you might have ideas of projects to create. We want to encourage you act on these ideas. Although having a set roadmap gives you a useful structure, your motivation will sky rocket if you're building things that you care about. And we will reward you for that!"
                     }
                 },
                 RequirementsIntro = "This project has only two requirements: ",

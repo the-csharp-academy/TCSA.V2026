@@ -227,7 +227,7 @@ public class ConsoleProjectsHelper
                 {
                     new Paragraph
                     {
-                        Body="It's time to learn how to integrate C# code with a database! In this very simple task you'll build a very simple app that will teach you how to perform <a target='_blank' href='https://en.wikipedia.org/wiki/Create,_read,_update_and_delete'>CRUD operations</a> against a real database. These operations are the base of web-development and you’ll be using them throughout your career in most applications. For this reason, we think it’s very important to do it from the start of your journey." 
+                        Body="It's time to learn how to integrate C# code with a database! In this very simple task you'll build a very simple app that will teach you how to perform <a target='_blank' href='https://en.wikipedia.org/wiki/Create,_read,_update_and_delete'>CRUD operations</a> against a real database. These operations are the base of web-development and you’ll be using them throughout your career in most applications. For this reason, we think it’s very important to do it from the start of your journey."
                     },
                     new Paragraph
                     {
@@ -465,7 +465,7 @@ public class ConsoleProjectsHelper
                 {
                     "This is an application where the users will create Stacks of Flashcards.",
                     "You'll need two different tables for stacks and flashcards. The tables should be linked by a foreign key.",
-                    "Stacks should have an unique name.",
+                    "Stacks should have a unique name.",
                     "Every flashcard needs to be part of a stack. If a stack is deleted, the same should happen with the flashcard.",
                     "You should use DTOs to show the flashcards to the user without the Id of the stack it belongs to.",
                     "When showing a stack to the user, the flashcard Ids should always start with 1 without gaps between them. If you have 10 cards and number 5 is deleted, the table should show Ids from 1 to 9.",
@@ -564,7 +564,7 @@ public class ConsoleProjectsHelper
                     "You were hired by restaurant to create a solution for their drinks menu.",
                     "Their drinks menu is provided by an external company. All the data about the drinks is in the companies database, accessible through an API.",
                     "Your job is to create a system that allows the restaurant employee to pull data from any drink in the database.",
-                    "You don't need SQL here, as you won't be operating the database. All you need is to create an user-friendly way to present the data to the users (the restaurant employees)",
+                    "You don't need SQL here, as you won't be operating the database. All you need is to create a user-friendly way to present the data to the users (the restaurant employees)",
                     "When the users open the application, they should be presented with the Drinks Category Menu and invited to choose a category. Then they'll have the chance to choose a drink and see information about it.",
                     "When the users visualise the drink detail, there shouldn't be any properties with empty values.",
                     "You should handle errors so that if the API is down, the application doesn't crash."
@@ -642,7 +642,7 @@ public class ConsoleProjectsHelper
                     "Create a functionality that allows users to add the contact's e-mail address and send an e-mail message from the app.",
                     "Expand the app by creating categories of contacts (i.e. Family, Friends, Work, etc).",
                     "What if you want to send not only e-mails but SMS?",
-                    "Create an unit tests project and test your validation methods. Pass several invalid and valid inputs to make sure your validation works as expected."
+                    "Create a unit tests project and test your validation methods. Pass several invalid and valid inputs to make sure your validation works as expected."
                 }
             },
              new Project
@@ -675,7 +675,7 @@ public class ConsoleProjectsHelper
                     },
                     new Paragraph
                     {
-                        Body="This project has as a requirement the use of Web APIs testing tools. In development you need a way to quickly test your endpoints without having to create a UI. <b>Postman</b> is a free, very comprehensive professional tool with an user interface that makes it very easy to store tests for later use, which saves a lot of development time. "
+                        Body="This project has as a requirement the use of Web APIs testing tools. In development you need a way to quickly test your endpoints without having to create a UI. <b>Postman</b> is a free, very comprehensive professional tool with a user interface that makes it very easy to store tests for later use, which saves a lot of development time. "
                     }
                 },
                 Requirements = new List<string>
@@ -740,7 +740,7 @@ public class ConsoleProjectsHelper
                     "Products and Sales need to have a many-to-many relationship, meaning products can have multiple sales, and sales can have multiple products.",
                     "Products need to have a price. Multiple products can be sold in the same sale.",
                     "You need to provide a Postman Collection with all possible requests for your API. It's a json file that needs to be included in your PR.",
-                    "You don't need to create an UI to consume your API.",
+                    "You don't need to create a UI to consume your API.",
                     "Your GetProducts and GetSales endpoints need to have pagination capabilities.",
                     "In retail it's good practice to prevent deletion of records. Feel free to add soft-deletes.",
                     "You shouldn't update products prices. What would happen if you made a sale and later updated the price of that product?"

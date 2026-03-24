@@ -113,7 +113,7 @@ internal static class MauiProjectsHelper
                 },
                 Challenges = new List<string>
                 {
-                    "Add a \"photo\" property to the book detail. It will contain an URL to a picture of the book's cover.",
+                    "Add a \"photo\" property to the book detail. It will contain a URL to a picture of the book's cover.",
                     "Expand on the project fetching and using data from a books API.",
                     "Create a search functionality where I can query for titles or dates of books previously read (and whatever other filters you can think of).",
                     "Create a \"Reading now\" functionality where you can track your progress in a book you're currently reading"
