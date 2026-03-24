@@ -4,6 +4,7 @@
 
 @inject NavigationManager NavigationManager
 
+<div style="display: flex; flex-direction: column; height: 100%;">
 <MudNavMenu Dense="true">
     <MudNavLink Href="" IconColor="Color.Primary" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Home</MudNavLink>
     <MudNavLink Href="Gallery" IconColor="Color.Primary" Icon="@Icons.Material.Filled.Bento">Gallery</MudNavLink>
@@ -133,6 +134,34 @@
         <MudNavLink Href="admin" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.List">Admin</MudNavLink>
     </AuthorizeView>
 </MudNavMenu>
+<div style="flex: 1;"></div>
+<MudStack Row="true" Class="pa-2" Justify="Justify.Center">
+    <MudLink Color="Color.Primary"
+             Href="@LinkOptions.Value.Discord"
+             Target="_blank"
+             Class="mud-icon-button mud-button-root"
+             UserAttributes="@(new() { ["aria-label"] = "Discord", ["rel"] = "noopener noreferrer" })">
+        <MudIcon Icon=@Icons.Custom.Brands.Discord Color="Color.Primary"
+                 UserAttributes="@(new() { ["aria-hidden"] = "true" })" />
+    </MudLink>
+    <MudLink Color="Color.Primary"
+             Href="@LinkOptions.Value.Youtube"
+             Target="_blank"
+             Class="mud-icon-button mud-button-root"
+             UserAttributes="@(new() { ["aria-label"] = "YouTube", ["rel"] = "noopener noreferrer" })">
+        <MudIcon Icon=@Icons.Custom.Brands.YouTube Color="Color.Primary"
+                 UserAttributes="@(new() { ["aria-hidden"] = "true" })" />
+    </MudLink>
+    <MudLink Color="Color.Primary"
+             Href="@LinkOptions.Value.Linkedin"
+             Target="_blank"
+             Class="mud-icon-button mud-button-root"
+             UserAttributes="@(new() { ["aria-label"] = "LinkedIn", ["rel"] = "noopener noreferrer" })">
+        <MudIcon Icon=@Icons.Custom.Brands.LinkedIn Color="Color.Primary"
+                 UserAttributes="@(new() { ["aria-hidden"] = "true" })" />
+    </MudLink>
+</MudStack>
+</div>
 
 
 @code {

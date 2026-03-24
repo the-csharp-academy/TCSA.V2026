@@ -10,6 +10,7 @@ public class ApplicationUser : IdentityUser
     public string LastName { get; set; }
     public string? DiscordAlias { get; set; }
     public string? CodeWarsUsername { get; set; }
+    public string? LeetCodeUsername { get; set; }
     public string? LinkedInUrl { get; set; }
     public string? GithubUsername { get; set; }
     public string? DisplayName { get; set; }

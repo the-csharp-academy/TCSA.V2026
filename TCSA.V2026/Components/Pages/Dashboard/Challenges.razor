@@ -1,12 +1,16 @@
 @page "/dashboard/challenges"
 @using Microsoft.AspNetCore.Authorization
 @using System.Security.Claims
+@using TCSA.V2026.Data.DTOs
 @using TCSA.V2026.Data.Enums
 @using TCSA.V2026.Data.Models
 @using TCSA.V2026.Data.Models.Responses
+@using TCSA.V2026.Helpers
 @using TCSA.V2026.Helpers.Constants
 @using TCSA.V2026.Services
+@using TCSA.V2026.Services.Challenges
 @attribute [Authorize]
+@implements IDisposable
 
 <MudContainer>
     @if (User != null)
@@ -95,6 +99,7 @@
                                         {
                                             <MudText Style="font-weight:bolder" Typo="Typo.subtitle2">@challenge.Category.ToString()</MudText>
                                         }
+                                        <MudText Style="font-weight:bolder" Typo="Typo.subtitle2">@challenge.Platform.ToString()</MudText>
                                         <MudImage ObjectFit="ObjectFit.Contain" Width="30" Src="img/experience.png" />
                                         <MudText Style="font-weight:bolder" Typo="Typo.subtitle2">@challenge.ExperiencePoints</MudText>
                                     </MudStack>
@@ -104,7 +109,7 @@
                                 <MudButton Size="@Size.Small"
                                 Variant="@Variant.Filled"
                                 Color="@Color.Warning"
-                                OnClick="@(() => JS.InvokeVoidAsync("window.open", $"https://www.codewars.com/kata/{challenge.ExternalId}", "_blank", "noopener,noreferrer"))"
+                                OnClick="@(() => JS.InvokeVoidAsync("window.open", @ChallengeHelper.GetChallengeUrl(challenge.ExternalId, challenge.Platform), "_blank", "noopener,noreferrer"))"
                                 StartIcon="fas fa-eye">
                                     View
                                 </MudButton>
@@ -113,9 +118,23 @@
                                     <MudButton Size="@Size.Small"
                                     Variant="@Variant.Filled"
                                     Color="@Color.Primary"
-                                    OnClick="@(() => Sync(challenge.Id, challenge.ExternalId))"
-                                    StartIcon="@Icons.Material.Filled.Cached">
-                                        Sync
+                                    Disabled="@(ProcessingChallenges.Contains(challenge.Id) || IsInCooldown(challenge.Id))"
+                                    OnClick="@(() => Sync(challenge.Id, challenge.ExternalId, challenge.Platform))">
+                                        @if (ProcessingChallenges.Contains(challenge.Id))
+                                        {
+                                            <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+                                            <p>SYNCING...</p>
+                                        }
+                                        else if (IsInCooldown(challenge.Id))
+                                        {
+                                            <MudIcon Icon="@Icons.Material.Filled.Schedule" Size="Size.Small" Class="mr-2" />
+                                            <p>WAIT...</p>
+                                        }
+                                        else
+                                        {
+                                            <MudIcon Icon="@Icons.Material.Filled.Cached" Size="Size.Small" Class="mr-2" />
+                                            <p>SYNC</p>
+                                        }
                                     </MudButton>
                                 }
                             </MudStack>
@@ -142,7 +161,7 @@
     [Inject] private NavigationManager Navigation { get; set; }
     [Inject] private AuthenticationStateProvider AuthenticationState { get; set; }
     [Inject] private IChallengeService ChallengeService { get; set; }
-    [Inject] private ICodewarsService CodewarsService { get; set; }
+    [Inject] private ChallengeManager ChallengeManager { get; set; }
     [Inject] private IUserService UserService { get; set; }
 
     [Inject] private IJSRuntime JS { get; set; }
@@ -180,7 +199,7 @@
         }
     }
     private IEnumerable<ChallengeCategory> _selectedCategories = new HashSet<ChallengeCategory>();
-    private IEnumerable <ChallengeCategory> SelectedCategories
+    private IEnumerable<ChallengeCategory> SelectedCategories
     {
         get => _selectedCategories;
         set
@@ -199,6 +218,13 @@
             CurrentPage = 1;
         }
     }
+
+    private HashSet<int> ProcessingChallenges = new();
+    private Dictionary<int, DateTime> ChallengeCooldowns = new();
+    private const int CooldownSeconds = 3;
+    private PeriodicTimer? CooldownTimer;
+    private CancellationTokenSource CooldownCts = new();
+
     private bool IsLoading = true;
     private string UserId = string.Empty;
     private TimeSpan LoadTime = TimeSpan.Zero;
@@ -225,15 +251,75 @@
         LoadTime = DateTime.UtcNow - startTime;
 
         IsLoading = false;
+        CooldownTimer = new PeriodicTimer(TimeSpan.FromSeconds(1));
+        _ = RunCooldownLoop();
     }
 
-    private bool IsCompleted(int id) {
+    private async Task RunCooldownLoop()
+    {
+        try
+        {
+            while (await CooldownTimer!.WaitForNextTickAsync(CooldownCts.Token))
+            {
+                if (ChallengeCooldowns.Count == 0)
+                    continue;
+
+                var now = DateTime.UtcNow;
+
+                var expiredIds = ChallengeCooldowns
+                    .Where(kvp => kvp.Value <= now)
+                    .Select(kvp => kvp.Key)
+                    .ToList();
+
+                if (expiredIds.Count == 0)
+                    continue;
+
+                foreach (var id in expiredIds)
+                    ChallengeCooldowns.Remove(id);
+
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+        }
+    }
+
+    private bool IsCompleted(int id)
+    {
         return CompletedChallenges.Contains(id);
     }
 
-    private async Task Sync(int challengeId, string externalId)
+    private bool IsInCooldown(int challengeId)
     {
-        var result = await CodewarsService.Sync(User.CodeWarsUsername, challengeId, externalId, UserId);
+        return ChallengeCooldowns.TryGetValue(challengeId, out var until)
+               && DateTime.UtcNow < until;
+    }
+
+    private void StartCooldown(int challengeId)
+    {
+        ChallengeCooldowns[challengeId] =
+            DateTime.UtcNow.AddSeconds(CooldownSeconds);
+    }
+
+    private async Task Sync(int challengeId, string externalId, ChallengePlatform platform)
+    {
+        if (!ProcessingChallenges.Add(challengeId))
+            return;
+
+        if (IsInCooldown(challengeId))
+        {
+            ProcessingChallenges.Remove(challengeId);
+            return;
+        }
+
+        var result = await ChallengeManager.Sync(new SyncChallengeRequest
+        (
+            new UserPlatformCredentials(User.CodeWarsUsername, User.LeetCodeUsername),
+            challengeId,
+            externalId,
+            UserId
+        ), platform);
 
         if (result.Status == ResponseStatus.Success)
         {
@@ -247,7 +333,10 @@
         else
         {
             Snackbar.Add($"Error: {result.Message}", Severity.Error);
+            StartCooldown(challengeId);
         }
+
+        ProcessingChallenges.Remove(challengeId);
     }
 
     private void OnPageChanged(int page)
@@ -267,5 +356,11 @@
             _paginationSize = Size.Medium;
             _boundaryCount = 2;
         }
+    }
+
+    public void Dispose()
+    {
+        CooldownCts.Cancel();
+        CooldownTimer?.Dispose();
     }
 }
