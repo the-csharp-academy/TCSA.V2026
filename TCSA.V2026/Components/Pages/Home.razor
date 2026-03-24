@@ -8,18 +8,22 @@
 
 @if (IsLoading)
 {
-    <MudProgressCircular Color="Color.Default" Indeterminate="true" />
+    <div class="loading-state">
+        <MudProgressCircular Color="Color.Default" Indeterminate="true" Size="Size.Large" />
+    </div>
 }
 else
 {
-    <MudContainer MaxWidth="MaxWidth.Large" Class="mt-10 mb-10">
-        <MudPaper Class="pa-10" Elevation="4">
+    <div class="home-theme">
+    <MudContainer MaxWidth="MaxWidth.Large" Class="mt-10 mb-10 hero-container">
+        <MudPaper Class="pa-10 hero-paper" Elevation="6">
             <MudGrid>
                 <MudItem xs="12" md="6" Class="responsive-center">
-                    <h1 class="responsive-banner mud-typography-h3 mud-primary-text">
+                    <MudChip T="string" Color="Color.Primary" Variant="Variant.Outlined" Class="mb-4 hero-chip">Community-driven learning</MudChip>
+                    <h1 class="responsive-banner mud-typography-h3 mud-primary-text hero-title">
                         Learn .NET/C# With Real Projects
                     </h1>
-                    <MudText Class="mt-4">
+                    <MudText Class="mt-4 hero-subtitle">
                         Build real-world skills in .NET and C# through hands-on projects, guided practice, and expert mentoring. Our course is practical, engaging, and
                         <MudLink Href="https://exercism.org" Target="_blank">100% free, forever</MudLink>.
                     </MudText>
@@ -30,7 +34,8 @@ else
                             <MudButton OnClick="@(() => NavigateToRegistration())"
                                        Variant="Variant.Filled"
                                        Color="Color.Primary"
-                                       Size="Size.Large">Sign up for free</MudButton>
+                                       Size="Size.Large"
+                                       EndIcon="@Icons.Material.Filled.ArrowForward">Sign up for free</MudButton>
                         </MudStack>
                     }
                 </MudItem>
@@ -38,7 +43,7 @@ else
                 <MudItem xs="12" md="6" Class="d-flex justify-center align-center">
                     <MudImage Src="img/banners/main-banner.gif"
                               Alt="Learn .NET with Projects"
-                              Style="max-width:70%; height:auto; border-radius: 8px;" />
+                              Class="hero-image" />
                 </MudItem>
             </MudGrid>
         </MudPaper>
@@ -46,10 +51,10 @@ else
 
     @* <MudText>LoadTime: @LoadTime.TotalSeconds.ToString()</MudText> *@
 
-    <MudContainer MaxWidth="MaxWidth.Large" Class="mt-10">
+    <MudContainer MaxWidth="MaxWidth.Large" Class="mt-10 stats-container section-panel section-panel-soft">
         <div class="cards-grid">
             <div class="card-item">
-                <MudPaper Class="px-4 py-2 d-flex flex-column align-center justify-center"
+                <MudPaper Class="px-4 py-2 d-flex flex-column align-center justify-center stat-card"
                           Style="max-width: 240px; width: 100%;"
                           Elevation="4">
                     <h2 class="mud-typography-h4 mud-primary-text mb-1">@Statistics.AllUsers</h2>
@@ -59,7 +64,7 @@ else
                 </MudPaper>
             </div>
             <div class="card-item">
-                <MudPaper Class="px-4 py-2 d-flex flex-column align-center justify-center"
+                <MudPaper Class="px-4 py-2 d-flex flex-column align-center justify-center stat-card"
                           Elevation="4">
                     <h2 class="mud-typography-h4 mud-primary-text mb-1">@Statistics.CurrentYearUsers</h2>
                     <div class="d-flex gap-1 align-center">
@@ -69,7 +74,7 @@ else
             </div>
            
             <div class="card-item">
-                <MudPaper Class="px-4 py-2 d-flex flex-column align-center justify-center"
+                <MudPaper Class="px-4 py-2 d-flex flex-column align-center justify-center stat-card"
                           Elevation="4">
                     <h2 class="mud-typography-h4 mud-primary-text mb-1">@Statistics.AllReviewedProjects</h2>
                     <div class="d-flex gap-1 align-center">
@@ -78,7 +83,7 @@ else
                 </MudPaper>
             </div>
             <div class="card-item">
-                <MudPaper Class="px-4 py-2 d-flex flex-column align-center justify-center"
+                <MudPaper Class="px-4 py-2 d-flex flex-column align-center justify-center stat-card"
                           Elevation="4">
                     <h2 class="mud-typography-h4 mud-primary-text mb-1">@Statistics.CurrentYearReviewedProjects</h2>
                     <div class="d-flex gap-1 align-center">
@@ -87,7 +92,7 @@ else
                 </MudPaper>
             </div>
             <div class="card-item">
-                <MudPaper Class="px-4 py-2 d-flex flex-column align-center justify-center"
+                <MudPaper Class="px-4 py-2 d-flex flex-column align-center justify-center stat-card"
                           Elevation="4">
                     <h2 class="mud-typography-h4 mud-primary-text mb-1">@TimeSpanFormatter.FormatReviewTime(Statistics.AverageReviewTime)</h2>
                     <div class="d-flex gap-1 align-center">
@@ -98,15 +103,16 @@ else
         </div>
     </MudContainer>
 
-    <MudContainer MaxWidth="MaxWidth.Large" Class="mt-10">
+    <MudContainer MaxWidth="MaxWidth.Large" Class="mt-10 section-panel section-panel-soft">
         <h2 class="mud-typography-h4 mud-primary-text mud-typography-align-center mb-2"
-            style="font-weight: 500;">
+            style="font-weight: 500;"
+            >
             First Steps
         </h2>
 
         <MudText Typo="Typo.subtitle1"
                  Align="Align.Center"
-                 Class="mb-6 text-secondary">
+                 Class="mb-6 text-secondary section-intro">
             Get started with our program by reading and following the instructions in these articles.
             If possible, follow them in order. They cover everything you need to prepare for your C# journey.
         </MudText>
@@ -116,7 +122,7 @@ else
             {
                 <div class="card-item">
                     <div class="clickable-card" @onclick="() => NavigateToArticle(article, false)">
-                        <MudCard Style="height: 100%;" Elevation="4" Class="hover-expand">
+                        <MudCard Style="height: 100%;" Elevation="4" Class="hover-expand home-card">
                             <MudCardContent Class="d-flex justify-center mt-4 flex-grow-0">
                                 <MudImage Src="@($"img/icons/{article.IconUrl}")"
                                           Alt="@article.Title"
@@ -135,7 +141,7 @@ else
         </div>
     </MudContainer>
 
-    <MudContainer MaxWidth="MaxWidth.Large" Class="mt-10">
+    <MudContainer MaxWidth="MaxWidth.Large" Class="mt-10 section-panel section-panel-soft">
         <h2 class="mud-typography-h4 mud-primary-text mud-typography-align-center mb-2 mt-5"
             style="font-weight: 500;">
             Console Apps
@@ -145,7 +151,7 @@ else
             {
                 <div class="card-item">
                     <div class="clickable-card" @onclick="() => NavigateToArticle(p, true)">
-                        <MudCard Style="height: 100%;" Elevation="4" Class="hover-expand">
+                        <MudCard Style="height: 100%;" Elevation="4" Class="hover-expand home-card">
                             <MudCardContent Class="d-flex justify-center mt-4 flex-grow-0">
                                 <MudImage Src="@($"img/icons/{p.IconUrl}")"
                                           Alt="@p.Title"
@@ -168,8 +174,8 @@ else
 
     @foreach (var a in Areas)
     {
-        <MudContainer MaxWidth="MaxWidth.Large" Class="mt-12">
-            <div style="display: flex; justify-content: center; align-items: center; gap: 1rem;">
+        <MudContainer MaxWidth="MaxWidth.Large" Class="mt-12 section-panel section-panel-soft area-section" id="@a.Id">
+            <div class="area-title-wrap">
                 @if (!string.IsNullOrEmpty(a.TitleImgUrl))
                 {
                     <MudImage Src="@($"img/titles/{a.TitleImgUrl}")"
@@ -190,7 +196,7 @@ else
                 {
                     <div class="card-item">
                         <div class="clickable-card" @onclick="() => NavigateToArticle(p, true)">
-                            <MudCard Style="height: 100%;" Elevation="4" Class="hover-expand">
+                            <MudCard Style="height: 100%;" Elevation="4" Class="hover-expand home-card">
                                 <MudCardContent Class="d-flex justify-center mt-4 flex-grow-0">
                                     <MudImage Src="@($"img/icons/{p.IconUrl}")"
                                               Alt="@p.Title"
@@ -210,6 +216,7 @@ else
             </div>
         </MudContainer>
     }
+    </div>
 
 }
 
@@ -371,20 +378,171 @@ else
 }
 
 <style>
+    .home-theme {
+        position: relative;
+        isolation: isolate;
+        padding-bottom: 2rem;
+    }
+
+        .home-theme::before,
+        .home-theme::after {
+            content: "";
+            position: absolute;
+            width: 460px;
+            height: 460px;
+            border-radius: 50%;
+            z-index: -1;
+            filter: blur(80px);
+            opacity: 0.18;
+            pointer-events: none;
+        }
+
+        .home-theme::before {
+            top: 140px;
+            right: -160px;
+            background: rgba(var(--mud-palette-primary-rgb), 0.65);
+        }
+
+        .home-theme::after {
+            top: 920px;
+            left: -200px;
+            background: rgba(var(--mud-palette-secondary-rgb), 0.55);
+        }
+
+    .loading-state {
+        min-height: 40vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .hero-container {
+        position: relative;
+    }
+
+    .hero-paper {
+        border-radius: 24px;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(var(--mud-palette-primary-rgb), 0.2);
+        background: linear-gradient(140deg, rgba(var(--mud-palette-surface-rgb), 0.95) 0%, rgba(var(--mud-palette-primary-rgb), 0.08) 100%);
+    }
+
+        .hero-paper::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at top right, rgba(var(--mud-palette-secondary-rgb), 0.13), transparent 46%);
+            pointer-events: none;
+        }
+
+    .hero-chip {
+        font-weight: 600;
+        backdrop-filter: blur(3px);
+    }
+
+    .hero-title {
+        line-height: 1.2;
+    }
+
+    .hero-subtitle {
+        max-width: 620px;
+    }
+
+    .hero-image {
+        max-width: 74%;
+        height: auto;
+        border-radius: 16px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.18);
+        border: 1px solid rgba(var(--mud-palette-primary-rgb), 0.24);
+    }
+
     .clickable-card {
         cursor: pointer;
         width: 100%;
-        height: 90%;
+        height: 100%;
     }
 
     .hover-expand {
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
     }
 
         .hover-expand:hover {
             transform: scale(1.02);
-            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 24px rgba(0,0,0,0.2);
         }
+
+    .home-card {
+        border: 1px solid rgba(0,0,0,0.06);
+        border-radius: 18px;
+        background: linear-gradient(180deg, rgba(var(--mud-palette-surface-rgb), 1) 0%, rgba(var(--mud-palette-primary-rgb), 0.04) 100%);
+    }
+
+        .home-card:hover {
+            border-color: rgba(var(--mud-palette-primary-rgb), 0.35);
+        }
+
+    .section-panel {
+        padding: 1.2rem 1rem;
+        border-radius: 22px;
+    }
+
+    .section-panel-soft {
+        border: 1px solid rgba(var(--mud-palette-lines-default-rgb), 0.55);
+        background: linear-gradient(180deg, rgba(var(--mud-palette-surface-rgb), 0.94) 0%, rgba(var(--mud-palette-secondary-rgb), 0.05) 100%);
+        box-shadow: 0 14px 34px rgba(0,0,0,0.08);
+    }
+
+    .section-intro {
+        max-width: 760px;
+        margin-inline: auto;
+    }
+
+    .area-title-wrap {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .area-section {
+        position: relative;
+    }
+
+        .area-section::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, rgba(var(--mud-palette-primary-rgb), 0.02), transparent 35%, rgba(var(--mud-palette-secondary-rgb), 0.04));
+            border-radius: 22px;
+            pointer-events: none;
+        }
+
+    .stats-container .cards-grid {
+        gap: 1rem;
+    }
+
+    .stat-card {
+        border-radius: 14px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        border: 1px solid rgba(var(--mud-palette-primary-rgb), 0.14);
+        background: linear-gradient(165deg, rgba(var(--mud-palette-surface-rgb), 1) 0%, rgba(var(--mud-palette-info-rgb), 0.08) 100%);
+    }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 22px rgba(0,0,0,0.18);
+        }
+
+    .stats-container .card-item:nth-child(2n) .stat-card {
+        background: linear-gradient(165deg, rgba(var(--mud-palette-surface-rgb), 1) 0%, rgba(var(--mud-palette-secondary-rgb), 0.09) 100%);
+        border-color: rgba(var(--mud-palette-secondary-rgb), 0.2);
+    }
+
+    .stats-container .card-item:nth-child(3n) .stat-card {
+        background: linear-gradient(165deg, rgba(var(--mud-palette-surface-rgb), 1) 0%, rgba(var(--mud-palette-success-rgb), 0.09) 100%);
+        border-color: rgba(var(--mud-palette-success-rgb), 0.22);
+    }
 
     .cards-grid {
         display: grid;
@@ -400,5 +558,27 @@ else
     .card-item {
         display: flex;
         flex-direction: column;
+    }
+
+    @@media (max-width: 960px) {
+        .section-panel {
+            padding: 1rem 0.75rem;
+            border-radius: 18px;
+        }
+
+        .hero-paper {
+            border-radius: 20px;
+        }
+
+        .home-theme::before,
+        .home-theme::after {
+            width: 320px;
+            height: 320px;
+            filter: blur(65px);
+        }
+
+        .hero-image {
+            max-width: 85%;
+        }
     }
 </style>
