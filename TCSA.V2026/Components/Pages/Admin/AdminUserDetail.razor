@@ -17,16 +17,43 @@
 
 @attribute [Authorize(Roles = "Admin")]
 
-<MudContainer>
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="admin-user-page py-6">
     <AdminToolBar></AdminToolBar>
 
     @if (IsLoading || User == null)
     {
-        <MudProgressCircular Color="Color.Default" Indeterminate="true" />
+        <div class="loading-state mt-6">
+            <MudProgressCircular Color="Color.Primary" Indeterminate="true" Size="Size.Large" />
+        </div>
     }
     else
     {
-        <MudPaper Class="mb-5 pa-5" Elevation="4">
+        <MudPaper Class="mb-5 pa-6 admin-hero" Elevation="4">
+            <MudText Typo="Typo.h4">@(!string.IsNullOrWhiteSpace(UserDisplay.DisplayName) ? UserDisplay.DisplayName : UserDisplay.Name)</MudText>
+            <MudText Typo="Typo.body1" Class="text-secondary mb-4">@UserDisplay.Email</MudText>
+
+            <div class="admin-user-stats-grid">
+                <MudPaper Class="admin-user-stat" Elevation="1">
+                    <MudText Typo="Typo.overline">Level</MudText>
+                    <MudText Typo="Typo.h6">@UserDisplay.Level</MudText>
+                </MudPaper>
+                <MudPaper Class="admin-user-stat" Elevation="1">
+                    <MudText Typo="Typo.overline">XP</MudText>
+                    <MudText Typo="Typo.h6">@UserDisplay.ExperiencePoints</MudText>
+                </MudPaper>
+                <MudPaper Class="admin-user-stat" Elevation="1">
+                    <MudText Typo="Typo.overline">Expected Belt</MudText>
+                    <MudText Typo="Typo.h6">@UserDisplay.ExpectedLevel</MudText>
+                </MudPaper>
+                <MudPaper Class="admin-user-stat" Elevation="1">
+                    <MudText Typo="Typo.overline">Activities</MudText>
+                    <MudText Typo="Typo.h6">@AllAdminActivity.Count</MudText>
+                </MudPaper>
+            </div>
+        </MudPaper>
+
+        <MudPaper Class="mb-5 pa-5 admin-section" Elevation="3">
+            <MudText Typo="Typo.h6" Class="mb-3">User Snapshot</MudText>
             <MudGrid>
                 @foreach (var prop in typeof(AdminUserDetailDisplay).GetProperties())
                 {
@@ -44,7 +71,8 @@
             </MudGrid>
         </MudPaper>
 
-        <MudPaper Class="mb-5 pa-5" Elevation="4">
+        <MudPaper Class="mb-5 pa-5 admin-section" Elevation="3">
+            <MudText Typo="Typo.h6" Class="mb-3">Points Breakdown</MudText>
             <MudGrid>
                 <MudItem xs="6">
                     <MudText Typo="Typo.body1" Color="Color.Primary">Article Points</MudText>
@@ -86,42 +114,43 @@
             </MudGrid>
         </MudPaper>
 
-        <MudPaper Class="mb-5 pa-5" Elevation="4">
-            <MudItem xs="4">
-                <MudText Typo="Typo.body1" Color="Color.Primary">View Activity</MudText>
-                <MudButton Color="Color.Primary" Variant="Variant.Filled" 
-                OnClick="@(() => JS.InvokeVoidAsync("window.open", $"/adminactivity/{UserId}", "_blank", "noopener,noreferrer"))">
-                    Go
-                </MudButton>
-            </MudItem>
-            <MudItem xs="4">
-                <MudText Typo="Typo.body1" Color="Color.Primary">Change Belt</MudText>
-                <MudSelect T="Level" Label="Select Belt Level" @bind-Value="SelectedLevel" Class="my-2" Dense="true">
-                    @foreach (Level lvl in Enum.GetValues(typeof(Level)))
-                    {
-                        <MudSelectItem T="Level" Value="@lvl">@lvl</MudSelectItem>
-                    }
+        <MudPaper Class="mb-5 pa-5 admin-section" Elevation="3">
+            <MudText Typo="Typo.h6" Class="mb-3">Admin Actions</MudText>
+            <MudGrid Spacing="2">
+                <MudItem xs="12" md="4">
+                    <MudText Typo="Typo.body1" Color="Color.Primary">View Activity</MudText>
+                    <MudButton Color="Color.Primary" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.OpenInNew"
+                               OnClick="@(() => JS.InvokeVoidAsync("window.open", $"/adminactivity/{UserId}", "_blank", "noopener,noreferrer"))">
+                        Open
+                    </MudButton>
+                </MudItem>
+                <MudItem xs="12" md="4">
+                    <MudText Typo="Typo.body1" Color="Color.Primary">Change Belt</MudText>
+                    <MudSelect T="Level" Label="Select Belt Level" @bind-Value="SelectedLevel" Class="my-2" Dense="true">
+                        @foreach (Level lvl in Enum.GetValues(typeof(Level)))
+                        {
+                            <MudSelectItem T="Level" Value="@lvl">@lvl</MudSelectItem>
+                        }
 
-                </MudSelect>
-                <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="SubmitLevel">
-                    Submit
-                </MudButton>
-            </MudItem>
-            <MudItem xs="4">
-                <MudTextField @bind-Value="XpInput" Label="Update XP" />
-            </MudItem>
-            <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="SubmitPoints">
-                Submit
-            </MudButton>
-            <MudItem xs="4">
-                <MudTextField @bind-Value="ReviewsXpInput" Label="Update Reviews XP" />
-            </MudItem>
-            <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="SubmitReviewPoints">
-                Submit
-            </MudButton>
+                    </MudSelect>
+                    <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="SubmitLevel">
+                        Submit
+                    </MudButton>
+                </MudItem>
+                <MudItem xs="12" md="4">
+                    <MudTextField @bind-Value="XpInput" Label="Update XP" Class="mb-2" />
+                    <MudButton Color="Color.Info" Variant="Variant.Filled" OnClick="SubmitPoints" Class="mr-2 mb-2">
+                        Submit XP
+                    </MudButton>
+                    <MudTextField @bind-Value="ReviewsXpInput" Label="Update Reviews XP" Class="mb-2" />
+                    <MudButton Color="Color.Secondary" Variant="Variant.Filled" OnClick="SubmitReviewPoints">
+                        Submit Reviews XP
+                    </MudButton>
+                </MudItem>
+            </MudGrid>
         </MudPaper>
 
-        <MudPaper Class="pa-4 mb-5" Elevation="4">
+        <MudPaper Class="pa-4 mb-5 admin-section" Elevation="3">
             <MudSelect T="ProjectType?" Label="Filter by Project Type" @bind-Value="SelectedProjectType" Class="my-2" Dense="true" Clearable="true">
                 <MudSelectItem T="ProjectType?" Value="null">All</MudSelectItem>
                 @foreach (var type in Enum.GetValues<ProjectType>())
@@ -137,57 +166,70 @@
 
         </MudPaper>
 
-        <MudDataGrid Class="pa-4" Elevation="4" Dense="true" Items="@FilteredActivity.Where(x => !_showPending || !x.IsPending)">
-            <Columns>
-                <PropertyColumn Property="fa => fa.ProjectId" Title="Id" />
-                <PropertyColumn Property="fa => fa.DashboardProjectId" Title="Db Id" />
-                <PropertyColumn Property="fa => fa.Title" Title="Name" />
-                <PropertyColumn Property="fa => fa.IsCompleted" Title="Status" />
-                <PropertyColumn Property="fa => fa.ChangesRequested" Title="Status" />
-                <TemplateColumn CellClass="d-flex justify-end">
-                    <CellTemplate>
-                        <MudStack Row>
-                            @if (!context.Item.IsCompleted)
-                            {
-                                <MudButton Size="@Size.Small"
-                                Variant="@Variant.Filled"
-                                Color="@Color.Primary"
-                                OnClick="@(() => ProcessProjectCompleted(context.Item))">
-                                    Mark
-                                </MudButton>
-                                <MudButton Size="@Size.Small"
-                                           Variant="@Variant.Filled"
-                                           Color="@Color.Tertiary"
-                                           OnClick="@(() => ProcessRequestChanges(context.Item))">
-                                    Request Changes
-                                </MudButton>
-                                <MudButton Size="@Size.Small"
-                                Variant="@Variant.Filled"
-                                Color="@Color.Secondary"
-                                OnClick="@(() => OpenArchiveDialog(context.Item.DashboardProjectId.Value))"
-                                StartIcon="@Icons.Material.Filled.Archive">
-                                    Archive
-                                </MudButton>
-                                <MudButton Size="@Size.Small"
-                                Variant="@Variant.Filled"
-                                Color="@Color.Error"
-                                OnClick="@(() => OpenConfirmationDialog(context.Item.DashboardProjectId.Value))"
-                                StartIcon="fas fa-eye">
-                                    Delete
-                                </MudButton>
-                                <MudButton Size="@Size.Small"
-                                Variant="@Variant.Filled"
-                                Color="@Color.Warning"
-                                OnClick="@(() => JS.InvokeVoidAsync("window.open", context.Item.GithubUrl, "_blank", "noopener,noreferrer"))"
-                                StartIcon="fas fa-eye">
-                                    View
-                                </MudButton>
-                            }
-                        </MudStack>
-                    </CellTemplate>
-                </TemplateColumn>
-            </Columns>
-        </MudDataGrid>
+        <MudPaper Class="pa-2 admin-grid-shell" Elevation="3">
+            <MudDataGrid Class="pa-2"
+                         Dense="true"
+                         Hover="true"
+                         Striped="true"
+                         SortMode="SortMode.Multiple"
+                         Items="@FilteredActivity.Where(x => !_showPending || !x.IsPending)">
+                <Columns>
+                    <PropertyColumn Property="fa => fa.ProjectId" Title="Id" />
+                    <PropertyColumn Property="fa => fa.DashboardProjectId" Title="Db Id" />
+                    <PropertyColumn Property="fa => fa.Title" Title="Name" />
+                    <TemplateColumn Title="Status">
+                        <CellTemplate>
+                            <MudChip T="string" Size="Size.Small" Color="@(context.Item.IsCompleted ? Color.Success : Color.Warning)">
+                                @(context.Item.IsCompleted ? "Completed" : "Pending")
+                            </MudChip>
+                        </CellTemplate>
+                    </TemplateColumn>
+                    <PropertyColumn Property="fa => fa.ChangesRequested" Title="Changes" />
+                    <TemplateColumn CellClass="d-flex justify-end" Title="Actions">
+                        <CellTemplate>
+                            <MudStack Row="true" Spacing="1">
+                                @if (!context.Item.IsCompleted)
+                                {
+                                    <MudButton Size="@Size.Small"
+                                               Variant="@Variant.Filled"
+                                               Color="@Color.Primary"
+                                               OnClick="@(() => ProcessProjectCompleted(context.Item))">
+                                        Mark
+                                    </MudButton>
+                                    <MudButton Size="@Size.Small"
+                                               Variant="@Variant.Filled"
+                                               Color="@Color.Tertiary"
+                                               OnClick="@(() => ProcessRequestChanges(context.Item))">
+                                        Request Changes
+                                    </MudButton>
+                                    <MudButton Size="@Size.Small"
+                                               Variant="@Variant.Filled"
+                                               Color="@Color.Secondary"
+                                               OnClick="@(() => OpenArchiveDialog(context.Item.DashboardProjectId.Value))"
+                                               StartIcon="@Icons.Material.Filled.Archive">
+                                        Archive
+                                    </MudButton>
+                                    <MudButton Size="@Size.Small"
+                                               Variant="@Variant.Filled"
+                                               Color="@Color.Error"
+                                               OnClick="@(() => OpenConfirmationDialog(context.Item.DashboardProjectId.Value))"
+                                               StartIcon="@Icons.Material.Filled.Delete">
+                                        Delete
+                                    </MudButton>
+                                    <MudButton Size="@Size.Small"
+                                               Variant="@Variant.Filled"
+                                               Color="@Color.Warning"
+                                               OnClick="@(() => JS.InvokeVoidAsync("window.open", context.Item.GithubUrl, "_blank", "noopener,noreferrer"))"
+                                               StartIcon="@Icons.Material.Filled.Visibility">
+                                        View
+                                    </MudButton>
+                                }
+                            </MudStack>
+                        </CellTemplate>
+                    </TemplateColumn>
+                </Columns>
+            </MudDataGrid>
+        </MudPaper>
     }
 </MudContainer>
 
@@ -587,3 +629,46 @@
         StateHasChanged();
     }
 }
+
+<style>
+    .admin-user-page {
+        position: relative;
+    }
+
+    .loading-state {
+        min-height: 220px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .admin-hero {
+        border-radius: 20px;
+        border: 1px solid rgba(var(--mud-palette-primary-rgb), 0.22);
+        background: linear-gradient(140deg, rgba(var(--mud-palette-surface-rgb), 0.98) 0%, rgba(var(--mud-palette-primary-rgb), 0.08) 100%);
+    }
+
+    .admin-user-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+        gap: 0.75rem;
+    }
+
+    .admin-user-stat {
+        padding: 0.9rem;
+        border-radius: 14px;
+        border: 1px solid rgba(var(--mud-palette-lines-default-rgb), 0.6);
+        background: linear-gradient(165deg, rgba(var(--mud-palette-surface-rgb), 1) 0%, rgba(var(--mud-palette-info-rgb), 0.06) 100%);
+    }
+
+    .admin-section {
+        border-radius: 16px;
+        border: 1px solid rgba(var(--mud-palette-lines-default-rgb), 0.6);
+        background: linear-gradient(165deg, rgba(var(--mud-palette-surface-rgb), 1) 0%, rgba(var(--mud-palette-secondary-rgb), 0.03) 100%);
+    }
+
+    .admin-grid-shell {
+        border-radius: 16px;
+        border: 1px solid rgba(var(--mud-palette-lines-default-rgb), 0.6);
+    }
+</style>
