@@ -135,6 +135,11 @@
     border: 0;
 }
 
+/* Remove the focus outline for elements focused programmatically by Blazor */
+[tabindex="-1"]:focus {
+    outline: none !important;
+}
+
 .external-email-wrap {
     width: 100% !important;
     max-width: 520px !important; /* increase if you want */
