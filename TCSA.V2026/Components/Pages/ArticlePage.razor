@@ -12,13 +12,16 @@
 
 <PageTitle>@Article.Title</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.Large">
-    <MudPaper Class="jumbotron d-flex align-center justify-center mt-3" Style=@GetBanner()>
-        <h1 class="mud-typography-h3 text-white mud-typography-align-center py-4 px-4 px-md-10">@Article.Title</h1>
+<div class="article-theme">
+<MudContainer MaxWidth="MaxWidth.Large" Class="article-container">
+    <MudPaper Class="jumbotron d-flex align-center justify-center mt-3 article-hero" Style=@GetBanner()>
+        <h1 class="mud-typography-h3 text-white mud-typography-align-center py-4 px-4 px-md-10 article-title">@Article.Title</h1>
     </MudPaper>
     @if (IsLoading)
     {
-        <MudProgressCircular Color="Color.Default" Indeterminate="true" />
+        <div class="loading-state">
+            <MudProgressCircular Color="Color.Default" Indeterminate="true" Size="Size.Large" />
+        </div>
     }
 
     @if (IsLoggedIn && IsCompleted)
@@ -26,9 +29,9 @@
         <MudAlert Class="mt-5" Severity="Severity.Success" Elevation="2">You have completed this roadmap step.</MudAlert>
     }
 
-    <MudGrid Class="mt-1">
+    <MudGrid Class="mt-4">
         <MudItem xs="12">
-            <MudPaper Class="d-flex flex-column mud-width-full py-1 pb-10 px-4 px-md-10">
+            <MudPaper Class="d-flex flex-column mud-width-full py-1 pb-10 px-4 px-md-10 section-panel section-panel-soft article-content">
                 @foreach (var block in Article.Blocks)
                 {
                     if (!string.IsNullOrWhiteSpace(block.Title))
@@ -40,7 +43,7 @@
                     {
                         if (paragraph.IsPicture)
                         {
-                            <MudPaper Class="d-flex justify-center mx-20 mt-10 " Elevation="0">
+                            <MudPaper Class="d-flex justify-center mx-20 mt-10 article-media-wrap" Elevation="0">
                                 <MudImage Src="@GetImage(paragraph)" Alt="Image paragraph" Fluid="true" Class="rounded-lg" />
                             </MudPaper>
                         }
@@ -85,7 +88,7 @@
 
     @if (IsLoggedIn && !IsCompleted)
     {
-        <div class="d-flex justify-center my-5">
+        <div class="d-flex justify-center my-5 article-action-wrap">
             <MudButton Variant="Variant.Filled"
                        Color="Color.Primary"
                        OnClick="MarkAsRead"
@@ -97,6 +100,7 @@
     }
 
 </MudContainer>
+</div>
 
 @code {
     [Inject] private AuthenticationStateProvider AuthenticationState { get; set; }
@@ -180,8 +184,107 @@
 }
 
 <style>
-    a {
+    .article-theme {
+        position: relative;
+        isolation: isolate;
+        padding-bottom: 2rem;
+        overflow-x: hidden;
+    }
+
+        .article-theme::before,
+        .article-theme::after {
+            content: "";
+            position: absolute;
+            width: 420px;
+            height: 420px;
+            border-radius: 50%;
+            z-index: -1;
+            filter: blur(80px);
+            opacity: 0.16;
+            pointer-events: none;
+        }
+
+        .article-theme::before {
+            top: 160px;
+            right: -170px;
+            background: rgba(var(--mud-palette-primary-rgb), 0.62);
+        }
+
+        .article-theme::after {
+            top: 980px;
+            left: -180px;
+            background: rgba(var(--mud-palette-secondary-rgb), 0.52);
+        }
+
+    .article-container {
+        position: relative;
+    }
+
+    .loading-state {
+        min-height: 24vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .article-hero {
+        border-radius: 24px;
+        overflow: hidden;
+        border: 1px solid rgba(var(--mud-palette-primary-rgb), 0.24);
+        box-shadow: 0 18px 38px rgba(0,0,0,0.2) !important;
+    }
+
+    .article-title {
+        line-height: 1.2;
+        text-shadow: 0 6px 20px rgba(0,0,0,0.35);
+    }
+
+    .section-panel {
+        padding: 0.8rem 0.5rem;
+        border-radius: 22px;
+    }
+
+    .section-panel-soft {
+        border: 1px solid rgba(var(--mud-palette-lines-default-rgb), 0.55);
+        background: linear-gradient(180deg, rgba(var(--mud-palette-surface-rgb), 0.95) 0%, rgba(var(--mud-palette-secondary-rgb), 0.05) 100%);
+        box-shadow: 0 14px 34px rgba(0,0,0,0.08);
+    }
+
+    .article-content {
+        margin-top: 0.4rem;
+    }
+
+    .article-media-wrap {
+        border-radius: 16px;
+    }
+
+    .article-action-wrap {
+        border: 1px solid rgba(var(--mud-palette-primary-rgb), 0.18);
+        border-radius: 14px;
+        padding: 1rem;
+        background: linear-gradient(160deg, rgba(var(--mud-palette-surface-rgb), 1) 0%, rgba(var(--mud-palette-primary-rgb), 0.05) 100%);
+    }
+
+    .article-theme a {
         color: #1976d2; /* Material blue */
+    }
+
+    @@media (max-width: 960px) {
+        .article-hero {
+            border-radius: 20px;
+        }
+
+        .section-panel {
+            border-radius: 18px;
+            padding: 0.6rem 0.35rem;
+        }
+
+        .article-theme::before,
+        .article-theme::after {
+            width: 320px;
+            height: 320px;
+            filter: blur(65px);
+        }
     }
 </style>
 
