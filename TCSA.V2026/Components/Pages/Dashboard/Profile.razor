@@ -32,6 +32,7 @@
                 <MudTextField @bind-Value="User.DiscordAlias" Label="Discord Alias" />
                 <MudTextField @bind-Value="User.GithubUsername" Label="Github Username" Required="true" />
                 <MudTextField @bind-Value="User.CodeWarsUsername" Label="CodeWars Username" Required="true" />
+                <MudTextField @bind-Value="User.LeetCodeUsername" Label="LeetCode Username" Required="true" />
                 <MudTextField @bind-Value="User.LinkedInUrl" Label="Linkedin Url" Required="true" />
                 <MudSelect T="string" @bind-Value="User.Country" Label="Country" Required="true">
                     @foreach (var country in Countries)

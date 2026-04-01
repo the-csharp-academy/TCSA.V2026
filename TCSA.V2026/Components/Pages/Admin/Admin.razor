@@ -11,36 +11,107 @@
 
 @rendermode @(new InteractiveServerRenderMode(prerender: false))
 
-<MudContainer>
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="admin-page py-6">
     <AdminToolBar></AdminToolBar>
+
+    <MudPaper Class="pa-6 mt-3 admin-hero" Elevation="4">
+        <MudText Typo="Typo.h4" Class="mb-2">Admin Activity Center</MudText>
+        <MudText Typo="Typo.body1" Class="text-secondary mb-4">
+            Monitor platform events, follow review flow, and jump into user details quickly.
+        </MudText>
+
+        <div class="admin-stats-grid">
+            <MudPaper Class="stat-box" Elevation="1">
+                <MudText Typo="Typo.overline">Total Events</MudText>
+                <MudText Typo="Typo.h5">@TotalEvents</MudText>
+            </MudPaper>
+            <MudPaper Class="stat-box" Elevation="1">
+                <MudText Typo="Typo.overline">Submissions</MudText>
+                <MudText Typo="Typo.h5">@GetActivityCount(ActivityType.ProjectSubmitted)</MudText>
+            </MudPaper>
+            <MudPaper Class="stat-box" Elevation="1">
+                <MudText Typo="Typo.overline">Reviews Completed</MudText>
+                <MudText Typo="Typo.h5">@GetActivityCount(ActivityType.CodeReviewCompleted)</MudText>
+            </MudPaper>
+            <MudPaper Class="stat-box" Elevation="1">
+                <MudText Typo="Typo.overline">Projects Completed</MudText>
+                <MudText Typo="Typo.h5">@GetActivityCount(ActivityType.ProjectCompleted)</MudText>
+            </MudPaper>
+        </div>
+    </MudPaper>
 
     @if (IsLoading)
     {
-        <MudProgressCircular Color="Color.Default" Indeterminate="true" />
+        <div class="loading-state mt-6">
+            <MudProgressCircular Color="Color.Primary" Indeterminate="true" Size="Size.Large" />
+        </div>
+    }
+    else if (adminEvents is null || adminEvents.Count == 0)
+    {
+        <MudPaper Class="pa-8 mt-4 d-flex justify-center align-center flex-column empty-state" Elevation="2">
+            <MudIcon Icon="@Icons.Material.Filled.Inbox" Size="Size.Large" Color="Color.Secondary" />
+            <MudText Typo="Typo.h6" Class="mt-2">No admin events yet</MudText>
+            <MudText Typo="Typo.body2" Class="text-secondary">Once users start interacting, events will appear here.</MudText>
+        </MudPaper>
     }
     else
     {
-        <MudDataGrid Class="mt-2" Dense="true" Items="@adminEvents" RowStyle="GetRowStyle">
-            <Columns>
-                <PropertyColumn Property="x => x.Date" Title="DateTime" />
-                <PropertyColumn Property="x => x.ActivityType" Title="Activity" CellStyleFunc="@_cellStyleFunc" />
-                <PropertyColumn Property="x => x.DateRequestedChanges" Title="Changes Requested" />
-                <PropertyColumn Property="x => x.ActivityName" Title="Activity Name" />
-                <TemplateColumn CellClass="d-flex justify-end">
-                    <CellTemplate>
-                        <MudStack Row>
-                            <MudButton 
-                                Size="@Size.Small" 
-                                Variant="@Variant.Filled" 
-                                Color="@Color.Primary" 
-                                OnClick="@(() => NavigateToDetails(context.Item.AppUserId))">
-                                Deets
+        <MudPaper Class="pa-2 mt-4 admin-grid-shell" Elevation="3">
+            <MudDataGrid T="AdminEventDisplay"
+                         Class="admin-grid"
+                         Dense="true"
+                         Hover="true"
+                         Striped="true"
+                         SortMode="SortMode.Multiple"
+                         Items="@adminEvents">
+                <Columns>
+                    <TemplateColumn Title="DateTime">
+                        <CellTemplate>
+                            <MudText Typo="Typo.body2">@context.Item.Date</MudText>
+                        </CellTemplate>
+                    </TemplateColumn>
+
+                    <TemplateColumn Title="Activity">
+                        <CellTemplate>
+                            <MudChip T="string"
+                                     Size="Size.Small"
+                                     Variant="Variant.Filled"
+                                     Color="@GetActivityColor(context.Item.ActivityType)"
+                                     Icon="@GetActivityIcon(context.Item.ActivityType)">
+                                @context.Item.ActivityType.ToString()
+                            </MudChip>
+                        </CellTemplate>
+                    </TemplateColumn>
+
+                    <TemplateColumn Title="Changes Requested">
+                        <CellTemplate>
+                            @if (!string.IsNullOrWhiteSpace(context.Item.DateRequestedChanges))
+                            {
+                                <MudText Typo="Typo.body2">@context.Item.DateRequestedChanges</MudText>
+                            }
+                            else
+                            {
+                                <MudText Typo="Typo.body2" Class="text-disabled">—</MudText>
+                            }
+                        </CellTemplate>
+                    </TemplateColumn>
+
+                    <PropertyColumn Property="x => x.ActivityName" Title="Activity Name" />
+
+                    <TemplateColumn CellClass="d-flex justify-end" Title="Actions">
+                        <CellTemplate>
+                            <MudButton Size="@Size.Small"
+                                       Variant="@Variant.Outlined"
+                                       Color="@Color.Primary"
+                                       StartIcon="@Icons.Material.Filled.ManageSearch"
+                                       OnClick="@(() => NavigateToDetails(context.Item.AppUserId))">
+                                Open
                             </MudButton>
-                        </MudStack>
-                    </CellTemplate>
-                </TemplateColumn>
-            </Columns>
-        </MudDataGrid>
+                        </CellTemplate>
+                    </TemplateColumn>
+                </Columns>
+            </MudDataGrid>
+        </MudPaper>
     }
 </MudContainer>
 
@@ -51,6 +122,7 @@
     private List<AdminEventDisplay>? adminEvents { get; set; } = new();
 
     private bool IsLoading = true;
+    private int TotalEvents => adminEvents?.Count ?? 0;
 
     protected override async Task OnInitializedAsync()
     {
@@ -64,26 +136,74 @@
         return Task.CompletedTask;
     }
 
-    private Func<AdminEventDisplay, string> _cellStyleFunc => x =>
+    private int GetActivityCount(ActivityType activityType)
     {
-        string style = "";
+        return adminEvents?.Count(x => x.ActivityType == activityType) ?? 0;
+    }
 
-        if (x.ActivityType == ActivityType.ArticleRead)
-            style += "background-color:green; color: white;";
+    private Color GetActivityColor(ActivityType activityType) => activityType switch
+    {
+        ActivityType.ArticleRead => Color.Success,
+        ActivityType.ProjectSubmitted => Color.Warning,
+        ActivityType.CodeReviewCompleted => Color.Error,
+        ActivityType.IssueSubmitted => Color.Secondary,
+        ActivityType.ProjectCompleted => Color.Info,
+        _ => Color.Default
+    };
 
-        if (x.ActivityType == ActivityType.ProjectSubmitted)
-            style += "background-color:yellow;";
-
-        if (x.ActivityType == ActivityType.CodeReviewCompleted)
-            style += "background-color:red; color:white;";
-
-        if (x.ActivityType == ActivityType.IssueSubmitted)
-            style += "background-color:purple; color: white;";
-
-        if (x.ActivityType == ActivityType.ProjectCompleted)
-            style += "background-color:blue; color: white;";
-
-        return style;
+    private string GetActivityIcon(ActivityType activityType) => activityType switch
+    {
+        ActivityType.ArticleRead => Icons.Material.Filled.MenuBook,
+        ActivityType.ProjectSubmitted => Icons.Material.Filled.UploadFile,
+        ActivityType.CodeReviewCompleted => Icons.Material.Filled.TaskAlt,
+        ActivityType.IssueSubmitted => Icons.Material.Filled.BugReport,
+        ActivityType.ProjectCompleted => Icons.Material.Filled.WorkspacePremium,
+        _ => Icons.Material.Filled.Event
     };
 }
+
+<style>
+    .admin-page {
+        position: relative;
+    }
+
+    .admin-hero {
+        border-radius: 20px;
+        border: 1px solid rgba(var(--mud-palette-primary-rgb), 0.2);
+        background: linear-gradient(140deg, rgba(var(--mud-palette-surface-rgb), 0.98) 0%, rgba(var(--mud-palette-info-rgb), 0.08) 100%);
+    }
+
+    .admin-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 0.75rem;
+    }
+
+    .stat-box {
+        padding: 0.9rem;
+        border-radius: 14px;
+        border: 1px solid rgba(var(--mud-palette-lines-default-rgb), 0.6);
+        background: linear-gradient(165deg, rgba(var(--mud-palette-surface-rgb), 1) 0%, rgba(var(--mud-palette-primary-rgb), 0.05) 100%);
+    }
+
+    .loading-state {
+        min-height: 180px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .empty-state {
+        border-radius: 16px;
+    }
+
+    .admin-grid-shell {
+        border-radius: 16px;
+        border: 1px solid rgba(var(--mud-palette-lines-default-rgb), 0.6);
+    }
+
+    .admin-grid {
+        border-radius: 12px;
+    }
+</style>
 

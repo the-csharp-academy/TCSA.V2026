@@ -1,3 +1,7 @@
+html, body {
+    overflow-x: hidden;
+}
+
 @media (max-width: 600px) {
     .responsive-banner {
         font-size: 1.5rem; /* Smaller for mobile */
@@ -81,6 +85,22 @@
     color: white !important;
 }
 
+.appbar-search .mud-input-slot {
+    color: white !important;
+}
+
+.appbar-search .mud-input-slot::placeholder {
+    color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.appbar-search fieldset.mud-input-outlined-border {
+    border-color: rgba(255, 255, 255, 0.5) !important;
+}
+
+.appbar-search .mud-input-outlined {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+}
+
 .video-wrapper {
     position: relative;
     width: 100%;
@@ -117,6 +137,11 @@
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
     border: 0;
+}
+
+/* Remove the focus outline for elements focused programmatically by Blazor */
+[tabindex="-1"]:focus {
+    outline: none !important;
 }
 
 .external-email-wrap {

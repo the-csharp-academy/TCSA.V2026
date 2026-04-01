@@ -22,4 +22,24 @@ public class TimeSpanFormatterTests
         // Assert
         Assert.That(result, Is.EqualTo(expected));
     }
+
+    [TestCaseSource(nameof(FormatReviewTimeTestCases))]
+    public void FormatReviewTime_ShouldReturnCorrectFormat(TimeSpan time, string expected)
+    {
+        // Act
+        var result = TimeSpanFormatter.FormatReviewTime(time);
+
+        // Assert
+        Assert.That(result, Is.EqualTo(expected));
+    }
+
+    private static IEnumerable<TestCaseData> FormatReviewTimeTestCases()
+    {
+        yield return new TestCaseData(TimeSpan.Zero, "N/A");
+        yield return new TestCaseData(TimeSpan.FromSeconds(30), "30 seconds");
+        yield return new TestCaseData(TimeSpan.FromSeconds(90), "1 minute");
+        yield return new TestCaseData(TimeSpan.FromMinutes(5), "5 minutes");
+        yield return new TestCaseData(TimeSpan.FromHours(2), "2 hours");
+        yield return new TestCaseData(TimeSpan.FromDays(1), "1 day");
+    }
 }

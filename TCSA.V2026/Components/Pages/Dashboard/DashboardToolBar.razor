@@ -40,6 +40,7 @@
     [Inject] private NavigationManager Navigation { get; set; }
     [Parameter] public ApplicationUser User { get; set; }
     [Inject] private IProjectService ProjectService { get; set; }
+    [Inject] private IUserService UserService { get; set; }
 
     private List<TCSANotificationItem> Notifications = new();
 
@@ -108,8 +109,15 @@
 
         if (!result.Canceled && Notifications.Any(x => x.IsActive))
         {
-            var response = await ProjectService.AcknowledgeNotifications(User.Id);
-            if (response.Status == ResponseStatus.Success)
+            var acknowledgeProjectsTask = ProjectService.AcknowledgeNotifications(User.Id);
+            var acknowledgeBeltTask = UserService.AcknowledgeBeltNotification(User.Id);
+
+            await Task.WhenAll(acknowledgeProjectsTask, acknowledgeBeltTask);
+
+            var acknowledgeProjectsResponse = await acknowledgeProjectsTask;
+            var acknowledgeBeltResponse = await acknowledgeBeltTask;
+
+            if (acknowledgeProjectsResponse.Status == ResponseStatus.Success && acknowledgeBeltResponse.Status == ResponseStatus.Success)
             {
                 Notifications.ForEach(x => x.IsActive = false);
                 StateHasChanged();

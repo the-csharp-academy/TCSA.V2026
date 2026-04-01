@@ -15,9 +15,43 @@ public interface ILeaderboardService
     Task<int> GetTotalPages();
     Task<List<UserLeaderboardDisplay>> GetUsersForLeaderboard(int pageNumber);
     Task<List<UserReviewLeaderboardDisplay>> GetUserForReviewLeaderboard();
+    Task<List<AppStatisticsCountries>> GetCountriesForAppStatistics();
+    Task<int> GetNumberCountries();
 }
 public class LeaderboardService(IDbContextFactory<ApplicationDbContext> _factory) : ILeaderboardService
 {
+    public async Task<List<AppStatisticsCountries>> GetCountriesForAppStatistics()
+    {
+        var result = new List<AppStatisticsCountries>();
+        try
+        {
+            using (var context = _factory.CreateDbContext())
+            {
+                result = await context.Users
+                    .GroupBy(u => u.Country)
+                    .Select(g => new AppStatisticsCountries
+                    {
+                        CountryName = g.Key,
+                        UsersCount = g.Count()
+                    })
+                    .OrderByDescending(x => x.UsersCount)
+                    .ToListAsync();
+
+                var index = 1;
+                foreach (var country in result)
+                {
+                    country.Ranking = index;
+                    index++;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            return null;
+        }
+        return result;
+    }
+
     public async Task<List<UserReviewLeaderboardDisplay>> GetUserForReviewLeaderboard()
     {
         var users = new List<ApplicationUser>();
@@ -111,6 +145,26 @@ public class LeaderboardService(IDbContextFactory<ApplicationDbContext> _factory
         }
 
         return result;
+    }
+
+    public async Task<int> GetNumberCountries()
+    {
+        try
+        {
+            using (var context = _factory.CreateDbContext())
+            {
+                var count = await context.Users
+                    .Where(x => x.Country != null)
+                    .Select(x => x.Country)
+                    .Distinct()
+                    .CountAsync();
+                return count;
+            }
+        }
+        catch (Exception ex)
+        {
+            return 0;
+        }
     }
 
     public async Task<int> GetUserRanking(string userId)

@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using TCSA.V2026.Data.Helpers;
@@ -528,7 +528,7 @@ public class BeltTests
     }
 
     [TestCaseSource(nameof(FullStackAreaTestCases))]
-    public void GetFullStackAreasCompletedReturnsExpectedCount(List<int> completedProjects, int expectedCount)
+    public void GetFullStackAreasCompletedReturnsExpectedAreas(List<int> completedProjects, List<Area> expectedAreas)
     {
         var result = RoadmapHelper.GetFullStackAreasCompleted(completedProjects);
         Assert.That(result, Has.Count.EqualTo(expectedCount));
@@ -536,13 +536,13 @@ public class BeltTests
 
     private static IEnumerable<TestCaseData> FullStackAreaTestCases()
     {
-        yield return new TestCaseData(AspNetRequirements.ToList(), 1).SetName("MVC only");
-        yield return new TestCaseData(ReactRequirements.ToList(), 1).SetName("React only");
-        yield return new TestCaseData(AngularRequirements.ToList(), 1).SetName("Angular only");
-        yield return new TestCaseData(BlazorRequirements.ToList(), 1).SetName("Blazor only");
-        yield return new TestCaseData(MauiRequirements.ToList(), 1).SetName("MAUI only");
+        yield return new TestCaseData(AspNetRequirements.ToList(), new List<Area> { Area.MVC }).SetName("MVC only");
+        yield return new TestCaseData(ReactRequirements.ToList(), new List<Area> { Area.React }).SetName("React only");
+        yield return new TestCaseData(AngularRequirements.ToList(), new List<Area> { Area.Angular }).SetName("Angular only");
+        yield return new TestCaseData(BlazorRequirements.ToList(), new List<Area> { Area.Blazor }).SetName("Blazor only");
+        yield return new TestCaseData(MauiRequirements.ToList(), new List<Area> { Area.MAUI }).SetName("MAUI only");
         yield return new TestCaseData(
-            new List<int>([.. AspNetRequirements, .. ReactRequirements]), 2).SetName("MVC and React");
-        yield return new TestCaseData(new List<int>(), 0).SetName("None completed");
+            new List<int>([.. AspNetRequirements, .. ReactRequirements]), new List<Area> { Area.MVC, Area.React }).SetName("MVC and React");
+        yield return new TestCaseData(new List<int>(), new List<Area>()).SetName("None completed");
     }
 }

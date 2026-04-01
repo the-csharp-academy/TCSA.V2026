@@ -1,8 +1,6 @@
-﻿using MudBlazor;
-using TCSA.V2026.Data.Enums;
+﻿using TCSA.V2026.Data.Enums;
 using TCSA.V2026.Data.Helpers;
 using TCSA.V2026.Data.Models;
-using static System.Net.WebRequestMethods;
 using Block = TCSA.V2026.Data.Models.Block;
 
 namespace TCSA.V2026.Data.Curriculum;
@@ -134,7 +132,7 @@ public static class ArticleHelper
                         {
                             new Paragraph
                             {
-                                Body = "As we progress through our road map, you’ll be building projects, a portfolio, a resume and preparing for interviews. We’ll give you feedback on all of those. Each of our projects have a list of requirements, but there are always details in the design, implementation and code style that are open to your own individuality. We encourage you try things on your own and we’ll only suggest corrections that are considered bad practice."
+                                Body = "As we progress through our road map, you’ll be building projects, a portfolio, a resume and preparing for interviews. We’ll give you feedback on all of those. Each of our projects have a list of requirements, but there are always details in the design, implementation and code style that are open to your own individuality. We encourage you try things on your own and we’ll only suggest corrections that are considered best practice."
                             }
                         }
                     },
@@ -788,7 +786,7 @@ public static class ArticleHelper
                             },
                             new Paragraph
                             {
-                                Body = "That doesn’t mean you won’t have an user interface. But instead of the website, you’ll be interacting with the user via the console line. You’ll still need to handle validation, basic presentation and all sorts of errors to provide a good user experience. And this knowledge will definitely transfer when you start creating full-stack apps."
+                                Body = "That doesn’t mean you won’t have a user interface. But instead of the website, you’ll be interacting with the user via the console line. You’ll still need to handle validation, basic presentation and all sorts of errors to provide a good user experience. And this knowledge will definitely transfer when you start creating full-stack apps."
                             },
                             new Paragraph
                             {

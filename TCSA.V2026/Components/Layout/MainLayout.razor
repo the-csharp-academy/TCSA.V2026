@@ -1,5 +1,7 @@
 @using Microsoft.Extensions.Options
+@using TCSA.V2026.Data.DTOs
 @using TCSA.V2026.Data.Models.Options
+@using TCSA.V2026.Helpers
 @using TCSA.V2026.Services
 @inherits LayoutComponentBase
 @inject ThemeService ThemeService
@@ -19,6 +21,26 @@
                        Edge="Edge.Start"
                        OnClick="@ToggleNavDrawer" />
         <MudImage Src="/img/logo.png" Width="40" />
+        <MudAutocomplete T="SearchItem"
+                         ToStringFunc="@(i => i?.Title ?? string.Empty)"
+                         Placeholder="Search articles & projects..."
+                         SearchFunc="SearchHelper.Search"
+                         AdornmentIcon="@Icons.Material.Filled.Search"
+                         ValueChanged="NavigateTo"
+                         Clearable
+                         Dense="true"
+                         Margin="Margin.Dense"
+                         Variant="Variant.Outlined"
+                         Style="max-width: 320px"
+                         Class="ml-4 appbar-search"
+                         AdornmentColor="Color.Primary">
+            <ItemTemplate Context="item">
+                <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+                    <img src="img/icons/@(string.IsNullOrEmpty(item.IconUrl) ? "article-placeholder.png" : item.IconUrl)" style="height:2em;max-width:100%;" />
+                    <MudText Typo="Typo.body2">@item.Title</MudText>
+                </MudStack>
+            </ItemTemplate>
+        </MudAutocomplete>
         <MudSpacer />
         <MudSwitch UserAttributes="@(new Dictionary<string, object> { ["id"] = "theme-toggle" })"
                    ThumbIcon="@Icons.Material.Outlined.ModeNight"
@@ -28,28 +50,6 @@
                    Class="ma-4"
                    T="bool"
                    Label="Toggle Light/Dark Mode" />
-        <MudLink Color="Color.Default"
-                 Href="@LinkOptions.Value.Discord"
-                 Target="_blank"
-                 Class="mud-icon-button mud-button-root"
-                 UserAttributes="@(new() { ["aria-label"] = "Discord", ["rel"] = "noopener noreferrer" })">
-                 <MudIcon Icon=@Icons.Custom.Brands.Discord
-                     UserAttributes="@(new() { ["aria-hidden"] = "true" })" />
-        </MudLink>
-        <MudLink Color="Color.Default"
-                 Href="@LinkOptions.Value.Youtube"
-                 Target="_blank"
-                 Class="mud-icon-button mud-button-root"
-                 UserAttributes="@(new() { ["aria-label"] = "YouTube", ["rel"] = "noopener noreferrer" })">
-            <MudIcon Icon=@Icons.Custom.Brands.YouTube UserAttributes="@(new() { ["aria-hidden"] = "true" })" />
-        </MudLink>
-        <MudLink Color="Color.Default"
-                 Href="@LinkOptions.Value.Linkedin"
-                 Target="_blank"
-                 Class="mud-icon-button mud-button-root"
-                 UserAttributes="@(new() { ["aria-label"] = "LinkedIn", ["rel"] = "noopener noreferrer" })">
-            <MudIcon Icon=@Icons.Custom.Brands.LinkedIn UserAttributes="@(new() { ["aria-hidden"] = "true" })" />
-        </MudLink>
     </MudAppBar>
     <MudDrawer id="nav-drawer" @bind-Open="_navOpen" Variant="DrawerVariant.Responsive" ClipMode="DrawerClipMode.Always" Elevation="2">
         <NavMenu />
@@ -95,8 +95,6 @@
 </div>
 
 @code {
-    [Inject] private IOptions<LinksOptions> LinkOptions { get; set; }
-
     private bool _navOpen = true;
     private bool _feedOpen = true;
 
@@ -117,6 +115,12 @@
     private void ToggleNavDrawer()
     {
         _navOpen = !_navOpen;
+    }
+
+    private void NavigateTo(SearchItem? item)
+    {
+        if (item is not null)
+            Nav.NavigateTo(item.PageUrl);
     }
 
     private async Task ToggleTheme()

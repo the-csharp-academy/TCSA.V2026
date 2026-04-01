@@ -1,4 +1,3 @@
-using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using TCSA.V2026.Data;
 using TCSA.V2026.Data.Enums;
@@ -18,6 +17,7 @@ public interface IUserService
     Task<BaseResponse> DeleteAccount(ApplicationUser user);
     Task<ApplicationUser?> GetUserByIdWithShowcaseItems(string? userid);
     Task<List<ApplicationUser>> GetRecentlyJoinedUsers(int count);
+    Task<BaseResponse> AcknowledgeBeltNotification(string userId);
 }
 
 public class UserService : IUserService
@@ -111,6 +111,7 @@ public class UserService : IUserService
                 dbUser.LinkedInUrl = user.LinkedInUrl;
                 dbUser.Country = user.Country;
                 dbUser.CodeWarsUsername = user.CodeWarsUsername;
+                dbUser.LeetCodeUsername = user.LeetCodeUsername;
 
                 await context.SaveChangesAsync();
 
@@ -267,6 +268,28 @@ public class UserService : IUserService
         {
             _logger.LogError(ex, "Failed to retrieve GetRecentlyJoinedUsers");
             return new List<ApplicationUser>();
+        }
+    }
+
+    public async Task<BaseResponse> AcknowledgeBeltNotification(string userId)
+    {
+        try
+        {
+            using (var context = _factory.CreateDbContext())
+            {
+                var user = await context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+                if (user != null && user.HasPendingBeltNotification)
+                {
+                    user.HasPendingBeltNotification = false;
+                    await context.SaveChangesAsync();
+                }
+            }
+
+            return new BaseResponse { Status = ResponseStatus.Success };
+        }
+        catch (Exception ex)
+        {
+            return new BaseResponse { Status = ResponseStatus.Fail, Message = ex.Message };
         }
     }
 }

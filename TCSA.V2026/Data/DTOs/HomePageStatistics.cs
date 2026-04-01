@@ -5,5 +5,6 @@ public record HomePageStatistics(
     int CurrentYearUsers,
     int AllReviewedProjects,
     int CurrentYearReviewedProjects,
-    int CurrentYear
+    int CurrentYear,
+    TimeSpan AverageReviewTime
 );

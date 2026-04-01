@@ -1,11 +1,12 @@
-﻿using Moq;
+using Moq;
+using TCSA.V2026.Data.DTOs;
 using TCSA.V2026.Data.Enums;
 using TCSA.V2026.Data.Models;
-using TCSA.V2026.Services;
+using TCSA.V2026.Services.Challenges;
 
 namespace TCSA.V2026.IntegrationTests;
 
-public class CodeWarsServiceTests: IntegrationTestsBase
+public class CodeWarsServiceTests : IntegrationTestsBase
 {
     private CodewarsService _service;
     private Mock<IHttpClientFactory> _httpClientFactoryMock;
@@ -47,7 +48,7 @@ public class CodeWarsServiceTests: IntegrationTestsBase
             await seedContext.SaveChangesAsync();
         }
 
-        await _service.MarkChallengeAsComplete(1, "user1");
+        await _service.MarkChallengeAsCompleted(new MarkChallengeCompletedRequest(1, "user1"));
 
         using var assertContext = DbContextFactory.CreateDbContext();
         var user = assertContext.AspNetUsers

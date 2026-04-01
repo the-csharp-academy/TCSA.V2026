@@ -22,4 +22,12 @@ public static class TimeSpanFormatter
 
         return formattedDuration;
     }
+
+    public static string FormatReviewTime(TimeSpan time)
+    {
+        if (time <= TimeSpan.Zero)
+            return "N/A";
+
+        return time.Humanize(precision: 1);
+    }
 }

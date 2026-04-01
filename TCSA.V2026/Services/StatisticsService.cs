@@ -1,6 +1,8 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using TCSA.V2026.Data;
 using TCSA.V2026.Data.DTOs;
+using TCSA.V2026.Data.Models;
+using TCSA.V2026.Helpers;
 
 namespace TCSA.V2026.Services;
 
@@ -20,7 +22,10 @@ public class StatisticsService : IStatisticsService
 
     public async Task<HomePageStatistics> GetHomePageStatisticsAsync()
     {
-        var currentYear = DateTime.UtcNow.Year;
+        var now = DateTimeOffset.UtcNow;
+        var currentYear = now.Year;
+        var thirtyDaysAgo = now.AddDays(-30);
+
         try
         {
             using var context = _factory.CreateDbContext();
@@ -47,17 +52,34 @@ public class StatisticsService : IStatisticsService
                 })
                 .SingleOrDefaultAsync();
 
+            var reviewTimeProjects = await context.DashboardProjects
+                .AsNoTracking()
+                .Where(dp =>
+                    (dp.IsCompleted && dp.DateCompleted.HasValue && dp.DateCompleted.Value >= thirtyDaysAgo)
+                    || dp.IsPendingReview)
+                .Select(dp => new DashboardProject
+                {
+                    IsCompleted = dp.IsCompleted,
+                    IsPendingReview = dp.IsPendingReview,
+                    DateCompleted = dp.DateCompleted,
+                    DateSubmitted = dp.DateSubmitted
+                })
+                .ToListAsync();
+
+            var averageReviewTime = StatisticsHelper.CalculateAverageReviewTime(reviewTimeProjects, now);
+
             return new HomePageStatistics(
                 userStats?.AllUsers ?? 0,
                 userStats?.CurrentYearUsers ?? 0,
                 reviewStats?.AllReviewedProjects ?? 0,
                 reviewStats?.CurrentYearReviewedProjects ?? 0,
-                currentYear
+                currentYear,
+                averageReviewTime
             );
         }
         catch (Exception)
         {
-            return new HomePageStatistics(0, 0, 0, 0, currentYear);
+            return new HomePageStatistics(0, 0, 0, 0, currentYear, TimeSpan.Zero);
         }
     }
 }

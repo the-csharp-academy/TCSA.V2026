@@ -12,54 +12,129 @@
 
 @rendermode @(new InteractiveServerRenderMode(prerender: false))
 
-<AdminToolBar Count="FilteredAdminPendingProjects?.Count()"></AdminToolBar>
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="admin-pending-page py-6">
+    <AdminToolBar Count="FilteredAdminPendingProjects?.Count()"></AdminToolBar>
 
-@if (IsLoading) 
-{
-    <MudProgressCircular Color="Color.Default" Indeterminate="true" />
-} 
-else 
-{
-    <MudPaper Class="pa-4 mb-5" Elevation="4">
-        <MudCheckBox @bind-Value="ShowAdvancedProjects" Label="Show advanced projects" Class="mb-2" />
-        <MudCheckBox @bind-Value="ShowUntouchedProjects" Label="Show untouched projects only" Class="mb-2" />
-        <MudSelect T="string" Label="Filter by Project" @bind-Value="SelectedProject" Class="my-2" Dense="true" Clearable="true">
-            <MudSelectItem T="string" Value="null">All</MudSelectItem>
-            @foreach (var p in ProjectHelper.GetProjects())
-            {
-                <MudSelectItem T="string" Value="p.Title">@p.Title</MudSelectItem>
-            }
+    <MudPaper Class="pa-6 mt-3 pending-hero" Elevation="4">
+        <MudText Typo="Typo.h4" Class="mb-2">Pending Reviews Board</MudText>
+        <MudText Typo="Typo.body1" Class="text-secondary mb-4">
+            Prioritize review queue, spot untouched submissions, and drill into user details fast.
+        </MudText>
 
-        </MudSelect>
-        <MudDataGrid Items="@FilteredAdminPendingProjects" RowStyle="GetRowStyle">
-            <Columns>
-                <PropertyColumn Property="x => x.DateSubmitted" Title="DateTime" />
-                <TemplateColumn Title="DateTime">
-                    <CellTemplate>
-                        <MudText Style="@(context.Item.DateChangesRequested?.Contains("01-Jan") == false ? "color:red;" : null)">
-                            @context.Item.DateChangesRequested
-                        </MudText>
-                    </CellTemplate>
-                </TemplateColumn>
-                <PropertyColumn Property="x => x.ReviewerName" Title="Changes" />
-                <PropertyColumn Property="x => x.ProjectName" Title="Name" />
-                <PropertyColumn Property="x => x.UserName" Title="Username" />
-                <TemplateColumn CellClass="d-flex justify-end">
-                    <CellTemplate>
-                        <MudStack Row>
-                            <MudButton Size="@Size.Small"
-                            Variant="@Variant.Filled"
-                            Color="@Color.Primary"
-                            OnClick="@(() => NavigateToDetails(context.Item.AppUserId))">
-                                Details
-                            </MudButton>
-                        </MudStack>
-                    </CellTemplate>
-                </TemplateColumn>
-            </Columns>
-        </MudDataGrid>
+        <div class="pending-stats-grid">
+            <MudPaper Class="pending-stat-box" Elevation="1">
+                <MudText Typo="Typo.overline">Pending</MudText>
+                <MudText Typo="Typo.h5">@TotalPending</MudText>
+            </MudPaper>
+            <MudPaper Class="pending-stat-box" Elevation="1">
+                <MudText Typo="Typo.overline">Untouched</MudText>
+                <MudText Typo="Typo.h5">@UntouchedCount</MudText>
+            </MudPaper>
+            <MudPaper Class="pending-stat-box" Elevation="1">
+                <MudText Typo="Typo.overline">Advanced</MudText>
+                <MudText Typo="Typo.h5">@AdvancedCount</MudText>
+            </MudPaper>
+            <MudPaper Class="pending-stat-box" Elevation="1">
+                <MudText Typo="Typo.overline">Visible</MudText>
+                <MudText Typo="Typo.h5">@(FilteredAdminPendingProjects?.Count ?? 0)</MudText>
+            </MudPaper>
+        </div>
     </MudPaper>
-}
+
+    @if (IsLoading)
+    {
+        <div class="loading-state mt-6">
+            <MudProgressCircular Color="Color.Primary" Indeterminate="true" Size="Size.Large" />
+        </div>
+    }
+    else
+    {
+        <MudPaper Class="pa-4 mb-5 mt-4 pending-filter-panel" Elevation="3">
+            <MudGrid Spacing="2" AlignItems="AlignItems.Center">
+                <MudItem xs="12" md="4">
+                    <MudCheckBox @bind-Value="ShowAdvancedProjects" Label="Hide advanced projects" />
+                </MudItem>
+                <MudItem xs="12" md="4">
+                    <MudCheckBox @bind-Value="ShowUntouchedProjects" Label="Show untouched projects only" />
+                </MudItem>
+                <MudItem xs="12" md="4">
+                    <MudSelect T="string" Label="Filter by project" @bind-Value="SelectedProject" Dense="true" Clearable="true">
+                        <MudSelectItem T="string" Value="@((string?)null)">All</MudSelectItem>
+                        @foreach (var p in ProjectHelper.GetProjects())
+                        {
+                            <MudSelectItem T="string" Value="@p.Title">@p.Title</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+            </MudGrid>
+        </MudPaper>
+
+        @if (FilteredAdminPendingProjects is null || FilteredAdminPendingProjects.Count == 0)
+        {
+            <MudPaper Class="pa-8 mt-4 d-flex justify-center align-center flex-column empty-state" Elevation="2">
+                <MudIcon Icon="@Icons.Material.Filled.DoneAll" Size="Size.Large" Color="Color.Success" />
+                <MudText Typo="Typo.h6" Class="mt-2">No pending items match current filters</MudText>
+                <MudText Typo="Typo.body2" Class="text-secondary">Try changing filters or include advanced projects.</MudText>
+            </MudPaper>
+        }
+        else
+        {
+            <MudPaper Class="pa-2 mt-4 pending-grid-shell" Elevation="3">
+                <MudDataGrid T="AdminPendingDisplay"
+                             Items="@FilteredAdminPendingProjects"
+                             Dense="true"
+                             Hover="true"
+                             Striped="true"
+                             SortMode="SortMode.Multiple">
+                    <Columns>
+                        <PropertyColumn Property="x => x.DateSubmitted" Title="Submitted" />
+
+                        <TemplateColumn Title="Changes Requested">
+                            <CellTemplate>
+                                @if (IsUntouched(context.Item))
+                                {
+                                    <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined" Color="Color.Warning" Icon="@Icons.Material.Filled.Schedule">
+                                        Untouched
+                                    </MudChip>
+                                }
+                                else
+                                {
+                                    <MudChip T="string" Size="Size.Small" Variant="Variant.Filled" Color="Color.Error" Icon="@Icons.Material.Filled.EditCalendar">
+                                        @context.Item.DateChangesRequested
+                                    </MudChip>
+                                }
+                            </CellTemplate>
+                        </TemplateColumn>
+
+                        <PropertyColumn Property="x => x.ReviewerName" Title="Reviewer" />
+
+                        <TemplateColumn Title="Project">
+                            <CellTemplate>
+                                <MudChip T="string" Size="Size.Small" Variant="Variant.Text" Color="@(IsAdvancedProject(context.Item.ProjectName) ? Color.Secondary : Color.Primary)">
+                                    @context.Item.ProjectName
+                                </MudChip>
+                            </CellTemplate>
+                        </TemplateColumn>
+
+                        <PropertyColumn Property="x => x.UserName" Title="Username" />
+
+                        <TemplateColumn CellClass="d-flex justify-end" Title="Actions">
+                            <CellTemplate>
+                                <MudButton Size="@Size.Small"
+                                           Variant="@Variant.Outlined"
+                                           Color="@Color.Primary"
+                                           StartIcon="@Icons.Material.Filled.ManageSearch"
+                                           OnClick="@(() => NavigateToDetails(context.Item.AppUserId))">
+                                    Open
+                                </MudButton>
+                            </CellTemplate>
+                        </TemplateColumn>
+                    </Columns>
+                </MudDataGrid>
+            </MudPaper>
+        }
+    }
+</MudContainer>
 
 @code {
     [Inject] protected IAdminService AdminService { get; set; }
@@ -127,6 +202,9 @@ else
     }
 
     private bool IsLoading = true;
+    private int TotalPending => AdminPendingProjects?.Count ?? 0;
+    private int UntouchedCount => AdminPendingProjects?.Count(x => IsUntouched(x)) ?? 0;
+    private int AdvancedCount => AdminPendingProjects?.Count(x => IsAdvancedProject(x.ProjectName)) ?? 0;
 
     protected override async Task OnInitializedAsync() 
     {
@@ -163,5 +241,15 @@ else
     {
         Navigation.NavigateTo($"/admin/{userId}");
         return Task.CompletedTask;
+    }
+
+    private bool IsUntouched(AdminPendingDisplay item)
+    {
+        return item.DateChangesRequested?.Contains("01-Jan") == true;
+    }
+
+    private bool IsAdvancedProject(string? projectName)
+    {
+        return projectName is not null && AdvancedProjectNames.Contains(projectName);
     }
 }
