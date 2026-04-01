@@ -1,0 +1,104 @@
+﻿@page "/dashboard/statistics"
+@using System.Security.Claims
+@using TCSA.V2026.Data.DTOs
+@using TCSA.V2026.Data.Models
+@using TCSA.V2026.Helpers
+@using TCSA.V2026.Services
+
+<PageTitle>Statistics</PageTitle>
+
+<MudContainer Class="mt-10">
+    <div class="card-item">
+        <MudPaper Class="px-4 py-2 d-flex flex-column align-center justify-center"
+                  Style="max-width: 240px; width: 100%; margin-left:auto; margin-right:auto;"
+                  Elevation="4">
+            <h2 class="mud-typography-h4 mud-primary-text mb-1">@numberOfCountries</h2>
+            <div class="d-flex gap-1 align-center">
+                <MudText Typo="Typo.body2" Style="font-weight: bold">Countries</MudText>
+            </div>
+        </MudPaper>
+    </div>
+</MudContainer>
+
+<MudContainer>
+
+    @if (User != null)
+    {
+        <DashboardToolBar User=@User></DashboardToolBar>
+    }
+
+     @if (IsLoading)
+    {
+        <MudProgressCircular Color="Color.Default" Indeterminate="true" />
+    }
+    else
+    {
+        <MudDataGrid Class="mt-2" Dense="true" Items="@countries" Breakpoint="Breakpoint.None">
+            <Columns>
+                <TemplateColumn Title="Pos" HeaderStyle="font-weight:bold" HeaderClass="pa-2 pa-md-3">
+                    <CellTemplate>
+                        <MudText Style="font-weight:bold" Typo="Typo.subtitle1">@context.Item.Ranking</MudText>
+                    </CellTemplate>
+                </TemplateColumn>
+                <TemplateColumn Title="Country" HeaderStyle="font-weight:bold" HeaderClass="pa-2 pa-md-3">
+                    <CellTemplate>
+                        <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center">
+                            <MudImage ObjectFit="ObjectFit.Contain" Width="30" Src="@FlagHelper.GetFlag(context.Item.CountryName)" Alt="..." />
+                            <MudText Class="d-none d-sm-inline" Style="font-weight:bold" Typo="Typo.subtitle1">@context.Item.CountryName</MudText>
+                        </MudStack>
+                    </CellTemplate>
+                </TemplateColumn>
+                <TemplateColumn Title="Users" HeaderStyle="font-weight:bold" HeaderClass="pa-2 pa-md-3">
+                    <CellTemplate>
+                        <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center">
+                            <MudText Style="font-weight:bold" Typo="Typo.subtitle2">@context.Item.UsersCount</MudText>
+                        </MudStack>
+                    </CellTemplate>
+                </TemplateColumn>
+            </Columns>
+        </MudDataGrid>
+    }
+
+</MudContainer>
+
+@code 
+{
+
+    [Inject] private AuthenticationStateProvider AuthenticationState { get; set; }
+    [Inject] private NavigationManager NavigationManager { get; set; }
+    [Inject] private IUserService UserService { get; set; }
+    [Inject] private ILeaderboardService LeaderboardService { get; set; }
+
+    private List<AppStatisticsCountries>? countries { get; set; } = null;
+
+
+    private ApplicationUser User;
+    private int numberOfCountries = 0;
+    private string UserId = string.Empty;
+    private TimeSpan LoadTime = TimeSpan.Zero;
+    private bool IsLoading = true;
+    private int Ranking;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var startTime = DateTime.UtcNow;
+        var AuthSate = await AuthenticationState.GetAuthenticationStateAsync();
+
+        if (!AuthSate.User.Identity.IsAuthenticated)
+        {
+            NavigationManager.NavigateTo("Account/Login");
+        }
+
+        var claims = AuthSate.User;
+        UserId = claims.FindFirstValue(ClaimTypes.NameIdentifier);
+        User = await UserService.GetUserById(UserId);
+
+        var incomingCountries = await LeaderboardService.GetCountriesForAppStatistics();
+        countries = incomingCountries.ToList();
+
+        numberOfCountries = await LeaderboardService.GetNumberCountries();
+
+        LoadTime = DateTime.UtcNow - startTime;
+        IsLoading = false;
+    }
+}
