@@ -21,6 +21,7 @@ public class CommunityTests : BunitContext
     private readonly Mock<IProjectService> _projectServiceMock = new();
     private readonly Mock<IUserService> _userServiceMock = new();
     private readonly Mock<ICommunityService> _communityServiceMock = new();
+    private readonly Mock<IDialogService> _dialogServiceMock = new();
 
     private const string TestUserId = "test-user-id";
 
@@ -62,6 +63,7 @@ public class CommunityTests : BunitContext
         Services.AddSingleton(_projectServiceMock.Object);
         Services.AddSingleton(_userServiceMock.Object);
         Services.AddSingleton(_communityServiceMock.Object);
+        Services.AddSingleton(_dialogServiceMock.Object);
         Services.AddMudServices();
     }
 
@@ -112,15 +114,12 @@ public class CommunityTests : BunitContext
     {
         // Arrange
         var tcs = new TaskCompletionSource<IDialogReference>();
-        var dialogServiceMock = new Mock<IDialogService>();
-        dialogServiceMock
+        _dialogServiceMock
             .Setup(s => s.ShowAsync<TCSASubmitIssueDialog>(
                 It.IsAny<string>(),
                 It.IsAny<DialogParameters<TCSASubmitIssueDialog>>(),
                 It.IsAny<DialogOptions>()))
             .Returns(tcs.Task);
-
-        Services.AddSingleton(dialogServiceMock.Object);
 
         AuthorizeAs(TestUserId);
         Render<MudPopoverProvider>();
@@ -143,7 +142,7 @@ public class CommunityTests : BunitContext
         await cut.InvokeAsync(() => { });
 
         // Assert
-        dialogServiceMock.Verify(
+        _dialogServiceMock.Verify(
             s => s.ShowAsync<TCSASubmitIssueDialog>(
                 It.IsAny<string>(),
                 It.IsAny<DialogParameters<TCSASubmitIssueDialog>>(),
