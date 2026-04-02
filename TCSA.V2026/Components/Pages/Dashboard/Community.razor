@@ -26,6 +26,7 @@
         <MudButton Class="mt-3 ml-5 mr-5"
         Size="@Size.Medium"
         Variant="@Variant.Filled" Color="@Color.Success"
+        Disabled="@_isProcessing"
         OnClick="@(() => SubmitIssueDialog())">
             Create Issue
         </MudButton>
@@ -51,26 +52,28 @@
                             }
                             @if (!User.DashboardProjects.Any(d => d.ProjectId == context.Item.ProjectId))
                             {
-                                <MudButton 
-                                Size="@Size.Small" 
-                                Variant="@Variant.Filled" 
+                                <MudButton
+                                Size="@Size.Small"
+                                Variant="@Variant.Filled"
                                 Color="@Color.Success"
+                                Disabled="@_processingIds.Contains(context.Item.Id)"
                                 OnClick="@(() => AssignMyself(context.Item))"
                                 StartIcon="fas fa-hand-point-up">
-                                    Pick 
+                                    Pick
                                 </MudButton>
-                            } 
-                            else 
+                            }
+                            else
                             {
                                 if (User.DashboardProjects.FirstOrDefault(d => d.ProjectId == context.Item.ProjectId).IsPendingReview)
                                 {
                                     <MudChip T="string" Variant="Variant.Text" Color="Color.Warning">Pending Review</MudChip>
-                                } 
-                                else 
+                                }
+                                else
                                 {
-                                    <MudButton 
+                                    <MudButton
                                     Size="@Size.Small"
                                     Variant="@Variant.Filled" Color="@Color.Primary"
+                                    Disabled="@_isProcessing"
                                     OnClick="@(() => SubmitToReviewDialog(context.Item.ProjectId))"
                                     EndIcon="@Icons.Material.Filled.Send">
                                         Submit PR
@@ -101,6 +104,8 @@
     private List<DashboardProject> UserProjects = new();
 
     private bool IsLoading = true;
+    private bool _isProcessing = false;
+    private HashSet<int> _processingIds = new();
     private string UserId = string.Empty;
 
     protected override async Task OnInitializedAsync()
@@ -124,54 +129,80 @@
 
     private async Task SubmitToReviewDialog(int projectId)
     {
-        var options = new DialogOptions { CloseOnEscapeKey = true };
-        var parameters = new DialogParameters<TCSASubmitProjectDialog> { { x => x.ProjectId, projectId }, { x => x.IsIssue, true }, { x => x.User, User} };
-        var dialog = await DialogService.ShowAsync<TCSASubmitProjectDialog>("Submit Issue", parameters, options);
-        var result = await dialog.Result;
+        _isProcessing = true;
 
-        if (!result.Canceled)
+        try
         {
-            Snackbar.Add("Issue submitted successfully", Severity.Success);
-            User = await UserService.GetUserById(UserId);
-            IssuesToShow = await CommunityService.GetAvailableIssuesForCommunityPage(UserId);
+            var options = new DialogOptions { CloseOnEscapeKey = true };
+            var parameters = new DialogParameters<TCSASubmitProjectDialog> { { x => x.ProjectId, projectId }, { x => x.IsIssue, true }, { x => x.User, User} };
+            var dialog = await DialogService.ShowAsync<TCSASubmitProjectDialog>("Submit Issue", parameters, options);
+            var result = await dialog.Result;
+
+            if (!result.Canceled)
+            {
+                Snackbar.Add("Issue submitted successfully", Severity.Success);
+                User = await UserService.GetUserById(UserId);
+                IssuesToShow = await CommunityService.GetAvailableIssuesForCommunityPage(UserId);
+            }
+        }
+        finally
+        {
+            _isProcessing = false;
         }
     }
 
     private async Task SubmitIssueDialog()
     {
-        var options = new DialogOptions { CloseOnEscapeKey = true };
-        var parameters = new DialogParameters<TCSASubmitIssueDialog>{ { x => x.UserId, UserId } };
+        _isProcessing = true;
 
-
-        var dialog = await DialogService.ShowAsync<TCSASubmitIssueDialog>("Submit Issue", parameters, options);
-        var result = await dialog.Result;
-
-        if (!result.Canceled)
+        try
         {
-            Snackbar.Add("Issue created successfully", Severity.Success);
-            User = await UserService.GetUserById(UserId);
-            IssuesToShow = await CommunityService.GetAvailableIssuesForCommunityPage(UserId);
+            var options = new DialogOptions { CloseOnEscapeKey = true };
+            var parameters = new DialogParameters<TCSASubmitIssueDialog>{ { x => x.UserId, UserId } };
+
+            var dialog = await DialogService.ShowAsync<TCSASubmitIssueDialog>("Submit Issue", parameters, options);
+            var result = await dialog.Result;
+
+            if (!result.Canceled)
+            {
+                Snackbar.Add("Issue created successfully", Severity.Success);
+                User = await UserService.GetUserById(UserId);
+                IssuesToShow = await CommunityService.GetAvailableIssuesForCommunityPage(UserId);
+            }
+        }
+        finally
+        {
+            _isProcessing = false;
         }
     }
 
     private async Task AssignMyself(CommunityIssue issue)
     {
-        var result = await CommunityService.AssignUserToIssue(UserId, issue);
+        if (!_processingIds.Add(issue.Id)) return;
 
-        if (result.Status == ResponseStatus.Success)
+        try
         {
-            Snackbar.Add("Assignment Successful", Severity.Success);
-            User = await UserService.GetUserById(UserId);
-        }
-        else
-        {
-            Snackbar.Add($"Error: {result.Message}", Severity.Error);
-        }
+            var result = await CommunityService.AssignUserToIssue(UserId, issue);
 
-        IssuesToShow = await CommunityService.GetAvailableIssuesForCommunityPage(UserId);
+            if (result.Status == ResponseStatus.Success)
+            {
+                Snackbar.Add("Assignment Successful", Severity.Success);
+                User = await UserService.GetUserById(UserId);
+            }
+            else
+            {
+                Snackbar.Add($"Error: {result.Message}", Severity.Error);
+            }
+
+            IssuesToShow = await CommunityService.GetAvailableIssuesForCommunityPage(UserId);
+        }
+        finally
+        {
+            _processingIds.Remove(issue.Id);
+        }
     }
 
-    private string GetProjectName(int commProjectId) 
+    private string GetProjectName(int commProjectId)
     {
         return commProjectId switch
         {
