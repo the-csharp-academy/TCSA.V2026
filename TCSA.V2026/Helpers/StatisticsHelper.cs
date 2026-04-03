@@ -13,10 +13,7 @@ public static class StatisticsHelper
 
         foreach (var project in projects)
         {
-            if (project.IsCompleted && project.DateCompleted.HasValue)
-                durations.Add(project.DateCompleted.Value - project.DateSubmitted);
-            else if (project.IsPendingReview)
-                durations.Add(now - project.DateSubmitted);
+            durations.Add(now - project.DateSubmitted);
         }
 
         if (durations.Count == 0)

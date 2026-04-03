@@ -54,9 +54,7 @@ public class StatisticsService : IStatisticsService
 
             var reviewTimeProjects = await context.DashboardProjects
                 .AsNoTracking()
-                .Where(dp =>
-                    (dp.IsCompleted && dp.DateCompleted.HasValue && dp.DateCompleted.Value >= thirtyDaysAgo)
-                    || dp.IsPendingReview)
+                .Where(dp => dp.IsPendingReview)
                 .Select(dp => new DashboardProject
                 {
                     IsCompleted = dp.IsCompleted,

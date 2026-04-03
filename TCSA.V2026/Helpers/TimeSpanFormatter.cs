@@ -28,6 +28,17 @@ public static class TimeSpanFormatter
         if (time <= TimeSpan.Zero)
             return "N/A";
 
-        return time.Humanize(precision: 1);
+        var totalDays = (int)time.TotalDays;
+
+        if (totalDays > 0)
+            return "day".ToQuantity(totalDays);
+
+        if (time.Hours > 0)
+            return "hour".ToQuantity(time.Hours);
+
+        if (time.Minutes > 0)
+            return "minute".ToQuantity(time.Minutes);
+
+        return "just now";
     }
 }
