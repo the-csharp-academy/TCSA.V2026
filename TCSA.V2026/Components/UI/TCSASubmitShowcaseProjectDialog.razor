@@ -38,7 +38,7 @@
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>
-        <MudButton Color="Color.Error" OnClick="Submit">Submit</MudButton>
+        <MudButton Disabled="@_isSubmitting" Color="Color.Error" OnClick="Submit">Submit</MudButton>
     </DialogActions>
 </MudDialog>
 
@@ -58,6 +58,7 @@
     private bool HasGithubUrlError;
     private bool HasYoutubeUrlError;
     private bool HasProjectError;
+    private bool _isSubmitting = false;
 
     private async Task Submit()
     {
@@ -68,18 +69,27 @@
         if (HasGithubUrlError || HasYoutubeUrlError || HasProjectError)
             return;
 
-        var newItem = new ShowcaseItemDTO
+        _isSubmitting = true;
+
+        try
         {
+            var newItem = new ShowcaseItemDTO
+            {
                 ApplicationUserId = CurrentUser.Id,
                 DashboardProjectId = CurrentUser.DashboardProjects.First(x => x.ProjectId == ProjectId).Id,
                 ProjectId = ProjectId,
                 VideoUrl = VideoUrl != null ? GalleryHelper.GalleryVideoUrlFormatter(VideoUrl) : string.Empty,
                 GithubUrl = GithubUrl
-        };
+            };
 
-        var result = await GalleryService.AddItem(newItem);
+            var result = await GalleryService.AddItem(newItem);
 
-        MudDialog.Close(DialogResult.Ok(result.Status));
+            MudDialog.Close(DialogResult.Ok(result.Status));
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
     }
 
     private void ValidateVideoUrl()

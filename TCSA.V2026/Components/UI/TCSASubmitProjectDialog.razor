@@ -22,7 +22,7 @@
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>
-        <MudButton Disabled="HasError" Color="Color.Error" OnClick="Submit">Submit</MudButton>
+        <MudButton Disabled="@(HasError || _isSubmitting)" Color="Color.Error" OnClick="Submit">Submit</MudButton>
     </DialogActions>
 </MudDialog>
 
@@ -38,6 +38,7 @@
     public string GithubUrl = string.Empty;
     private string ErrorText;
     private bool HasError;
+    private bool _isSubmitting = false;
 
     private string RequiredPrefix = "https://github.com/TheCSharpAcademy/CodeReviews";
 
@@ -78,23 +79,32 @@
         }
     }
 
-    private async Task Submit() 
+    private async Task Submit()
     {
-        ValidateUrl(); 
+        ValidateUrl();
         if (HasError)
             return;
 
-        var result = new BaseResponse();
-        if (IsIssue)
-        {
-            result = await CommunityService.SubmitIssueToReview(ProjectId, GithubUrl);
-        } 
-        else
-        {
-            result = await ProjectService.PostArticle(ProjectId, User.Id, GithubUrl, false, IsUpdate);
-        }
+        _isSubmitting = true;
 
-        MudDialog.Close(DialogResult.Ok(result.Status));
+        try
+        {
+            var result = new BaseResponse();
+            if (IsIssue)
+            {
+                result = await CommunityService.SubmitIssueToReview(ProjectId, GithubUrl);
+            }
+            else
+            {
+                result = await ProjectService.PostArticle(ProjectId, User.Id, GithubUrl, false, IsUpdate);
+            }
+
+            MudDialog.Close(DialogResult.Ok(result.Status));
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
     }
     
     private void Cancel() => MudDialog.Cancel();
