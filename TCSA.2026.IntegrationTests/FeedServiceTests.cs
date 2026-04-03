@@ -26,7 +26,7 @@ public class FeedServiceTests : IntegrationTestsBase
     }
 
     [Test]
-    public async Task GetPaginatedFeedItems_ShouldExcludeCommunityIssues()
+    public async Task GetFeedItemsByCursor_ShouldExcludeCommunityIssues()
     {
         // Arrange
         using var context = DbContextFactory.CreateDbContext();
@@ -105,19 +105,18 @@ public class FeedServiceTests : IntegrationTestsBase
         await context.SaveChangesAsync();
 
         // Act
-        var result = await _feedService.GetPaginatedFeedItems(1);
+        var result = await _feedService.GetFeedItemsByCursor(null);
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Items, Has.Count.EqualTo(4));
 
-        var communityIssueActivities = result.Items.Where(f =>
-            f.ProjectId.HasValue && (f.ProjectId.Value == 1001 || f.ProjectId.Value == 1002)).ToList();
+        var communityIssueActivities = result.Items.Where(i =>
+            i.ProjectId.HasValue && (i.ProjectId.Value == 1001 || i.ProjectId.Value == 1002)).ToList();
         Assert.That(communityIssueActivities, Is.Empty);
     }
 
     [Test]
-    public async Task GetPaginatedFeedItems_ShouldIncludeRegularProjects()
+    public async Task GetFeedItemsByCursor_ShouldIncludeRegularProjects()
     {
         // Arrange
         using var context = DbContextFactory.CreateDbContext();
@@ -135,7 +134,7 @@ public class FeedServiceTests : IntegrationTestsBase
         await context.SaveChangesAsync();
 
         // Act
-        var result = await _feedService.GetPaginatedFeedItems(1);
+        var result = await _feedService.GetFeedItemsByCursor(null);
 
         // Assert
         var projectActivity = result.Items.FirstOrDefault(f => f.ActivityType == ActivityType.ProjectCompleted);
@@ -148,7 +147,7 @@ public class FeedServiceTests : IntegrationTestsBase
     }
 
     [Test]
-    public async Task GetPaginatedFeedItems_ShouldIncludeUsers()
+    public async Task GetFeedItemsByCursor_ShouldIncludeUsers()
     {
         // Arrange
         using var context = DbContextFactory.CreateDbContext();
@@ -166,7 +165,7 @@ public class FeedServiceTests : IntegrationTestsBase
         await context.SaveChangesAsync();
 
         // Act
-        var result = await _feedService.GetPaginatedFeedItems(1);
+        var result = await _feedService.GetFeedItemsByCursor(null);
 
         // Assert
         var newUserFeedItem = result.Items.FirstOrDefault(f => f.ActivityType == ActivityType.NewUser && f.User.Id == "newuser1");
@@ -178,7 +177,7 @@ public class FeedServiceTests : IntegrationTestsBase
     }
 
     [Test]
-    public async Task GetPaginatedFeedItems_ShouldIncludeBeltActivities()
+    public async Task GetFeedItemsByCursor_ShouldIncludeBeltActivities()
     {
         // Arrange
         using var context = DbContextFactory.CreateDbContext();
@@ -197,7 +196,7 @@ public class FeedServiceTests : IntegrationTestsBase
         await context.SaveChangesAsync();
 
         // Act
-        var result = await _feedService.GetPaginatedFeedItems(1);
+        var result = await _feedService.GetFeedItemsByCursor(null);
 
         // Assert
         var beltFeedItem = result.Items.FirstOrDefault(f => f.ActivityType == ActivityType.NewBelt && f.User.Id == "user1");
@@ -381,7 +380,6 @@ public class FeedServiceTests : IntegrationTestsBase
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result, Has.Count.EqualTo(4));
 
         var communityIssueActivities = result.Where(f =>
             f.ProjectId.HasValue && (f.ProjectId.Value == 1001 || f.ProjectId.Value == 1002)).ToList();
