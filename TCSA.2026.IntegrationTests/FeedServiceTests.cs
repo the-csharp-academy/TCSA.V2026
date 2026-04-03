@@ -2,10 +2,10 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using TCSA.V2026.Data.Enums;
 using TCSA.V2026.Data.Models;
-using TCSA.V2026.IntegrationTests;
 using TCSA.V2026.Services;
 
-namespace TCSA._2026.IntegrationTests;
+namespace TCSA.V2026.IntegrationTests;
+
 public class FeedServiceTests : IntegrationTestsBase
 {
     private FeedService _feedService;
