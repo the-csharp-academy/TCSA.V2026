@@ -60,11 +60,12 @@ public class CommunityTests : BunitContext
 
         var snackbarMock = new Mock<ISnackbar>();
 
+        Services.AddMudServices();
         Services.AddSingleton(_projectServiceMock.Object);
         Services.AddSingleton(_userServiceMock.Object);
         Services.AddSingleton(_communityServiceMock.Object);
         Services.AddSingleton(_dialogServiceMock.Object);
-        Services.AddMudServices();
+        Services.AddSingleton(snackbarMock.Object);
     }
 
     private void AuthorizeAs(string userId)
