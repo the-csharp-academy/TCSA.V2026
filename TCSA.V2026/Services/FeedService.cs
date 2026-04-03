@@ -1,4 +1,3 @@
-using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using TCSA.V2026.Data;
 using TCSA.V2026.Data.Curriculum;
@@ -14,7 +13,7 @@ namespace TCSA.V2026.Services;
 public interface IFeedService
 {
     Task<List<FeedDisplay>> GetRecentFeedItems();
-    Task<PaginatedList<FeedDisplay>> GetPaginatedFeedItems(int pageNumber);
+    Task<CursorPage<FeedDisplay>> GetFeedItemsByCursor(string? cursor);
 }
 
 public class FeedService : IFeedService
@@ -28,14 +27,19 @@ public class FeedService : IFeedService
         _userService = userService;
     }
 
-    public async Task<PaginatedList<FeedDisplay>> GetPaginatedFeedItems(int pageNumber)
+    public async Task<CursorPage<FeedDisplay>> GetFeedItemsByCursor(string? cursor)
     {
         using var context = _factory.CreateDbContext();
+
+        var decoded = FeedCursor.Decode(cursor);
 
         var activitiesQuery = context.UserActivity
             .Include(ua => ua.ApplicationUser)
             .Where(ua => ua.ActivityType == ActivityType.NewBelt || ua.ActivityType == ActivityType.ProjectCompleted)
             .Where(ua => !context.Issues.Any(i => i.ProjectId == ua.ProjectId))
+            .Where(ua => decoded == null ||
+                ua.DateSubmitted < decoded.Date ||
+                (ua.DateSubmitted == decoded.Date && string.Compare(ua.ApplicationUser.Id, decoded.UserId) < 0))
             .Select(ua => new
             {
                 User = ua.ApplicationUser,
@@ -46,6 +50,9 @@ public class FeedService : IFeedService
             });
 
         var usersQuery = context.Users
+            .Where(u => decoded == null ||
+                u.CreatedDate < decoded.Date ||
+                (u.CreatedDate == decoded.Date && string.Compare(u.Id, decoded.UserId) < 0))
             .Select(u => new
             {
                 User = u,
@@ -55,19 +62,20 @@ public class FeedService : IFeedService
                 Date = u.CreatedDate
             });
 
-        var query = activitiesQuery
+        var rows = await activitiesQuery
             .Union(usersQuery)
             .OrderByDescending(f => f.Date)
-            .AsNoTracking();
+            .Take(PagingConstants.FeedPageSize + 1)
+            .AsNoTracking()
+            .ToListAsync();
 
-        var totalItems = await query.CountAsync();
+        var hasMore = rows.Count > PagingConstants.FeedPageSize;
+        if (hasMore)
+        {
+            rows.RemoveAt(rows.Count - 1);
+        }
 
-        var pageRows = await query
-        .Skip((pageNumber - 1) * PagingConstants.FeedPageSize)
-        .Take(PagingConstants.FeedPageSize)
-        .ToListAsync();
-
-        var pagedItems = pageRows
+        var items = rows
             .Select(f => new FeedDisplay
             {
                 ProjectId = f.ProjectId,
@@ -80,7 +88,14 @@ public class FeedService : IFeedService
             })
             .ToList();
 
-        return new PaginatedList<FeedDisplay>(pagedItems, totalItems, pageNumber, PagingConstants.FeedPageSize);
+        string? nextCursor = null;
+        if (hasMore && items.Count > 0)
+        {
+            var lastItem = items[^1];
+            nextCursor = FeedCursor.Encode(lastItem.Date, lastItem.User.Id);
+        }
+
+        return new CursorPage<FeedDisplay> { Items = items, NextCursor = nextCursor };
     }
 
     public async Task<List<FeedDisplay>> GetRecentFeedItems()
