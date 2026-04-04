@@ -143,7 +143,7 @@ public class FeedServiceTests : IntegrationTestsBase
         Assert.That(projectActivity.ProjectIconUrl, Is.Not.Null.And.Not.Empty);
         Assert.That(projectActivity.ProjectName, Is.EqualTo("Calculator"));
         Assert.That(projectActivity.Level, Is.Null);
-        Assert.That(projectActivity.User.Id, Is.EqualTo("user1"));
+        Assert.That(projectActivity.UserId, Is.EqualTo("user1"));
     }
 
     [Test]
@@ -168,9 +168,9 @@ public class FeedServiceTests : IntegrationTestsBase
         var result = await _feedService.GetFeedItemsByCursor(null);
 
         // Assert
-        var newUserFeedItem = result.Items.FirstOrDefault(f => f.ActivityType == ActivityType.NewUser && f.User.Id == "newuser1");
+        var newUserFeedItem = result.Items.FirstOrDefault(f => f.ActivityType == ActivityType.NewUser && f.UserId == "newuser1");
         Assert.That(newUserFeedItem, Is.Not.Null);
-        Assert.That(newUserFeedItem.User.UserName, Is.EqualTo("newuser1"));
+        Assert.That(newUserFeedItem.UserName, Is.EqualTo("newuser1"));
         Assert.That(newUserFeedItem.ProjectName, Is.Null.Or.Empty);
         Assert.That(newUserFeedItem.ProjectIconUrl, Is.Null.Or.Empty);
         Assert.That(newUserFeedItem.Level, Is.Null);
@@ -199,7 +199,7 @@ public class FeedServiceTests : IntegrationTestsBase
         var result = await _feedService.GetFeedItemsByCursor(null);
 
         // Assert
-        var beltFeedItem = result.Items.FirstOrDefault(f => f.ActivityType == ActivityType.NewBelt && f.User.Id == "user1");
+        var beltFeedItem = result.Items.FirstOrDefault(f => f.ActivityType == ActivityType.NewBelt && f.UserId == "user1");
         Assert.That(beltFeedItem, Is.Not.Null);
         Assert.That(beltFeedItem.Level, Is.EqualTo(Level.Blue));
         Assert.That(beltFeedItem.ProjectName, Is.Null.Or.Empty);
@@ -228,9 +228,9 @@ public class FeedServiceTests : IntegrationTestsBase
         var result = await _feedService.GetRecentFeedItems();
 
         // Assert
-        var newUserFeedItem = result.FirstOrDefault(f => f.ActivityType == ActivityType.NewUser && f.User.Id == "recentuser1");
+        var newUserFeedItem = result.FirstOrDefault(f => f.ActivityType == ActivityType.NewUser && f.UserId == "recentuser1");
         Assert.That(newUserFeedItem, Is.Not.Null);
-        Assert.That(newUserFeedItem.User.UserName, Is.EqualTo("recentuser1"));
+        Assert.That(newUserFeedItem.UserName, Is.EqualTo("recentuser1"));
         Assert.That(newUserFeedItem.ProjectName, Is.Null.Or.Empty);
         Assert.That(newUserFeedItem.ProjectIconUrl, Is.Null.Or.Empty);
         Assert.That(newUserFeedItem.Level, Is.Null);
@@ -258,7 +258,7 @@ public class FeedServiceTests : IntegrationTestsBase
         var result = await _feedService.GetRecentFeedItems();
 
         // Assert
-        var beltFeedItem = result.FirstOrDefault(f => f.ActivityType == ActivityType.NewBelt && f.User.Id == "user1");
+        var beltFeedItem = result.FirstOrDefault(f => f.ActivityType == ActivityType.NewBelt && f.UserId == "user1");
         Assert.That(beltFeedItem, Is.Not.Null);
         Assert.That(beltFeedItem.Level, Is.EqualTo(Level.Red));
         Assert.That(beltFeedItem.ProjectName, Is.Null.Or.Empty);
@@ -293,7 +293,7 @@ public class FeedServiceTests : IntegrationTestsBase
         Assert.That(projectActivity.ProjectIconUrl, Is.Not.Null.And.Not.Empty);
         Assert.That(projectActivity.ProjectName, Is.EqualTo("Calculator"));
         Assert.That(projectActivity.Level, Is.Null);
-        Assert.That(projectActivity.User.Id, Is.EqualTo("user1"));
+        Assert.That(projectActivity.UserId, Is.EqualTo("user1"));
     }
 
     [Test]
