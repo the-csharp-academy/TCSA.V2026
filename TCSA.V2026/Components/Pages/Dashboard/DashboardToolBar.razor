@@ -12,7 +12,7 @@
 <MudPaper Elevation="25">
     <MudToolBar Class="mt-5">
         <MudImage Class="mr-3" Src=@($"{FlagHelper.GetFlag(User.Country)}") Width="50"></MudImage>
-        <MudText Class="mr-5" Style="font-weight: 600; font-size:large">@UserDisplayNameHelper.GetDisplayName(User)</MudText>
+        <MudText Class="mr-5" Style="font-weight: 600; font-size:large">@UserDisplayNameHelper.GetDisplayName(User.DisplayName, User.UserName)</MudText>
         <MudImage Class="mr-2" Src=@($"img/belts/{(Level)User.Level}-belt.png") Width="30"></MudImage>
         <MudHidden Breakpoint="Breakpoint.SmAndDown">
             <MudText Class="mr-3" Style="font-weight: 500">@(((Level)User.Level).ToString() + " Belt")</MudText>
