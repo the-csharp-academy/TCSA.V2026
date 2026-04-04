@@ -73,7 +73,7 @@ public class LeaderboardService(IDbContextFactory<ApplicationDbContext> _factory
                     {
                         Id = user.Id,
                         Country = user.Country,
-                        DisplayName = UserDisplayNameHelper.GetDisplayName(user),
+                        DisplayName = UserDisplayNameHelper.GetDisplayName(user.DisplayName, user.UserName),
                         TotalXp = user.ReviewExperiencePoints,
                         ReviewsNumber = user.CodeReviewProjects.Count()
                     };
@@ -133,7 +133,7 @@ public class LeaderboardService(IDbContextFactory<ApplicationDbContext> _factory
                 Id = user.Id,
                 Country = user.Country,
                 Level = user.Level,
-                DisplayName = UserDisplayNameHelper.GetDisplayName(user),
+                DisplayName = UserDisplayNameHelper.GetDisplayName(user.DisplayName, user.UserName),
                 ExperiencePoints = user.ExperiencePoints,
                 Ranking = index
             };
