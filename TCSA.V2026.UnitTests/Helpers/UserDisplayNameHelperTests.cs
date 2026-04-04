@@ -1,5 +1,4 @@
-﻿using TCSA.V2026.Data.Models;
-using TCSA.V2026.Helpers;
+﻿using TCSA.V2026.Helpers;
 
 namespace TCSA.V2026.UnitTests.Helpers;
 
@@ -12,15 +11,8 @@ public class UserDisplayNameHelperTests
     [TestCase("John Doe", null, "John Doe")]
     public void GetDisplayName_ShouldReturnDisplayName(string? displayName, string? userName, string expected)
     {
-        // Arrange
-        var user = new ApplicationUser
-        {
-            DisplayName = displayName,
-            UserName = userName
-        };
-
         // Act
-        string result = UserDisplayNameHelper.GetDisplayName(user);
+        string result = UserDisplayNameHelper.GetDisplayName(displayName, userName);
 
         // Assert
         Assert.That(result, Is.EqualTo(expected));
