@@ -10,7 +10,9 @@ public static class FeedHelper
     {
         return new FeedDisplay
         {
-            User = user,
+            UserId = user.Id,
+            DisplayName = user.DisplayName,
+            UserName = user.UserName,
             ActivityType = ActivityType.NewUser,
             Date = user.CreatedDate
         };
@@ -21,7 +23,9 @@ public static class FeedHelper
         return new FeedDisplay
         {
             ProjectId = activity.ProjectId,
-            User = activity.ApplicationUser,
+            UserId = activity.ApplicationUser.Id,
+            DisplayName = activity.ApplicationUser.DisplayName,
+            UserName = activity.ApplicationUser.UserName,
             ActivityType = activity.ActivityType,
             Date = activity.DateSubmitted,
             Level = activity.Level,
