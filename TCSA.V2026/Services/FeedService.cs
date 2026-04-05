@@ -68,6 +68,7 @@ public class FeedService : IFeedService
         var rows = await activitiesQuery
             .Union(usersQuery)
             .OrderByDescending(f => f.Date)
+            .ThenByDescending(f => f.UserId)
             .Take(PagingConstants.FeedPageSize + 1)
             .AsNoTracking()
             .ToListAsync();
