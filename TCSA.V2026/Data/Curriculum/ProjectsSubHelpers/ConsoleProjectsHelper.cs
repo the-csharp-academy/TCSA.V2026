@@ -749,8 +749,8 @@ public class ConsoleProjectsHelper
                 Resources = new List<string>
                 {
                     "<a target='blank' href='https://learn.microsoft.com/en-us/ef/core/modeling/relationships/many-to-many'>Many to Many tutorial Microsoft</a>",
-                    "<a target='blank' href='https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection-usage'>Dependency Injection Tutorial The C# Academy</a>",
-                    "<a target='blank' href='https://thecsharpacademy.com/course/6/article/1/500150/False'>Dependency Injection Tutorial Microsoft</a>",
+                    "<a target='blank' href='https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection-usage'>Dependency Injection Tutorial Microsoft</a>",
+                    "<a target='blank' href='https://thecsharpacademy.com/course/6/article/1/500150/False'>Dependency Injection Tutorial The C# Academy</a>",
                     "<a target='blank' href='https://www.c-sharpcorner.com/article/implementing-pagination-and-filtering-in-asp-net-core-8-0-api/'>Pagination Tutorial C# Corner</a>",
                     "<a target='blank' href='https://medium.com/@bpst.blog/understanding-rest-and-restful-apis-constraints-methods-and-examples-76b2d1b63003'>Rest APIs Article</a>"
                 },
