@@ -23,15 +23,66 @@ public class StatisticsHelperTests
     }
 
     [Test]
-    public void SingleProject_ReturnsTimeSinceSubmitted()
+    public void SingleCompletedProject_ReturnsTimeSinceSubmitted()
     {
         var projects = new List<DashboardProject>
         {
-            new() { DateSubmitted = Now.AddHours(-48) }
+            new()
+            {
+                IsCompleted = true,
+                IsPendingReview = false,
+                DateSubmitted = Now.AddHours(-48),
+                DateCompleted = Now.AddHours(-24)
+            }
+        };
+
+        // New logic measures time since submission regardless of completion
+        var result = StatisticsHelper.CalculateAverageReviewTime(projects, Now);
+        Assert.That(result, Is.EqualTo(TimeSpan.FromHours(48)));
+    }
+
+    [Test]
+    public void SinglePendingProject_ReturnsTimeSinceSubmitted()
+    {
+        var projects = new List<DashboardProject>
+        {
+            new()
+            {
+                IsCompleted = false,
+                IsPendingReview = true,
+                DateSubmitted = Now.AddHours(-10),
+                DateCompleted = null
+            }
         };
 
         var result = StatisticsHelper.CalculateAverageReviewTime(projects, Now);
-        Assert.That(result, Is.EqualTo(TimeSpan.FromHours(48)));
+        Assert.That(result, Is.EqualTo(TimeSpan.FromHours(10)));
+    }
+
+    [Test]
+    public void MixedCompletedAndPending_ReturnsAverageTimeSinceSubmitted()
+    {
+        var projects = new List<DashboardProject>
+        {
+            new()
+            {
+                IsCompleted = true,
+                IsPendingReview = false,
+                DateSubmitted = Now.AddHours(-48),
+                DateCompleted = Now.AddHours(-24)
+            },
+            new()
+            {
+                IsCompleted = false,
+                IsPendingReview = true,
+                DateSubmitted = Now.AddHours(-10),
+                DateCompleted = null
+            }
+        };
+
+        // (48 + 10) / 2 = 29h
+        var result = StatisticsHelper.CalculateAverageReviewTime(projects, Now);
+        Assert.That(result, Is.EqualTo(TimeSpan.FromHours(29)));
     }
 
     [Test]
