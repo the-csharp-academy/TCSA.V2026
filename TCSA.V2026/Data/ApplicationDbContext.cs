@@ -37,6 +37,14 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             .WithMany(u => u.UserActivity)
             .HasForeignKey(aua => aua.AppUserId);
 
+        modelBuilder.Entity<AppUserActivity>()
+            .HasIndex(aua => new { aua.DateSubmitted, aua.AppUserId })
+            .IsDescending();
+
+        modelBuilder.Entity<ApplicationUser>()
+            .HasIndex(u => new { u.CreatedDate, u.Id })
+            .IsDescending();
+
         modelBuilder.Entity<UserReview>()
             .HasOne(ur => ur.User)
             .WithMany(u => u.CodeReviewProjects)
