@@ -9,6 +9,7 @@ namespace TCSA.V2026.Services;
 public interface IUserService
 {
     Task<ApplicationUser> GetUserById(string userId);
+    Task<ApplicationUser> GetUserForDashboard(string userId);
     Task<ApplicationUser> GetUserChallengeDetails(string userId);
     Task<ApplicationUser> GetDetailedUserById(string userId);
     Task<ApplicationUser> GetUserProfileById(string userId);
@@ -65,6 +66,26 @@ public class UserService : IUserService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to retrieve GetUserById {UserId}", userId);
+            return null;
+        }
+    }
+
+    public async Task<ApplicationUser> GetUserForDashboard(string userId)
+    {
+        try
+        {
+            using (var context = _factory.CreateDbContext())
+            {
+                return await context.AspNetUsers
+                    .Include(x => x.DashboardProjects)
+                    .Include(x => x.UserActivity)
+                    .AsSplitQuery()
+                    .FirstOrDefaultAsync(x => x.Id.Equals(userId));
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to retrieve GetUserForDashboard {UserId}", userId);
             return null;
         }
     }
