@@ -6,5 +6,5 @@ public static class PagingConstants
     public const int ActivityPageSize = 50;
     public const int ChallengesPageSize = 10;
     public const int GalleryPageSize = 6;
-    public const int FeedPageSize = 9;
+    public const int FeedPageSize = 12;
 }

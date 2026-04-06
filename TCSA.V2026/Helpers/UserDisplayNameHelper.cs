@@ -1,20 +1,16 @@
-﻿using TCSA.V2026.Data.Models;
-
 namespace TCSA.V2026.Helpers;
 
 public static class UserDisplayNameHelper
 {
-    public static string GetDisplayName(ApplicationUser user)
+    public static string GetDisplayName(string? displayName, string? userName)
     {
-        if (!string.IsNullOrWhiteSpace(user.DisplayName))
-        {
-            return user.DisplayName;
-        }
+        if (!string.IsNullOrWhiteSpace(displayName))
+            return displayName;
 
-        if (!string.IsNullOrWhiteSpace(user.UserName))
+        if (!string.IsNullOrWhiteSpace(userName))
         {
-            int atIndex = user.UserName.IndexOf('@');
-            return atIndex > 0 ? user.UserName.Substring(0, atIndex) : user.UserName;
+            int atIndex = userName.IndexOf('@');
+            return atIndex > 0 ? userName[..atIndex] : userName;
         }
 
         return "Anonymous";

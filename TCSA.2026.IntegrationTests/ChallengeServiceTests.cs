@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-using TCSA.V2026.IntegrationTests;
 using TCSA.V2026.Services;
 
-namespace TCSA._2026.IntegrationTests;
+namespace TCSA.V2026.IntegrationTests;
+
 public class ChallengeServiceTests : IntegrationTestsBase
 {
     private ChallengeService _service;

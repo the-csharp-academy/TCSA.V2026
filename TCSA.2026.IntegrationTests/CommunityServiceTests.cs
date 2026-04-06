@@ -1,8 +1,7 @@
-﻿using TCSA.V2026.Data.Models;
-using TCSA.V2026.IntegrationTests;
+using TCSA.V2026.Data.Models;
 using TCSA.V2026.Services;
 
-namespace TCSA._2026.IntegrationTests;
+namespace TCSA.V2026.IntegrationTests;
 
 [TestFixture]
 public class CommunityServiceTests : IntegrationTestsBase

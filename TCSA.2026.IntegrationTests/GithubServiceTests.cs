@@ -1,12 +1,11 @@
-﻿using Moq;
+using Moq;
 using TCSA.V2026.Data.DTOs;
 using TCSA.V2026.Data.Models;
 using TCSA.V2026.Data.Models.Responses;
-using TCSA.V2026.IntegrationTests;
 using TCSA.V2026.Services;
 using TCSA.V2026.Webhooks;
 
-namespace TCSA._2026.IntegrationTests;
+namespace TCSA.V2026.IntegrationTests;
 
 public class GithubServiceTests : IntegrationTestsBase
 {

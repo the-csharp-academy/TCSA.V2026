@@ -3,10 +3,9 @@ using TCSA.V2026.Data.DTOs;
 using TCSA.V2026.Data.Enums;
 using TCSA.V2026.Data.Models;
 using TCSA.V2026.Data.Models.Responses;
-using TCSA.V2026.IntegrationTests;
 using TCSA.V2026.Services.Challenges;
 
-namespace TCSA._2026.IntegrationTests;
+namespace TCSA.V2026.IntegrationTests;
 public class LeetCodeServiceTests : IntegrationTestsBase
 {
     private LeetCodeService _service;

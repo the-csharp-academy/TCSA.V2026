@@ -12,32 +12,21 @@
 <MudContainer>
     <h1 class="mud-primary-text mt-3">Community Feed</h1>
     <p class="mb-4 text-secondary mud-typography-body1">See the latest achievements and project completions across the platform.</p>
-    @if (PaginatedFeedItems != null && PaginatedFeedItems.TotalPages > 1)
-    {
-        <MudBreakpointProvider OnBreakpointChanged="BreakpointChanged">
-            <MudPagination Count="PaginatedFeedItems.TotalPages"
-            Selected="PageNumber"
-            SelectedChanged="OnPageChangedAsync"
-            BoundaryCount="_boundaryCount"
-            Size="_paginationSize"
-            Class="mb-2" />
-        </MudBreakpointProvider>
-    }
     <MudGrid Spacing="2">
-        @if (PaginatedFeedItems != null && PaginatedFeedItems.Items.Count != 0)
+        @if (_items.Count != 0)
         {
-            @foreach (var item in PaginatedFeedItems.Items)
+            @foreach (var item in _items)
             {
                 <MudItem Class="d-flex" xs="12" sm="6" lg="4">
                     <MudPaper Class="pa-4 mb-3 d-flex" Elevation="2" Width="100%">
                         <div class="d-flex align-center gap-2">
-                            <FeedItemDisplay Item="item" IconSize="3em" /> 
+                            <FeedItemDisplay Item="item" IconSize="3em" />
                         </div>
                     </MudPaper>
                 </MudItem>
-            }            
+            }
         }
-        else
+        else if (!_isLoading)
         {
             <MudItem xs="12">
                 <div class="text-center my-4">
@@ -46,43 +35,49 @@
             </MudItem>
         }
     </MudGrid>
+    @if (_nextCursor is not null)
+    {
+        <div class="d-flex justify-center mt-4 mb-6">
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       Disabled="_isLoading"
+                       OnClick="LoadMoreAsync">
+                @if (_isLoading)
+                {
+                    <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+                }
+                Load More
+            </MudButton>
+        </div>
+    }
 </MudContainer>
 
 @code {
     [Inject] private IFeedService FeedService { get; set; } = default!;
 
-    private PaginatedList<FeedDisplay>? PaginatedFeedItems { get; set; }
-    private bool IsLoading = false;
-    private int _boundaryCount = 1;
-    private Size _paginationSize = Size.Medium;
-    private int PageNumber = 1;
+    private List<FeedDisplay> _items = [];
+    private string? _nextCursor;
+    private bool _isLoading;
 
     protected override async Task OnInitializedAsync()
     {
-        IsLoading = true;
+        _isLoading = true;
 
-        PaginatedFeedItems = await FeedService.GetPaginatedFeedItems(PageNumber);
+        var page = await FeedService.GetFeedItemsByCursor(null);
+        _items = page.Items;
+        _nextCursor = page.NextCursor;
 
-        IsLoading = false;
+        _isLoading = false;
     }
 
-    private async Task OnPageChangedAsync(int newPageNumber)
+    private async Task LoadMoreAsync()
     {
-        PageNumber = newPageNumber;
-        PaginatedFeedItems = await FeedService.GetPaginatedFeedItems(PageNumber);
-    }
+        _isLoading = true;
 
-    private void BreakpointChanged(Breakpoint breakpoint)
-    {
-        if (breakpoint < Breakpoint.Sm)
-        {
-            _paginationSize = Size.Small;
-            _boundaryCount = 1;
-        }
-        else
-        {
-            _paginationSize = Size.Medium;
-            _boundaryCount = 2;
-        }
+        var page = await FeedService.GetFeedItemsByCursor(_nextCursor);
+        _items.AddRange(page.Items);
+        _nextCursor = page.NextCursor;
+
+        _isLoading = false;
     }
 }

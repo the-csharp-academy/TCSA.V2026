@@ -7,7 +7,7 @@
         <img src="@($"img/icons/{Item.ProjectIconUrl}")" alt="Project Icon" style="height:@IconSize;max-width:100%;" />
         break;
     case ActivityType.NewBelt:
-        <img src="@($"img/belts/{Item.User.Level}-belt.png")" alt="Belt Icon" style="height:@IconSize;max-width:100%;" />
+        <img src="@($"img/belts/{Item.Level}-belt.png")" alt="Belt Icon" style="height:@IconSize;max-width:100%;" />
         break;
     case ActivityType.NewUser:
         <img src="img/icons/waving-hand.png" alt="Welcome" style="height:@IconSize;max-width:100%;" />
@@ -21,22 +21,22 @@
     {
         case ActivityType.ProjectCompleted:
             <MudText Typo="Typo.body2">
-                <strong>@(UserDisplayNameHelper.GetDisplayName(Item.User))</strong> finished the <strong>@Item.ProjectName</strong>
+                <strong>@(UserDisplayNameHelper.GetDisplayName(Item.DisplayName, Item.UserName))</strong> finished the <strong>@Item.ProjectName</strong>
             </MudText>
             break;
         case ActivityType.NewBelt:
             <MudText Typo="Typo.body2">
-                <strong>@(UserDisplayNameHelper.GetDisplayName(Item.User))</strong> earned the <strong>@Item.Level</strong> belt!
+                <strong>@(UserDisplayNameHelper.GetDisplayName(Item.DisplayName, Item.UserName))</strong> earned the <strong>@Item.Level</strong> belt!
             </MudText>
             break;
         case ActivityType.NewUser:
             <MudText Typo="Typo.body2">
-                Welcome <strong>@(UserDisplayNameHelper.GetDisplayName(Item.User))</strong> to the community!
+                Welcome <strong>@(UserDisplayNameHelper.GetDisplayName(Item.DisplayName, Item.UserName))</strong> to the community!
             </MudText>
             break;
         default:
             <MudText Typo="Typo.body2">
-                <strong>@(UserDisplayNameHelper.GetDisplayName(Item.User))</strong> did something awesome!
+                <strong>@(UserDisplayNameHelper.GetDisplayName(Item.DisplayName, Item.UserName))</strong> did something awesome!
             </MudText>
             break;
     }

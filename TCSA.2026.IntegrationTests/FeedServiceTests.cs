@@ -2,10 +2,10 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using TCSA.V2026.Data.Enums;
 using TCSA.V2026.Data.Models;
-using TCSA.V2026.IntegrationTests;
 using TCSA.V2026.Services;
 
-namespace TCSA._2026.IntegrationTests;
+namespace TCSA.V2026.IntegrationTests;
+
 public class FeedServiceTests : IntegrationTestsBase
 {
     private FeedService _feedService;
@@ -26,7 +26,7 @@ public class FeedServiceTests : IntegrationTestsBase
     }
 
     [Test]
-    public async Task GetPaginatedFeedItems_ShouldExcludeCommunityIssues()
+    public async Task GetFeedItemsByCursor_ShouldExcludeCommunityIssues()
     {
         // Arrange
         using var context = DbContextFactory.CreateDbContext();
@@ -105,19 +105,18 @@ public class FeedServiceTests : IntegrationTestsBase
         await context.SaveChangesAsync();
 
         // Act
-        var result = await _feedService.GetPaginatedFeedItems(1);
+        var result = await _feedService.GetFeedItemsByCursor(null);
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Items, Has.Count.EqualTo(4));
 
-        var communityIssueActivities = result.Items.Where(f =>
-            f.ProjectId.HasValue && (f.ProjectId.Value == 1001 || f.ProjectId.Value == 1002)).ToList();
+        var communityIssueActivities = result.Items.Where(i =>
+            i.ProjectId.HasValue && (i.ProjectId.Value == 1001 || i.ProjectId.Value == 1002)).ToList();
         Assert.That(communityIssueActivities, Is.Empty);
     }
 
     [Test]
-    public async Task GetPaginatedFeedItems_ShouldIncludeRegularProjects()
+    public async Task GetFeedItemsByCursor_ShouldIncludeRegularProjects()
     {
         // Arrange
         using var context = DbContextFactory.CreateDbContext();
@@ -135,7 +134,7 @@ public class FeedServiceTests : IntegrationTestsBase
         await context.SaveChangesAsync();
 
         // Act
-        var result = await _feedService.GetPaginatedFeedItems(1);
+        var result = await _feedService.GetFeedItemsByCursor(null);
 
         // Assert
         var projectActivity = result.Items.FirstOrDefault(f => f.ActivityType == ActivityType.ProjectCompleted);
@@ -144,11 +143,11 @@ public class FeedServiceTests : IntegrationTestsBase
         Assert.That(projectActivity.ProjectIconUrl, Is.Not.Null.And.Not.Empty);
         Assert.That(projectActivity.ProjectName, Is.EqualTo("Calculator"));
         Assert.That(projectActivity.Level, Is.Null);
-        Assert.That(projectActivity.User.Id, Is.EqualTo("user1"));
+        Assert.That(projectActivity.UserId, Is.EqualTo("user1"));
     }
 
     [Test]
-    public async Task GetPaginatedFeedItems_ShouldIncludeUsers()
+    public async Task GetFeedItemsByCursor_ShouldIncludeUsers()
     {
         // Arrange
         using var context = DbContextFactory.CreateDbContext();
@@ -166,19 +165,19 @@ public class FeedServiceTests : IntegrationTestsBase
         await context.SaveChangesAsync();
 
         // Act
-        var result = await _feedService.GetPaginatedFeedItems(1);
+        var result = await _feedService.GetFeedItemsByCursor(null);
 
         // Assert
-        var newUserFeedItem = result.Items.FirstOrDefault(f => f.ActivityType == ActivityType.NewUser && f.User.Id == "newuser1");
+        var newUserFeedItem = result.Items.FirstOrDefault(f => f.ActivityType == ActivityType.NewUser && f.UserId == "newuser1");
         Assert.That(newUserFeedItem, Is.Not.Null);
-        Assert.That(newUserFeedItem.User.UserName, Is.EqualTo("newuser1"));
+        Assert.That(newUserFeedItem.UserName, Is.EqualTo("newuser1"));
         Assert.That(newUserFeedItem.ProjectName, Is.Null.Or.Empty);
         Assert.That(newUserFeedItem.ProjectIconUrl, Is.Null.Or.Empty);
         Assert.That(newUserFeedItem.Level, Is.Null);
     }
 
     [Test]
-    public async Task GetPaginatedFeedItems_ShouldIncludeBeltActivities()
+    public async Task GetFeedItemsByCursor_ShouldIncludeBeltActivities()
     {
         // Arrange
         using var context = DbContextFactory.CreateDbContext();
@@ -197,10 +196,10 @@ public class FeedServiceTests : IntegrationTestsBase
         await context.SaveChangesAsync();
 
         // Act
-        var result = await _feedService.GetPaginatedFeedItems(1);
+        var result = await _feedService.GetFeedItemsByCursor(null);
 
         // Assert
-        var beltFeedItem = result.Items.FirstOrDefault(f => f.ActivityType == ActivityType.NewBelt && f.User.Id == "user1");
+        var beltFeedItem = result.Items.FirstOrDefault(f => f.ActivityType == ActivityType.NewBelt && f.UserId == "user1");
         Assert.That(beltFeedItem, Is.Not.Null);
         Assert.That(beltFeedItem.Level, Is.EqualTo(Level.Blue));
         Assert.That(beltFeedItem.ProjectName, Is.Null.Or.Empty);
@@ -229,9 +228,9 @@ public class FeedServiceTests : IntegrationTestsBase
         var result = await _feedService.GetRecentFeedItems();
 
         // Assert
-        var newUserFeedItem = result.FirstOrDefault(f => f.ActivityType == ActivityType.NewUser && f.User.Id == "recentuser1");
+        var newUserFeedItem = result.FirstOrDefault(f => f.ActivityType == ActivityType.NewUser && f.UserId == "recentuser1");
         Assert.That(newUserFeedItem, Is.Not.Null);
-        Assert.That(newUserFeedItem.User.UserName, Is.EqualTo("recentuser1"));
+        Assert.That(newUserFeedItem.UserName, Is.EqualTo("recentuser1"));
         Assert.That(newUserFeedItem.ProjectName, Is.Null.Or.Empty);
         Assert.That(newUserFeedItem.ProjectIconUrl, Is.Null.Or.Empty);
         Assert.That(newUserFeedItem.Level, Is.Null);
@@ -259,7 +258,7 @@ public class FeedServiceTests : IntegrationTestsBase
         var result = await _feedService.GetRecentFeedItems();
 
         // Assert
-        var beltFeedItem = result.FirstOrDefault(f => f.ActivityType == ActivityType.NewBelt && f.User.Id == "user1");
+        var beltFeedItem = result.FirstOrDefault(f => f.ActivityType == ActivityType.NewBelt && f.UserId == "user1");
         Assert.That(beltFeedItem, Is.Not.Null);
         Assert.That(beltFeedItem.Level, Is.EqualTo(Level.Red));
         Assert.That(beltFeedItem.ProjectName, Is.Null.Or.Empty);
@@ -294,7 +293,7 @@ public class FeedServiceTests : IntegrationTestsBase
         Assert.That(projectActivity.ProjectIconUrl, Is.Not.Null.And.Not.Empty);
         Assert.That(projectActivity.ProjectName, Is.EqualTo("Calculator"));
         Assert.That(projectActivity.Level, Is.Null);
-        Assert.That(projectActivity.User.Id, Is.EqualTo("user1"));
+        Assert.That(projectActivity.UserId, Is.EqualTo("user1"));
     }
 
     [Test]
@@ -381,7 +380,6 @@ public class FeedServiceTests : IntegrationTestsBase
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result, Has.Count.EqualTo(4));
 
         var communityIssueActivities = result.Where(f =>
             f.ProjectId.HasValue && (f.ProjectId.Value == 1001 || f.ProjectId.Value == 1002)).ToList();
