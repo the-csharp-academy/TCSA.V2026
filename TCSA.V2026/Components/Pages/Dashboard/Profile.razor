@@ -41,14 +41,14 @@
                     }
                 </MudSelect>
 
-                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Save" Class="mt-4">Save</MudButton>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="@_isProcessing" OnClick="Save" Class="mt-4">Save</MudButton>
             </MudForm>
         </MudPaper>
 
         <MudPaper Class="pa-4 mt-5" Elevation="4">
             <h2 class="visually-hidden">Account Actions</h2>
-            <MudButton Variant="Variant.Filled" Color="Color.Dark" OnClick="Reset" Class="mt-4">Reset Account</MudButton>
-            <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="Delete" Class="mt-4">Delete Account</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Dark" Disabled="@_isProcessing" OnClick="Reset" Class="mt-4">Reset Account</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Error" Disabled="@_isProcessing" OnClick="Delete" Class="mt-4">Delete Account</MudButton>
         </MudPaper>
     }
 </MudContainer>
@@ -65,6 +65,7 @@
 
     private bool IsLoading = true;
     private bool IsLoggedIn = false;
+    private bool _isProcessing = false;
     private string UserId;
 
     protected override async Task OnInitializedAsync()
@@ -89,65 +90,92 @@
 
     private async Task Save()
     {
-        var result = await UserService.SaveProfile(User);
+        _isProcessing = true;
 
-        if (result.Status == ResponseStatus.Success)
+        try
         {
-            SnackbarService.Add("Profile Updated Successfully", Severity.Success);
-            User = await UserService.GetUserById(UserId);
+            var result = await UserService.SaveProfile(User);
+
+            if (result.Status == ResponseStatus.Success)
+            {
+                SnackbarService.Add("Profile Updated Successfully", Severity.Success);
+                User = await UserService.GetUserById(UserId);
+            }
+            else
+            {
+                SnackbarService.Add($"Error: {result.Message}", Severity.Error);
+            }
         }
-        else
+        finally
         {
-            SnackbarService.Add($"Error: {result.Message}", Severity.Error);
+            _isProcessing = false;
         }
     }
 
     private async Task Reset()
     {
-        var options = new DialogOptions { CloseOnEscapeKey = true };
+        _isProcessing = true;
 
-        var dialog = await DialogService.ShowAsync<TCSADialog>("This will reset your progress permanently. Are you Sure?", options);
-        var result = await dialog.Result;
-
-        if (!result.Canceled)
+        try
         {
-            var apiResult = await UserService.ResetAccount(User);
+            var options = new DialogOptions { CloseOnEscapeKey = true };
 
-            if (apiResult.Status == ResponseStatus.Success)
+            var dialog = await DialogService.ShowAsync<TCSADialog>("This will reset your progress permanently. Are you Sure?", options);
+            var result = await dialog.Result;
+
+            if (!result.Canceled)
             {
-                SnackbarService.Add("Account Deleted Successfully", Severity.Success);
-                User = await UserService.GetUserById(UserId);
+                var apiResult = await UserService.ResetAccount(User);
+
+                if (apiResult.Status == ResponseStatus.Success)
+                {
+                    SnackbarService.Add("Account Deleted Successfully", Severity.Success);
+                    User = await UserService.GetUserById(UserId);
+                }
+                else
+                {
+                    SnackbarService.Add($"Error: {apiResult.Message}", Severity.Error);
+                }
             }
-            else
-            {
-                SnackbarService.Add($"Error: {apiResult.Message}", Severity.Error);
-            }
+        }
+        finally
+        {
+            _isProcessing = false;
         }
     }
 
     private async Task Delete()
     {
-        var options = new DialogOptions { CloseOnEscapeKey = true };
+        _isProcessing = true;
 
-        var dialog = await DialogService.ShowAsync<TCSADialog>("This will remove your account permanently. Are you Sure?", options);
-        var result = await dialog.Result;
-
-        if (!result.Canceled)
+        try
         {
-            var apiResult = await UserService.DeleteAccount(User);
+            var options = new DialogOptions { CloseOnEscapeKey = true };
 
-            if (apiResult.Status == ResponseStatus.Success)
-            {
-                var loadingDialog = await DialogService.ShowAsync<TCSADeleteAccountDialog>("", new DialogOptions { CloseButton = false });
-                await Task.Delay(2000); // simulate loading time
+            var dialog = await DialogService.ShowAsync<TCSADialog>("This will remove your account permanently. Are you Sure?", options);
+            var result = await dialog.Result;
 
-                // Clear cookies and reload
-                NavigationManager.NavigateTo("/logout", forceLoad: true);
-            }
-            else
+            if (!result.Canceled)
             {
-                SnackbarService.Add($"Error: {apiResult.Message}", Severity.Error);
+                var apiResult = await UserService.DeleteAccount(User);
+
+                if (apiResult.Status == ResponseStatus.Success)
+                {
+                    var loadingDialog = await DialogService.ShowAsync<TCSADeleteAccountDialog>("", new DialogOptions { CloseButton = false });
+                    await Task.Delay(2000); // simulate loading time
+
+                    // Clear cookies and reload
+                    NavigationManager.NavigateTo("/logout", forceLoad: true);
+                }
+                else
+                {
+                    SnackbarService.Add($"Error: {apiResult.Message}", Severity.Error);
+                }
             }
+        }
+        finally
+        {
+            _isProcessing = false;
         }
     }
 }

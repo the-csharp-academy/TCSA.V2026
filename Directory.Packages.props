@@ -1,43 +1,37 @@
 <Project>
-	<PropertyGroup>
-		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-	</PropertyGroup>
-	<ItemGroup>
-		
-		<PackageVersion Include="AspNet.Security.OAuth.GitHub" Version="10.0.0" />
-		<PackageVersion Include="Azure.Monitor.OpenTelemetry.AspNetCore" Version="1.3.0" />
-		<PackageVersion Include="Humanizer" Version="3.0.1" />
-		<PackageVersion Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.23.0" />
-		<PackageVersion Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="10.0.2" />
-		<PackageVersion Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.2" />
-		<PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.2" />
-		
-		<PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.2">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageVersion>
-		
-		<PackageVersion Include="MudBlazor" Version="8.15.0" />
-		<PackageVersion Include="Extensions.MudBlazor.StaticInput" Version="3.2.1" />
-		<PackageVersion Include="NetCord" Version="1.0.0-alpha.410" />
-		<PackageVersion Include="NetCord.Hosting" Version="1.0.0-alpha.410" />
-		<PackageVersion Include="SendGrid" Version="9.29.3" />
-		<PackageVersion Include="Stripe.net" Version="50.1.0" />
-
-		<PackageVersion Include="coverlet.collector" Version="6.0.2" />
-		<PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.2" />
-		<PackageVersion Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.2" />
-		<PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
-		<PackageVersion Include="Microsoft.Playwright.NUnit" Version="1.58.0" />
-		
-		<PackageVersion Include="NUnit" Version="4.4.0" />
-		<PackageVersion Include="NUnit.Analyzers" Version="4.11.2">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageVersion>
-		<PackageVersion Include="NUnit3TestAdapter" Version="6.1.0" />
-
-		<PackageVersion Include="Moq" Version="4.20.72" />
-
-	</ItemGroup>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageVersion Include="AspNet.Security.OAuth.GitHub" Version="10.0.0" />
+    <PackageVersion Include="Azure.Monitor.OpenTelemetry.AspNetCore" Version="1.3.0" />
+    <PackageVersion Include="bunit" Version="2.7.2" />
+    <PackageVersion Include="Humanizer" Version="3.0.1" />
+    <PackageVersion Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.23.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="10.0.2" />
+    <PackageVersion Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.2" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.2" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageVersion>
+    <PackageVersion Include="MudBlazor" Version="8.15.0" />
+    <PackageVersion Include="Extensions.MudBlazor.StaticInput" Version="3.2.1" />
+    <PackageVersion Include="NetCord" Version="1.0.0-alpha.410" />
+    <PackageVersion Include="NetCord.Hosting" Version="1.0.0-alpha.410" />
+    <PackageVersion Include="SendGrid" Version="9.29.3" />
+    <PackageVersion Include="Stripe.net" Version="50.1.0" />
+    <PackageVersion Include="coverlet.collector" Version="6.0.2" />
+    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.2" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.2" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
+    <PackageVersion Include="Microsoft.Playwright.NUnit" Version="1.58.0" />
+    <PackageVersion Include="NUnit" Version="4.4.0" />
+    <PackageVersion Include="NUnit.Analyzers" Version="4.11.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageVersion>
+    <PackageVersion Include="NUnit3TestAdapter" Version="6.1.0" />
+    <PackageVersion Include="Moq" Version="4.20.72" />
+  </ItemGroup>
 </Project>

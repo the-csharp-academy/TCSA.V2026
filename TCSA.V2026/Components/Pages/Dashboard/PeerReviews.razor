@@ -73,6 +73,7 @@
                                         <MudButton Size="@Size.Small"
                                                    Variant="@Variant.Filled"
                                                    Color="@Color.Primary"
+                                                   Disabled="@_processingIds.Contains(project.DashboardProjectId)"
                                                    OnClick="@(() => AssignMyself(project.DashboardProjectId))"
                                                    StartIcon="fas fa-hand-point-up">
                                             Pick
@@ -83,6 +84,7 @@
                                         <MudButton Size="@Size.Small"
                                                    Variant="@Variant.Filled"
                                                    Color="@Color.Error"
+                                                   Disabled="@_processingIds.Contains(project.DashboardProjectId)"
                                                    OnClick="@(() => ReleaseMyself(project.DashboardProjectId))"
                                                    StartIcon="@Icons.Material.Filled.Close">
                                             Drop
@@ -90,6 +92,7 @@
                                         <MudButton Size="@Size.Small"
                                                    Variant="@Variant.Filled"
                                                    Color="@Color.Success"
+                                                   Disabled="@_processingIds.Contains(project.DashboardProjectId)"
                                                    OnClick="@(() => MarkAsComplete(project.DashboardProjectId))"
                                                    StartIcon="@Icons.Material.Filled.ThumbUp">
                                             Tick
@@ -128,6 +131,7 @@
     private bool IsLoading = true;
     private string UserId = string.Empty;
     private TimeSpan LoadTime;
+    private HashSet<int> _processingIds = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -151,54 +155,81 @@
 
     private async Task AssignMyself(int dashboardProjectId)
     {
-        var result = await PeerReviewService.AssignUserToCodeReview(UserId, dashboardProjectId);
+        if (!_processingIds.Add(dashboardProjectId)) return;
 
-        if (result.Status == ResponseStatus.Success)
+        try
         {
-            Snackbar.Add("Assignment Successful", Severity.Success);
-            User = await UserService.GetUserById(UserId);
-        }
-        else
-        {
-            Snackbar.Add($"Error: {result.Message}", Severity.Error);
-        }
+            var result = await PeerReviewService.AssignUserToCodeReview(UserId, dashboardProjectId);
 
-        AvailableProjects = await PeerReviewService.GetProjectsForPeerReview(UserId);
+            if (result.Status == ResponseStatus.Success)
+            {
+                Snackbar.Add("Assignment Successful", Severity.Success);
+                User = await UserService.GetUserById(UserId);
+            }
+            else
+            {
+                Snackbar.Add($"Error: {result.Message}", Severity.Error);
+            }
+
+            AvailableProjects = await PeerReviewService.GetProjectsForPeerReview(UserId);
+        }
+        finally
+        {
+            _processingIds.Remove(dashboardProjectId);
+        }
     }
 
     private async Task ReleaseMyself(int dashboardProjectId)
     {
-        var result = await PeerReviewService.ReleaseUserFromCodeReview(UserId, dashboardProjectId);
+        if (!_processingIds.Add(dashboardProjectId)) return;
 
-        if (result.Status == ResponseStatus.Success)
+        try
         {
-            Snackbar.Add("Release successful", Severity.Success);
-            User = await UserService.GetUserById(UserId);
-        }
-        else
-        {
-            Snackbar.Add($"Error: {result.Message}", Severity.Error);
-        }
+            var result = await PeerReviewService.ReleaseUserFromCodeReview(UserId, dashboardProjectId);
 
-        AvailableProjects = await PeerReviewService.GetProjectsForPeerReview(UserId);
+            if (result.Status == ResponseStatus.Success)
+            {
+                Snackbar.Add("Release successful", Severity.Success);
+                User = await UserService.GetUserById(UserId);
+            }
+            else
+            {
+                Snackbar.Add($"Error: {result.Message}", Severity.Error);
+            }
+
+            AvailableProjects = await PeerReviewService.GetProjectsForPeerReview(UserId);
+        }
+        finally
+        {
+            _processingIds.Remove(dashboardProjectId);
+        }
     }
 
     private async Task MarkAsComplete(int dashboardProjectId)
     {
-        var result = await PeerReviewService.MarkCodeReviewAsCompleted(UserId, dashboardProjectId);
+        if (!_processingIds.Add(dashboardProjectId)) return;
 
-        // TODO SEND EMAILS
-
-        if (result.Status == ResponseStatus.Success)
+        try
         {
-            Snackbar.Add("Successfully marked as complete", Severity.Success);
-            User = await UserService.GetUserById(UserId);
-        }
-        else
-        {
-            Snackbar.Add($"Error: {result.Message}", Severity.Error);
-        }
+            var result = await PeerReviewService.MarkCodeReviewAsCompleted(UserId, dashboardProjectId);
 
-        AvailableProjects = await PeerReviewService.GetProjectsForPeerReview(UserId);
+            // TODO SEND EMAILS
+
+            if (result.Status == ResponseStatus.Success)
+            {
+                Snackbar.Add("Successfully marked as complete", Severity.Success);
+                User = await UserService.GetUserById(UserId);
+            }
+            else
+            {
+                Snackbar.Add($"Error: {result.Message}", Severity.Error);
+            }
+
+            AvailableProjects = await PeerReviewService.GetProjectsForPeerReview(UserId);
+        }
+        finally
+        {
+            _processingIds.Remove(dashboardProjectId);
+        }
     }
 }

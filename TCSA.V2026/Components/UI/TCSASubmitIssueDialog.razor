@@ -25,7 +25,7 @@
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>
-        <MudButton Color="Color.Error" OnClick="Submit">Submit</MudButton>
+        <MudButton Disabled="@_isSubmitting" Color="Color.Error" OnClick="Submit">Submit</MudButton>
     </DialogActions>
 </MudDialog>
 
@@ -42,12 +42,21 @@
     public IssueType IssueType = IssueType.Bugfix;
     private string ErrorText;
     private bool HasError;
+    private bool _isSubmitting = false;
 
-    private async Task Submit() 
+    private async Task Submit()
     {
-        var result = await CommunityService.CreateIssue(IssueType, IssueUrl, IssueTitle, UserId);
+        _isSubmitting = true;
 
-        MudDialog.Close(DialogResult.Ok(result.Status));
+        try
+        {
+            var result = await CommunityService.CreateIssue(IssueType, IssueUrl, IssueTitle, UserId);
+            MudDialog.Close(DialogResult.Ok(result.Status));
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
     }
     
     private void Cancel() => MudDialog.Cancel();
