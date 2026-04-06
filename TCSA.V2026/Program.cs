@@ -65,7 +65,14 @@ builder.Services.AddScoped<IDiscordService, DiscordService>();
 builder.Services.AddScoped<IActivityService, ActivityService>();
 builder.Services.AddScoped<IGithubService, GithubService>();
 builder.Services.AddScoped<IGalleryService, GalleryService>();
-builder.Services.AddScoped<IStatisticsService, StatisticsService>();
+builder.Services.AddScoped<StatisticsService>();
+builder.Services.AddScoped<IStatisticsService>(sp =>
+{
+    return new CachingStatisticsService(
+        sp.GetRequiredService<StatisticsService>(),
+        sp.GetRequiredService<HybridCache>()
+    );
+});
 builder.Services.AddScoped<IFeedService, FeedService>();
 builder.Services.AddScoped<IAccountabilityBuddyService, AccountabilityBuddyService>();
 builder.Services.AddScoped<IDonateService, DonateService>();
