@@ -17,6 +17,8 @@ public interface IProjectService
     Task<BaseResponse> DeleteProject(int dashboardProjectId, string userId);
     Task<BaseResponse> Archive(int dashboardProjectId);
     Task<BaseResponse> AcknowledgeNotifications(string userId);
+    Task<int> GetCompletionCount(int projectId, bool isArticle);
+
 }
 
 public class ProjectService(IDbContextFactory<ApplicationDbContext> _factory) : IProjectService
@@ -327,6 +329,23 @@ public class ProjectService(IDbContextFactory<ApplicationDbContext> _factory) : 
                 Status = ResponseStatus.Fail,
                 Message = ex.Message
             };
+        }
+    }
+
+    public async Task<int> GetCompletionCount(int projectId, bool isArticle)
+    {
+        try
+        {
+            using (var context = _factory.CreateDbContext())
+            {
+                var activityType = isArticle ? ActivityType.ArticleRead : ActivityType.ProjectCompleted;
+                return await context.UserActivity
+                    .CountAsync(x => x.ProjectId == projectId && x.ActivityType == activityType);
+            }
+        }
+        catch (Exception ex)
+        {
+            return 0;
         }
     }
 }

@@ -29,6 +29,10 @@
                   Style=@GetBanner()>
             <h1 class="mud-typography-h3 text-white mud-typography-align-center py-4 px-4 px-md-10 project-title">@Project.Title</h1>
         </MudPaper>
+            <div class="completion-strip">
+                <MudIcon Icon="@Icons.Material.Filled.People" Size="Size.Small" />
+                <span>This project has been completed by <strong>@CompletionCount</strong> users</span>
+            </div>
 
         @if (IsLoggedIn && IsCompleted)
         {
@@ -332,10 +336,13 @@
     private string UserEmail = string.Empty;
     private bool CodeWarsNotFoundShowing = false;
     private bool IsAdmin = false;
+    private int CompletionCount = 0;
 
     protected async override Task OnInitializedAsync()
     {
         await OnParametersSetAsync();
+        CompletionCount = await ProjectService.GetCompletionCount(ProjectId, false);
+
     }
 
     private async Task OpenAccountabilityDialog()
@@ -539,6 +546,18 @@
 
     .project-theme a {
         color: #1976d2; /* Material blue */
+    }
+
+    .completion-strip {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(var(--mud-palette-primary-rgb), 0.08);
+        border: 1px solid rgba(var(--mud-palette-primary-rgb), 0.18);
+        border-radius: 10px;
+        padding: 0.5rem 1.2rem;
+        margin-top: 1rem;
+        font-size: 0.9rem;
     }
 
     @@media (max-width: 960px) {
