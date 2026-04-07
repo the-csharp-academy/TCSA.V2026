@@ -1,0 +1,65 @@
+name: Feature Request
+description: Suggest a new feature or enhancement
+title: "feat: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting an improvement! Please describe your idea as clearly as possible.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or Motivation
+      description: What problem does this feature solve? Why is it needed?
+      placeholder: I'm frustrated when...
+    validations:
+      required: true
+
+  - type: textarea
+    id: area
+    attributes:
+      label: Area
+      description: Which part of the platform does this relate to?
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: Describe the feature or change you'd like to see.
+    validations:
+      required: true
+
+  - type: textarea
+    id: benefits
+    attributes:
+      label: Benefits
+      description: Describe how this change helps users and maintainers.
+      placeholder: Explain practical benefits, impact, and expected outcomes.
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Any alternative solutions or workarounds you've considered.
+
+  - type: textarea
+    id: implementation-ideas
+    attributes:
+      label: Implementation Ideas
+      description: Share implementation thoughts, if any.
+
+  - type: textarea
+    id: potential-challenges
+    attributes:
+      label: Potential Challenges
+      description: Describe potential challenges or considerations for implementation.
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Any mockups, links, or extra context that would help clarify the request.
