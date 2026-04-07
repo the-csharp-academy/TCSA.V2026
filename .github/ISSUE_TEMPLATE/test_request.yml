@@ -1,0 +1,56 @@
+name: Test Request
+description: Request new tests or report missing test coverage
+title: "test: "
+labels: ["tests"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template to request new unit, integration, or end-to-end tests, or to flag areas that lack sufficient coverage.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What should be tested and why?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: test-type
+    attributes:
+      label: Test Type
+      options:
+        - Unit test
+        - Integration test
+        - End-to-end (Playwright) test
+        - Multiple / unsure
+    validations:
+      required: true
+
+  - type: textarea
+    id: target
+    attributes:
+      label: Target Component or Service
+      description: Which class, service, component, or page needs tests? Include file paths if known.
+      placeholder: e.g. Services/ProjectService.cs - SubmitProject method
+    validations:
+      required: true
+
+  - type: textarea
+    id: scenarios
+    attributes:
+      label: Scenarios to Cover
+      description: List the specific cases or edge cases that should be tested.
+      placeholder: |
+        - Happy path: ...
+        - Edge case: ...
+        - Error case: ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Any related issues, PRs, or context that would help.
