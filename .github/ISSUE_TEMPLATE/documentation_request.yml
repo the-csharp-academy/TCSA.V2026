@@ -1,0 +1,61 @@
+name: Documentation Request
+description: Suggest improvements to the documentation
+title: "docs: "
+labels: ["documentation"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template to request new documentation or to report content that is missing, outdated, or incorrect.
+
+  - type: dropdown
+    id: request-type
+    attributes:
+      label: Request Type
+      options:
+        - Missing documentation
+        - Incorrect / outdated documentation
+        - Needs clarification or improvement
+        - New guide or tutorial
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What is missing, wrong, or unclear? Where is the gap?
+    validations:
+      required: true
+
+  - type: textarea
+    id: location
+    attributes:
+      label: Location
+      description: Which file, page, or section does this relate to? Provide a path or URL if applicable.
+      placeholder: e.g. README.md — Configuration section
+
+  - type: textarea
+    id: proposed-content
+    attributes:
+      label: Proposed Content or Changes
+      description: If you have a suggestion for what the documentation should say, describe it here.
+
+  - type: textarea
+    id: why-this-matters
+    attributes:
+      label: Why This Matters
+      description: Explain impact to users and contributors.
+
+  - type: checkboxes
+    id: willingness-to-contribute
+    attributes:
+      label: Willingness to Contribute
+      options:
+        - label: I am willing to submit a PR for this documentation improvement.
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Add links, references, examples, or screenshots.

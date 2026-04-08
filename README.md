@@ -12,7 +12,7 @@ The C# Academy website is more than just a learning platform - it's a living pro
 
 1. Request to be added as a contributor in [Community Project](https://discord.com/channels/925901888203935744/1045222886375444520) discord channel
 
-2. Read [Contributing to The C# Academy](https://thecsharpacademy.com/article/30008/contributing-csharp-academy) article
+2. Read [Contributing to The C# Academy](https://thecsharpacademy.com/article/30008/contributing-csharp-academy) article.
 
 3. Browse the **Community Issues** or create a new **Community Issue** in [The C# Academy's Github Project](https://github.com/users/TheCSharpAcademy/projects/23)
 
