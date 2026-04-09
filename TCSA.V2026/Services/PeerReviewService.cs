@@ -99,8 +99,12 @@ public class PeerReviewService(IDbContextFactory<ApplicationDbContext> _factory)
 
     public async Task<List<PeerReviewDisplay>> GetProjectsForPeerReview(string userId)
     {
-        var url = "https://github.com/TheCSharpAcademy/CodeReviews";
-
+        var validUrls = new[]
+        {
+            "https://github.com/the-csharp-academy/CodeReviews",
+            "https://github.com/TheCSharpAcademy/CodeReviews"
+        };
+   
         try
         {
             using (var context = _factory.CreateDbContext())
@@ -130,7 +134,7 @@ public class PeerReviewService(IDbContextFactory<ApplicationDbContext> _factory)
                 .Where(x => x.IsPendingReview
                    && eligibleProjectIds.Contains(x.ProjectId)
                    && !reviewProjects.Contains(x.Id)
-                   && x.GithubUrl.StartsWith(url))
+                   && (x.GithubUrl.StartsWith(validUrls[0]) || x.GithubUrl.StartsWith(validUrls[1])))
                 .OrderBy(x => x.DateSubmitted)
                 .ToListAsync();
 
