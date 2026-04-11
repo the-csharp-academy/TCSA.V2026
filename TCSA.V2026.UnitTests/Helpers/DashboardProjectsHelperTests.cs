@@ -149,7 +149,7 @@ public class DashboardProjectsHelperTests
     [TestCase(Area.MAUI, new[] { (int)ArticleName.MauiMath, (int)ArticleName.Books, (int)ArticleName.Monkeys, (int)ArticleName.Warehouse })]
     [TestCase(Area.Azure, new[] { (int)ArticleName.DeploySimpleApp, (int)ArticleName.DeployFullStack, (int)ArticleName.DeployFramework, (int)ArticleName.AzureFunctions })]
     [TestCase(Area.Docker, new[] { (int)ArticleName.DockerIntro })]
-    [TestCase(Area.MonthlyChallenge, new[] { (int)ArticleName.BreweryApi })]
+    [TestCase(Area.MonthlyChallenge, new[] { (int)ArticleName.BreweryApi, (int)ArticleName.BuildAGame })]
     [TestCase(Area.GraduationProject, new[] { (int)ArticleName.Flagship })]
     public void CheckIfAreaIsCompleted_ShouldReturnTrue_WhenOtherAreaThanStartHereIsCompleted(
         Area area,
