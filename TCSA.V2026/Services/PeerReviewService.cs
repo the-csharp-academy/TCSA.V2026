@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using System.Data;
 using TCSA.V2026.Data;
 using TCSA.V2026.Data.Curriculum;
@@ -39,7 +39,7 @@ public class PeerReviewService(IDbContextFactory<ApplicationDbContext> _factory)
             }
 
             return result;
-        } 
+        }
         catch (Exception ex)
         {
             result.Message = ex.Message;
@@ -104,7 +104,7 @@ public class PeerReviewService(IDbContextFactory<ApplicationDbContext> _factory)
             "https://github.com/the-csharp-academy/CodeReviews",
             "https://github.com/TheCSharpAcademy/CodeReviews"
         };
-   
+
         try
         {
             using (var context = _factory.CreateDbContext())
@@ -119,28 +119,26 @@ public class PeerReviewService(IDbContextFactory<ApplicationDbContext> _factory)
                 {
                     return new List<PeerReviewDisplay> { };
                 }
-             
-                List<int> eligibleProjectIds = 
+
+                List<int> eligibleProjectIds =
                     PeerReviewHelpers.DetermineReviewableProjectIds(user.Level, user.DashboardProjects.Select(dp => dp.ProjectId));
 
-                var reviewProjects = context.UserReviews
+                var assignedProjectIds = context.UserReviews
                     .Where(x => x.AppUserId != user.Id)
-                    .Select(x => x.DashboardProjectId)
-                    .ToList();
+                    .Select(x => x.DashboardProjectId);
 
                 var projects = await context.DashboardProjects
-                .AsSplitQuery()
-                .Include(x => x.AppUser)
-                .Where(x => x.IsPendingReview
-                   && eligibleProjectIds.Contains(x.ProjectId)
-                   && !reviewProjects.Contains(x.Id)
-                   && (x.GithubUrl.StartsWith(validUrls[0]) || x.GithubUrl.StartsWith(validUrls[1])))
-                .OrderBy(x => x.DateSubmitted)
-                .ToListAsync();
+                    .AsNoTracking()
+                    .Include(x => x.AppUser)
+                    .Where(x => x.IsPendingReview
+                        && eligibleProjectIds.Contains(x.ProjectId)
+                        && !assignedProjectIds.Contains(x.Id)
+                        && (x.GithubUrl.StartsWith(validUrls[0]) || x.GithubUrl.StartsWith(validUrls[1])))
+                    .OrderBy(x => x.DateSubmitted)
+                    .ToListAsync();
 
-                var result = PeerReviewHelpers.MapPeerReviewDisplays(projects, user.CodeReviewProjects);
-
-                return result;
+                var reviewedIds = new HashSet<int>(user.CodeReviewProjects.Select(x => x.DashboardProjectId));
+                return PeerReviewHelpers.MapPeerReviewDisplays(projects, reviewedIds);
             }
         }
         catch (Exception ex)
@@ -228,9 +226,9 @@ public class PeerReviewService(IDbContextFactory<ApplicationDbContext> _factory)
                     }
                 );
 
-                if (reviewer != null 
-                    && reviewedProjects != null 
-                    && reviewer.ReviewExperiencePoints == 0 
+                if (reviewer != null
+                    && reviewedProjects != null
+                    && reviewer.ReviewExperiencePoints == 0
                     && reviewedProjects.Count > 0)
                 {
                     //This has to be retroactive, so if some user has reviews but no points, it will calculate them first.
