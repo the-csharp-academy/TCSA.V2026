@@ -5,6 +5,7 @@
 @using System.Text.Encodings.Web
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.AspNetCore.WebUtilities
+@using Microsoft.EntityFrameworkCore
 @using TCSA.V2026.Data
 @using TCSA.V2026.Data.Enums
 @using TCSA.V2026.Data.Models
@@ -306,6 +307,8 @@
 
     public async Task RegisterUser(EditContext editContext)
     {
+        identityErrors = null;
+
         if (string.IsNullOrEmpty(Input.Country) || !Countries.Contains(Input.Country))
         {
             var messages = new ValidationMessageStore(editContext);
@@ -327,10 +330,46 @@
         user.Level = Level.White;
         user.CreatedDate = DateTime.UtcNow;
 
-        var result = await UserManager.CreateAsync(user, Input.Password);
+        IdentityResult result;
+        try
+        {
+            result = await UserManager.CreateAsync(user, Input.Password);
+        }
+        catch (DbUpdateException ex)
+        {
+            Logger.LogWarning(ex, "Registration create failed. Attempting idempotent sign-in.");
+            var signInResult = await SignInManager.PasswordSignInAsync(Input.Email, Input.Password, isPersistent: true, lockoutOnFailure: true);
+
+            if (signInResult.Succeeded)
+            {
+                RedirectManager.RedirectTo(ReturnUrl);
+                return;
+            }
+
+            identityErrors =
+            [
+                new IdentityError { Description = "We couldn't complete registration. Please check your details and try again." }
+            ];
+            return;
+        }
 
         if (!result.Succeeded)
         {
+            if (result.Errors.Any(e => e.Code is "DuplicateEmail" or "DuplicateUserName"))
+            {
+                var signInResult = await SignInManager.PasswordSignInAsync(
+                    Input.Email,
+                    Input.Password,
+                    isPersistent: true,
+                    lockoutOnFailure: true);
+
+                if (signInResult.Succeeded)
+                {
+                    RedirectManager.RedirectTo(ReturnUrl);
+                    return;
+                }
+            }
+
             identityErrors = result.Errors;
             return;
         }
