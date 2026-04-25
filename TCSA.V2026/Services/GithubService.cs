@@ -116,7 +116,18 @@ public class GithubService(IDbContextFactory<ApplicationDbContext> _factory) : I
 
         try
         {
-            var points = ProjectHelper.GetProjects().FirstOrDefault(p => p.Id == projectId).ExperiencePoints;
+            var projectDefinition = ProjectHelper.GetProjects().FirstOrDefault(p => p.Id == projectId);
+
+            if (projectDefinition is null)
+            {
+                return new BaseResponse
+                {
+                    Status = ResponseStatus.Fail,
+                    Message = "Project definition not found."
+                };
+            }
+
+            var points = projectDefinition.ExperiencePoints;
 
             using (var context = _factory.CreateDbContext())
             {
@@ -125,6 +136,14 @@ public class GithubService(IDbContextFactory<ApplicationDbContext> _factory) : I
                        .ThenInclude(u => u.UserActivity)
                     .FirstOrDefaultAsync(p => p.ProjectId == projectId && p.GithubUrl.Contains(pullRequestReviewDto.PullRequest.Number.ToString()));
 
+                if (project == null)
+                {
+                    return new BaseResponse
+                    {
+                        Status = ResponseStatus.Fail,
+                        Message = "Project submission not found for this pull request."
+                    };
+                }
                 project.IsPendingNotification = true;
                 project.IsPendingReview = false;
                 project.IsCompleted = true;
