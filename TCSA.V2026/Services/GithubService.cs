@@ -1,4 +1,3 @@
-﻿using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using TCSA.V2026.Data;
 using TCSA.V2026.Data.Curriculum;
@@ -144,6 +143,16 @@ public class GithubService(IDbContextFactory<ApplicationDbContext> _factory) : I
                         Message = "Project submission not found for this pull request."
                     };
                 }
+
+                if (project.IsCompleted)
+                {
+                    return new BaseResponse
+                    {
+                        Status = ResponseStatus.Success,
+                        Message = "Pull request was already processed as completed."
+                    };
+                }
+
                 project.IsPendingNotification = true;
                 project.IsPendingReview = false;
                 project.IsCompleted = true;
