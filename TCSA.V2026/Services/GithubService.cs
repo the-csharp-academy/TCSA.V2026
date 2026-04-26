@@ -150,7 +150,7 @@ public class GithubService(IDbContextFactory<ApplicationDbContext> _factory) : I
                 var project = await context.DashboardProjects
                     .Include(p => p.AppUser)
                        .ThenInclude(u => u.UserActivity)
-                    .FirstOrDefaultAsync(p => p.ProjectId == projectId && p.GithubUrl.Contains(pullRequestReviewDto.PullRequest.Number.ToString()));
+                    .FirstOrDefaultAsync(p => p.ProjectId == projectId && p.GithubUrl.EndsWith($"/{pullRequestReviewDto.PullRequest.Number}"));
 
                 if (project == null)
                 {
