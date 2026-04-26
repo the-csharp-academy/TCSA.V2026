@@ -11,13 +11,22 @@ namespace TCSA.V2026.Services;
 public interface IGithubService
 {
     Task<BaseResponse> MarkAsCompleted(PullRequestReviewDto? pullRequestReviewDto);
-    Task<BaseResponse> ProcessPullRequest(PullRequestDto pullRequestDto);
+    Task<BaseResponse> ProcessPullRequest(PullRequestDto? pullRequestDto);
 }
 
 public class GithubService(IDbContextFactory<ApplicationDbContext> _factory) : IGithubService
 {
-    public async Task<BaseResponse> ProcessPullRequest(PullRequestDto pullRequestDto)
+    public async Task<BaseResponse> ProcessPullRequest(PullRequestDto? pullRequestDto)
     {
+        if (pullRequestDto is null)
+        {
+            return new BaseResponse
+            {
+                Status = ResponseStatus.Fail,
+                Message = "Invalid pull request payload."
+            };
+        }
+
         if (!pullRequestDto.Action.Equals("opened"))
         {
             return new BaseResponse
@@ -40,7 +49,6 @@ public class GithubService(IDbContextFactory<ApplicationDbContext> _factory) : I
 
         using (var context = _factory.CreateDbContext())
         {
-            var fuckingName = "TheCSharpAcademy";
             var user = await context.AspNetUsers
                 .Include(u => u.DashboardProjects)
                 .FirstOrDefaultAsync(u => u.GithubUsername.Trim().ToLower() == pullRequestDto.PullRequest.User.Login.Trim().ToLower());
@@ -96,7 +104,7 @@ public class GithubService(IDbContextFactory<ApplicationDbContext> _factory) : I
         if (pullRequestReviewDto is null)
         {
             return new BaseResponse
-    {
+            {
                 Status = ResponseStatus.Fail,
                 Message = "Invalid pull request review payload."
             };
