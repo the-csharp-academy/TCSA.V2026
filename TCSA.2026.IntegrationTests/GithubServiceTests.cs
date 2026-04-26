@@ -213,4 +213,73 @@ public class GithubServiceTests : IntegrationTestsBase
         Assert.That(reviewer.ExperiencePoints.Equals(110));
         Assert.That(reviewee.ExperiencePoints.Equals(10));
     }
+
+    [Test]
+    public async Task MarkAsCompleted_WhenDuplicateRequestsForSameProject_AwardsPointsOnlyOnce()
+    {
+        const int dashboardProjectId = 150;
+        const int prNumber = 950;
+
+        using (var seedContext = DbContextFactory.CreateDbContext())
+        {
+            seedContext.DashboardProjects.Add(new DashboardProject
+            {
+                Id = dashboardProjectId,
+                AppUserId = "user1",
+                ProjectId = (int)ArticleName.Calculator,
+                IsArchived = false,
+                IsPendingNotification = false,
+                IsPendingReview = true,
+                IsCompleted = false,
+                DateSubmitted = DateTimeOffset.UtcNow.AddDays(-1),
+                GithubUrl = $"test_pull_request/{prNumber}"
+            });
+
+            seedContext.UserReviews.Add(new UserReview
+            {
+                Id = 150,
+                DashboardProjectId = dashboardProjectId,
+                AppUserId = "user2"
+            });
+
+            await seedContext.SaveChangesAsync();
+        }
+
+        var dto = new PullRequestReviewDto
+        {
+            Review = new Review { State = "approved" },
+            Repository = new Repository { Id = 573911382 },
+            PullRequest = new PullRequest { Number = prNumber }
+        };
+
+        var firstResult = await _service.MarkAsCompleted(dto);
+
+        var secondResult = await _service.MarkAsCompleted(dto);
+
+        using var assertContext = DbContextFactory.CreateDbContext();
+
+        var project = assertContext.DashboardProjects.First(p => p.Id == dashboardProjectId);
+        var reviewee = assertContext.Users.First(u => u.Id == "user1");
+        var reviewer = assertContext.Users.First(u => u.Id == "user2");
+
+        var projectCompletedActivities = assertContext.UserActivity.Count(a =>
+            a.AppUserId == "user1"
+            && a.ProjectId == (int)ArticleName.Calculator
+            && a.ActivityType == ActivityType.ProjectCompleted);
+
+        var codeReviewCompletedActivities = assertContext.UserActivity.Count(a =>
+            a.AppUserId == "user2"
+            && a.ProjectId == (int)ArticleName.Calculator
+            && a.ActivityType == ActivityType.CodeReviewCompleted);
+
+        Assert.That(firstResult.Status, Is.EqualTo(ResponseStatus.Success));
+        Assert.That(secondResult.Status, Is.EqualTo(ResponseStatus.Success));
+        Assert.That(project.IsCompleted, Is.True);
+
+        Assert.That(reviewee.ExperiencePoints, Is.EqualTo(10), "Reviewee should get points once.");
+        Assert.That(reviewer.ExperiencePoints, Is.EqualTo(110), "Reviewer should get points once.");
+
+        Assert.That(projectCompletedActivities, Is.EqualTo(1));
+        Assert.That(codeReviewCompletedActivities, Is.EqualTo(1));
+    }
 }
