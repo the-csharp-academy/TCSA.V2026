@@ -10,7 +10,7 @@ namespace TCSA.V2026.Services;
 
 public interface IGithubService
 {
-    Task<BaseResponse> MarkAsCompleted(PullRequestReviewDto pullRequestReviewDto);
+    Task<BaseResponse> MarkAsCompleted(PullRequestReviewDto? pullRequestReviewDto);
     Task<BaseResponse> ProcessPullRequest(PullRequestDto pullRequestDto);
 }
 
@@ -91,8 +91,17 @@ public class GithubService(IDbContextFactory<ApplicationDbContext> _factory) : I
         };
     }
 
-    public async Task<BaseResponse> MarkAsCompleted(PullRequestReviewDto pullRequestReviewDto)
+    public async Task<BaseResponse> MarkAsCompleted(PullRequestReviewDto? pullRequestReviewDto)
     {
+        if (pullRequestReviewDto is null)
+        {
+            return new BaseResponse
+    {
+                Status = ResponseStatus.Fail,
+                Message = "Invalid pull request review payload."
+            };
+        }
+
         if (!pullRequestReviewDto.Review.State.Equals("approved"))
         {
             return new BaseResponse
