@@ -6,123 +6,96 @@ namespace TCSA.V2026.Data.Curriculum;
 
 public static class ProjectHelper
 {
-    public static List<Project> GetProjects()
-    {
-        var projects = new List<Project>();
+    private static readonly List<Project> _allProjects = [
+        .. StandAloneProjectsHelper.GetProjects(),
+        .. ConsoleProjectsHelper.GetProjects(),
+        .. StartApplyingProjectsHelper.GetProjects(),
+        .. MVCProjectsHelper.GetProjects(),
+        .. AngularProjectsHelper.GetProjects(),
+        .. BlazorProjectsHelper.GetProjects(),
+        .. ReactProjectsHelper.GetProjects(),
+        .. SqlProjectsHelper.GetProjects(),
+        .. AuthProjectsHelper.GetProjects(),
+        .. AzureProjectsHelper.GetProjects(),
+        .. MauiProjectsHelper.GetProjects(),
+        .. ChallengeProjectsHelper.GetProjects(),
+        .. OpenSourceProjectsHelper.GetProjects(),
+        .. DockerProjectsHelper.GetProjects(),
+    ];
 
-        return projects
-            .Concat(StandAloneProjectsHelper.GetProjects())
-            .Concat(ConsoleProjectsHelper.GetProjects())
-            .Concat(StartApplyingProjectsHelper.GetProjects())
-            .Concat(MVCProjectsHelper.GetProjects())
-            .Concat(AngularProjectsHelper.GetProjects())
-            .Concat(BlazorProjectsHelper.GetProjects())
-            .Concat(ReactProjectsHelper.GetProjects())
-            .Concat(SqlProjectsHelper.GetProjects())
-            .Concat(AuthProjectsHelper.GetProjects())
-            .Concat(AzureProjectsHelper.GetProjects())
-            .Concat(MauiProjectsHelper.GetProjects())
-            .Concat(ChallengeProjectsHelper.GetProjects())
-            .Concat(OpenSourceProjectsHelper.GetProjects())
-            .Concat(DockerProjectsHelper.GetProjects())
-            .ToList();
-    }
+    private static readonly List<ShowcaseProjectInfo> _allProjectInfos = [.. _allProjects.Select(project => new ShowcaseProjectInfo
+    {
+        Id = project.Id,
+        Title = project.Title,
+        Area = project.Area,
+    })];
+
+    private static readonly List<Project> _allProjectsInPortuguese = [
+        .. StandAloneProjectsHelper.GetProjectsInPortuguese(),
+        .. ConsoleProjectsHelper.GetProjectsInPortuguese(),
+    ];
+
+    private static readonly List<Project> _allProjectsInDutch = [
+        .. StandAloneProjectsHelper.GetProjectsInDutch(),
+        .. ConsoleProjectsHelper.GetProjectsInDutch(),
+    ];
+
+    private static readonly List<Project> _allProjectsInTurkish = [
+        .. StandAloneProjectsHelper.GetProjectsInTurkish(),
+        .. ConsoleProjectsHelper.GetProjectsInTurkish(),
+    ];
+
+    private static readonly List<Project> _allProjectsInTraditionalChinese = [
+        .. StandAloneProjectsHelper.GetProjectsInTraditionalChinese(),
+    ];
+
+    private static readonly List<Project> _allProjectsInKorean = [
+        .. StandAloneProjectsHelper.GetProjectsInKorean(),
+        .. ConsoleProjectsHelper.GetProjectsInKorean(),
+    ];
+
+    private static readonly List<Project> _allProjectsInCroatian = [
+        .. StandAloneProjectsHelper.GetProjectsInCroatian(),
+    ];
+
+    private static readonly List<Project> _allProjectsInRussian = [
+        .. StandAloneProjectsHelper.GetProjectsInRussian(),
+        .. ConsoleProjectsHelper.GetProjectsInRussian(),
+    ];
+
+    private static readonly List<Project> _allProjectsInPolish = [
+        .. StandAloneProjectsHelper.GetProjectsInPolish(),
+    ];
+
+    public static List<Project> GetProjects() => _allProjects;
 
     public static string GetProjectIconUrl(int? projectId)
     {
-        var project = GetProjects().FirstOrDefault(p => p.Id == projectId);
+        var project = _allProjects.FirstOrDefault(p => p.Id == projectId);
         return project != null ? project.IconUrl : string.Empty;
     }
 
     public static string GetProjectName(int? projectId)
     {
-        var project = GetProjects().FirstOrDefault(p => p.Id == projectId);
+        var project = _allProjects.FirstOrDefault(p => p.Id == projectId);
         return project != null ? project.Title : string.Empty;
     }
 
-    public static List<ShowcaseProjectInfo> GetProjectInfos()
-    {
-        return GetProjects().Select(project => new ShowcaseProjectInfo
-        {
-            Id = project.Id,
-            Title = project.Title,
-            Area = project.Area,
+    public static List<ShowcaseProjectInfo> GetProjectInfos() => _allProjectInfos;
 
-        }).ToList();
-    }
+    public static List<Project> GetProjectsInPortuguese() => _allProjectsInPortuguese;
 
-    public static List<Project> GetProjectsInPortuguese()
-    {
-        var projects = new List<Project>();
+    public static List<Project> GetProjectsInDutch() => _allProjectsInDutch;
 
-        return projects
-            .Concat(StandAloneProjectsHelper.GetProjectsInPortuguese())
-            .Concat(ConsoleProjectsHelper.GetProjectsInPortuguese())
-            .ToList();
-    }
+    public static List<Project> GetProjectsInTurkish() => _allProjectsInTurkish;
 
-    public static List<Project> GetProjectsInDutch()
-    {
-        var projects = new List<Project>();
+    public static List<Project> GetProjectsInTraditionalChinese() => _allProjectsInTraditionalChinese;
 
-        return projects
-            .Concat(StandAloneProjectsHelper.GetProjectsInDutch())
-            .Concat(ConsoleProjectsHelper.GetProjectsInDutch())
-            .ToList();
-    }
+    public static List<Project> GetProjectsInKorean() => _allProjectsInKorean;
 
-    public static List<Project> GetProjectsInTurkish()
-    {
-        var projects = new List<Project>();
+    public static List<Project> GetProjectsInCroatian() => _allProjectsInCroatian;
 
-        return projects
-            .Concat(StandAloneProjectsHelper.GetProjectsInTurkish())
-            .Concat(ConsoleProjectsHelper.GetProjectsInTurkish())
-            .ToList();
-    }
+    public static List<Project> GetProjectsInRussian() => _allProjectsInRussian;
 
-    public static List<Project> GetProjectsInTraditionalChinese()
-    {
-        var projects = new List<Project>();
-        return projects
-            .Concat(StandAloneProjectsHelper.GetProjectsInTraditionalChinese())
-            .ToList();
-    }
-
-    public static List<Project> GetProjectsInKorean()
-    {
-        var projects = new List<Project>();
-        return projects
-            .Concat(StandAloneProjectsHelper.GetProjectsInKorean())
-            .Concat(ConsoleProjectsHelper.GetProjectsInKorean())
-            .ToList();
-    }
-
-    public static List<Project> GetProjectsInCroatian()
-    {
-        var projects = new List<Project>();
-
-        return projects
-            .Concat(StandAloneProjectsHelper.GetProjectsInCroatian())
-            .ToList();
-    }
-
-    public static List<Project> GetProjectsInRussian()
-    {
-        var projects = new List<Project>();
-
-        return projects
-            .Concat(StandAloneProjectsHelper.GetProjectsInRussian())
-            .Concat(ConsoleProjectsHelper.GetProjectsInRussian())
-            .ToList();
-    }
-
-    public static List<Project> GetProjectsInPolish()
-    {
-        var projects = new List<Project>();
-
-        return projects
-            .Concat(StandAloneProjectsHelper.GetProjectsInPolish())
-            .ToList();
-    }
+    public static List<Project> GetProjectsInPolish() => _allProjectsInPolish;
 }
