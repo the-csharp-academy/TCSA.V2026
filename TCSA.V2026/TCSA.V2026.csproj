@@ -11,7 +11,6 @@
 
   <ItemGroup>
     <PackageReference Include="AspNet.Security.OAuth.GitHub" />
-    <PackageReference Include="Azure.Monitor.OpenTelemetry.AspNetCore" />
     <PackageReference Include="Humanizer"/>
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore"/>
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" />
