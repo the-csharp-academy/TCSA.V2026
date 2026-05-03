@@ -209,7 +209,7 @@ public class GithubService(IDbContextFactory<ApplicationDbContext> _factory, IPe
                 await context.SaveChangesAsync();
 
                 if (!string.IsNullOrEmpty(reviewerUserId))
-                    await _publisher.Publish(new ReviewCompletedEvent(reviewerUserId, completedProjectId));
+                    await _publisher.Publish(new ReviewCompletedEvent(reviewerUserId));
             }
             return new BaseResponse
             {
