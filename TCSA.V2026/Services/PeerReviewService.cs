@@ -192,9 +192,9 @@ public class PeerReviewService(IDbContextFactory<ApplicationDbContext> _factory)
         {
             using (var context = _factory.CreateDbContext())
             {
-                var reviewer = context.Users
+                var reviewer = await context.Users
                     .Include(x => x.UserActivity.Where(x => x.ActivityType == ActivityType.CodeReviewCompleted))
-                    .FirstOrDefault(x => x.Id == reviewerId);
+                    .FirstOrDefaultAsync(x => x.Id == reviewerId);
 
                 var reviewedProjects = reviewer.UserActivity;
 
