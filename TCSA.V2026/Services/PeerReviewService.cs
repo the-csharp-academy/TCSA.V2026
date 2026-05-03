@@ -215,6 +215,14 @@ public class PeerReviewService(IDbContextFactory<ApplicationDbContext> _factory)
                     result.Status = ResponseStatus.Fail;
                     return result;
                 }
+
+                if (dashboardProject.IsCompleted)
+                {
+                    result.Message = "Project is already marked as completed.";
+                    result.Status = ResponseStatus.Fail;
+                    return result;
+                }
+
                 var academyProject = ProjectHelper.GetProjects().FirstOrDefault(x => x.Id == dashboardProject.ProjectId);
 
                 dashboardProject.IsPendingReview = false;
