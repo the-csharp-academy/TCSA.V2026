@@ -133,6 +133,7 @@
 
     private bool IsLoading = true;
     private string UserId = string.Empty;
+    private Guid _subscriptionId;
     private TimeSpan LoadTime;
     private HashSet<int> _processingIds = new();
 
@@ -155,11 +156,13 @@
 
         IsLoading = false;
 
-        Publisher.Subscribe(UserId, OnReviewCompletedAsync);
+        _subscriptionId = Publisher.Subscribe(OnReviewCompletedAsync);
     }
 
     private async Task OnReviewCompletedAsync(ReviewCompletedEvent @event)
     {
+        if (@event.ReviewerId != UserId) return;
+
         await InvokeAsync(async () =>
         {
             AvailableProjects = await PeerReviewService.GetProjectsForPeerReview(UserId);
@@ -169,7 +172,7 @@
 
     public void Dispose()
     {
-        Publisher.Unsubscribe(UserId);
+        Publisher.Unsubscribe(_subscriptionId);
     }
 
     private async Task AssignMyself(int dashboardProjectId)

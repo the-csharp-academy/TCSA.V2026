@@ -5,14 +5,14 @@ namespace TCSA.V2026.Services;
 
 public interface IPeerReviewPublisher
 {
-    void Subscribe(string userId, Func<ReviewCompletedEvent, Task> handler);
-    void Unsubscribe(string userId);
+    Guid Subscribe(Func<ReviewCompletedEvent, Task> handler);
+    void Unsubscribe(Guid subscriptionId);
     Task Publish(ReviewCompletedEvent @event);
 }
 
 public class PeerReviewPublisher : IPeerReviewPublisher
 {
-    private readonly ConcurrentDictionary<string, Func<ReviewCompletedEvent, Task>> _subscribers = new();
+    private readonly ConcurrentDictionary<Guid, Func<ReviewCompletedEvent, Task>> _subscribers = new();
     private readonly ILogger<PeerReviewPublisher> _logger;
 
     public PeerReviewPublisher(ILogger<PeerReviewPublisher> logger)
@@ -20,15 +20,19 @@ public class PeerReviewPublisher : IPeerReviewPublisher
         _logger = logger;
     }
 
-    public void Subscribe(string userId, Func<ReviewCompletedEvent, Task> handler)
-        => _subscribers[userId] = handler;
+    public Guid Subscribe(Func<ReviewCompletedEvent, Task> handler)
+    {
+        var id = Guid.NewGuid();
+        _subscribers[id] = handler;
+        return id;
+    }
 
-    public void Unsubscribe(string userId)
-        => _subscribers.TryRemove(userId, out _);
+    public void Unsubscribe(Guid subscriptionId)
+        => _subscribers.TryRemove(subscriptionId, out _);
 
     public async Task Publish(ReviewCompletedEvent @event)
     {
-        if (_subscribers.TryGetValue(@event.ReviewerId, out var handler))
+        foreach (var handler in _subscribers.Values)
         {
             try
             {
