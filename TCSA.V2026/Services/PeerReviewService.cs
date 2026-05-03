@@ -209,6 +209,12 @@ public class PeerReviewService(IDbContextFactory<ApplicationDbContext> _factory)
                     .Include(dp => dp.AppUser)
                     .FirstOrDefaultAsync(x => x.Id == dashboardProjectId);
 
+                if (dashboardProject is null)
+                {
+                    result.Message = "Dashboard project not found.";
+                    result.Status = ResponseStatus.Fail;
+                    return result;
+                }
                 var academyProject = ProjectHelper.GetProjects().FirstOrDefault(x => x.Id == dashboardProject.ProjectId);
 
                 dashboardProject.IsPendingReview = false;
