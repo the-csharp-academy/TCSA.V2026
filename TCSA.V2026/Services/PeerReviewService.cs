@@ -196,6 +196,13 @@ public class PeerReviewService(IDbContextFactory<ApplicationDbContext> _factory)
                     .Include(x => x.UserActivity.Where(x => x.ActivityType == ActivityType.CodeReviewCompleted))
                     .FirstOrDefaultAsync(x => x.Id == reviewerId);
 
+                if (reviewer is null)
+                {
+                    result.Message = "Reviewer not found.";
+                    result.Status = ResponseStatus.Fail;
+                    return result;
+                }
+
                 var reviewedProjects = reviewer.UserActivity;
 
                 var dashboardProject = await context.DashboardProjects
