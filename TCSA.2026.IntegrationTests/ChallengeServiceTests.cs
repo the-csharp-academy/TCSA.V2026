@@ -1,5 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
+using TCSA.V2026.Data.Enums;
+using TCSA.V2026.Data.Models;
+using TCSA.V2026.Data.Models.Responses;
 using TCSA.V2026.Services;
 
 namespace TCSA.V2026.IntegrationTests;
@@ -205,5 +208,34 @@ public class ChallengeServiceTests : IntegrationTestsBase
             .FirstOrDefaultAsync(s => s.AppUserId == userId);
         Assert.That(updatedStreak, Is.Not.Null);
         Assert.That(updatedStreak.CurrentStreak, Is.EqualTo(0));
+    }
+
+    [Test]
+    public async Task AddChallenge_ShouldNotAddDuplicate()
+    {
+        // Arrange
+        var challenge = new Challenge
+        {
+            ExternalId = "fakeId",
+            Description = "desc",
+            Keywords = "kw",
+            Name = "challenge1",
+            ExperiencePoints = 1,
+            Platform = ChallengePlatform.LeetCode,
+            Level = Level.Green,
+        };
+
+        // Act
+        var result = await _service.AddChallenge(challenge);
+        var resultDuplicate = await _service.AddChallenge(challenge);
+
+        // Assert
+        Assert.That(result.Status, Is.EqualTo(ResponseStatus.Success));
+        Assert.That(resultDuplicate.Status, Is.EqualTo(ResponseStatus.Fail));
+        Assert.That(resultDuplicate.Message, Is.EqualTo("Challenge already exists."));
+
+        using var assertContext = DbContextFactory.CreateDbContext();
+        var challenges = await assertContext.Challenges.Where(c => c.ExternalId == challenge.ExternalId).ToListAsync();
+        Assert.That(challenges.Count, Is.EqualTo(1));
     }
 }
