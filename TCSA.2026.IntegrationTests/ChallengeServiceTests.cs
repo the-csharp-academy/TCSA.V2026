@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging.Abstractions;
 using TCSA.V2026.Services;
 
 namespace TCSA.V2026.IntegrationTests;
@@ -11,7 +12,7 @@ public class ChallengeServiceTests : IntegrationTestsBase
     public void Setup()
     {
         BaseSetup();
-        _service = new ChallengeService(DbContextFactory);
+        _service = new ChallengeService(DbContextFactory, NullLogger<ChallengeService>.Instance);
     }
 
     [TearDown]
