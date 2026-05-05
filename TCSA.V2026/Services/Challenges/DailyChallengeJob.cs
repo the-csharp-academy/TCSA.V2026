@@ -1,5 +1,3 @@
-using TCSA.V2026.Services;
-
 namespace TCSA.V2026.Services.Challenges;
 
 public class DailyChallengeJob(IServiceScopeFactory scopeFactory) : BackgroundService
