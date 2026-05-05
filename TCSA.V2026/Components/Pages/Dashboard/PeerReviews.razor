@@ -165,8 +165,13 @@
 
         await InvokeAsync(async () =>
         {
+            IsLoading = true;
+            StateHasChanged();
+
             AvailableProjects = await PeerReviewService.GetProjectsForPeerReview(UserId);
             User = await UserService.GetUserById(UserId);
+
+            IsLoading = false;
             StateHasChanged();
         });
     }
