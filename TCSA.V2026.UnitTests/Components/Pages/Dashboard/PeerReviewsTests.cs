@@ -22,6 +22,7 @@ public class PeerReviewsTests : BunitContext
     private readonly Mock<IProjectService> _projectServiceMock = new();
     private readonly Mock<IUserService> _userServiceMock = new();
     private readonly Mock<IPeerReviewService> _peerReviewServiceMock = new();
+    private readonly Mock<IPeerReviewPublisher> _peerReviewPublisherMock = new();
 
     private const string TestUserId = "test-user-id";
     private const int TestDashboardProjectId = 42;
@@ -71,6 +72,7 @@ public class PeerReviewsTests : BunitContext
         Services.AddSingleton(_projectServiceMock.Object);
         Services.AddSingleton(_userServiceMock.Object);
         Services.AddSingleton(_peerReviewServiceMock.Object);
+        Services.AddSingleton(_peerReviewPublisherMock.Object);
         Services.AddMudServices();
     }
 
