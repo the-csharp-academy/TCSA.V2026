@@ -57,11 +57,19 @@ public class PeerReviewService(IDbContextFactory<ApplicationDbContext> _factory)
             using (var context = _factory.CreateDbContext())
             {
                 var userReview = await context.UserReviews
+                    .Include(x => x.DashboardProject)
                     .FirstOrDefaultAsync(x => x.AppUserId == userId && x.DashboardProjectId == id);
 
                 if (userReview is null)
                 {
                     result.Message = "User is Null";
+                    result.Status = ResponseStatus.Fail;
+                    return result;
+                }
+
+                if (userReview.DashboardProject.IsCompleted)
+                {
+                    result.Message = "Project is already completed and cannot be released.";
                     result.Status = ResponseStatus.Fail;
                     return result;
                 }
