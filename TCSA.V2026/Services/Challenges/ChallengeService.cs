@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using TCSA.V2026.Data;
 using TCSA.V2026.Data.Enums;
 using TCSA.V2026.Data.Models;
+using TCSA.V2026.Data.Models.Responses;
 
 namespace TCSA.V2026.Services;
 
@@ -11,9 +12,10 @@ public interface IChallengeService
     Task<List<Challenge>> GetChallenges(Level level);
     Task<DailyStreak> GetStreakInfo(string userId);
     Task UpdateStreakInfo(string userId);
+    Task<BaseResponse> AddChallenge(Challenge challenge);
 }
 
-public class ChallengeService(IDbContextFactory<ApplicationDbContext> _factory) : IChallengeService
+public class ChallengeService(IDbContextFactory<ApplicationDbContext> _factory, ILogger<ChallengeService> _logger) : IChallengeService
 {
     public async Task<List<Challenge>> GetChallenges(Level level)
     {
@@ -88,6 +90,27 @@ public class ChallengeService(IDbContextFactory<ApplicationDbContext> _factory) 
             }
 
             await context.SaveChangesAsync();
+        }
+    }
+
+    public async Task<BaseResponse> AddChallenge(Challenge challenge)
+    {
+        try
+        {
+            using var context = _factory.CreateDbContext();
+
+            bool exists = await context.Challenges.AnyAsync(c => c.ExternalId == challenge.ExternalId);
+            if (exists)
+                return new BaseResponse { Status = ResponseStatus.Fail, Message = "Challenge already exists." };
+
+            context.Challenges.Add(challenge);
+            await context.SaveChangesAsync();
+            return new BaseResponse { Status = ResponseStatus.Success };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to add challenge with ExternalId {ExternalId}.", challenge.ExternalId);
+            return new BaseResponse { Status = ResponseStatus.Fail, Message = ex.Message };
         }
     }
 }
