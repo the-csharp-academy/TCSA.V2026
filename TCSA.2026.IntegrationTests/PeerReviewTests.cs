@@ -387,6 +387,111 @@ public class PeerReviewTests : IntegrationTestsBase
     }
 
     [Test]
+    public async Task ReleaseUserFromCodeReview_UserReviewNotFound_ReturnsFail()
+    {
+        using (var seedContext = DbContextFactory.CreateDbContext())
+        {
+            seedContext.DashboardProjects.Add(new DashboardProject
+            {
+                Id = 1,
+                AppUserId = "user10000",
+                ProjectId = (int)ArticleName.Calculator,
+                IsPendingReview = true,
+                GithubUrl = "https://github.com/TheCSharpAcademy/CodeReviews/Calculator"
+            });
+            await seedContext.SaveChangesAsync();
+        }
+
+        var response = await _service.ReleaseUserFromCodeReview("user10000", 1);
+
+        Assert.That(response.Status, Is.EqualTo(ResponseStatus.Fail));
+        Assert.That(response.Message, Is.EqualTo("User is Null"));
+    }
+
+    [Test]
+    public async Task ReleaseUserFromCodeReview_ProjectAlreadyCompleted_ReturnsFail()
+    {
+        using (var seedContext = DbContextFactory.CreateDbContext())
+        {
+            seedContext.DashboardProjects.Add(new DashboardProject
+            {
+                Id = 1,
+                AppUserId = "user1",
+                ProjectId = (int)ArticleName.Calculator,
+                IsCompleted = true,
+                IsPendingReview = false,
+                GithubUrl = "https://github.com/TheCSharpAcademy/CodeReviews/Calculator"
+            });
+            seedContext.UserReviews.Add(new UserReview
+            {
+                AppUserId = "user2",
+                DashboardProjectId = 1
+            });
+            await seedContext.SaveChangesAsync();
+        }
+
+        var response = await _service.ReleaseUserFromCodeReview("user2", 1);
+
+        Assert.That(response.Status, Is.EqualTo(ResponseStatus.Fail));
+        Assert.That(response.Message, Is.EqualTo("Project is already completed and cannot be released."));
+    }
+
+    [Test]
+    public async Task ReleaseUserFromCodeReview_ValidInput_ReturnsSuccess()
+    {
+        using (var seedContext = DbContextFactory.CreateDbContext())
+        {
+            seedContext.DashboardProjects.Add(new DashboardProject
+            {
+                Id = 1,
+                AppUserId = "user1",
+                ProjectId = (int)ArticleName.Calculator,
+                IsPendingReview = true,
+                GithubUrl = "https://github.com/TheCSharpAcademy/CodeReviews/Calculator"
+            });
+            seedContext.UserReviews.Add(new UserReview
+            {
+                AppUserId = "user2",
+                DashboardProjectId = 1
+            });
+            await seedContext.SaveChangesAsync();
+        }
+
+        var response = await _service.ReleaseUserFromCodeReview("user2", 1);
+
+        Assert.That(response.Status, Is.EqualTo(ResponseStatus.Success));
+    }
+
+    [Test]
+    public async Task ReleaseUserFromCodeReview_ValidInput_RemovesUserReview()
+    {
+        using (var seedContext = DbContextFactory.CreateDbContext())
+        {
+            seedContext.DashboardProjects.Add(new DashboardProject
+            {
+                Id = 1,
+                AppUserId = "user1",
+                ProjectId = (int)ArticleName.Calculator,
+                IsPendingReview = true,
+                GithubUrl = "https://github.com/TheCSharpAcademy/CodeReviews/Calculator"
+            });
+            seedContext.UserReviews.Add(new UserReview
+            {
+                AppUserId = "user2",
+                DashboardProjectId = 1
+            });
+            await seedContext.SaveChangesAsync();
+        }
+
+        await _service.ReleaseUserFromCodeReview("user2", 1);
+
+        using var assertContext = DbContextFactory.CreateDbContext();
+        var userReview = assertContext.UserReviews.FirstOrDefault(x => x.AppUserId == "user2" && x.DashboardProjectId == 1);
+
+        Assert.That(userReview, Is.Null);
+    }
+
+    [Test]
     public async Task GetProjectsForPeerReview_GivenUserCompletedMVC_canSeeMVCProjects()
     {
         var codeReviewsUrl = "https://github.com/TheCSharpAcademy/CodeReviews";
