@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using TCSA.V2026.Data;
 using TCSA.V2026.Data.Curriculum;
 using TCSA.V2026.Data.DTOs;
+using TCSA.V2026.Data.Events;
 using TCSA.V2026.Data.Models;
 using TCSA.V2026.Data.Models.Responses;
 using TCSA.V2026.Helpers;
@@ -14,7 +15,7 @@ public interface IGithubService
     Task<BaseResponse> ProcessPullRequest(PullRequestDto? pullRequestDto);
 }
 
-public class GithubService(IDbContextFactory<ApplicationDbContext> _factory) : IGithubService
+public class GithubService(IDbContextFactory<ApplicationDbContext> _factory, IPeerReviewPublisher _publisher) : IGithubService
 {
     public async Task<BaseResponse> ProcessPullRequest(PullRequestDto? pullRequestDto)
     {
@@ -188,8 +189,12 @@ public class GithubService(IDbContextFactory<ApplicationDbContext> _factory) : I
                         .ThenInclude(u => u.UserActivity)
                     .FirstOrDefaultAsync(r => r.DashboardProjectId == project.Id);
 
+                string reviewerUserId = string.Empty;
+                int completedProjectId = project.Id;
+
                 if (review != null)
                 {
+                    reviewerUserId = review.User.Id;
                     review.User.ExperiencePoints = review.User.ExperiencePoints + points;
                     review.User.ReviewedProjects = review.User.ReviewedProjects + 1;
                     review.User.ReviewExperiencePoints = review.User.ReviewExperiencePoints + points;
@@ -202,6 +207,9 @@ public class GithubService(IDbContextFactory<ApplicationDbContext> _factory) : I
                 }
 
                 await context.SaveChangesAsync();
+
+                if (!string.IsNullOrEmpty(reviewerUserId))
+                    await _publisher.Publish(new ReviewCompletedEvent(reviewerUserId));
             }
             return new BaseResponse
             {

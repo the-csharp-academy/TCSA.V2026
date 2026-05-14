@@ -20,7 +20,8 @@ public class GithubServiceTests : IntegrationTestsBase
         httpClientFactoryMock
             .Setup(f => f.CreateClient(It.IsAny<string>()))
             .Returns(new HttpClient());
-        _service = new GithubService(DbContextFactory);
+        var peerReviewPublisherMock = new Mock<IPeerReviewPublisher>();
+        _service = new GithubService(DbContextFactory, peerReviewPublisherMock.Object);
 
         _controller = new GithubWebhookController(_service);
     }

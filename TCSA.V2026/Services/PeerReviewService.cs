@@ -57,11 +57,19 @@ public class PeerReviewService(IDbContextFactory<ApplicationDbContext> _factory)
             using (var context = _factory.CreateDbContext())
             {
                 var userReview = await context.UserReviews
+                    .Include(x => x.DashboardProject)
                     .FirstOrDefaultAsync(x => x.AppUserId == userId && x.DashboardProjectId == id);
 
                 if (userReview is null)
                 {
                     result.Message = "User is Null";
+                    result.Status = ResponseStatus.Fail;
+                    return result;
+                }
+
+                if (userReview.DashboardProject.IsCompleted)
+                {
+                    result.Message = "Project is already completed and cannot be released.";
                     result.Status = ResponseStatus.Fail;
                     return result;
                 }
@@ -192,15 +200,36 @@ public class PeerReviewService(IDbContextFactory<ApplicationDbContext> _factory)
         {
             using (var context = _factory.CreateDbContext())
             {
-                var reviewer = context.Users
+                var reviewer = await context.Users
                     .Include(x => x.UserActivity.Where(x => x.ActivityType == ActivityType.CodeReviewCompleted))
-                    .FirstOrDefault(x => x.Id == reviewerId);
+                    .FirstOrDefaultAsync(x => x.Id == reviewerId);
+
+                if (reviewer is null)
+                {
+                    result.Message = "Reviewer not found.";
+                    result.Status = ResponseStatus.Fail;
+                    return result;
+                }
 
                 var reviewedProjects = reviewer.UserActivity;
 
                 var dashboardProject = await context.DashboardProjects
                     .Include(dp => dp.AppUser)
                     .FirstOrDefaultAsync(x => x.Id == dashboardProjectId);
+
+                if (dashboardProject is null)
+                {
+                    result.Message = "Dashboard project not found.";
+                    result.Status = ResponseStatus.Fail;
+                    return result;
+                }
+
+                if (dashboardProject.IsCompleted)
+                {
+                    result.Message = "Project is already marked as completed.";
+                    result.Status = ResponseStatus.Fail;
+                    return result;
+                }
 
                 var academyProject = ProjectHelper.GetProjects().FirstOrDefault(x => x.Id == dashboardProject.ProjectId);
 
