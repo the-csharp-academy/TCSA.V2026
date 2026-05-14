@@ -2897,7 +2897,12 @@ git push</code>"
                         {
                             new Paragraph
                             {
-                                Body = "You can find pending tasks in <a href='https://github.com/users/TheCSharpAcademy/projects/23' target='_blank'>The C# Academy's Github</a> Project. You'll see a TCSA Team Issues, which are for the academy's staff only and a Community Issues, which is open to everyone else."
+                                Body = "You can find pending tasks in <a href='https://github.com/orgs/the-csharp-academy/projects/3/views/1' target='_blank'>The C# Academy's Github</a> Project. You'll see an <b>Available Issues</b> lane, which contains all issues that can be picked up by members of the community."
+                            },
+                            new Paragraph
+                            {
+                                IsPicture = true,
+                                PictureUrl = "articles/community1.png"
                             }
                         }
                     },
@@ -2908,7 +2913,17 @@ git push</code>"
                         {
                             new Paragraph
                             {
-                                Body = "If you found a bug or you'd like to propose a change, you can create your own issue. In the bottom of the <b>Community Issues</b> lane, click on + Add Item and give the issue a Title. This will create a new Draft Issue on the board."
+                                Body = "If you found a bug or you'd like to propose a change, you can create your own issue. At the top of the <b>Available Issues</b> lane, click on + Add Item and give the issue a Title. Choose the TCSA.V2026 repository and issue type. Each issue type provide a template. For example when creating a feature request you'll find the fields <b>Problem or Motivation</b>, <b>Area</b>, <b>Proposed Solution</b>, <b>Benefits</b>, etc. Make sure you fill all fields, as it forces you to think about the issue and provide specific information for whoever picks up the issue."
+                            },
+                              new Paragraph
+                            {
+                                IsPicture = true,
+                                PictureUrl = "articles/community2.png"
+                            },
+                               new Paragraph
+                            {
+                                IsPicture = true,
+                                PictureUrl = "articles/community3.png"
                             }
                         }
                     },
@@ -2919,7 +2934,12 @@ git push</code>"
                         {
                             new Paragraph
                             {
-                                Body = "At the top of the <a href='https://www.thecsharpacademy.com/dashboard/community' target='_blank'>Community page in the Dashboard</a> Project, click on <b>Create Issue</b>. Select The C# Academy V2, give it a Title, a Type and copy and paste the URL from the github issue into the <b>Issue Url</b> field."
+                                Body = "At the top of the <a href='https://www.thecsharpacademy.com/dashboard/community' target='_blank'>Community page in the Dashboard</a> Project, click on <b>Create Issue</b>. Give it a Title, choose the type from the drop down and copy and paste the URL from the github issue into the <b>Issue Url</b> field."
+                            },
+                            new Paragraph
+                            {
+                                IsPicture = true,
+                                PictureUrl = "articles/community4.png"
                             }
                         }
                     },
