@@ -30,43 +30,6 @@ public static class ProjectHelper
         Area = project.Area,
     })];
 
-    private static readonly List<Project> _allProjectsInPortuguese = [
-        .. StandAloneProjectsHelper.GetProjectsInPortuguese(),
-        .. ConsoleProjectsHelper.GetProjectsInPortuguese(),
-    ];
-
-    private static readonly List<Project> _allProjectsInDutch = [
-        .. StandAloneProjectsHelper.GetProjectsInDutch(),
-        .. ConsoleProjectsHelper.GetProjectsInDutch(),
-    ];
-
-    private static readonly List<Project> _allProjectsInTurkish = [
-        .. StandAloneProjectsHelper.GetProjectsInTurkish(),
-        .. ConsoleProjectsHelper.GetProjectsInTurkish(),
-    ];
-
-    private static readonly List<Project> _allProjectsInTraditionalChinese = [
-        .. StandAloneProjectsHelper.GetProjectsInTraditionalChinese(),
-    ];
-
-    private static readonly List<Project> _allProjectsInKorean = [
-        .. StandAloneProjectsHelper.GetProjectsInKorean(),
-        .. ConsoleProjectsHelper.GetProjectsInKorean(),
-    ];
-
-    private static readonly List<Project> _allProjectsInCroatian = [
-        .. StandAloneProjectsHelper.GetProjectsInCroatian(),
-    ];
-
-    private static readonly List<Project> _allProjectsInRussian = [
-        .. StandAloneProjectsHelper.GetProjectsInRussian(),
-        .. ConsoleProjectsHelper.GetProjectsInRussian(),
-    ];
-
-    private static readonly List<Project> _allProjectsInPolish = [
-        .. StandAloneProjectsHelper.GetProjectsInPolish(),
-    ];
-
     public static List<Project> GetProjects() => _allProjects;
 
     public static string GetProjectIconUrl(int? projectId)
@@ -82,20 +45,4 @@ public static class ProjectHelper
     }
 
     public static List<ShowcaseProjectInfo> GetProjectInfos() => _allProjectInfos;
-
-    public static List<Project> GetProjectsInPortuguese() => _allProjectsInPortuguese;
-
-    public static List<Project> GetProjectsInDutch() => _allProjectsInDutch;
-
-    public static List<Project> GetProjectsInTurkish() => _allProjectsInTurkish;
-
-    public static List<Project> GetProjectsInTraditionalChinese() => _allProjectsInTraditionalChinese;
-
-    public static List<Project> GetProjectsInKorean() => _allProjectsInKorean;
-
-    public static List<Project> GetProjectsInCroatian() => _allProjectsInCroatian;
-
-    public static List<Project> GetProjectsInRussian() => _allProjectsInRussian;
-
-    public static List<Project> GetProjectsInPolish() => _allProjectsInPolish;
 }
