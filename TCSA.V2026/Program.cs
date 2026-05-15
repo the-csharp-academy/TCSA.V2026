@@ -78,6 +78,7 @@ builder.Services.AddScoped<IAccountabilityBuddyService, AccountabilityBuddyServi
 builder.Services.AddScoped<IDonateService, DonateService>();
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<ICustomEmailSender, EmailSender>();
+builder.Services.AddSingleton<IPeerReviewPublisher, PeerReviewPublisher>();
 
 builder.Services.AddControllers();
 

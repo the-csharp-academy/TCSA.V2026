@@ -1,8 +1,8 @@
-﻿using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using TCSA.V2026.Data;
 using TCSA.V2026.Data.Curriculum;
 using TCSA.V2026.Data.DTOs;
+using TCSA.V2026.Data.Events;
 using TCSA.V2026.Data.Models;
 using TCSA.V2026.Data.Models.Responses;
 using TCSA.V2026.Helpers;
@@ -11,14 +11,23 @@ namespace TCSA.V2026.Services;
 
 public interface IGithubService
 {
-    Task<BaseResponse> MarkAsCompleted(PullRequestReviewDto pullRequestReviewDto);
-    Task<BaseResponse> ProcessPullRequest(PullRequestDto pullRequestDto);
+    Task<BaseResponse> MarkAsCompleted(PullRequestReviewDto? pullRequestReviewDto);
+    Task<BaseResponse> ProcessPullRequest(PullRequestDto? pullRequestDto);
 }
 
-public class GithubService(IDbContextFactory<ApplicationDbContext> _factory) : IGithubService
+public class GithubService(IDbContextFactory<ApplicationDbContext> _factory, IPeerReviewPublisher _publisher) : IGithubService
 {
-    public async Task<BaseResponse> ProcessPullRequest(PullRequestDto pullRequestDto)
+    public async Task<BaseResponse> ProcessPullRequest(PullRequestDto? pullRequestDto)
     {
+        if (pullRequestDto is null)
+        {
+            return new BaseResponse
+            {
+                Status = ResponseStatus.Fail,
+                Message = "Invalid pull request payload."
+            };
+        }
+
         if (!pullRequestDto.Action.Equals("opened"))
         {
             return new BaseResponse
@@ -41,7 +50,6 @@ public class GithubService(IDbContextFactory<ApplicationDbContext> _factory) : I
 
         using (var context = _factory.CreateDbContext())
         {
-            var fuckingName = "TheCSharpAcademy";
             var user = await context.AspNetUsers
                 .Include(u => u.DashboardProjects)
                 .FirstOrDefaultAsync(u => u.GithubUsername.Trim().ToLower() == pullRequestDto.PullRequest.User.Login.Trim().ToLower());
@@ -92,8 +100,17 @@ public class GithubService(IDbContextFactory<ApplicationDbContext> _factory) : I
         };
     }
 
-    public async Task<BaseResponse> MarkAsCompleted(PullRequestReviewDto pullRequestReviewDto)
+    public async Task<BaseResponse> MarkAsCompleted(PullRequestReviewDto? pullRequestReviewDto)
     {
+        if (pullRequestReviewDto is null)
+        {
+            return new BaseResponse
+            {
+                Status = ResponseStatus.Fail,
+                Message = "Invalid pull request review payload."
+            };
+        }
+
         if (!pullRequestReviewDto.Review.State.Equals("approved"))
         {
             return new BaseResponse
@@ -116,14 +133,43 @@ public class GithubService(IDbContextFactory<ApplicationDbContext> _factory) : I
 
         try
         {
-            var points = ProjectHelper.GetProjects().FirstOrDefault(p => p.Id == projectId).ExperiencePoints;
+            var projectDefinition = ProjectHelper.GetProjects().FirstOrDefault(p => p.Id == projectId);
+
+            if (projectDefinition is null)
+            {
+                return new BaseResponse
+                {
+                    Status = ResponseStatus.Fail,
+                    Message = "Project definition not found."
+                };
+            }
+
+            var points = projectDefinition.ExperiencePoints;
 
             using (var context = _factory.CreateDbContext())
             {
                 var project = await context.DashboardProjects
                     .Include(p => p.AppUser)
                        .ThenInclude(u => u.UserActivity)
-                    .FirstOrDefaultAsync(p => p.ProjectId == projectId && p.GithubUrl.Contains(pullRequestReviewDto.PullRequest.Number.ToString()));
+                    .FirstOrDefaultAsync(p => p.ProjectId == projectId && p.GithubUrl.EndsWith($"/{pullRequestReviewDto.PullRequest.Number}"));
+
+                if (project == null)
+                {
+                    return new BaseResponse
+                    {
+                        Status = ResponseStatus.Fail,
+                        Message = "Project submission not found for this pull request."
+                    };
+                }
+
+                if (project.IsCompleted)
+                {
+                    return new BaseResponse
+                    {
+                        Status = ResponseStatus.Success,
+                        Message = "Pull request was already processed as completed."
+                    };
+                }
 
                 project.IsPendingNotification = true;
                 project.IsPendingReview = false;
@@ -143,8 +189,12 @@ public class GithubService(IDbContextFactory<ApplicationDbContext> _factory) : I
                         .ThenInclude(u => u.UserActivity)
                     .FirstOrDefaultAsync(r => r.DashboardProjectId == project.Id);
 
+                string reviewerUserId = string.Empty;
+                int completedProjectId = project.Id;
+
                 if (review != null)
                 {
+                    reviewerUserId = review.User.Id;
                     review.User.ExperiencePoints = review.User.ExperiencePoints + points;
                     review.User.ReviewedProjects = review.User.ReviewedProjects + 1;
                     review.User.ReviewExperiencePoints = review.User.ReviewExperiencePoints + points;
@@ -157,6 +207,9 @@ public class GithubService(IDbContextFactory<ApplicationDbContext> _factory) : I
                 }
 
                 await context.SaveChangesAsync();
+
+                if (!string.IsNullOrEmpty(reviewerUserId))
+                    await _publisher.Publish(new ReviewCompletedEvent(reviewerUserId));
             }
             return new BaseResponse
             {

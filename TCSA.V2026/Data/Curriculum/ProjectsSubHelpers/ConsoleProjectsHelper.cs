@@ -35,7 +35,7 @@ public class ConsoleProjectsHelper
                 ExperiencePoints = 10,
                 Difficulty = Difficulty.Beginner,
                 DisplayOrder= 1,
-                RepositoryLink = "https://github.com/TheCSharpAcademy/CodeReviews.Console.MathGame",
+                RepositoryLink = "https://github.com/the-csharp-academy/CodeReviews.Console.MathGame",
                 Introduction = new List<Paragraph>
                 {
                     new Paragraph
@@ -141,7 +141,7 @@ public class ConsoleProjectsHelper
                 Difficulty = Difficulty.Beginner,
                 ExperiencePoints = 10,
                 DisplayOrder = 2,
-                RepositoryLink = "https://github.com/TheCSharpAcademy/CodeReviews.Console.Calculator",
+                RepositoryLink = "https://github.com/the-csharp-academy/CodeReviews.Console.Calculator",
                 Introduction = new List<Paragraph>
                 {
                     new Paragraph
@@ -222,7 +222,7 @@ public class ConsoleProjectsHelper
                 ExperiencePoints = 10,
                 Difficulty = Difficulty.Beginner,
                 DisplayOrder = 3,
-                RepositoryLink = "https://github.com/TheCSharpAcademy/CodeReviews.Console.HabitTracker",
+                RepositoryLink = "https://github.com/the-csharp-academy/CodeReviews.Console.HabitTracker",
                 Introduction = new List<Paragraph>
                 {
                     new Paragraph
@@ -351,7 +351,7 @@ public class ConsoleProjectsHelper
                 ExperiencePoints = 10,
                 Difficulty = Difficulty.Beginner,
                 DisplayOrder = 4,
-                RepositoryLink = "https://github.com/TheCSharpAcademy/CodeReviews.Console.CodingTracker",
+                RepositoryLink = "https://github.com/the-csharp-academy/CodeReviews.Console.CodingTracker",
                 Introduction = new List<Paragraph>
                 {
                     new Paragraph
@@ -445,7 +445,7 @@ public class ConsoleProjectsHelper
                 Area = Area.Console,
                 ExperiencePoints = 20,
                 Difficulty = Difficulty.Intermediate,
-                RepositoryLink = "https://github.com/TheCSharpAcademy/CodeReviews.Console.Flashcards",
+                RepositoryLink = "https://github.com/the-csharp-academy/CodeReviews.Console.Flashcards",
                 Introduction = new List<Paragraph>
                 {
                     new Paragraph
@@ -547,7 +547,7 @@ public class ConsoleProjectsHelper
                 Level = Level.Yellow,
                 ExperiencePoints = 20,
                 Difficulty = Difficulty.Intermediate,
-                RepositoryLink = "https://github.com/TheCSharpAcademy/CodeReviews.Console.Drinks",
+                RepositoryLink = "https://github.com/the-csharp-academy/CodeReviews.Console.Drinks",
                 Introduction = new List<Paragraph>
                 {
                     new Paragraph
@@ -602,7 +602,7 @@ public class ConsoleProjectsHelper
                 Level = Level.Yellow,
                 ExperiencePoints = 20,
                 Difficulty = Difficulty.Intermediate,
-                RepositoryLink = "https://github.com/TheCSharpAcademy/CodeReviews.Console.Phonebook",
+                RepositoryLink = "https://github.com/the-csharp-academy/CodeReviews.Console.Phonebook",
                 Introduction = new List<Paragraph>
                 {
                     new Paragraph
@@ -658,7 +658,7 @@ public class ConsoleProjectsHelper
                 Level = Level.Yellow,
                 ExperiencePoints = 20,
                 Difficulty = Difficulty.Intermediate,
-                RepositoryLink = "https://github.com/TheCSharpAcademy/CodeReviews.Console.ShiftsLogger",
+                RepositoryLink = "https://github.com/the-csharp-academy/CodeReviews.Console.ShiftsLogger",
                 Introduction = new List<Paragraph>
                 {
                     new Paragraph
@@ -720,7 +720,7 @@ public class ConsoleProjectsHelper
                 Level = Level.Orange,
                 ExperiencePoints = 30,
                 Difficulty = Difficulty.Advanced,
-                RepositoryLink = "https://github.com/TheCSharpAcademy/CodeReviews.Console.EcommerceApi",
+                RepositoryLink = "https://github.com/the-csharp-academy/CodeReviews.Console.EcommerceApi",
                 Introduction = new List<Paragraph>
                 {
                     new Paragraph
@@ -781,7 +781,7 @@ public class ConsoleProjectsHelper
                 ExperiencePoints = 30,
                 Difficulty = Difficulty.Advanced,
                 Level = Level.Orange,
-                RepositoryLink = "https://github.com/TheCSharpAcademy/CodeReviews.Console.SportsResults",
+                RepositoryLink = "https://github.com/the-csharp-academy/CodeReviews.Console.SportsResults",
                 Introduction = new List<Paragraph>
                 {
                     new Paragraph
@@ -828,7 +828,7 @@ public class ConsoleProjectsHelper
                 Level = Level.Orange,
                 ExperiencePoints = 30,
                 Difficulty = Difficulty.Advanced,
-                RepositoryLink = "https://github.com/TheCSharpAcademy/CodeReviews.Console.DocumentProcessor",
+                RepositoryLink = "https://github.com/the-csharp-academy/CodeReviews.Console.DocumentProcessor",
                 Introduction = new List<Paragraph>
                 {
                     new Paragraph
@@ -870,7 +870,7 @@ public class ConsoleProjectsHelper
                 Level = Level.Orange,
                 ExperiencePoints = 30,
                 Difficulty = Difficulty.Advanced,
-                RepositoryLink = "https://github.com/TheCSharpAcademy/CodeReviews.Console.UnitTests",
+                RepositoryLink = "https://github.com/the-csharp-academy/CodeReviews.Console.UnitTests",
                 Introduction = new List<Paragraph>
                 {
                     new Paragraph
@@ -2027,700 +2027,6 @@ public class ConsoleProjectsHelper
                     }
              }
          }
-        };
-    }
-    internal static List<Project> GetProjectsInRussian()
-    {
-        var projects = GetProjects();
-
-        return new List<Project>
-        {
-             new Project
-             {
-                Id = 53,
-                Title = "Math Game",
-                IconUrl = projects.FirstOrDefault(p => p.Id == 53).IconUrl,
-                BannerUrl = projects.FirstOrDefault(p => p.Id == 53).BannerUrl,
-                LanguageHeadings = new RussianHeadings(),
-                Slug = projects.FirstOrDefault(p => p.Id == 53).Slug,
-                Description = "В своем первом проекте вы создадите математическую игру (math game), чтобы закрепить то, чему вы научились в Foundations area",
-                Area = projects.FirstOrDefault(p => p.Id == 53).Area,
-                Level = projects.FirstOrDefault(p => p.Id == 53).Level,
-                ExperiencePoints = projects.FirstOrDefault(p => p.Id == 53).ExperiencePoints,
-                Difficulty = projects.FirstOrDefault(p => p.Id == 53).Difficulty,
-                DisplayOrder = projects.FirstOrDefault(p => p.Id == 53).DisplayOrder,
-                RepositoryLink = GetProjects().FirstOrDefault(p => p.Id == 53).RepositoryLink,
-                Introduction = new List<Paragraph>
-                {
-                    new Paragraph
-                    {
-                        Body="В своем первом проекте вы создадите очень простое приложение под названием Math Game app. Если вы впервые создаете проект самостоятельно, я рекомендую воспользоваться серией C# Academy <a target='blank' href='https://www.youtube.com/watch?v=YUc5NZZVtjA&list=PL4G0MUH8YWiD1p5ySamqNWAaWlnwp1Vip'> из нашей области C# Foundation</a>. В этой серии вы пройдете через процесс создания консольного приложения с нуля, объясняя при этом важнейшие концепции C#. Если вы уже смотрели его или у вас есть предыдущий опыт создания приложений на C#, этот проект будет несложным. Но все равно полезно подкрепить свои знания."
-                    },
-                    new Paragraph
-                    {
-                        Body="Вы найдете сложные задачи в конце этого проекта и всех других проектов в Академии C#. Эти задачи не являются требованиями. Ваш проект все равно будет одобрен, и вы получите соответствующие баллы опыта. Однако задачи укрепят то, чему вы научились. Хотя вы, возможно, не получите дополнительных баллов за их выполнение, вы будете становиться лучшим разработчиком каждый раз, когда будете выполнять задачу."
-                    }
-                },
-                Requirements = new List<string>
-                {
-                    @"Вам нужно создать математическую игру, содержащую 4 основные операции",
-                    @"Результатом деления должны быть только ЦЕЛЫЕ числа, а делимые должны быть от 0 до 100. Пример: Ваше приложение не должно показывать пользователю деление 7/2, поскольку оно не приводит к целому числу.",
-                    @"Пользователям должно быть представлено меню для выбора операции",
-                    @"Вы должны записать предыдущие игры в список, и в меню должна быть опция, позволяющая пользователю просматривать историю предыдущих игр.",
-                    @"Вам не нужно записывать результаты в базу данных. Как только программа закроется, результаты будут удалены."
-                },
-                Resources = new List<string>
-                {
-                    "<a href='https://www.youtube.com/watch?v=iLByqqLGYEc&list=PL4G0MUH8YWiD1p5ySamqNWAaWlnwp1Vip'>Видеоурок по Math Game на Youtube</a>",
-                },
-                ResourcesIntro = "Если у вас есть предыдущий опыт работы с C#, вы, возможно, сможете завершить этот проект без чьей-либо помощи. Если у вас его нет, следуйте этому руководству:",
-                ResourcesConclusion = "Вам не нужно смотреть вторую часть этого руководства (Создание приложения .NET Maui), чтобы завершить этот проект. Требуется только консольное приложение",
-                Tips = new List<string>
-                {
-                    "Не забывайте ВСЕГДА, я имею в виду, ВСЕГДА сохранять свой код на Github (или любой другой системе управления версиями, которую вы используете). Таким образом, вы не потеряете свою работу и всегда сможете вернуться к ней в будущем. Вы создаете свою собственную библиотеку!",
-                    "Не торопитесь выполнять шаги, даже если это руководство для вас простое. Убедитесь, что вы понимаете КАЖДОЕ СЛОВО кода. Не оставляйте камня на камне.",
-                    "Если вы чего-то не понимаете, наведите курсор на код, и вы получите объяснение того, что означает этот термин. Если вы все еще не можете этого понять, Google - ваш лучший друг. Вы найдете объяснения практически обо всем на форумах, таких как stackoverflow.com.",
-                    "Если это ваш первый проект, я рекомендую сделать это два раза. Вы будете удивлены тем, насколько увеличится ваше удержание и сколько пробелов было оставлено в первый раз.",
-                    $"По завершении вашего проекта зайдите в наше <a target='_blank' href='{DiscordLink}'>Discord канал</a> и похвастайтесь этим! Это очень важный шаг для завершения проекта, и вы должны отпраздновать."
-                },
-                Challenges = new List<string>
-                {
-                    "Попробуйте реализовать разные уровни сложности.",
-                    "Добавьте таймер, чтобы отслеживать, сколько времени требуется пользователю, чтобы закончить игру.",
-                    "Добавьте функциональность, которая позволяет пользователю выбирать количество вопросов.",
-                    "Создайте опцию 'Случайная игра (Random Game)', в которой игрокам будут представлены вопросы из случайных операций",
-                },
-                Blocks = new List<Block>
-                {
-                    new Block
-                    {
-                        Title = "Управление исходным кодом",
-                        ImgUrl = "icons8-git-96.png",
-                        Paragraphs = new List<Paragraph>
-                        {
-                            new Paragraph
-                            {
-                                Body = "Если это ваш первый урок, у вас может возникнуть соблазн пропустить этот шаг и начать кодировать. Не делайте этого, иначе вам придется учиться на собственном горьком опыте. Однажды, после многочасовой работы над сложной задачей, вы не сохраните свою работу в репозитории системы управления версиями, и по какой-либо причине все это будет потеряно."
-                            },
-                            new Paragraph
-                            {
-                                Body = "Возьмите за привычку сохранять каждую строку кода, которую вы когда-либо писали. Я обещаю, что это избавит вас от многих головных болей. Все серьезные разработчики сохраняют свою работу в репозитории. Наиболее часто используемый - Github. Создайте учетную запись, если вы еще этого не сделали."
-                            },
-                            new Paragraph
-                            {
-                                Body="1. В Visual Studio перейдите в Git > Create Git Repository<br>2. Введите свои данные для входа в систему<br>3. Нажмите 'Create' и нажмите 'Push'."
-                            },
-                            new Paragraph
-                            {
-                                Body="✅ Сделано! Ваш репозиторий готов к работе. Не забывайте фиксировать и продвигать свои изменения после каждого шага!"
-                            }, new Paragraph
-                            {
-                                Body="Вы можете сделать следующий шаг и узнать, как интегрировать Github с Visual Studio, просмотрев этот видеоурок:"
-                            },
-                            new Paragraph
-                            {
-                                IsVideo = true,
-                                VideoUrl = "https://www.youtube.com/embed/oCvb-Q5lXb8"
-                            }
-                        }
-                    },
-                    new Block
-                    {
-                        Title = "Проверка кода",
-                        ImgUrl= "icons8-code-review-64.png",
-                        Paragraphs = new List<Paragraph>
-                        {
-                            new Paragraph
-                            {
-                                Body = "Если вы хотите, чтобы ваш код был проверен членом C# Academy, вместо создания собственного репозитория, <a href='article/52/code-reviews' target='blank'>читайте этой статье</a>, где вы узнаете, как создать fork из нашего базового репозитория."
-                            }
-                        }
-                    },
-                }
-            },
-             new Project
-            {
-                Id = 11,
-                Title = "Калькулятор",
-                IconUrl = projects.FirstOrDefault(p => p.Id == 11).IconUrl,
-                Slug = projects.FirstOrDefault(p => p.Id == 11).Slug,
-                BannerUrl = projects.FirstOrDefault(p => p.Id == 11).BannerUrl,
-                LanguageHeadings = new RussianHeadings(),
-                Level = projects.FirstOrDefault(p => p.Id == 11).Level,
-                Description = "Для этого вы создадите калькулятор с помощью документации от Microsoft",
-                Area = projects.FirstOrDefault(p => p.Id == 11).Area,
-                Difficulty = projects.FirstOrDefault(p => p.Id == 11).Difficulty,
-                ExperiencePoints = projects.FirstOrDefault(p => p.Id == 11).ExperiencePoints,
-                DisplayOrder = projects.FirstOrDefault(p => p.Id == 11).DisplayOrder,
-                RepositoryLink = GetProjects().FirstOrDefault(p => p.Id == 11).RepositoryLink,
-                Introduction = new List<Paragraph>
-                {
-                    new Paragraph
-                    {
-                        Body="Для вашего второго проекта вы создадите консольное приложение-калькулятор с помощью документации Microsoft. Этот проект не должен быть сложнее первого, но вы освоите важные навыки, такие как наличие нескольких проектов в решении, запись в файлы и отладка. Это также послужит практикой в очень важном навыке: следовании письменной документации. Это то, что вы будете делать регулярно как профессиональный разработчик, поэтому важно, чтобы вам было удобно применять текстовые инструкции при разработке программного обеспечения."
-                    }
-                },
-                Requirements = new List<string>
-                {
-                    @"Выполните следующее руководство (части 1 и 2): <a href='https://docs.microsoft.com/en-us/visualstudio/get-started/csharp/tutorial-console?view=vs-2022'>Создайте приложение для калькулятора (Microsoft Docs)</a>. Вы можете найти ссылку на вторую часть внизу страницы."
-                },
-                RequirementsIntro = "У этого проекта есть только одно требование:",
-                Resources = new List<string>
-                {
-                    "<a href='https://docs.microsoft.com/en-us/dotnet/core/tutorials/with-visual-studio-mac'>Visual Studio для Mac</a>",
-                    "<a href='https://docs.microsoft.com/en-us/dotnet/core/tutorials/with-visual-studio-code?pivots=dotnet-6-0'>Visual Studio Code</a>"
-                },
-                ResourcesIntro = "Инструкции для этого проекта основаны на Visual Studio для Windows. Код, который вы напишете, будет одинаковым независимо от редактора кода, но процесс создания нового проекта будет отличаться. Вот ссылки о том, как создать консольное приложение в разных редакторах: ",
-                Tips = new List<string>
-                {
-                    "Не торопитесь выполнять шаги, даже если это руководство для вас прост. Убедитесь, что вы понимаете КАЖДОЕ СЛОВО кода. Не оставляйте камня на камне.",
-                    "Если вы чего-то не понимаете, наведите курсор на код, и вы получите объяснение того, что означает этот термин. Если вы все еще не можете этого понять, Google и ChatGPT - ваши лучшие друзья. И вы можете найти подробные объяснения практически обо всем на форумах, таких как stackoverflow.com.",
-                    "Не пропускайте раздел отладки во второй части. Это один из самых важных навыков, которому вы научитесь в этом руководстве, и он будет жизненно важен для будущих проектов."
-                },
-                 Challenges = new List<string>
-                {
-                    "Создайте функциональность, которая будет подсчитывать количество раз, когда использовался калькулятор.",
-                    "Сохраните список с последними расчетами. И дайте пользователям возможность удалить этот список.",
-                    "Разрешите пользователям использовать результаты из приведенного выше списка для выполнения новых вычислений.",
-                    "Добавьте дополнительные вычисления: квадратный корень, возведение в степень, 10x, тригонометрические функции"
-                },
-                 Blocks = new List<Block>
-                {
-                    new Block
-                    {
-                        Title = "Проверка кода",
-                        ImgUrl= "icons8-code-review-64.png",
-                        Paragraphs = new List<Paragraph>
-                        {
-                            new Paragraph
-                            {
-                                Body = "Если вы хотите, чтобы ваш код был проверен членом C# Academy, вместо создания собственного репозитория, <a href='article/52/code-reviews' target='blank'>читайте этой статье</a>, где вы узнаете, как создать fork из нашего базового репозитория."
-                            }
-                        }
-                    }
-                }
-
-            },
-             new Project
-            {
-                Id = 12,
-                Title = "Отслеживание привычек (Habit Logger)",
-                IconUrl = projects.FirstOrDefault(p => p.Id == 12).IconUrl,
-                BannerUrl = projects.FirstOrDefault(p => p.Id == 12).BannerUrl,
-                LanguageHeadings = new RussianHeadings(),
-                Slug = projects.FirstOrDefault(p => p.Id == 12).Slug,
-                Description = "Создайте логгер по привычке. Узнайте, как взаимодействовать с базой данных с помощью SQLite, а также получать и проверять вводимые пользователем данные",
-                Area = projects.FirstOrDefault(p => p.Id == 12).Area,
-                Level = projects.FirstOrDefault(p => p.Id == 12).Level,
-                ExperiencePoints = projects.FirstOrDefault(p => p.Id == 12).ExperiencePoints,
-                Difficulty = projects.FirstOrDefault(p => p.Id == 12).Difficulty,
-                DisplayOrder = projects.FirstOrDefault(p => p.Id == 12).DisplayOrder,
-                RepositoryLink = GetProjects().FirstOrDefault(p => p.Id == 12).RepositoryLink,
-                Introduction = new List<Paragraph>
-                {
-                    new Paragraph
-                    {
-                        Body="Это очень простое приложение, которое научит вас, как выполнять <a href='https://en.wikipedia.org/wiki/Create,_read,_update_and_delete'>CRUD-операции</a> с реальной базой данных. Эти операции являются основой веб-разработки, и вы будете использовать их на протяжении всей своей карьеры в большинстве приложений. Мы считаем, что очень важно делать это с самого начала вашего пути, поскольку все, что будет происходить дальше, только усложняет операции CRUD. Независимо от того, насколько сложным и навороченным является приложение, которое вы создаете, в конечном итоге все сводится к выполнению CRUD-вызовов к базе данных."
-                    },
-                    new Paragraph
-                    {
-                        Body="Для этого вам придется выучить очень простые <a href='https://en.wikipedia.org/wiki/SQL'>SQL команды</a>. Я знаю, это звучит пугающе, но вы будете поражены тем, как мало знаний SQL вам нужно для создания полнофункционального приложения. Не волнуйтесь, мы возьмем вас за руку, и к концу вы завершите свое первое полностью функционирующее CRUD-приложение. Наиболее распространенные способы вызова базы данных SQL с помощью C# - это <a href='https://docs.microsoft.com/en-us/dotnet/framework/data/adonet/'>ADO.NET</a>, Dapper и Entity Framework. Мы начнем с использования ADO.NET, потому что это наиболее близко к необработанному SQL."
-                    },
-                    new Paragraph
-                    {
-                        Body="Если вы считаете, что этот проект слишком сложен для вас, и вы понятия не имеете, с чего даже начать, вы, вероятно, правы. Возможно, вам понадобятся дополнительные руки, чтобы самостоятельно создать реальное приложение. Если это так, <a href='https://youtu.be/d1JIJdDVFjs'>посмотрите видеоурок по этому проекту</a>, а затем вернитесь и попробуйте еще раз самостоятельно. Совершенно нормально чувствовать себя потерянным, поскольку большинство курсов для начинающих на самом деле не учат вас, как что-то создавать."
-                    },
-                    new Paragraph
-                    {
-                        Body="Так что вперед!"
-                    }
-                },
-                Requirements = new List<string>
-                {
-                    "Это приложение, в котором вы зарегистрируете одну привычку",
-                    "Эту привычку нельзя отследить по времени (например, часам сна), только по количеству (например, количеству стаканов воды в день)",
-                    "Приложение должно хранить и извлекать данные из реальной базы данных",
-                    "Когда приложение запускается, оно должно создать базу данных sqlite, если таковой нет.",
-                    "Оно также должно создать таблицу в базе данных, где будет регистрироваться привычка.",
-                    "Приложение должно показывать пользователю меню опций.",
-                    "Пользователи должны быть возможность вставлять, удалять, обновлять и просматривать свои зарегистрированные привычки.",
-                    "Вы должны обработать все возможные ошибки, чтобы приложение никогда не выходило из строя.",
-                    "Приложение должно завершаться только тогда, когда пользователь вводит 0.",
-                    "Вы можете взаимодействовать с базой данных только с помощью простого SQL. Вы не можете использовать средства отображения, такие как Entity Framework.",
-                    "Ваш проект должен содержать файл ReadMe, в котором вы объясните, как работает ваше приложение. Вот хороший пример:"
-                },
-                RequirementsConclusion = "<a href='https://github.com/thags/ConsoleTimeLogger'>Проект на Github с примером аккуратного файла ReadMe.</a><br>Не паникуй! Я помогу! 😁",
-                Tips = new List<string>
-                {
-                    "Протестируйте свои SQL-команды в DB Browser, прежде чем использовать их в своей программе.",
-                    "Вы можете сохранить весь код в одном классе, если хотите.",
-                    "Используйте оператор switch для меню пользовательского ввода.",
-                    "Не забывайте о проверке пользовательского ввода: проверьте наличие неверные даты. Что произойдет, если выбран пункт меню, который недоступен? Что произойдет, если пользователи введут строку вместо числа?"
-                },
-                 Challenges = new List<string>
-                {
-                    "Позвольте пользователям создавать свои собственные привычки для отслеживания. Для этого потребуется, чтобы вы позволили им выбрать единицу измерения каждой привычки.",
-                    "Ввод данных в базу данных автоматически при первом создании базы данных, генерируя несколько привычек и вставляя сотню записей со случайно сгенерированными значениями. Это особенно полезно во время разработки, так что вам не придется повторно вставлять данные каждый раз при создании базы данных. ",
-                    "Создайте функциональность отчета, в которой пользователи смогут просматривать конкретную информацию (например, сколько раз пользователь пробегал за год? сколько километров?) SQL позволяет вам запрашивать очень интересные вещи из вашей базы данных"
-                },
-                 LearningIntro = "Если вы изучили основы C#, следуя статье <a href='article/8/foundations' target='blank'>C# Foundations</a>, вы должны знать все основные приемы, необходимые для завершения этого проекта. Вот список того, что вам понадобится для выполнения этих требований:",
-                 LearningItems = new List<string>
-                 {
-                     "Прием пользовательского ввода с консоли.",
-                     "Печать сообщений на консоли.",
-                     "Установка пакетов nuget (ASP.NET библиотеки, которые помогут вам написать вашу программу).",
-                     "Базовый поток управления с операторами 'if-else' и 'switch'",
-                     "Подключение к базе данных Sqlite.",
-                     "Основы SQL (язык, который вы используете для взаимодействия с базой данных). Если вы хотите немного потренироваться в SQL перед началом работы, <a href='https://www.w3schools.com/sql/sql_exercises.asp'>вот отличное место</a>."
-                 },
-                 Blocks = new List<Block>
-                {
-                    new Block
-                    {
-                        Title = "Создание проекта",
-                        ImgUrl= "icons8-software-installer-96-1.png",
-                        Paragraphs = new List<Paragraph>
-                        {
-                            new Paragraph
-                            {
-                                Body = "В этом руководстве требуется, чтобы вы уже настроили среду разработки .NET. Если вы еще этого не сделали, ознакомьтесь с <a href='article/7/setting-up' target='blank'>этой статьей</a> с первыми шагами. Если вы абсолютно точно хотите использовать другую IDE, дайте мне знать."
-                            },
-                            new Paragraph
-                            {
-                                Body = "1. В Visual Studio выберите Создать новый проект. Если вы используете Visual Studio Code, дайте мне знать, если у вас возникнут трудности с созданием проекта.<br>2. Найдите консольное приложение (Console Application) и нажмите Далее.<br>3. Выберите название проекта и местоположение и нажмите Далее.<br>3. Выберите последнюю версию фреймворка (.NET 8 на момент написания этого руководства) и нажмите Создать.<br>4. Запустите свое приложение, нажав на зеленую кнопку воспроизведения в верхней части экрана."
-                            },
-                            new Paragraph
-                            {
-                                Body = "Откроется терминал (интерфейс командной строки) и напечатает 'Hello World', и приложение закроется само. Это означает, что ваше приложение ASP.NET среда и ваше приложение работают должным образом."
-                            }
-                        }
-                    },
-                    new Block
-                    {
-                        Title = "Изменение вашего рабочего каталога",
-                        ImgUrl = "icons8-folder-100.png",
-                        Paragraphs = new List<Paragraph>
-                        {
-                            new Paragraph
-                            {
-                                Body = "Таким образом.NET создаст ваш проект в вашей основной папке. По умолчанию он создает ваш проект в папке bin, и просто для простоты мы хотим избежать этого. Это создаст папку свойств с файлом <b>launchsettings.json</b>, содержащим информацию о вашей конфигурации. Это важный шаг только для приложений, использующих Sqlite, поскольку вы хотите, чтобы база данных создавалась в той же папке приложения, чтобы избежать путаницы."
-                            },
-                            new Paragraph
-                            {
-                                Body = "Для этого нажмите на шеврон рядом с названием вашего приложения в верхнем меню, выберите Свойства отладки ({название приложения} Debug Properties) и скопируйте путь к вашему каталогу в поле 'Рабочий каталог (Working Directory)'. Чтобы узнать, каков ваш путь, вы можете щелкнуть правой кнопкой мыши по своему проекту в обозревателе решений и выбрать 'Скопировать полный путь (Copy Full Path)' или посмотреть его в проводнике файлов (Files Explorer). Если вы используете Mac/Visual Studio Code, свяжитесь со мной, и я расскажу вам, как это сделать."
-                            },
-                            new Paragraph
-                            {
-                                IsPicture = true,
-                                PictureUrl = "working-directory-1.png"
-                            },
-                            new Paragraph
-                            {
-                                IsPicture = true,
-                                PictureUrl = "working-directory-2.png"
-                            }
-                        }
-                    },
-                    new Block
-                    {
-                        Title = "Начинайте кодировать!",
-                        ImgUrl = "icons8-coding-64.png",
-                        Paragraphs = new List<Paragraph>
-                        {
-                            new Paragraph
-                            {
-                                Body = "всякий раз, когда вы запускаете свое приложение, оно должно проверять наличие базы данных. Если ее нет, оно создаст ее вместе с таблицей, в которой вы будете хранить свои данные. Если вы удаляете свою базу данных извне, она всегда будет создаваться. Если база данных существует, она перейдет к следующему шагу: примите вводимые пользователем данные о том, что вы хотите сделать. Что-то вроде этого:"
-                            },
-                            new Paragraph
-                            {
-                                IsPicture = true,
-                                PictureUrl = "habit-menu.png"
-                            },
-                            new Paragraph
-                            {
-                                Body = "В ASP.NET Разработке на C# SQL Server используется очень часто. Но мы не будем использовать его здесь. SQLite - это сверхлегкая система баз данных, и важно ознакомиться с ней, прежде чем переходить к SQL server."
-                            },
-                            new Paragraph
-                            {
-                                Body = "Вам нужно будет указать вашей программе создать файл sqlite. Вы сможете визуализировать этот файл извне с помощью небольшого приложения. <a href='https://www.youtube.com/watch?v=HQKwgk6XkIA'>Вот ссылка на базовый учебник по sqlite</a>."
-                            },
-                            new Paragraph
-                            {
-                                Body = $"Вот где начинается ваш настоящий код! На какое-то время вы предоставлены сами себе. Если вы застряли, продолжайте пытаться, <a href='article/6/getting-help' target='blank'>запомните шаги по отладке вашего приложения / открепитесь</a>. И если вы в конечном итоге не сможете этого сделать, обратитесь к нашему <a href='{DiscordLink}'>сообществу Discord</a> или ко мне, и мы поможем!"
-                            },
-                        }
-                    },
-                    new Block
-                    {
-                        Title = "Видеоурок",
-                        ImgUrl = "external-video-tutorial-online-learning-photo3ideastudio-flat-photo3ideastudio-300x300.png",
-                        Paragraphs = new List<Paragraph>
-                        {
-                            new Paragraph
-                            {
-                                Body = "Если вы чувствуете себя совершенно потерянным, вполне нормально посмотреть видео-урок, который поможет вам в работе. Здесь вы научитесь соединять все части для создания реального приложения. Как только вы закончите, обязательно попробуйте еще раз самостоятельно, без помощи видео, чтобы усвоить вновь приобретенные знания."
-                            },
-                            new Paragraph
-                            {
-                                IsVideo = true,
-                                VideoUrl = "https://www.youtube.com/embed/d1JIJdDVFjs"
-                            },
-                        }
-                    },
-                    new Block
-                    {
-                        Title = "Управление исходным кодом",
-                        ImgUrl = "icons8-git-96.png",
-                        Paragraphs = new List<Paragraph>
-                        {
-                            new Paragraph
-                            {
-                                Body = "Если это ваш первый урок, у вас может возникнуть соблазн пропустить этот шаг и начать кодировать. Не делайте этого, иначе вам придется учиться на собственном горьком опыте. Однажды, после многочасовой работы над сложной задачей, вы не сохраните свою работу в репозитории системы управления версиями, и по какой-либо причине все это будет потеряно."
-                            },
-                            new Paragraph
-                            {
-                                Body = "Возьмите за привычку сохранять каждую строку кода, которую вы когда-либо писали. Я обещаю, что это избавит вас от многих головных болей. Все серьезные разработчики сохраняют свою работу в репозитории. Наиболее часто используемый - Github. Создайте учетную запись, если вы еще этого не сделали."
-                            },
-                            new Paragraph
-                            {
-                                Body="1. В Visual Studio перейдите в Git > Create Git Repository<br>2. Введите свои данные для входа в систему<br>3. Нажмите 'Create' и нажмите 'Push'."
-                            },
-                            new Paragraph
-                            {
-                                Body="✅ Сделано! Ваш репозиторий готов к работе. Не забывайте фиксировать и продвигать свои изменения после каждого шага!"
-                            }, new Paragraph
-                            {
-                                Body="Вы можете сделать следующий шаг и узнать, как интегрировать Github с Visual Studio, просмотрев этот видеоурок:"
-                            },
-                            new Paragraph
-                            {
-                                IsVideo = true,
-                                VideoUrl = "https://www.youtube.com/embed/oCvb-Q5lXb8"
-                            }
-                        }
-                    },
-                    new Block
-                    {
-                        Title = "Проверка кода",
-                        ImgUrl= "icons8-code-review-64.png",
-                        Paragraphs = new List<Paragraph>
-                        {
-                            new Paragraph
-                            {
-                                Body = "Если вы хотите, чтобы ваш код был проверен членом C# Academy, вместо создания собственного репозитория, <a href='article/52/code-reviews' target='blank'>читайте этой статье</a>, где вы узнаете, как создать fork из нашего базового репозитория."
-                            }
-                        }
-                    },
-                    new Block
-                    {
-                        Title = "Следующий шаг: Настольное приложение",
-                        ImgUrl = "icons8-staircase-80.png",
-                        Paragraphs = new List<Paragraph>
-                        {
-                            new Paragraph
-                            {
-                                Body = $"Если вы просмотрели <a href='https://www.youtube.com/watch?v=o81wpRuOGjE&list=PL4G0MUH8YWiAMypwveH2LlLK_o8Jto9CE'>весь курс C# Foundation</a>, вы уже создали настольное приложение для Math Game\t, используя удивительный .NET MAUI. Будет отличной практикой создать настольное приложение для отслеживания привычек с той же функциональностью, которую вы создали для этого консольного приложения. Возникнут некоторые трудности, но у вас уже есть все необходимые навыки. И помните, если вы застряли, свяжитесь с нашим <a  target='_blank' href='{DiscordLink}'>сообществом Discord</a>, и мы поможем!"
-                            }
-                        }
-                    },
-                }
-            },
-             new Project
-             {
-                Id = 13,
-                Title = "Отслеживатель кодирования (Coding Tracker)",
-                IconUrl = projects.FirstOrDefault(p => p.Id == 13).IconUrl,
-                BannerUrl = projects.FirstOrDefault(p => p.Id == 13).BannerUrl,
-                LanguageHeadings = new RussianHeadings(),
-                Slug = projects.FirstOrDefault(p => p.Id == 13).Slug,
-                Level = projects.FirstOrDefault(p => p.Id == 13).Level,
-                Description = "Отслеживайте время, затраченное на написание кода. Узнайте, как работать с датами, использовать разделение задач и использовать свою первую внешнюю библиотеку для улучшения вашего приложения",
-                Area = projects.FirstOrDefault(p => p.Id == 13).Area,
-                ExperiencePoints = projects.FirstOrDefault(p => p.Id == 13).ExperiencePoints,
-                Difficulty = projects.FirstOrDefault(p => p.Id == 13).Difficulty,
-                DisplayOrder = projects.FirstOrDefault(p => p.Id == 13).DisplayOrder,
-                RepositoryLink = GetProjects().FirstOrDefault(p => p.Id == 13).RepositoryLink,
-                Introduction = new List<Paragraph>
-                {
-                    new Paragraph
-                    {
-                        Body="Это приложение должно быть очень похоже на <a href='project/13/coding-tracker' target='blank'>Отслеживание привычек</a>, который вы ранее заполнили. Это послужит цели закрепить то, что вы узнали, с помощью небольшого повторения и развить эти знания с немного более сложными требованиями."
-                    },
-                    new Paragraph
-                    {
-                        Body="На этот раз вам придется столкнуться со сложностью обработки дат и времени, что является реальной проблемой в любом приложении. Вы также будете использовать свою первую внешнюю библиотеку. Часто в профессиональных средах программисты не заново изобретать колесо и экономят время, используя общедоступные решения, предоставляемые другими программистами. В этом прелесть Интернета. У вас есть доступ к удивительному сообществу программистов!"
-                    },
-                    new Paragraph
-                    {
-                        Body="В первом приложении у нас также не было требований к организации кода. На этот раз вам придется использовать <a href='https://en.wikipedia.org/wiki/Separation_of_concerns'>разделение задач (separation of concerns)</a>, один из важнейших принципов современного программирования. Именно здесь вы начнете применять концепции объектно-ориентированного программирования. Вам также нужно будет использовать “Модель (Model)” или “Сущность (Entity)” для представления данных, с которыми вы имеете дело. В данном случае, ваши сеансы кодирования. Итак, давайте начнем!"
-                    }
-                },
-                Requirements = new List<string>
-                {
-                    "Это приложение имеет те же требования, что и предыдущий проект, за исключением того, что теперь вы будете регистрировать свое ежедневное время кодирования.",
-                    "Чтобы отобразить данные на консоли, вы должны использовать \"Spectre.Консоль\" библиотека.",
-                    "Вам требуется иметь отдельные классы в разных файлах (напр. userInput.cs, Validation.cs, CodingController.cs)",
-                    "Вы должны указать пользователю конкретный формат, в котором вы хотите регистрировать дату и время, и не разрешать какой-либо другой формат.",
-                    "Вам нужно будет создать файл конфигурации, который будет содержать путь к базе данных и строки подключения.",
-                    "Вам нужно будет создать класс \"CodingSession\" в отдельном файле. Он будет содержать свойства вашей сессии кодирования: идентификатор, время начала, время окончания, продолжительность",
-                    "Пользователь не должен вводить продолжительность сессии. Оно должно быть рассчитано на основе времени начала и окончания отдельным методом \"CalculateDuration\".",
-                    "Пользователь должен иметь возможность вводить время начала и окончания вручную.",
-                    "Вам нужно использовать Dapper ORM для доступа к данным вместо ADO.NET. (Это требование было включено в феврале/2024)",
-                    "При чтении из базы данных вы не можете использовать анонимный объект, вы должны считывать свою таблицу в список сеансов кодирования"
-                },
-                Resources = new List<string>
-                {
-                    "<a target='_blank' href='https://spectreconsole.net/'>Документация по Spectre Console</a>.",
-                    "<a target='_blank' href='https://docs.microsoft.com/en-us/troubleshoot/dotnet/csharp/store-custom-information-config-file'>Использование Configuration Manager</a>",
-                    "<a target='_blank' href='https://stackoverflow.com/questions/3719/how-to-validate-a-datetime-in-c'>Парсинг даты и времени в C#</a>",
-                    "<a target='_blank' href='https://www.learndapper.com/'>Руководство по Dapper</a>.",
-                },
-                ResourcesIntro = "Если вы изучили основы C#, следуя статье <a href='article/8/foundations' target='blank'>C# Foundations</a> и завершили проект <a href='project/12/habbit-logger' target='blank'>Отслеживание привычек</a>, вы должны знать все основные методы, необходимые для завершения этого проекта. Вот список дополнительных ресурсов, которые могут вам понадобиться:",
-                Tips = new List<string>
-                {
-                    "Вам решать, в каком порядке вы будете создавать, но мы рекомендуем вам делать это в следующем порядке: файл конфигурации, модель, создание базы данных/таблицы, CRUD-контроллер (где будут выполняться операции), TableVisualisationEngine (где будет выполняться код spectreconsole) и, наконец: проверка данных.",
-                    "Sqlite не поддерживает даты. Мы рекомендуем вам сохранить datetime в виде строки в базе данных, а затем разбирать его с помощью C#. Вам нужно будет разбирать его, чтобы рассчитать продолжительность ваших сеансов.",
-                    "Не забывайте отправлять свои изменения на github каждый раз, когда вы прекращаете работать",
-                    "Не забывайте о проверке пользовательского ввода: проверьте, нет ли неправильных дат. Что произойдет, если выбран пункт меню, который недоступен? Что произойдет, если пользователи введут строку вместо числа? Помните, что дата окончания не может быть раньше даты начала."
-                },
-                 Challenges = new List<string>
-                {
-                    "Добавьте возможность отслеживания времени кодирования с помощью stopwatch, чтобы пользователь мог отслеживать сеанс по мере его прохождения.",
-                    "Позвольте пользователям фильтровать свои записи кодирования по периодам (неделям, дням, годам) и/или упорядочивать по возрастанию или убыванию.",
-                    "Создавайте отчеты, в которых пользователи могут видеть их общая и средняя сессия кодирования за период.",
-                    "Создайте возможность устанавливать цели кодирования и показывать, как далеко пользователи находятся от достижения своей цели, а также сколько часов в день им пришлось бы кодировать, чтобы достичь своей цели. Вы можете сделать это с помощью SQL-запросов или с помощью C#.",
-                },
-                 Blocks = new List<Block>
-                {
-                    new Block
-                    {
-                        Title = "Создание конфигурационного файла",
-                        ImgUrl = "external-configuration-computer-itim2101-lineal-color-itim2101-300x300.png",
-                        Paragraphs = new List<Paragraph>
-                        {
-                            new Paragraph
-                            {
-                                Body = "В продвинутых приложениях свойства конфигурации хранятся в xml-файле. Эта практика упрощает настройку вашего приложения в рабочей среде. Сейчас в этом нет абсолютной необходимости, но освоить ее несложно, и вам следует привыкнуть к ней с самого начала вашего пути программирования. Это делает ваш код более чистым и организованным. <a href='https://docs.microsoft.com/en-us/troubleshoot/dotnet/csharp/store-custom-information-config-file'>Ознакомьтесь с документацией</a> и, при необходимости, найдите “файл конфигурации C#” на Youtube."
-                            }
-                        }
-                    },
-                    new Block
-                    {
-                        Title = "Создание настольного приложения",
-                        ImgUrl = "icons8-desktop-computer-512.png",
-                        Paragraphs = new List<Paragraph>
-                        {
-                            new Paragraph
-                            {
-                                Body = $"Если вы просмотрели <a href='https://www.youtube.com/watch?v=o81wpRuOGjE&list=PL4G0MUH8YWiAMypwveH2LlLK_o8Jto9CE'>весь курс C# Foundation</a>, вы уже создали настольное приложение для Math Game Desktop, используя удивительный .NET MAUI. Будет отличной практикой создать настольное приложение для отслеживания кодирования с той же функциональностью, которую вы создали для этого консольного приложения. Возникнут некоторые трудности, особенно если вы хотите создать таймер, но у вас уже есть все необходимые навыки. И помните, если вы застряли, свяжитесь с нашим <a target='_blank' href='{DiscordLink}'>сообществом Discord</a>, и мы поможем!"
-                            }
-                        }
-                    }
-                }
-            },
-             new Project
-            {
-                Id = 14,
-                Title = "Флэш-карты",
-                IconUrl = projects.FirstOrDefault(p => p.Id == 14).IconUrl,
-                BannerUrl = projects.FirstOrDefault(p => p.Id == 14).BannerUrl,
-                LanguageHeadings = new RussianHeadings(),
-                Slug = projects.FirstOrDefault(p => p.Id == 14).Slug,
-                Level = projects.FirstOrDefault(p => p.Id == 14).Level,
-                Description = "Создание пачки (stacks) флэш-карты и функционала для изучения. Научитесь работать с реляционными  базами данных с помощью SQL Server и использовать объекты передачи данных (Data Transfer Objects)",
-                Area = projects.FirstOrDefault(p => p.Id == 14).Area,
-                ExperiencePoints = projects.FirstOrDefault(p => p.Id == 14).ExperiencePoints,
-                Difficulty = projects.FirstOrDefault(p => p.Id == 14).Difficulty,
-                RepositoryLink = GetProjects().FirstOrDefault(p => p.Id == 14).RepositoryLink,
-                Introduction = new List<Paragraph>
-                {
-                    new Paragraph
-                    {
-                        Body="После первых двух проектов вы должны быть в некоторой степени знакомы с тем, как все работает в C#. Пришло время немного усложнить задачу. Вы будете использовать <b>SQL Server</b> в первый раз. Мы могли бы продолжать использовать SQLite, поскольку он делает все необходимое для большинства небольших приложений, но SQL Server широко используется в отрасли, и чем раньше мы с ним познакомимся, тем лучше."
-                    },
-                    new Paragraph
-                    {
-                        Body="На этот раз база данных также будет немного сложнее. У нас будут две таблицы, связанные внешним ключом. И впервые мы будем работать с <a href='https://www.codeproject.com/Articles/1050468/Data-Transfer-Object-Design-Pattern-in-Csharp' target='_blank'>DTOs (Data Transfer Objects)</a>, которые помогут нам использовать один и тот же объект по-разному."
-                    },
-                    new Paragraph
-                    {
-                        Body="Пора начинать!"
-                    }
-                },
-                Requirements = new List<string>
-                {
-                    "Это приложение, в котором пользователи будут создавать пачки (stacks) флэш-карты.",
-                    "Вам понадобятся две разные таблицы для stacks (пачек) и flashcards (флэш-карт). Таблицы должны быть связаны внешним ключом.",
-                    "Stacks должны иметь уникальное имя.",
-                    "Каждая флэш-карта должна быть частью пачки. Если стек удален, то же самое должно произойти и с флэш-картой.",
-                    "Вы должны использовать DTO, чтобы показывать флэш-карты пользователю без идентификатора стека, к которому они принадлежат",
-                    "При показе стека пользователю идентификаторы флэш-карт всегда должны начинаться с 1 без пробелов между ними. Если у вас 10 карточек и номер 5 удален, в таблице должны отображаться идентификаторы от 1 до 9.",
-                    "После создания функциональных возможностей флэш-карты создайте \"Study Session\" (Учебная сессия), где пользователи будут изучать пачки. Все учебные сессии должны быть сохранены с указанием даты и оценки.",
-                    "Таблицы study area и stacks должны быть связаны. Если stacks удален, его учебные сессии должны быть удалены.",
-                    "Проект должен содержать обращение к учебной таблице, чтобы пользователи могли видеть все свои учебные сессии. Эта таблица получает вызовы insert при каждой учебной сессии, но к ней не должно быть обращений update и delete."
-                },
-                Tips = new List<string>
-                {
-                    "Прежде чем приступить к написанию кода, попробуйте создать таблицы и выполнить несколько CRUD-запросов в SQL Server, чтобы ознакомиться с SQL Server Studio.",
-                    "Для управления stacks позвольте пользователю выбрать stack по имени.",
-                    "Подумайте о \"stacks\" и \"study\" области применения почти как отдельные приложения. Область study просто использует данные из области stacks."
-                },
-                LearningIntro = "Если вы изучили основы C#, следуя статье <a href='https://www.youtube.com/watch?v=o81wpRuOGjE&list=PL4G0MUH8YWiAMypwveH2LlLK_o8Jto9CE' target='_blank'>C# Foundations </a>, вы должны знать все основные приемы, необходимые для завершения этого проекта. Вот список того, что вам понадобится для выполнения этих требований:",
-                LearningItems = new List<string>
-                 {
-                     "Использование SQL Server.",
-                     "Создание связанных таблиц с помощью SQL.",
-                     "Использование DTO для создания разных версий классов.",
-                     "<a href='https://www.youtube.com/watch?v=bNetxDl40pM' target='_blank'>Pivoting Tables in SQL</a>"
-                 },
-                Blocks = new List<Block>
-                {
-                    new Block
-                    {
-                        Title = "Установка SQL Server",
-                        ImgUrl = "icons8-sql-server-64.png",
-                        Paragraphs = new List<Paragraph>
-                        {
-                            new Paragraph
-                            {
-                                Body = "Это первый проект в академии, где мы будем использовать SQL Server. <a href='https://docs.microsoft.com/en-us/sql/tools/visual-studio-code/sql-server-develop-use-vscode?view=sql-server-ver15'> Вы можете работать с SQL Server с помощью Visual Studio.</a>. Но я рекомендую вам начать с Microsoft SQL Server Management Studio. Для этого приложения не используйте SQL Server EXPRESS, а только локальную базу данных. <a href='https://www.youtube.com/watch?v=QsXWszvjMBM'> Вот руководство по установке studio</a>. И вот руководство по <a href='https://www.youtube.com/watch?v=M5DhHYQlnq8'> как подключиться к вашей локальной базе данных</a>"
-                            }
-                        }
-                    },
-                    new Block
-                    {
-                        Title = "Дополнительные задачи",
-                        ImgUrl = "icons8-courage-96.png",
-                        Paragraphs = new List<Paragraph>
-                        {
-                            new Paragraph
-                            {
-                                Body = "Если вы хотите расширить этот проект, вот идея. Попробуйте создать систему отчетов, в которой вы сможете видеть количество сеансов в месяц для каждой пачек. И еще один со средним баллом за месяц для каждой пачек. Это непростая задача, если вы только начинаете работать с базами данных, но она научит вас всей мощи SQL и возможностям, которые он дает вам для того, чтобы задавать интересные вопросы из ваших таблиц."
-                            },
-                            new Paragraph
-                            {
-                                Body = "Ниже приведен скриншот с примером готового отчета. Вам нужно будет узнать о сводных таблицах (Pivoting Tables), чтобы выполнить это задание. Обращайтесь, если вам нужна помощь!"
-                            },
-                            new Paragraph
-                            {
-                                IsPicture = true,
-                                PictureUrl = "flashcards-8.png"
-                            }
-                        }
-                    }
-                },
-                Screenshots = new List<string>
-                {
-                    "flashcards-1.png",
-                    "flashcards-2.png",
-                    "flashcards-3.png",
-                    "flashcards-4.png",
-                    "flashcards-5.png",
-                    "flashcards-6.png",
-                    "flashcards-7.png"
-                }
-            },
-             new Project
-            {
-                Id = 15,
-                Title = "Информация о напитках",
-                IconUrl = projects.FirstOrDefault(p => p.Id == 15).IconUrl,
-                BannerUrl = projects.FirstOrDefault(p => p.Id == 15).BannerUrl,
-                LanguageHeadings = new RussianHeadings(),
-                Slug = projects.FirstOrDefault(p => p.Id == 15).Slug,
-                Level = projects.FirstOrDefault(p => p.Id == 15).Level,
-                Description = "Создайте консольное приложение для использования внешнего API с HTTP-запросами на C#",
-                Area = projects.FirstOrDefault(p => p.Id == 15).Area,
-                ExperiencePoints = projects.FirstOrDefault(p => p.Id == 15).ExperiencePoints,
-                Difficulty = projects.FirstOrDefault(p => p.Id == 15).Difficulty,
-                RepositoryLink = GetProjects().FirstOrDefault(p => p.Id == 15).RepositoryLink,
-                Introduction = new List<Paragraph>
-                {
-                    new Paragraph
-                    {
-                        Body="Часто разработчики работают с данными сторонних разработчиков. Очень распространенным способом доступа к данным внешних данных является отправка запросов к их API (Application Programming Interface). Как только мы получим доступ к их данным, мы сможем обрабатывать их в нашем приложении в соответствии с нашими потребностями. Другой распространенный сценарий - это когда в организации есть несколько независимых приложений, которые взаимодействуют между собой. <a href='https://en.wikipedia.org/wiki/Microservices'>Так называемые микросервисы</a>."
-                    },
-                    new Paragraph
-                    {
-                        Body="В этом приложении мы узнаем, как подключиться к внешнему API с помощью HTTP-запросов, используя библиотеки классов .NET. Это проще, чем вы можете себе представить! К счастью, существует множество общедоступных API. <a href='https://github.com/public-apis/public-apis'> Вот отличный список общедоступных API для практики.</a>"
-                    }
-                },
-                Requirements = new List<string>
-                {
-                    "Ресторан нанял вас для разработки решения для их меню напитков",
-                    "Их меню напитков предоставляется сторонней компанией. Все данные о напитках находятся в базе данных компаний, доступной через API.",
-                    "Ваша задача - создать систему, которая позволит сотруднику ресторана извлекать данные из любого напитка в базе данных.",
-                    "Здесь вам не нужен SQL, так как вы не будете работать с базой данных. Все, что вам нужно, - это создать удобный способ представления данных пользователям (сотрудникам ресторана).",
-                    "Когда пользователи открывают приложение, им должно быть представлено меню категории напитков и предложено выбрать категорию. Тогда у них будет возможность выбрать напиток и просмотреть информацию о нем",
-                    "Когда пользователи визуализируют детали напитка, не должно быть никаких свойств с пустыми значениями."
-                },
-                RequirementsConclusion = "Не пугайтесь! Мы поможем! 😁",
-                ResourcesIntro = "Вот ссылки на использование HTTP-вызовов с помощью C# и на документацию Drinks API:",
-                Resources = new List<string>
-                {
-                    "<a href='https://www.thecocktaildb.com/api.php' target='_blank'>Cocktail Database</a>",
-                    "<a href='https://docs.microsoft.com/en-us/dotnet/csharp/tutorials/console-webapiclient' target='_blank'>Документы Microsoft: Http Requests</a>",
-                    "<a href='https://www.youtube.com/watch?v=fc7peZ-FHs4' target='_blank'>Видео: Drinks Info App (ПОЛНЫЙ ПРОЕКТ)</a>"
-                },
-                Screenshots = new List<string>
-                {
-                    "drinks-1.png"
-                }
-            },
-             new Project
-            {
-                Id = 16,
-                Title = "Телефонный справочник",
-                IconUrl = projects.FirstOrDefault(p => p.Id == 16).IconUrl,
-                BannerUrl = projects.FirstOrDefault(p => p.Id == 16).BannerUrl,
-                LanguageHeadings = new RussianHeadings(),
-                Slug = projects.FirstOrDefault(p => p.Id == 16).Slug,
-                Description = "Теперь, когда у вас есть базовые представления о SQL, пришло время изучить основы Entity Framework с помощью консольного приложения Phone Book",
-                Area = projects.FirstOrDefault(p => p.Id == 16).Area,
-                Level = projects.FirstOrDefault(p => p.Id == 16).Level,
-                ExperiencePoints = projects.FirstOrDefault(p => p.Id == 16).ExperiencePoints,
-                Difficulty = projects.FirstOrDefault(p => p.Id == 16).Difficulty,
-                RepositoryLink = GetProjects().FirstOrDefault(p => p.Id == 16).RepositoryLink,
-                Introduction = new List<Paragraph>
-                {
-                    new Paragraph
-                    {
-                        Body="В .NET экосистеме вы столкнетесь с <a href='https://stackoverflow.com/questions/1279613/what-is-an-orm-how-does-it-work-and-how-should-i-use-one'> ORMs (объектно-реляционными мапперами</a>, которые помогут вам работать с базами данных, используя объекты. Если вы искали учебные пособия по C#, то, вероятно, сталкивались с такими технологиями, как Dapper и Entity Framework. Вы определенно будете использовать их, когда начнете работать разработчиком."
-                    },
-                    new Paragraph
-                    {
-                        Body="В этом руководстве мы создадим очень простую телефонную книгу, чтобы вы могли изучить основы Entity Framework, самого популярного ORM. Хотя мы в C# Academy твердо убеждены, что студенты C# должны в первую очередь изучать простой SQL, для большинства рабочих приложений .NET C# требуется Entity Framework. Хорошей новостью является то, что основные операции EF очень просты в освоении, и вы очень быстро освоитесь с ними. Поехали!"
-                    }
-                },
-                Requirements = new List<string>
-                {
-                    "Это приложение, в котором вы должны записывать контакты с их телефонными номерами.",
-                    "Пользователи должны иметь возможность добавлять, удалять, обновлять и считывать данные из базы данных с помощью консоли.",
-                    "Вам нужно использовать Entity Framework, SQL не разрешен.",
-                    "Ваш код должен содержать базовый класс контактов, содержащий КАК МИНИМУМ {Id INT, Name STRING, Email STRING and Phone Number(STRING)}",
-                    "Вы должны проверять электронные письма и номера телефонов и сообщать пользователю, какие форматы ожидаются",
-                    "Вы должны использовать подход \"Code-First Approach\", что означает, что EF будет создайте схему базы данных для себя",
-                    "Вам следует использовать SQL Server, а не SQLite"
-                },
-                ResourcesIntro = "Вот несколько ресурсов, которые могут оказаться полезными.",
-                Resources = new List<string>
-                {
-                    "<a href='https://docs.microsoft.com/en-us/ef/core/get-started/overview/first-app?tabs=netcore-cli'>Entity Framework документация</a>",
-                    "<a href='https://www.youtube.com/watch?v=tDiJdthMs1Q&list=PL4G0MUH8YWiDcv8EUWTbDxDlkSndfh-T0'>CRUD Console APP с EF на Youtube</a>"
-                },
-                ResourcesConclusion = "Есть много других видеороликов на Youtube и статей в блогах о Entity Framework и обо всем остальном, что вам нужно. Не стесняйтесь пользоваться Google!",
-                Tips = new List<string>
-                {
-                    "Перед запуском приложения \"Телефонный справочник\" завершите программу в статье документации Microsoft без каких-либо изменений и сохраните в своем репозитории Github для ознакомления. Прежде чем приступить к работе, убедитесь, что вы понимаете большую часть кода",
-                    "Не забудьте с самого начала создать репозиторий на Github для вашего проекта"
-                },
-                Challenges = new List<string>
-                {
-                    "Создайте функциональность, позволяющую пользователям добавлять адрес электронной почты контакта и отправлять сообщения электронной почты из приложения.",
-                    "Расширьте приложение, создав категории контактов (например, семья, друзья, работа и т.д.).",
-                    "А что, если вы хотите отправлять не только электронные письма, но СМС?"
-                }
-            }
         };
     }
 }
