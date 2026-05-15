@@ -172,7 +172,7 @@
 
             if (status == ResponseStatus.Success)
             {
-                User = await UserService.GetUserById(UserId);
+                User = await UserService.GetUserForDashboard(UserId);
                 await BuildAreasWithProjects();
             }
         }
@@ -193,7 +193,7 @@
         }
         var claims = AuthSate.User;
         UserId = claims.FindFirstValue(ClaimTypes.NameIdentifier);
-        User = await UserService.GetUserById(UserId);
+        User = await UserService.GetUserForDashboard(UserId);
 
         await BuildAreasWithProjects();
 

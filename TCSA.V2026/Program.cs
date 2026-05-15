@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.Options;
 using MudBlazor;
 using MudBlazor.Services;
@@ -39,6 +40,7 @@ builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityUserAccessor>();
 builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
+builder.Services.AddHybridCache();
 
 builder.Services.AddSingleton<IStripeClient>(sp =>
 {
@@ -63,7 +65,14 @@ builder.Services.AddScoped<IDiscordService, DiscordService>();
 builder.Services.AddScoped<IActivityService, ActivityService>();
 builder.Services.AddScoped<IGithubService, GithubService>();
 builder.Services.AddScoped<IGalleryService, GalleryService>();
-builder.Services.AddScoped<IStatisticsService, StatisticsService>();
+builder.Services.AddScoped<StatisticsService>();
+builder.Services.AddScoped<IStatisticsService>(sp =>
+{
+    return new CachingStatisticsService(
+        sp.GetRequiredService<StatisticsService>(),
+        sp.GetRequiredService<HybridCache>()
+    );
+});
 builder.Services.AddScoped<IFeedService, FeedService>();
 builder.Services.AddScoped<IAccountabilityBuddyService, AccountabilityBuddyService>();
 builder.Services.AddScoped<IDonateService, DonateService>();
