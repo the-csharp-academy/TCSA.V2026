@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using TCSA.V2026.Data.Models;
 
-namespace TCSA.V2026.Pages;
+namespace TCSA.V2026.Components.Pages;
 
 public class LogoutModel : PageModel
 {
