@@ -611,7 +611,7 @@ public static class ArticleHelper
                 IconUrl = "icons8-sharp-94.png",
                 Slug = "foundations",
                 CardImgUrl = "foundations.png",
-                BannerUrl = "",
+                BannerUrl = "foundation-banner.jpg",
                 Description = "Dive into basic C# syntax and control flow. You’ll learn just enough theory to have a solid foundation before jumping into our projects.",
                 Area = Area.StartHere,
                 Level = Level.Green,

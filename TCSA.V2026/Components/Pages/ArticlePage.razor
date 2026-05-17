@@ -135,7 +135,7 @@
     private string GetBanner()
     {
         var banner = string.IsNullOrEmpty(Article.BannerUrl) ? "article-banner.jpg" : Article.BannerUrl;
-        return $"min-height: 250px; background-image: url('/img/banners/{banner}'); background-size: cover; background-position: center;";
+        return $"min-height: 250px; background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/img/banners/{banner}'); background-size: cover; background-position: center;";
     }
 
     private string GetImage(Paragraph paragraph) => $"img/{paragraph.PictureUrl}";
