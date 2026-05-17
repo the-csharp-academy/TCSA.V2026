@@ -484,7 +484,7 @@ public static class ArticleHelper
                 Id = (int)ArticleName.SettingUp,
                 Title = "Setting Up",
                 IconUrl = "icons8-project-setup-96-1.png",
-                BannerUrl = "",
+                BannerUrl = "setup-banner.jpg",
                 CardImgUrl = "setting-up.png",
                 Slug = "setting-up",
                 Description = "Learn how to set up your develop environment with .NET framework and Visual Studio so you can get ready to start coding.",
