@@ -382,7 +382,7 @@
     private string GetBanner()
     {
         var banner = string.IsNullOrEmpty(Project.BannerUrl) ? "article-banner.jpg" : Project.BannerUrl;
-        return $"min-height: 350px; background-image: url('/img/banners/{banner}'); background-size: cover; background-position: center;";
+        return $"min-height: 350px; background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/img/banners/{banner}'); background-size: cover; background-position: center;";
     }
 
     private async Task CheckCodeWars()

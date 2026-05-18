@@ -143,13 +143,13 @@ public class DashboardProjectsHelperTests
     [TestCase(Area.StartApplying, new[] { (int)ArticleName.Portfolio, (int)ArticleName.Resume })]
     [TestCase(Area.SQL, new[] { (int)ArticleName.Sql1, (int)ArticleName.Sql2, (int)ArticleName.Sql3 })]
     [TestCase(Area.MVC, new[] { (int)ArticleName.WaterLogger, (int)ArticleName.Movies, (int)ArticleName.TodoList, (int)ArticleName.Budget })]
-    [TestCase(Area.Auth, new[] { (int)ArticleName.Auth, (int)ArticleName.ProductManagement, (int)ArticleName.ExternalAuth })]
+    [TestCase(Area.Auth, new[] { (int)ArticleName.Auth, (int)ArticleName.ProductManagement, (int)ArticleName.ExternalAuth, (int)ArticleName.Auth0 })]
     [TestCase(Area.Angular, new[] { (int)ArticleName.TourOfHeroes, (int)ArticleName.CoffeeTracker, (int)ArticleName.SleepTracker, (int)ArticleName.Quizgame })]
     [TestCase(Area.Blazor, new[] { (int)ArticleName.WardrobeInventory, (int)ArticleName.MemoryGame, (int)ArticleName.FoodJournal, (int)ArticleName.SportsStatistics })]
     [TestCase(Area.MAUI, new[] { (int)ArticleName.MauiMath, (int)ArticleName.Books, (int)ArticleName.Monkeys, (int)ArticleName.Warehouse })]
     [TestCase(Area.Azure, new[] { (int)ArticleName.DeploySimpleApp, (int)ArticleName.DeployFullStack, (int)ArticleName.DeployFramework, (int)ArticleName.AzureFunctions })]
     [TestCase(Area.Docker, new[] { (int)ArticleName.DockerIntro })]
-    [TestCase(Area.MonthlyChallenge, new[] { (int)ArticleName.BreweryApi })]
+    [TestCase(Area.MonthlyChallenge, new[] { (int)ArticleName.BreweryApi, (int)ArticleName.BuildAGame })]
     [TestCase(Area.GraduationProject, new[] { (int)ArticleName.Flagship })]
     public void CheckIfAreaIsCompleted_ShouldReturnTrue_WhenOtherAreaThanStartHereIsCompleted(
         Area area,

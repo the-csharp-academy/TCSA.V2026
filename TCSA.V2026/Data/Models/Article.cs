@@ -130,6 +130,7 @@ public enum ArticleName
     Auth = 28,
     ProductManagement = 72,
     ExternalAuth = 74,
+    Auth0 = 100004,
 
     Sql1 = 76, 
     Sql2 = 77, 

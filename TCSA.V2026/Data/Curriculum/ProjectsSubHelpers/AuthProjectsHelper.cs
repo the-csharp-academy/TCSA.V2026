@@ -14,10 +14,10 @@ internal static class AuthProjectsHelper
         {
              new Project
              {
-                Id = 28,
+                Id = (int)ArticleName.Auth,
                 Title = "Authentication and Authorization",
                 IconUrl = "icons8-safe-ok-480.png",
-                BannerUrl = "pexels-asphotograpy-218686.jpg",
+                BannerUrl = "auth-banner.jpg",
                 LanguageHeadings = new EnglishHeadings(),
                 Slug = "authentication-and-authorization",
                 Description = "Learn how to secure your app with ASP.NET Core Identity",
@@ -67,10 +67,10 @@ internal static class AuthProjectsHelper
              },
              new Project
              {
-                Id = 72,
+                Id = (int)ArticleName.ProductManagement,
                 Title = "Product Management System",
                 IconUrl = "icons8-products-96.png",
-                BannerUrl = "",
+                BannerUrl = "banner-productmanagement.jpg",
                 LanguageHeadings = new EnglishHeadings(),
                 Slug = "product-management-system",
                 Description = "Learn role-based authentication with ASP.NET Core Identity",
@@ -123,11 +123,11 @@ internal static class AuthProjectsHelper
              },
              new Project
              {
-                Id = 74,
+                Id = (int)ArticleName.ExternalAuth,
                 Title = "External Auth",
                 IconUrl = "icons8-fingerprint-error-96.png",
                 Slug = "external-auth",
-                BannerUrl = "",
+                BannerUrl = "banner-externalauth.jpg",
                 LanguageHeadings = new EnglishHeadings(),
                 Description = "Learn to authorize a self-hosted ASP.NET Identity app with an external service.",
                 Area = Area.Auth,
@@ -162,6 +162,75 @@ internal static class AuthProjectsHelper
                     "You can add many other services as options for the user. <a target='blank' href='https://learn.microsoft.com/en-us/aspnet/core/security/authentication/social/other-logins?view=aspnetcore-7.0'>Check this list</a>.",
                      "You can use aditional claims from the external provider. <a target='blank' href='https://learn.microsoft.com/en-us/aspnet/core/security/authentication/social/additional-claims?view=aspnetcore-7.0'>Check this article</a>."
                 }
+             },
+             new Project
+             {
+                 Id = (int)ArticleName.Auth0,
+                 Title = "Auth0 Integration",
+                 IconUrl = "icons8-login-96.png",
+                 BannerUrl = "banner-auth0.jpg",
+                 LanguageHeadings = new EnglishHeadings(),
+                 Slug = "auth0-integration",
+                 Description = "Learn how to integrate an ASP.NET Core application with Auth0",
+                 Area = Area.Auth,
+                 Level = Level.Brown,
+                 ExperiencePoints = 100,
+                 Difficulty = Difficulty.Intermediate,
+                 RepositoryLink = "https://github.com/TheCSharpAcademy/CodeReviews.Auth.Auth0Integration",
+                 Introduction = new List<Paragraph>
+                 {
+                     new Paragraph
+                     {
+                         Body = "In the previous Auth projects, we learned how to secure ASP.NET Core applications using Identity, roles, account confirmation, password recovery and external login providers. These are essential skills, especially when working with applications that own and manage their own user data."
+                     },
+                     new Paragraph
+                     {
+                         Body = "In many professional environments, however, companies don't want every application to manage authentication on its own. Instead, they use an identity provider such as Auth0 to centralize login, registration, social providers, user management, multi-factor authentication and token issuing."
+                     },
+                     new Paragraph
+                     {
+                         Body = "In this project, you'll integrate an ASP.NET Core application with Auth0. The objective is to understand how a hosted identity platform fits into a .NET application, how login/logout flows work, how claims are received by your app, and how protected pages or API endpoints can be secured using Auth0."
+                     }
+                 },
+                 Requirements = new List<string>
+                 {
+                     "You need to create a new ASP.NET Core MVC, Razor Pages or Blazor app.",
+                     "You need to create an Auth0 account and configure an Auth0 application for your project.",
+                     "Users should be able to register, log in and log out using Auth0.",
+                     "Your app should display basic user profile information after login, such as name, e-mail and profile picture when available.",
+                     "You need to protect at least one page, controller action or component so it can only be accessed by authenticated users.",
+                     "You need to configure callback and logout URLs correctly for local development.",
+                     "You need to store Auth0 configuration values such as Domain, ClientId and ClientSecret in configuration files or user secrets. These values should not be hard-coded.",
+                     "You need to add role-based or claim-based authorization to protect at least one admin-only area or feature.",
+                     "You need to document the Auth0 setup steps in your README, including the required dashboard configuration. The reviewer will follow these steps to review your project using the integration.",
+                     "You need to explain in your README the difference between ASP.NET Core Identity and using an external identity provider such as Auth0.",
+                     CurriculumConstants.ReadMeRequirement
+                 },
+                 ResourcesIntro = "Here are a few resources that might be helpful.",
+                 Resources = new List<string>
+                 {
+                     "<a target='blank' href='https://auth0.com/docs/quickstart/webapp/aspnet-core'>Auth0 ASP.NET Core Web App Quickstart</a>",
+                     "<a target='blank' href='https://auth0.com/docs/quickstart/backend/aspnet-core-webapi'>Auth0 ASP.NET Core Web API Quickstart</a>",
+                     "<a target='blank' href='https://auth0.com/blog/exploring-auth0-aspnet-core-authentication-sdk/'>Exploring the Auth0 ASP.NET Core Authentication SDK</a>",
+                     "<a target='blank' href='https://github.com/auth0-samples/auth0-aspnetcore-mvc-samples'>Auth0 ASP.NET Core MVC Samples</a>",
+                     "<a target='blank' href='https://auth0.github.io/auth0-aspnetcore-authentication/'>Auth0 ASP.NET Core Authentication SDK Docs</a>"
+                 },
+                 Tips = new List<string>
+                 {
+                     "Start with a brand new ASP.NET Core MVC or Razor Pages app before integrating Auth0 into an existing project. Once the login and logout flow is clear, apply it to a previous Auth project.",
+                     "Use User Secrets for local development so you don't accidentally commit sensitive Auth0 values to GitHub.",
+                     "Pay close attention to callback URLs, logout URLs and allowed web origins in the Auth0 dashboard. Small mistakes in these settings are one of the most common causes of integration issues.",
+                     "After logging in, inspect the user's claims and write notes about what Auth0 sends back to your application.",
+                     "Make sure you understand the difference between authentication handled by Auth0 and application data that still belongs in your own database."
+                 },
+                 Challenges = new List<string>
+                 {
+                     "Create a protected ASP.NET Core Web API and call it from your web app using an access token issued by Auth0.",
+                     "Add Auth0 roles or permissions and use them to protect different areas of your application.",
+                     "Add social login through Auth0, such as Google or GitHub, instead of configuring each provider directly in ASP.NET Core.",
+                     "Add a custom claim to the user's profile and use it inside your application.",
+                     "Create a simple admin page that displays the logged-in user's claims so you can better understand the authentication flow."
+                 }
              },
         };
     }

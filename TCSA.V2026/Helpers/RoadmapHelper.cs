@@ -89,6 +89,7 @@ public static class RoadmapHelper
         (int) ArticleName.Auth,
         (int) ArticleName.ProductManagement,
         (int) ArticleName.ExternalAuth,
+        (int) ArticleName.Auth0
     };
 
     public static readonly int[] SqlRequirements = {
