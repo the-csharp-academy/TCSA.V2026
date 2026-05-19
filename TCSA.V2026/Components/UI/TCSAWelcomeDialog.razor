@@ -1,0 +1,193 @@
+@using TCSA.V2026.Services
+
+<MudDialog Style="max-width: 680px; width: 680px;">
+    <DialogContent>
+        <MudStepper CenterLabels @bind-ActiveIndex="_activeIndex">
+            <TitleTemplate></TitleTemplate>
+            <ChildContent>
+                <MudStep Title="Welcome">
+                    <MudStack Spacing="3" Class="pa-1">
+                        <MudText Typo="Typo.h6" Align="Align.Center" Color="Color.Primary">Welcome to The C# Academy</MudText>
+                        <MudText Typo="Typo.body2" Align="Align.Center">
+                            Learn at your pace, build real projects, and grow with a supportive community.
+                        </MudText>
+                        <MudText Typo="Typo.body2" Align="Align.Center">
+                            We'll guide you step by step so you always know what's next.
+                        </MudText>
+                    </MudStack>
+                </MudStep>
+                <MudStep Title="Your Loop">
+                    <MudStack Spacing="3" Class="pa-1">
+                        <MudText Typo="Typo.h6" Align="Align.Center" Color="Color.Primary">
+                            You'll follow a simple four-stage learning loop.
+                        </MudText>
+                        <MudGrid Spacing="2">
+                            <MudItem xs="6">
+                                <MudPaper Outlined="true" Class="pa-3 d-flex flex-column align-center" Style="gap: 8px; height: 100%;">
+                                    <MudImage Src="/img/WelcomeIntroduction/pick.svg" Height="72" ObjectFit="ObjectFit.Contain" />
+                                    <MudText Typo="Typo.subtitle2" Align="Align.Center" Color="Color.Primary"><b>1. Pick</b></MudText>
+                                    <MudText Typo="Typo.caption" Align="Align.Center">Choose a project from the roadmap or dashboard</MudText>
+                                </MudPaper>
+                            </MudItem>
+                            <MudItem xs="6">
+                                <MudPaper Outlined="true" Class="pa-3 d-flex flex-column align-center" Style="gap: 8px; height: 100%;">
+                                    <MudImage Src="/img/WelcomeIntroduction/build.svg" Height="72" ObjectFit="ObjectFit.Contain" />
+                                    <MudText Typo="Typo.subtitle2" Align="Align.Center" Color="Color.Primary"><b>2. Build</b></MudText>
+                                    <MudText Typo="Typo.caption" Align="Align.Center">Work through requirements and build the solution</MudText>
+                                </MudPaper>
+                            </MudItem>
+                            <MudItem xs="6">
+                                <MudPaper Outlined="true" Class="pa-3 d-flex flex-column align-center" Style="gap: 8px; height: 100%;">
+                                    <MudImage Src="/img/WelcomeIntroduction/submit.svg" Height="72" ObjectFit="ObjectFit.Contain" />
+                                    <MudText Typo="Typo.subtitle2" Align="Align.Center" Color="Color.Primary"><b>3. Submit</b></MudText>
+                                    <MudText Typo="Typo.caption" Align="Align.Center">Share your GitHub link when it's ready</MudText>
+                                </MudPaper>
+                            </MudItem>
+                            <MudItem xs="6">
+                                <MudPaper Outlined="true" Class="pa-3 d-flex flex-column align-center" Style="gap: 8px; height: 100%;">
+                                    <MudImage Src="/img/WelcomeIntroduction/earn.svg" Height="72" ObjectFit="ObjectFit.Contain" />
+                                    <MudText Typo="Typo.subtitle2" Align="Align.Center" Color="Color.Primary"><b>4. Earn XP</b></MudText>
+                                    <MudText Typo="Typo.caption" Align="Align.Center">Progress through XP and belt ranks</MudText>
+                                </MudPaper>
+                            </MudItem>
+                        </MudGrid>
+                    </MudStack>
+                </MudStep>
+                <MudStep Title="Expectations">
+                    <MudStack Spacing="3" Class="pa-1">
+                        <MudText Typo="Typo.h6" Align="Align.Center" Color="Color.Primary">Here's what progress looks like once you get going.</MudText>
+                        <MudGrid Spacing="2">
+                            <MudItem xs="6">
+                                <MudPaper Outlined="true" Class="pa-3 d-flex flex-column align-center" Style="gap: 8px; height: 100%;">
+                                    <MudImage Src="/img/WelcomeIntroduction/time.svg" Height="72" ObjectFit="ObjectFit.Contain" />
+                                    <MudText Typo="Typo.subtitle2" Align="Align.Center" Color="Color.Primary"><b>Reviews take a few days</b></MudText>
+                                    <MudText Typo="Typo.caption" Align="Align.Center">Feedback isn't instant, so keep building while you wait.</MudText>
+                                </MudPaper>
+                            </MudItem>
+                            <MudItem xs="6">
+                                <MudPaper Outlined="true" Class="pa-3 d-flex flex-column align-center" Style="gap: 8px; height: 100%;">
+                                    <MudImage Src="/img/WelcomeIntroduction/progress.svg" Height="72" ObjectFit="ObjectFit.Contain" />
+                                    <MudText Typo="Typo.subtitle2" Align="Align.Center" Color="Color.Primary"><b>Progress isn't linear</b></MudText>
+                                    <MudText Typo="Typo.caption" Align="Align.Center">You'll revisit topics multiple times, that's normal.</MudText>
+                                </MudPaper>
+                            </MudItem>
+                            <MudItem xs="6">
+                                <MudPaper Outlined="true" Class="pa-3 d-flex flex-column align-center" Style="gap: 8px; height: 100%;">
+                                    <MudImage Src="/img/WelcomeIntroduction/tracked_progress.svg" Height="72" ObjectFit="ObjectFit.Contain" />
+                                    <MudText Typo="Typo.subtitle2" Align="Align.Center" Color="Color.Primary"><b>Everything is tracked</b></MudText>
+                                    <MudText Typo="Typo.caption" Align="Align.Center">Your dashboard keeps submissions, progress, and XP in one place.</MudText>
+                                </MudPaper>
+                            </MudItem>
+                        </MudGrid>
+                    </MudStack>
+                </MudStep>
+                <MudStep Title="Getting Help">
+                    <MudStack Spacing="3" Class="pa-1">
+                        <MudText Typo="Typo.h6" Align="Align.Center" Color="Color.Primary">Getting stuck is expected. Here's where to find support.</MudText>
+                        <MudGrid Spacing="2">
+                            <MudItem xs="6">
+                                <MudPaper Outlined="true" Class="pa-3 d-flex flex-column align-center" Style="gap: 8px; height: 100%;">
+                                    <MudImage Src="/img/WelcomeIntroduction/community.svg" Height="72" ObjectFit="ObjectFit.Contain" />
+                                    <MudText Typo="Typo.subtitle2" Align="Align.Center" Color="Color.Primary"><b>Join our Discord</b></MudText>
+                                    <MudText Typo="Typo.caption" Align="Align.Center">Ask questions, share progress, and get unstuck fast.</MudText>
+                                </MudPaper>
+                            </MudItem>
+                            <MudItem xs="6">
+                                <MudPaper Outlined="true" Class="pa-3 d-flex flex-column align-center" Style="gap: 8px; height: 100%;">
+                                    <MudImage Src="/img/WelcomeIntroduction/search.svg" Height="72" ObjectFit="ObjectFit.Contain" />
+                                    <MudText Typo="Typo.subtitle2" Align="Align.Center" Color="Color.Primary"><b>Search and troubleshoot</b></MudText>
+                                    <MudText Typo="Typo.caption" Align="Align.Center">Start by reading errors carefully and searching for similar issues.</MudText>
+                                </MudPaper>
+                            </MudItem>
+                            <MudItem xs="6">
+                                <MudPaper Outlined="true" Class="pa-3 d-flex flex-column align-center" Style="gap: 8px; height: 100%;">
+                                    <MudImage Src="/img/WelcomeIntroduction/question.svg" Height="72" ObjectFit="ObjectFit.Contain" />
+                                    <MudText Typo="Typo.subtitle2" Align="Align.Center" Color="Color.Primary"><b>No question is too basic</b></MudText>
+                                    <MudText Typo="Typo.caption" Align="Align.Center">Everyone here was a beginner once. Ask freely, the community is welcoming.</MudText>
+                                </MudPaper>
+                            </MudItem>
+                        </MudGrid>
+                    </MudStack>
+                </MudStep>
+                <MudStep Title="Path Forward">
+                    <MudStack Spacing="3" Class="pa-1">
+                        <MudText Typo="Typo.h6" Color="Color.Primary">You're all set. Here's how to keep moving.</MudText>
+                        <MudStack Spacing="2">
+                            <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Start">
+                                <MudIcon Icon="@Icons.Material.Filled.Map" Size="Size.Large" Class="mt-1" Style="background-color: var(--mud-palette-primary); color: var(--mud-palette-white); padding: 6px; border-radius: 50%;" />
+                                <MudStack Spacing="0">
+                                    <MudText Typo="Typo.subtitle2" Color="Color.Primary"><b>Take the platform tour</b></MudText>
+                                    <MudText Typo="Typo.body2">Use the tour to see where everything lives.</MudText>
+                                </MudStack>
+                            </MudStack>
+                            <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Start">
+                                <MudIcon Icon="@Icons.Material.Filled.Checklist" Size="Size.Large" Class="mt-1" Style="background-color: var(--mud-palette-success); color: var(--mud-palette-white); padding: 6px; border-radius: 50%;" />
+                                <MudStack Spacing="0">
+                                    <MudText Typo="Typo.subtitle2" Color="Color.Primary"><b>Follow the checklist</b></MudText>
+                                    <MudText Typo="Typo.body2">Your checklist shows the exact next steps to get started.</MudText>
+                                </MudStack>
+                            </MudStack>
+                            <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Start">
+                                <MudIcon Icon="@Icons.Material.Filled.PlaylistAddCheck" Size="Size.Large" Class="mt-1" Style="background-color: var(--mud-palette-warning); color: var(--mud-palette-white); padding: 6px; border-radius: 50%;" />
+                                <MudStack Spacing="0">
+                                    <MudText Typo="Typo.subtitle2" Color="Color.Primary"><b>One step at a time</b></MudText>
+                                    <MudText Typo="Typo.body2">Focus on the next action and the progress will follow.</MudText>
+                                </MudStack>
+                            </MudStack>
+                        </MudStack>
+                    </MudStack>
+                </MudStep>
+            </ChildContent>
+            <ActionContent></ActionContent>
+        </MudStepper>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Text" OnClick="SkipForNow" Class="mr-auto">Skip for now</MudButton>
+        @if (_activeIndex > 0)
+        {
+            <MudButton Variant="Variant.Outlined" OnClick="PreviousStep">Back</MudButton>
+        }
+        @if (_activeIndex < TotalSteps - 1)
+        {
+            <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="NextStep">Next</MudButton>
+        }
+        else
+        {
+            <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="TakeTour">Get Started</MudButton>
+        }
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [Inject] private IUserService UserService { get; set; } = default!;
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+    [Parameter] public string UserId { get; set; } = string.Empty;
+
+    private int _activeIndex = 0;
+    private const int TotalSteps = 5;
+
+    private void NextStep()
+    {
+        if (_activeIndex < TotalSteps - 1)
+            _activeIndex++;
+    }
+
+    private void PreviousStep()
+    {
+        if (_activeIndex > 0)
+            _activeIndex--;
+    }
+
+    private Task TakeTour() => CloseAsync("tour");
+    private Task SkipForNow() => CloseAsync("skip");
+
+    private async Task CloseAsync(string result)
+    {
+        if (!string.IsNullOrWhiteSpace(UserId))
+        {
+            await UserService.MarkWelcomeSeen(UserId);
+        }
+
+        MudDialog.Close(DialogResult.Ok(result));
+    }
+}

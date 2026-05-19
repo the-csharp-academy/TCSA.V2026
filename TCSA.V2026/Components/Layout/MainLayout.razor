@@ -1,4 +1,6 @@
 @using Microsoft.Extensions.Options
+@using System.Security.Claims
+@using TCSA.V2026.Components.UI
 @using TCSA.V2026.Data.DTOs
 @using TCSA.V2026.Data.Models.Options
 @using TCSA.V2026.Helpers
@@ -8,6 +10,10 @@
 @inject IHttpContextAccessor HttpContextAccessor
 @inject IJSRuntime JS
 @inject NavigationManager Nav
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IUserService UserService
+@inject IDialogService DialogService
+@inject ILogger<MainLayout> Logger
 
 <MudThemeProvider Theme="MyCustomTheme" @bind-IsDarkMode="@ThemeService.IsDarkMode" />
 <MudPopoverProvider />
@@ -97,6 +103,7 @@
 @code {
     private bool _navOpen = true;
     private bool _feedOpen = true;
+    private bool _onboardingChecked;
 
     protected override void OnInitialized()
     {
@@ -105,6 +112,43 @@
         {
             ThemeService.IsDarkMode = themeCookie == "dark";
         };
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender || _onboardingChecked)
+        {
+            return;
+        }
+
+        try
+        {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            if (authState.User.Identity?.IsAuthenticated != true)
+            {
+                return;
+            }
+
+            var userId = authState.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return;
+            }
+
+            var status = await UserService.GetOnboardingStatus(userId);
+            if (status.ShowWelcome)
+            {
+                await StartOnboardingAsync(userId);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to start onboarding welcome dialog.");
+        }
+        finally
+        {
+            _onboardingChecked = true;
+        }
     }
 
     private void ToggleFeedDrawer()
@@ -121,6 +165,23 @@
     {
         if (item is not null)
             Nav.NavigateTo(item.PageUrl);
+    }
+
+    private async Task StartOnboardingAsync(string userId)
+    {
+        var options = new DialogOptions
+        {
+            CloseOnEscapeKey = false,
+            BackdropClick = false,
+            NoHeader = true
+        };
+        var parameters = new DialogParameters<TCSAWelcomeDialog>
+        {
+            { p => p.UserId, userId }
+        };
+
+        var dialog = await DialogService.ShowAsync<TCSAWelcomeDialog>(null, parameters, options);
+        await dialog.Result;
     }
 
     private async Task ToggleTheme()
