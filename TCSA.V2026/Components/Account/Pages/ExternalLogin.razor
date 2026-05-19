@@ -1,4 +1,4 @@
-﻿@page "/Account/ExternalLogin"
+@page "/Account/ExternalLogin"
 
 @using System.ComponentModel.DataAnnotations
 @using System.Security.Claims
@@ -178,6 +178,7 @@
         user.LastName = string.Empty;
         user.DisplayName = user.UserName;
         user.Level = Level.White;
+        user.OnboardingStartedDate = DateTime.UtcNow;
 
         await UserStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
         await emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
