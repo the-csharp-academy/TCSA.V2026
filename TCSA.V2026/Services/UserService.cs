@@ -22,6 +22,7 @@ public interface IUserService
     Task<BaseResponse> AcknowledgeBeltNotification(string userId);
     Task<OnboardingStatusDto> GetOnboardingStatus(string userId);
     Task<BaseResponse> MarkWelcomeSeen(string userId);
+    Task<BaseResponse> MarkTourCompleted(string userId);
 }
 
 public class UserService : IUserService
@@ -349,6 +350,14 @@ public class UserService : IUserService
         return UpdateOnboardingFlag(userId, user =>
         {
             user.HasCompletedWelcome = true;
+        });
+    }
+
+    public Task<BaseResponse> MarkTourCompleted(string userId)
+    {
+        return UpdateOnboardingFlag(userId, user =>
+        {
+            user.HasCompletedTour = true;
         });
     }
     private async Task<BaseResponse> UpdateOnboardingFlag(string userId, Action<ApplicationUser> applyUpdate)
