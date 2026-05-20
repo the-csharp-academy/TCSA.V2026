@@ -14,6 +14,7 @@
 @inject IUserService UserService
 @inject IDialogService DialogService
 @inject ILogger<MainLayout> Logger
+@implements IAsyncDisposable
 
 <MudThemeProvider Theme="MyCustomTheme" @bind-IsDarkMode="@ThemeService.IsDarkMode" />
 <MudPopoverProvider />
@@ -104,14 +105,26 @@
     private bool _navOpen = true;
     private bool _feedOpen = true;
     private bool _onboardingChecked;
+    private string UserId = string.Empty;
 
-    protected override void OnInitialized()
+    private IJSObjectReference? _onboardingModule;
+    private IJSObjectReference? _tourInstance;
+    private DotNetObjectReference<MainLayout>? _dotNetRef;
+
+    protected override async Task OnInitializedAsync()
     {
         var themeCookie = HttpContextAccessor.HttpContext?.Request.Cookies["theme"];
         if (themeCookie != null)
         {
             ThemeService.IsDarkMode = themeCookie == "dark";
         };
+    }
+
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity?.IsAuthenticated == true)
+        {
+            UserId = authState.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
+        }
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -123,22 +136,15 @@
 
         try
         {
-            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-            if (authState.User.Identity?.IsAuthenticated != true)
+            if (string.IsNullOrWhiteSpace(UserId))
             {
                 return;
             }
 
-            var userId = authState.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrWhiteSpace(userId))
-            {
-                return;
-            }
-
-            var status = await UserService.GetOnboardingStatus(userId);
+            var status = await UserService.GetOnboardingStatus(UserId);
             if (status.ShowWelcome)
             {
-                await StartOnboardingAsync(userId);
+                await StartOnboardingAsync();
             }
         }
         catch (Exception ex)
@@ -167,7 +173,7 @@
             Nav.NavigateTo(item.PageUrl);
     }
 
-    private async Task StartOnboardingAsync(string userId)
+    private async Task StartOnboardingAsync()
     {
         var options = new DialogOptions
         {
@@ -177,11 +183,13 @@
         };
         var parameters = new DialogParameters<TCSAWelcomeDialog>
         {
-            { p => p.UserId, userId }
+            { p => p.UserId, UserId },
         };
 
         var dialog = await DialogService.ShowAsync<TCSAWelcomeDialog>(null, parameters, options);
-        await dialog.Result;
+        var dialogResult = await dialog.Result;
+
+        if (!dialogResult.Canceled) await StartTour();
     }
 
     private async Task ToggleTheme()
@@ -189,6 +197,58 @@
         ThemeService.ToggleTheme();
         // Update cookie via JS interop or via server-side endpoint.
         await JS.InvokeVoidAsync("setCookie", "theme", ThemeService.IsDarkMode ? "dark" : "light", 365);   
+    }
+
+    private async Task StartTour()
+    {
+        if (_tourInstance != null)
+        {
+            try
+            {
+                await _tourInstance.DisposeAsync();
+            } catch (JSDisconnectedException)
+            {
+                
+            }
+        };
+        _onboardingModule ??= await JS.InvokeAsync<IJSObjectReference>("import", "./js/onboarding-tour.js");
+        _tourInstance = await _onboardingModule.InvokeAsync<IJSObjectReference>("initOnboarding");
+        _dotNetRef = DotNetObjectReference.Create(this);
+
+        await _tourInstance.InvokeVoidAsync("startTour", _dotNetRef);
+    }
+
+    [JSInvokable]
+    public async Task CompleteTour()
+    {
+        await UserService.MarkTourCompleted(UserId);
+    }
+
+    async ValueTask IAsyncDisposable.DisposeAsync()
+    {
+        if (_onboardingModule != null)
+        {
+            try
+            {
+                await _onboardingModule.DisposeAsync();
+            } catch (JSDisconnectedException)
+            {
+                
+            }
+        }
+
+        if (_tourInstance != null)
+        {
+            try
+            {
+                await _tourInstance.DisposeAsync();
+            } catch (JSDisconnectedException)
+            {
+                
+            }
+        }
+
+        _dotNetRef?.Dispose();
     }
 
     MudTheme MyCustomTheme = new MudTheme()
