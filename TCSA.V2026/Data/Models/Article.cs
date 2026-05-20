@@ -146,6 +146,9 @@ public enum ArticleName
     BuildAGame = 100003,
 
     DockerIntro = 100002,
+    DockerCompose = 100005,
+    DockerFullStack = 100006,
+    DockerK8s = 100007,
 
     ConsoleGraduation = 10,
     Roadmap = 51,
