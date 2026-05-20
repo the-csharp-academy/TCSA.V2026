@@ -142,7 +142,7 @@
         </MudStepper>
     </DialogContent>
     <DialogActions>
-        <MudButton Variant="Variant.Text" OnClick="SkipForNow" Class="mr-auto">Skip for now</MudButton>
+        <MudButton Variant="Variant.Text" OnClick="CloseAsync" Class="mr-auto">Skip for now</MudButton>
         @if (_activeIndex > 0)
         {
             <MudButton Variant="Variant.Outlined" OnClick="PreviousStep">Back</MudButton>
@@ -153,7 +153,7 @@
         }
         else
         {
-            <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="TakeTour">Get Started</MudButton>
+            <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="CloseAsync">Get Started</MudButton>
         }
     </DialogActions>
 </MudDialog>
@@ -178,16 +178,13 @@
             _activeIndex--;
     }
 
-    private Task TakeTour() => CloseAsync("tour");
-    private Task SkipForNow() => CloseAsync("skip");
-
-    private async Task CloseAsync(string result)
+    private async Task CloseAsync()
     {
         if (!string.IsNullOrWhiteSpace(UserId))
         {
             await UserService.MarkWelcomeSeen(UserId);
         }
 
-        MudDialog.Close(DialogResult.Ok(result));
+        MudDialog.Close();
     }
 }
