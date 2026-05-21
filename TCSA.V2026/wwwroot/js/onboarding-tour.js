@@ -5,10 +5,15 @@ export class OnboardingTour {
         this._tour = null;
     }
 
-    startTour(dotNetRef) {
+    async startTour(dotNetRef) {
 
         this._cancel();
+
+        await dotNetRef.invokeMethodAsync('OpenNavDrawer');
+        await new Promise(r => setTimeout(r, 350));
+
         this._expandDashboardGroup();
+        await new Promise(r => setTimeout(r, 200));
 
         this._tour = new Shepherd.Tour({
             useModalOverlay: true,

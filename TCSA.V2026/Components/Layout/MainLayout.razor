@@ -117,7 +117,6 @@
         if (themeCookie != null)
         {
             ThemeService.IsDarkMode = themeCookie == "dark";
-        };
     }
 
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
@@ -216,6 +215,13 @@
         _dotNetRef = DotNetObjectReference.Create(this);
 
         await _tourInstance.InvokeVoidAsync("startTour", _dotNetRef);
+    }
+
+    [JSInvokable]
+    public async Task OpenNavDrawer()
+    {
+        _navOpen = true;
+        await InvokeAsync(StateHasChanged);
     }
 
     [JSInvokable]
