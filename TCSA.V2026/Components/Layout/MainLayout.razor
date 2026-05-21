@@ -117,7 +117,7 @@
         if (themeCookie != null)
         {
             ThemeService.IsDarkMode = themeCookie == "dark";
-    }
+        }
 
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         if (authState.User.Identity?.IsAuthenticated == true)
@@ -200,21 +200,21 @@
 
     private async Task StartTour()
     {
-        if (_tourInstance != null)
+        try
         {
-            try
+            if (_tourInstance != null)
             {
                 await _tourInstance.DisposeAsync();
-            } catch (JSDisconnectedException)
-            {
-                
             }
-        };
-        _onboardingModule ??= await JS.InvokeAsync<IJSObjectReference>("import", "./js/onboarding-tour.js");
-        _tourInstance = await _onboardingModule.InvokeAsync<IJSObjectReference>("initOnboarding");
-        _dotNetRef = DotNetObjectReference.Create(this);
+            _onboardingModule ??= await JS.InvokeAsync<IJSObjectReference>("import", "./js/onboarding-tour.js");
+            _tourInstance = await _onboardingModule.InvokeAsync<IJSObjectReference>("initOnboarding");
+            _dotNetRef = DotNetObjectReference.Create(this);
 
-        await _tourInstance.InvokeVoidAsync("startTour", _dotNetRef);
+            await _tourInstance.InvokeVoidAsync("startTour", _dotNetRef);
+        } catch (JSDisconnectedException)
+        {
+
+        }
     }
 
     [JSInvokable]
@@ -232,26 +232,20 @@
 
     async ValueTask IAsyncDisposable.DisposeAsync()
     {
-        if (_onboardingModule != null)
+        try
         {
-            try
+            if (_onboardingModule != null)
             {
                 await _onboardingModule.DisposeAsync();
-            } catch (JSDisconnectedException)
-            {
-                
             }
-        }
 
-        if (_tourInstance != null)
-        {
-            try
+            if (_tourInstance != null)
             {
                 await _tourInstance.DisposeAsync();
-            } catch (JSDisconnectedException)
-            {
-                
             }
+        } catch (JSDisconnectedException)
+        {
+            
         }
 
         _dotNetRef?.Dispose();
