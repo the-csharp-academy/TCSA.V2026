@@ -142,18 +142,20 @@
         </MudStepper>
     </DialogContent>
     <DialogActions>
-        <MudButton Variant="Variant.Text" OnClick="CloseAsync" Class="mr-auto">Skip for now</MudButton>
+        <MudButton Variant="Variant.Text" OnClick="CloseAsync" Disabled="isClosing" Class="mr-auto">Skip for now</MudButton>
         @if (_activeIndex > 0)
         {
-            <MudButton Variant="Variant.Outlined" OnClick="PreviousStep">Back</MudButton>
+            <MudButton Variant="Variant.Outlined" OnClick="PreviousStep" Disabled="isClosing">Back</MudButton>
         }
         @if (_activeIndex < TotalSteps - 1)
         {
-            <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="NextStep">Next</MudButton>
+            <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="NextStep" Disabled="isClosing">Next</MudButton>
         }
         else
         {
-            <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="CloseAsync">Get Started</MudButton>
+            <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="CloseAsync" Disabled="isClosing">
+                Get Started
+            </MudButton>
         }
     </DialogActions>
 </MudDialog>
@@ -165,6 +167,7 @@
 
     private int _activeIndex = 0;
     private const int TotalSteps = 5;
+    private bool isClosing = false;
 
     private void NextStep()
     {
@@ -180,11 +183,13 @@
 
     private async Task CloseAsync()
     {
+        isClosing = true;
         if (!string.IsNullOrWhiteSpace(UserId))
         {
             await UserService.MarkWelcomeSeen(UserId);
         }
 
+        isClosing = false;
         MudDialog.Close();
     }
 }
