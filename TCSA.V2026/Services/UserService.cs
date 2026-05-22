@@ -4,6 +4,7 @@ using TCSA.V2026.Data.DTOs;
 using TCSA.V2026.Data.Enums;
 using TCSA.V2026.Data.Models;
 using TCSA.V2026.Data.Models.Responses;
+using TCSA.V2026.Helpers;
 
 namespace TCSA.V2026.Services;
 
@@ -23,6 +24,7 @@ public interface IUserService
     Task<OnboardingStatusDto> GetOnboardingStatus(string userId);
     Task<BaseResponse> MarkWelcomeSeen(string userId);
     Task<BaseResponse> MarkTourCompleted(string userId);
+    Task<BaseResponse> MarkChecklistDismissed(string userId);
 }
 
 public class UserService : IUserService
@@ -334,7 +336,8 @@ public class UserService : IUserService
                 {
                     ShowWelcome = !user.HasCompletedWelcome,
                     ShowTour = !user.HasCompletedTour,
-                    ShowChecklist = !user.HasDismissedChecklist
+                    ShowChecklist = !user.HasDismissedChecklist,
+                    Tasks = !user.HasDismissedChecklist ? ChecklistHelper.BuildProfileTasks(user) : new()
                 };
             }
         }
@@ -358,6 +361,14 @@ public class UserService : IUserService
         return UpdateOnboardingFlag(userId, user =>
         {
             user.HasCompletedTour = true;
+        });
+    }
+
+    public Task<BaseResponse> MarkChecklistDismissed(string userId)
+    {
+        return UpdateOnboardingFlag(userId, user =>
+        {
+            user.HasDismissedChecklist = true;
         });
     }
     private async Task<BaseResponse> UpdateOnboardingFlag(string userId, Action<ApplicationUser> applyUpdate)

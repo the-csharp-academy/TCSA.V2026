@@ -61,10 +61,18 @@
     <MudDrawer id="nav-drawer" @bind-Open="_navOpen" Variant="DrawerVariant.Responsive" ClipMode="DrawerClipMode.Always" Elevation="2">
         <NavMenu />
     </MudDrawer>
-    @if (string.IsNullOrEmpty(Nav.ToBaseRelativePath(Nav.Uri)))
+    @if (string.IsNullOrEmpty(Nav.ToBaseRelativePath(Nav.Uri)) && !_showChecklist)
     {
         <MudDrawer id="feed-drawer" Variant="DrawerVariant.Responsive" @bind-Open="_feedOpen" Anchor="Anchor.Right" ClipMode="DrawerClipMode.Always" Elevation="2">
             <CommunityFeedWidget />
+        </MudDrawer>
+    }
+    @if (_showChecklist && !string.IsNullOrEmpty(UserId))
+    {
+        <MudDrawer id="checklist-drawer" Variant="DrawerVariant.Responsive" @bind-Open="_checklistOpen" Anchor="Anchor.Right" ClipMode="DrawerClipMode.Always" Elevation="2">
+            <GetStartedChecklist Tasks="_checklistTasks"
+                                 UserId="@UserId"
+                                 OnDismissed="HandleChecklistDismissed" />
         </MudDrawer>
     }
     <MudMainContent Class="pt-16">
@@ -72,7 +80,7 @@
     </MudMainContent>
 </MudLayout>
 
-@if (string.IsNullOrEmpty(Nav.ToBaseRelativePath(Nav.Uri)))
+@if (string.IsNullOrEmpty(Nav.ToBaseRelativePath(Nav.Uri)) && !_showChecklist)
 {
     <MudHidden Breakpoint="Breakpoint.SmAndDown" Invert="true">
         @if (!_navOpen)
@@ -94,6 +102,28 @@
                 Title="@(_feedOpen ? "Close News Feed" : "Open News Feed")" />
     </MudHidden>
 }
+@if (_showChecklist && !string.IsNullOrEmpty(UserId))
+{
+    <MudHidden Breakpoint="Breakpoint.SmAndDown" Invert="true">
+        @if (!_navOpen)
+        {
+            <MudFab StartIcon="@(_checklistOpen ? Icons.Material.Filled.Close : Icons.Material.Filled.Checklist)"
+                    Color="Color.Primary"
+                    Style="position: fixed; bottom: 32px; right: 32px; z-index: 1305;"
+                    OnClick="@ToggleChecklistDrawer"
+                    aria-label="Toggle Getting Started Checklist"
+                    Title="@(_checklistOpen ? "Close Checklist" : "Open Getting Started Checklist")" />
+        }
+    </MudHidden>
+    <MudHidden Breakpoint="Breakpoint.SmAndDown">
+        <MudFab StartIcon="@(_checklistOpen ? Icons.Material.Filled.Close : Icons.Material.Filled.Checklist)"
+                Color="Color.Primary"
+                Style="position: fixed; bottom: 32px; right: 32px; z-index: 1305;"
+                OnClick="@ToggleChecklistDrawer"
+                aria-label="Toggle Getting Started Checklist"
+                Title="@(_checklistOpen ? "Close Checklist" : "Open Getting Started Checklist")" />
+    </MudHidden>
+}
 
 <div id="blazor-error-ui" data-nosnippet>
     An unhandled error has occurred.
@@ -105,6 +135,9 @@
     private bool _navOpen = true;
     private bool _feedOpen = true;
     private bool _onboardingChecked;
+    private bool _showChecklist = false;
+    private bool _checklistOpen = true;
+    private List<ChecklistTaskDto> _checklistTasks = new();
     private string UserId = string.Empty;
 
     private IJSObjectReference? _onboardingModule;
@@ -141,10 +174,13 @@
             }
 
             var status = await UserService.GetOnboardingStatus(UserId);
+            _showChecklist = status.ShowChecklist;
+            _checklistTasks = status.Tasks;
             if (status.ShowWelcome)
             {
                 await StartOnboardingAsync();
             }
+            await InvokeAsync(StateHasChanged);
         }
         catch (Exception ex)
         {
@@ -159,6 +195,17 @@
     private void ToggleFeedDrawer()
     {
         _feedOpen = !_feedOpen;
+    }
+
+    private void ToggleChecklistDrawer()
+    {
+        _checklistOpen = !_checklistOpen;
+    }
+
+    private void HandleChecklistDismissed()
+    {
+        _showChecklist = false;
+        StateHasChanged();
     }
 
     private void ToggleNavDrawer()
