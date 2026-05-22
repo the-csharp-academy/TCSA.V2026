@@ -1,3 +1,4 @@
+using TCSA.V2026.Data.Curriculum.ProjectsSubHelpers;
 using TCSA.V2026.Data.DTOs;
 using TCSA.V2026.Data.Helpers.ProjectsSubHelpers;
 using TCSA.V2026.Data.Models;
@@ -21,6 +22,7 @@ public static class ProjectHelper
         .. ChallengeProjectsHelper.GetProjects(),
         .. OpenSourceProjectsHelper.GetProjects(),
         .. DockerProjectsHelper.GetProjects(),
+        .. SystemDesignProjectHelper.GetProjects(),
     ];
 
     private static readonly List<ShowcaseProjectInfo> _allProjectInfos = [.. _allProjects.Select(project => new ShowcaseProjectInfo

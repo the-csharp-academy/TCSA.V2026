@@ -756,7 +756,7 @@ public static class RoadmapHelper
         if (mvcProjects.All(x => completedProjects.Contains(x))) fullStackAreas.Add(Area.MVC);
         if (reactProjects.All(x => completedProjects.Contains(x))) fullStackAreas.Add(Area.React);
         if (angularProjects.All(x => completedProjects.Contains(x))) fullStackAreas.Add(Area.Angular);
-        if (blazorProjects.All(x => completedProjects.Contains(x))) fullStackAreas.Add(Area.Blazor);    
+        if (blazorProjects.All(x => completedProjects.Contains(x))) fullStackAreas.Add(Area.Blazor);
         if (mauiProjects.All(x => completedProjects.Contains(x))) fullStackAreas.Add(Area.MAUI);
 
         return fullStackAreas;
@@ -1048,8 +1048,8 @@ public static class RoadmapHelper
         return cells;
     }
 
-    public static List<RoadmapGridCell> GetAreaCells(Area area1) 
-    { 
+    public static List<RoadmapGridCell> GetAreaCells(Area area1)
+    {
         var blazorCells = new List<RoadmapGridCell>
         {
             new RoadmapGridCell

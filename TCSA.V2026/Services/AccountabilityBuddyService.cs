@@ -31,7 +31,7 @@ public class AccountabilityBuddyService : IAccountabilityBuddyService
         IStripeClient stripeClient)
     {
         _stripeOptions = stripeOptions;
-        _stripeClient = stripeClient;   
+        _stripeClient = stripeClient;
         _factory = factory;
     }
 
@@ -100,13 +100,13 @@ public class AccountabilityBuddyService : IAccountabilityBuddyService
 
         var accountability = new UserAccountabilityProject
         {
-            AppUserId = request.TcsaUserId.ToString(),     
+            AppUserId = request.TcsaUserId.ToString(),
             ProjectId = request.ProjectId,
             CreatedUtc = DateTime.UtcNow,
             DeadLineUtc = DateTime.UtcNow.AddDays(request.DeadlineDays),
             Status = AccountabilityProjectStatus.Active,
             Currency = "usd",
-            PledgeCents = request.PledgeAmount * 100            
+            PledgeCents = request.PledgeAmount * 100
         };
 
         _context.UserAccountabilityProjects.Add(accountability);
@@ -191,7 +191,7 @@ public class AccountabilityBuddyService : IAccountabilityBuddyService
         {
             result.IsSuccessful = false;
             result.Message = "Request cannot be null.";
-            return result;  
+            return result;
         }
 
         if (string.IsNullOrWhiteSpace(request.TcsaUserId))

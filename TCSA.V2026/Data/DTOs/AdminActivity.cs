@@ -16,5 +16,5 @@ public class AdminActivity
     public bool IsCompleted { get; set; }
     public bool IsPending { get; set; }
     public bool IsArchived { get; set; }
-    public string? ChangesRequested {  get; set; }
+    public string? ChangesRequested { get; set; }
 }

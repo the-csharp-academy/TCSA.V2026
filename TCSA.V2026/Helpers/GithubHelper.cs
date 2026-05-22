@@ -1,6 +1,7 @@
 ﻿using TCSA.V2026.Data.Models;
 
 namespace TCSA.V2026.Helpers;
+
 public enum GithubRepository : long
 {
     MathGame = 587597495,
@@ -15,7 +16,7 @@ public enum GithubRepository : long
     SportsResults = 675864949,
     ExcelReader = 573912431,
     UnitTesting = 573912512,
-    
+
     WaterLogger = 588421551,
     Movies = 574254791,
     TodoList = 574088282,

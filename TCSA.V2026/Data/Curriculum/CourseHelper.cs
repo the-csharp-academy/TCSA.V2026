@@ -17,7 +17,7 @@ public class CourseHelper
         };
         //return new List<Course>
         //{
-    
+
         //    new Course
         //    {
         //        Id = 2,
@@ -269,7 +269,7 @@ public class CourseHelper
         //            },
         //        }
         //    },
-            
+
         //};
     }
 }

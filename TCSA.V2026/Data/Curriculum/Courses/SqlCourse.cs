@@ -150,8 +150,8 @@ public class SqlCourse
                             {
                                 Paragraphs = new List<Paragraph>
                                 {
-                                    new Paragraph { 
-                                        Body = "Data types <b>define the kind of data that can be stored in database table</b>, such as text, numbers, or dates. They play a critical role in ensuring data consistency and optimizing database performance. While SQL as a language supports a wide variety of data types, each database system implements them differently. SQLite uses a more flexible and <b>simplified approach</b> to data types, while SQL Server adheres to strict typing with an extensive set of predefined types.\r\n" 
+                                    new Paragraph {
+                                        Body = "Data types <b>define the kind of data that can be stored in database table</b>, such as text, numbers, or dates. They play a critical role in ensuring data consistency and optimizing database performance. While SQL as a language supports a wide variety of data types, each database system implements them differently. SQLite uses a more flexible and <b>simplified approach</b> to data types, while SQL Server adheres to strict typing with an extensive set of predefined types.\r\n"
                                     }
                                 }
                             },
@@ -160,7 +160,7 @@ public class SqlCourse
                                 Title = "Data Types in SQLite",
                                 Paragraphs = new List<Paragraph>
                                 {
-                                    new Paragraph { 
+                                    new Paragraph {
                                         Body = "SQLite employs dynamic typing, meaning it doesn’t strictly enforce column data types. Instead, it uses type affinities, which are broad categories for data: <b>TEXT, INTEGER, REAL, BLOB, and NULL</b>. For example, a column defined as TEXT can store numbers, text, or even date strings, though SQLite will attempt to interpret and store values in the most appropriate format. This flexibility can simplify development but requires careful handling to avoid inconsistent data."
                                     }
                                 }
@@ -170,8 +170,8 @@ public class SqlCourse
                                 Title = "Data Types in SQL Server",
                                 Paragraphs = new List<Paragraph>
                                 {
-                                      new Paragraph { 
-                                          Body = "The widely used SQL Server, in contrast, enforces strict data typing. Columns are explicitly defined with specific types like <b>INT, VARCHAR, DECIMAL, or DATETIME</b>, and only data matching the defined type can be stored. This ensures data integrity and allows for advanced optimizations, especially in large-scale applications. SQL Server also offers a much larger variety of types, including specialized ones like <b>UNIQUEIDENTIFIER</b> for globally unique identifiers or XML for storing structured data." 
+                                      new Paragraph {
+                                          Body = "The widely used SQL Server, in contrast, enforces strict data typing. Columns are explicitly defined with specific types like <b>INT, VARCHAR, DECIMAL, or DATETIME</b>, and only data matching the defined type can be stored. This ensures data integrity and allows for advanced optimizations, especially in large-scale applications. SQL Server also offers a much larger variety of types, including specialized ones like <b>UNIQUEIDENTIFIER</b> for globally unique identifiers or XML for storing structured data."
                                       }
                                 }
                             },
@@ -215,8 +215,8 @@ public class SqlCourse
                             {
                                 Paragraphs = new List<Paragraph>
                                 {
-                                    new Paragraph { 
-                                        Body = "It's time to start writing SQL! In this chapter, we will focus on creating a table for managing products in an e-commerce store. This is one of the core aspects of building a database, as tables store the data for the system. We will explore how to define the table structure, choose appropriate data types for each column, and understand the relationships between the fields." 
+                                    new Paragraph {
+                                        Body = "It's time to start writing SQL! In this chapter, we will focus on creating a table for managing products in an e-commerce store. This is one of the core aspects of building a database, as tables store the data for the system. We will explore how to define the table structure, choose appropriate data types for each column, and understand the relationships between the fields."
                                     },
                                      new Paragraph {
                                         IsPicture = true,
@@ -561,7 +561,7 @@ public class SqlCourse
                                 Title = "Exercises",
                                 Paragraphs = new List<Paragraph>
                                 {
-                                    new Paragraph { Body = 
+                                    new Paragraph { Body =
                                     "<p>✔️ Write a query to find all products with a <b>Price</b> greater than 20.</p>\r\n  " +
                                     "<p>✔️ Write a query to retrieve products that have a <b>StockQuantity</b> between 50 and 200.</p>\r\n  " +
                                     "<p>✔️ Write a query to list all distinct <b>StockQuantity</b> values in the <b>Products</b> table.</p>\r\n  " +
@@ -571,7 +571,7 @@ public class SqlCourse
                                     "<p>✔️ Write a query to count the number of products with <b>StockQuantity</b> equal to 100 and a <b>Price</b> greater than 50.</p>\r\n  " +
                                     "<p>✔️ Write a query to list all products with <b>StockQuantity</b> greater than 200 and <b>Price</b> between 20 and 80, sorted by <b>Price</b> in ascending order.</p>\r\n  " +
                                     "<p>✔️ Write a query to find all products with <b>StockQuantity</b> less than 150 or a <b>Price</b> greater than 500, and that were added to the database before the the 30th of September, 2024.</p>\r\n  " +
-                                    "<p>✔️ Combine the use of <b>WHERE</b>, <b>ORDER BY</b>, and <b>LIMIT</b> to find the top 5 cheapest products that have more than 50 units in stock, were added to the database after the the 1st of June, 2024, and have a <b>Price</b> less than 100.</p>\r\n" 
+                                    "<p>✔️ Combine the use of <b>WHERE</b>, <b>ORDER BY</b>, and <b>LIMIT</b> to find the top 5 cheapest products that have more than 50 units in stock, were added to the database after the the 1st of June, 2024, and have a <b>Price</b> less than 100.</p>\r\n"
                                     }
                                 }
                             },

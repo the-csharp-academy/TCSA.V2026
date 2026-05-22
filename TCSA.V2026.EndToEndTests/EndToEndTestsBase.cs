@@ -21,7 +21,7 @@ public class EndToEndTestsBase : PageTest
         await Page.GotoAsync($"{BaseUrl}/Account/Login");
         await Page.GetByLabel("Email").FillAsync(email);
         await Page.GetByLabel("Password").FillAsync(password);
-        await Page.GetByRole(AriaRole.Button, new() { Name = "Log in" , Exact = true}).ClickAsync();
+        await Page.GetByRole(AriaRole.Button, new() { Name = "Log in", Exact = true }).ClickAsync();
         await Page.WaitForURLAsync($"{BaseUrl}/");
     }
 }

@@ -6,6 +6,7 @@ using TCSA.V2026.Data.Models.Responses;
 using TCSA.V2026.Services.Challenges;
 
 namespace TCSA.V2026.IntegrationTests;
+
 public class LeetCodeServiceTests : IntegrationTestsBase
 {
     private LeetCodeService _service;

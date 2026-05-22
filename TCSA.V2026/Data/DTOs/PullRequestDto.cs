@@ -15,23 +15,23 @@ public class PullRequestDto
 public class PullRequestReviewDto
 {
     public string Action { get; set; }
-   
+
     public Repository Repository { get; set; }
-    
+
     public Review Review { get; set; }
-    
+
 
     [JsonPropertyName("pull_request")]
     public PullRequest PullRequest { get; set; }
-    
+
 }
 
 public class PullRequest
 {
     public int Number { get; set; }
-    
+
     public User User { get; set; }
-    
+
 
     [JsonPropertyName("html_url")]
     public string HtmlUrl { get; set; }
@@ -39,8 +39,8 @@ public class PullRequest
 
 public class Repository
 {
-    public long Id { get; set; } 
-    
+    public long Id { get; set; }
+
 }
 
 public class User
@@ -50,5 +50,5 @@ public class User
 
 public class Review
 {
-    public string State { get; set; }  
+    public string State { get; set; }
 }

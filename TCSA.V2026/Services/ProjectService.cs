@@ -229,8 +229,10 @@ public class ProjectService(IDbContextFactory<ApplicationDbContext> _factory) : 
                     }
 
                     await context.SaveChangesAsync();
-                };
-            };
+                }
+                ;
+            }
+            ;
         }
         catch (Exception ex)
         {
@@ -294,9 +296,9 @@ public class ProjectService(IDbContextFactory<ApplicationDbContext> _factory) : 
                 if (dashboardProject == null)
                 {
                     var issue = await context.Issues.FirstOrDefaultAsync(x => x.ProjectId == project.ProjectId);
-                    experiencePoints = issue.ExperiencePoints;   
+                    experiencePoints = issue.ExperiencePoints;
                     issue.IsClosed = true;
-                } 
+                }
                 else
                 {
                     experiencePoints = dashboardProject.ExperiencePoints;

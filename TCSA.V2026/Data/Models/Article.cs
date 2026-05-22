@@ -28,7 +28,7 @@ public class Article
 
 public class Block
 {
-    public bool IsCourseCodePage {  get; set; }
+    public bool IsCourseCodePage { get; set; }
     public string? Title { get; set; }
     public string? ImgUrl { get; set; }
     public string? BookImgUrl { get; set; }
@@ -38,7 +38,7 @@ public class Block
 
 public class Paragraph
 {
-    public string? FontColor { get; set; }  
+    public string? FontColor { get; set; }
     public string? BackgroundColor { get; set; }
     public string? PictureUrl { get; set; }
     public string? VideoUrl { get; set; }
@@ -69,10 +69,11 @@ public enum Area
     Auth,
     GraduationProject,
     FreestyleProject,
-    Blog, 
-    Principles, 
+    Blog,
+    Principles,
     Course,
-    Docker
+    Docker,
+    SystemDesign
 }
 
 public enum ArticleName
@@ -113,18 +114,18 @@ public enum ArticleName
     Quizgame = 34,
 
     TicTacToe = 35,
-    ExternalApi = 36, 
-    ShoppingList = 37, 
+    ExternalApi = 36,
+    ShoppingList = 37,
     FriendsManager = 38,
 
     WardrobeInventory = 39,
-    MemoryGame = 40, 
-    FoodJournal = 41, 
-    SportsStatistics = 42, 
+    MemoryGame = 40,
+    FoodJournal = 41,
+    SportsStatistics = 42,
 
     MauiMath = 43,
     Books = 44,
-    Monkeys = 45, 
+    Monkeys = 45,
     Warehouse = 46,
 
     Auth = 28,
@@ -132,8 +133,8 @@ public enum ArticleName
     ExternalAuth = 74,
     Auth0 = 100004,
 
-    Sql1 = 76, 
-    Sql2 = 77, 
+    Sql1 = 76,
+    Sql2 = 77,
     Sql3 = 78,
 
     DeploySimpleApp = 47,
@@ -150,6 +151,11 @@ public enum ArticleName
     DockerFullStack = 100006,
     DockerK8s = 100007,
 
+    SystemDesignCleanArchitectureReservations = 100008,
+    SystemDesignModularReservationSystem = 100009,
+    SystemDesignReservationApiGateway = 100010,
+    SystemDesignReservationBackgroundJobs = 100011,
+
     ConsoleGraduation = 10,
     Roadmap = 51,
     SubmitCodeReviews = 52,
@@ -165,7 +171,7 @@ public enum ArticleName
     CoursesWebApiLast = 500063,
     CoursesSQLFirst = 500070,
     CoursesSQLLast = 500086,
-    CoursesWpfFirst = 500100, 
+    CoursesWpfFirst = 500100,
     CoursesWpfLast = 500116,
     CoursedDIFirst = 500150,
     CoursesDILast = 500161,
