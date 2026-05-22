@@ -12,32 +12,37 @@ public static class ChecklistHelper
             new() {
                 Label = "Add a Display Name",
                 IsCompleted = !string.IsNullOrWhiteSpace(user.DisplayName),
-                NavigationUrl = "/dashboard/profile"
+                NavigationUrl = "/dashboard/profile",
+                NavigationUrlLabel = "Go to Profile"
             },
             new() {
                 Label = "Add Discord Alias",
                 IsCompleted = !string.IsNullOrWhiteSpace(user.DiscordAlias),
-                NavigationUrl = "/dashboard/profile"
+                NavigationUrl = "/dashboard/profile",
             },
             new() {
                 Label = "Add LinkedIn URL",
                 IsCompleted = !string.IsNullOrWhiteSpace(user.LinkedInUrl),
-                NavigationUrl = "/dashboard/profile"
+                NavigationUrl = "/dashboard/profile",
+                NavigationUrlLabel = "Go to Profile"
             },
             new() {
                 Label = "Add GitHub Username",
                 IsCompleted = !string.IsNullOrWhiteSpace(user.GithubUsername),
-                NavigationUrl = "/dashboard/profile"
+                NavigationUrl = "/dashboard/profile",
+                NavigationUrlLabel = "Go to Profile"
             },
             new() {
                 Label = "Add CodeWars Username",
                 IsCompleted = !string.IsNullOrWhiteSpace(user.CodeWarsUsername),
-                NavigationUrl = "/dashboard/profile"
+                NavigationUrl = "/dashboard/profile",
+                NavigationUrlLabel = "Go to Profile"
             },
             new() {
                 Label = "Add LeetCode Username",
                 IsCompleted = !string.IsNullOrWhiteSpace(user.LeetCodeUsername),
-                NavigationUrl = "/dashboard/profile"
+                NavigationUrl = "/dashboard/profile",
+                NavigationUrlLabel = "Go to Profile"
             },
         ];
     }

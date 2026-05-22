@@ -29,13 +29,13 @@
                     @task.Label
                 </MudText>
             </div>
-            @if (!task.IsCompleted)
+            @if (!task.IsCompleted && task.NavigationUrl != null)
             {
                 <MudIconButton Icon="@Icons.Material.Filled.ArrowForward"
                                Size="Size.Small"
                                Color="Color.Primary"
                                OnClick="@(() => Nav.NavigateTo(task.NavigationUrl))"
-                               aria-label="Go to profile" />
+                               aria-label="@task.NavigationUrlLabel" />
             }
         </div>
     }
