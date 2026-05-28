@@ -45,7 +45,6 @@ public static partial class SearchHelper
     private static void IndexArticle(Article article)
     {
         IndexField(article.Id, ContentAnchors.ArticleTitleId, article.Title);
-        IndexField(article.Id, ContentAnchors.ArticleDescriptionId, article.Description);
 
         if (article is Project project)
         {
