@@ -36,9 +36,15 @@
                          Class="ml-4 appbar-search"
                          AdornmentColor="Color.Primary">
             <ItemTemplate Context="item">
-                <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
-                    <img src="img/icons/@(string.IsNullOrEmpty(item.IconUrl) ? "article-placeholder.png" : item.IconUrl)" style="height:2em;max-width:100%;" />
-                    <MudText Typo="Typo.body2">@item.Title</MudText>
+                <MudStack Spacing="0">
+                    <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+                        <img src="img/icons/@(string.IsNullOrEmpty(item.IconUrl) ? "article-placeholder.png" : item.IconUrl)" style="height:2em;max-width:100%;" />
+                        <MudText Typo="Typo.body2">@item.Title</MudText>
+                    </MudStack>
+                    @if (!string.IsNullOrEmpty(item.Snippet))
+                    {
+                        <MudText Typo="Typo.caption" Class="mud-text-secondary ml-1">@((MarkupString)item.Snippet)</MudText>
+                    }
                 </MudStack>
             </ItemTemplate>
         </MudAutocomplete>
