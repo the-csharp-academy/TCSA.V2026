@@ -8,6 +8,7 @@
 @inject IHttpContextAccessor HttpContextAccessor
 @inject IJSRuntime JS
 @inject NavigationManager Nav
+@implements IAsyncDisposable
 
 <MudThemeProvider Theme="MyCustomTheme" @bind-IsDarkMode="@ThemeService.IsDarkMode" />
 <MudPopoverProvider />
@@ -95,6 +96,8 @@
 </div>
 
 @code {
+    private IJSObjectReference? _scrollModule;
+
     private bool _navOpen = true;
     private bool _feedOpen = true;
 
@@ -105,6 +108,30 @@
         {
             ThemeService.IsDarkMode = themeCookie == "dark";
         };
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try {
+                await ScrollToAnchor();
+            } catch (JSDisconnectedException)
+            {
+
+            }
+        }
+    }
+
+    private async Task ScrollToAnchor() {
+        var uri = new Uri(Nav.Uri);
+        var fragment = uri.Fragment.StartsWith("#") ? uri.Fragment.Substring(1) : uri.Fragment;
+
+        if (!string.IsNullOrEmpty(fragment))
+        {
+            _scrollModule = await JS.InvokeAsync<IJSObjectReference>("import", "./js/scroll-anchor.js");
+            await _scrollModule.InvokeVoidAsync("scrollToAnchor", fragment);
+        }
     }
 
     private void ToggleFeedDrawer()
@@ -128,6 +155,20 @@
         ThemeService.ToggleTheme();
         // Update cookie via JS interop or via server-side endpoint.
         await JS.InvokeVoidAsync("setCookie", "theme", ThemeService.IsDarkMode ? "dark" : "light", 365);   
+    }
+
+    async ValueTask IAsyncDisposable.DisposeAsync()
+    {
+        try
+        {
+            if (_scrollModule != null)
+            {
+                await _scrollModule.DisposeAsync();
+            }
+        } catch (JSDisconnectedException)
+        {
+            
+        }
     }
 
     MudTheme MyCustomTheme = new MudTheme()
