@@ -95,6 +95,10 @@ public class DockerProjectsHelper
                      },
                      new Paragraph
                      {
+                         Body = "You might be asking yourself: can you run everything in the same container? Yes, but <b>generally you shouldn't</b>. Docker containers are design around the idea that one main process runs per container. If you put both in the same container, problems start to arise: Harder to start only the api, harder to update just the database, harder to scale later, to debug, etc."
+                     },
+                     new Paragraph
+                     {
                          Body = "In this project, you'll use Docker Compose to run a .NET application and a database together. The goal is to understand how containers communicate, how environment variables are passed, and how Compose makes local development more predictable."
                      }
                  },
