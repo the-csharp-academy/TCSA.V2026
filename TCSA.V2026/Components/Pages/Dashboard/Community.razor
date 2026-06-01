@@ -159,9 +159,8 @@
         try
         {
             var options = new DialogOptions { CloseOnEscapeKey = true };
-            var parameters = new DialogParameters<TCSASubmitIssueDialog>{ { x => x.UserId, UserId } };
 
-            var dialog = await DialogService.ShowAsync<TCSASubmitIssueDialog>("Submit Issue", parameters, options);
+            var dialog = await DialogService.ShowAsync<TCSASubmitIssueDialog>("Submit Issue", options);
             var result = await dialog.Result;
 
             if (!result.Canceled)
