@@ -2,6 +2,7 @@
 @using Microsoft.AspNetCore.Authorization
 @using System.Security.Claims
 @using TCSA.V2026.Data.Curriculum
+@using TCSA.V2026.Data.Enums
 @using TCSA.V2026.Data.Models
 @using TCSA.V2026.Data.Models.Responses
 @using TCSA.V2026.Components.UI
@@ -206,9 +207,10 @@
     {
         return commProjectId switch
         {
-            54 => "Point Of Sale",
-            87 => "Academy V2",
-            207 => "Academy 2026"
+            (int)CommunityProject.PointOfSale => "Point Of Sale",
+            (int)CommunityProject.TCSAV2 => "Academy V2",
+            (int)CommunityProject.TCSA => "Academy 2026",
+            (int)CommunityProject.KnowTheCity => "Know The City",
         };
     }
 }
