@@ -31,7 +31,6 @@
     [Inject] protected IProjectService ProjectService { get; set; }
     [CascadingParameter] private IMudDialogInstance MudDialog { get; set; }
     [Parameter] public int ProjectId { get; set; }
-    [Parameter] public bool IsIssue { get; set; }
     [Parameter] public bool IsUpdate { get; set; }
     [Parameter] public ApplicationUser User { get; set; }
 
@@ -65,7 +64,7 @@
             HasError = true;
             ErrorText = "URL is required.";
         }
-        else if (!IsIssue && !GithubUrl.StartsWith(RequiredPrefix, StringComparison.OrdinalIgnoreCase))
+        else if (!GithubUrl.StartsWith(RequiredPrefix, StringComparison.OrdinalIgnoreCase))
         {
             var errorText = ProjectId == 75 ? $"URL must start with '{RequiredPrefix}'. We need to see your certificate." : $"URL must start with '{RequiredPrefix}'. Read the article above to submit a pull request.";
 
@@ -89,16 +88,7 @@
 
         try
         {
-            var result = new BaseResponse();
-            if (IsIssue)
-            {
-                result = await CommunityService.SubmitIssueToReview(ProjectId, GithubUrl);
-            }
-            else
-            {
-                result = await ProjectService.PostArticle(ProjectId, User.Id, GithubUrl, false, IsUpdate);
-            }
-
+            var result = await ProjectService.PostArticle(ProjectId, User.Id, GithubUrl, false, IsUpdate);
             MudDialog.Close(DialogResult.Ok(result.Status));
         }
         finally
