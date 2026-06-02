@@ -45,7 +45,7 @@ public class CommunityService(IDbContextFactory<ApplicationDbContext> _factory) 
                 var lastIssue = await context.Issues.OrderBy(x => x.ProjectId).LastOrDefaultAsync();
                 int nextProjectId = lastIssue != null ? lastIssue.ProjectId + 1 : 1;
 
-                var existingIssue = await context.Issues.FirstOrDefaultAsync(i => i.GithubUrl == issueUrl);
+                var existingIssue = await context.Issues.FirstOrDefaultAsync(i => i.GithubUrl == issueUrl && i.CommunityProjectId == (int)communityProject);
 
                 if (existingIssue != null)
                 {
