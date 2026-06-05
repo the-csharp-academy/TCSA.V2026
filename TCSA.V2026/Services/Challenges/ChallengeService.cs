@@ -1,15 +1,21 @@
-using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using TCSA.V2026.Data;
+using TCSA.V2026.Data.DTOs.Challenges;
 using TCSA.V2026.Data.Enums;
 using TCSA.V2026.Data.Models;
+using TCSA.V2026.Data.Models.Responses;
+using TCSA.V2026.Helpers.Constants;
 
 namespace TCSA.V2026.Services;
 
 public interface IChallengeService
 {
-    Task<List<Challenge>> GetChallenges(Level level);
-    Task<DailyStreak> GetStreakInfo(string userId);
+    Task<PaginatedList<ChallengeDetails>?> GetPaginatedChallenges(int pageNumber,
+        string userId,
+        Level userLevel,
+        bool showCompleted,
+        IEnumerable<Level> selectedLevels,
+        IEnumerable<ChallengeCategory> selectedCategories);
     Task<ChallengeStatistics?> GetChallengeStatistics(string userId);
     Task UpdateStreakInfo(string userId);
 }
@@ -38,36 +44,79 @@ public class ChallengeService(IDbContextFactory<ApplicationDbContext> _factory) 
             {
                 streak.CurrentStreak = 0;
                 await context.SaveChangesAsync();
-        }
+            }
 
             return new ChallengeStatistics(
                 new DailyStreakDetails(streak.CurrentStreak, streak.LongestStreak, streak.LastCompletedDate),
                 data.ChallengeCount
             );
-    }
+        }
         catch (Exception)
         {
             return null;
         }
     }
 
-    public async Task<DailyStreak> GetStreakInfo(string userId)
+    public async Task<PaginatedList<ChallengeDetails>?> GetPaginatedChallenges(
+        int pageNumber,
+        string userId,
+        Level userLevel,
+        bool showCompleted,
+        IEnumerable<Level> selectedLevels,
+        IEnumerable<ChallengeCategory> selectedCategories
+    )
     {
-        using (var context = _factory.CreateDbContext())
+        try
         {
-            var streakInfo = await context.DailyStreaks.FirstOrDefaultAsync(s => s.AppUserId == userId);
+            using var context = _factory.CreateDbContext();
+            var currentUtcDate = DateTime.UtcNow;
+            var query = context.Challenges
+                .Where(c => c.ReleaseDate <= currentUtcDate && c.Level <= userLevel + 1)
+                .AsNoTracking();
 
-            if (streakInfo is null) return new DailyStreak();
-
-            if (streakInfo.CurrentStreak > 0 &&
-                streakInfo.LastCompletedDate < DateTime.UtcNow.Date.AddDays(-1))
+            if (!showCompleted)
             {
-                streakInfo.CurrentStreak = 0;
-                context.DailyStreaks.Update(streakInfo);
-                await context.SaveChangesAsync();
+                query = query.Where(c => !c.UserChallenges.Any(uc => uc.UserId == userId));
             }
 
-            return streakInfo;
+            if (selectedLevels.Any())
+            {
+                query = query.Where(c => selectedLevels.Contains(c.Level));
+            }
+
+            if (selectedCategories.Any())
+            {
+                query = query.Where(c => selectedCategories.Contains(c.Category));
+            }
+
+            var totalItems = await query.CountAsync();
+
+            var items = await query
+                .OrderByDescending(c => c.ReleaseDate)
+                .Skip((pageNumber - 1) * PagingConstants.ChallengesPageSize)
+                .Take(PagingConstants.ChallengesPageSize).Select(c => new ChallengeDetails
+                (
+                    c.Id,
+                    c.ExternalId,
+                    c.UserChallenges.Any(uc => uc.UserId == userId),
+                    c.Level,
+                    c.Name,
+                    c.Description,
+                    c.Category,
+                    c.Platform,
+                    c.ExperiencePoints
+                )).ToListAsync();
+
+            return new PaginatedList<ChallengeDetails>(
+                items,
+                totalItems,
+                pageNumber,
+                PagingConstants.ChallengesPageSize
+            );
+        }
+        catch (Exception)
+        {
+            return null;
         }
     }
 
