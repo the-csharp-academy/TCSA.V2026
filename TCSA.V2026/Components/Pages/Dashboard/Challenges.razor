@@ -84,6 +84,18 @@
                         }
                     }
                 </MudSelect>
+                <MudSelect T="ChallengePlatform"
+                           Label="Filter by Platform"
+                           Placeholder="Platform"
+                           Class="flex-grow-0"
+                           MultiSelection="true"
+                           SelectedValues="SelectedPlatforms"
+                           SelectedValuesChanged="@((IEnumerable<ChallengePlatform> values) => HandlePlatformSelection(values))">
+                    @foreach (ChallengePlatform item in Enum.GetValues(typeof(ChallengePlatform)))
+                    {
+                        <MudSelectItem Value="@item">@item.ToString()</MudSelectItem>
+                    }
+                </MudSelect>
             </MudStack>
         </MudStack>
         if (PaginatedChallenges != null && PaginatedChallenges.Items.Count > 0)
@@ -184,6 +196,7 @@
 
     private IEnumerable<Level> SelectedLevels = [];
     private IEnumerable<ChallengeCategory> SelectedCategories = [];
+    private IEnumerable<ChallengePlatform> SelectedPlatforms = [];
     private bool ShowCompleted = false;
 
     private HashSet<int> ProcessingChallenges = new();
@@ -308,7 +321,7 @@
     private async Task GetChallenges()
     {
         PaginatedChallenges = await ChallengeService.GetPaginatedChallenges(
-           CurrentPage, UserId, User.Level, ShowCompleted, SelectedLevels, SelectedCategories);
+           CurrentPage, UserId, User.Level, ShowCompleted, SelectedLevels, SelectedCategories, SelectedPlatforms);
     }
 
     private async Task HandleLevelSelection(IEnumerable<Level> values)
@@ -328,6 +341,13 @@
     private async Task HandleShowCompletedChanged()
     {
         CurrentPage = 1;
+        await GetChallenges();
+    }
+
+    private async Task HandlePlatformSelection(IEnumerable<ChallengePlatform> values)
+    {
+        CurrentPage = 1;
+        SelectedPlatforms = values;
         await GetChallenges();
     }
 

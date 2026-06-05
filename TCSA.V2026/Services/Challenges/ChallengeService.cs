@@ -15,7 +15,8 @@ public interface IChallengeService
         Level userLevel,
         bool showCompleted,
         IEnumerable<Level> selectedLevels,
-        IEnumerable<ChallengeCategory> selectedCategories);
+        IEnumerable<ChallengeCategory> selectedCategories,
+        IEnumerable<ChallengePlatform> selectedPlatforms);
     Task<ChallengeStatistics?> GetChallengeStatistics(string userId);
     Task UpdateStreakInfo(string userId);
 }
@@ -63,7 +64,8 @@ public class ChallengeService(IDbContextFactory<ApplicationDbContext> _factory) 
         Level userLevel,
         bool showCompleted,
         IEnumerable<Level> selectedLevels,
-        IEnumerable<ChallengeCategory> selectedCategories
+        IEnumerable<ChallengeCategory> selectedCategories,
+        IEnumerable<ChallengePlatform> selectedPlatforms
     )
     {
         try
@@ -87,6 +89,11 @@ public class ChallengeService(IDbContextFactory<ApplicationDbContext> _factory) 
             if (selectedCategories.Any())
             {
                 query = query.Where(c => selectedCategories.Contains(c.Category));
+            }
+
+            if (selectedPlatforms.Any())
+            {
+                query = query.Where(c => selectedPlatforms.Contains(c.Platform));
             }
 
             var totalItems = await query.CountAsync();
