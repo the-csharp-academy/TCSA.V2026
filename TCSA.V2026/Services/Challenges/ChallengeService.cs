@@ -10,21 +10,44 @@ public interface IChallengeService
 {
     Task<List<Challenge>> GetChallenges(Level level);
     Task<DailyStreak> GetStreakInfo(string userId);
+    Task<ChallengeStatistics?> GetChallengeStatistics(string userId);
     Task UpdateStreakInfo(string userId);
 }
 
 public class ChallengeService(IDbContextFactory<ApplicationDbContext> _factory) : IChallengeService
 {
-    public async Task<List<Challenge>> GetChallenges(Level level)
+    public async Task<ChallengeStatistics?> GetChallengeStatistics(string userId)
     {
-        using (var context = _factory.CreateDbContext())
+        try
         {
-            var currentUtcDate = DateTime.UtcNow;
-            return await context.Challenges
-                .Where(c => c.ReleaseDate <= currentUtcDate && c.Level <= level + 1)
-                .OrderByDescending(c => c.ReleaseDate)
-                .ToListAsync()
-                .ConfigureAwait(false);
+            using var context = _factory.CreateDbContext();
+            var data = await context.Users
+                .Where(u => u.Id == userId)
+                .Select(u => new
+                {
+                    Streak = u.DailyStreak,
+                    ChallengeCount = u.UserChallenges.Count
+                })
+                .FirstOrDefaultAsync();
+
+            if (data == null) return null;
+
+            var streak = data.Streak;
+
+            if (streak.CurrentStreak > 0 && streak.LastCompletedDate < DateTime.UtcNow.Date.AddDays(-1))
+            {
+                streak.CurrentStreak = 0;
+                await context.SaveChangesAsync();
+        }
+
+            return new ChallengeStatistics(
+                new DailyStreakDetails(streak.CurrentStreak, streak.LongestStreak, streak.LastCompletedDate),
+                data.ChallengeCount
+            );
+    }
+        catch (Exception)
+        {
+            return null;
         }
     }
 

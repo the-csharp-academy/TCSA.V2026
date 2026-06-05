@@ -25,7 +25,7 @@
                 <MudText Typo="Typo.subtitle1" Style="font-weight: bold; color: white;">COMPLETED</MudText>
             </MudStack>
             <MudStack Spacing="0" AlignItems="AlignItems.Center" Class="px-4 px-md-5">
-                <MudText Style="font-size: 2.5rem; font-weight: bolder;">@CompletedChallenges.Count</MudText>
+                <MudText Style="font-size: 2.5rem; font-weight: bolder;">@ChallengeStatistics?.CompletedChallenges</MudText>
                 <MudText Style="font-size: 1.25rem;">Challenges</MudText>
             </MudStack>
         </MudPaper>
@@ -35,9 +35,9 @@
                 <MudText Typo="Typo.subtitle1" Style="font-weight: bold; color: white;">STREAK</MudText>
             </MudStack>
             <MudStack Spacing="0" AlignItems="AlignItems.Center" Class="px-4 px-md-5">
-                <MudText Style="font-size: 2.5rem; font-weight: bolder;">@UserStreak.CurrentStreak</MudText>
+                <MudText Style="font-size: 2.5rem; font-weight: bolder;">@ChallengeStatistics?.DailyStreakDetails.CurrentStreak</MudText>
                 <MudText Style="font-size: 1.25rem;">Days</MudText>
-                <MudText Typo="Typo.caption">Best: @UserStreak.LongestStreak days</MudText>
+                <MudText Typo="Typo.caption">Best: @ChallengeStatistics?.DailyStreakDetails.LongestStreak days</MudText>
             </MudStack>
         </MudPaper>
     </MudStack>
@@ -245,8 +245,7 @@
         UserId = claims.FindFirstValue(ClaimTypes.NameIdentifier);
         User = await UserService.GetUserProfileById(UserId);
         ChallengesList = await ChallengeService.GetChallenges(User.Level);
-        CompletedChallenges = User.UserChallenges.Select(uc => uc.ChallengeId).ToList();
-        UserStreak = await ChallengeService.GetStreakInfo(UserId);
+        ChallengeStatistics = await ChallengeService.GetChallengeStatistics(UserId);
 
         LoadTime = DateTime.UtcNow - startTime;
 
@@ -326,7 +325,7 @@
             Snackbar.Add("Sync Successful", Severity.Success);
 
             await ChallengeService.UpdateStreakInfo(UserId);
-            UserStreak = await ChallengeService.GetStreakInfo(UserId);
+            ChallengeStatistics = await ChallengeService.GetChallengeStatistics(UserId);
             User = await UserService.GetUserChallengeDetails(UserId);
             CompletedChallenges = User.UserChallenges.Select(uc => uc.ChallengeId).ToList();
         }
