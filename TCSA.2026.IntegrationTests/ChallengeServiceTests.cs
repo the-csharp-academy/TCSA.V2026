@@ -330,7 +330,7 @@ public class ChallengeServiceTests : IntegrationTestsBase
     public async Task GetPaginatedChallenges_ShouldReturnEmpty_WhenNoChallengesExist()
     {
         // Act
-        var result = await _service.GetPaginatedChallenges(1, "user1", Level.White, false, [], []);
+        var result = await _service.GetPaginatedChallenges(1, "user1", Level.White, false, [], [], []);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -350,7 +350,7 @@ public class ChallengeServiceTests : IntegrationTestsBase
         }
 
         // Act
-        var result = await _service.GetPaginatedChallenges(1, "user1", Level.White, false, [], []);
+        var result = await _service.GetPaginatedChallenges(1, "user1", Level.White, false, [], [], []);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -372,7 +372,7 @@ public class ChallengeServiceTests : IntegrationTestsBase
         }
 
         // Act
-        var result = await _service.GetPaginatedChallenges(1, userId, Level.White, showCompleted: false, [], []);
+        var result = await _service.GetPaginatedChallenges(1, userId, Level.White, showCompleted: false, [], [], []);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -394,7 +394,7 @@ public class ChallengeServiceTests : IntegrationTestsBase
         }
 
         // Act
-        var result = await _service.GetPaginatedChallenges(1, userId, Level.White, showCompleted: true, [], []);
+        var result = await _service.GetPaginatedChallenges(1, userId, Level.White, showCompleted: true, [], [], []);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -414,7 +414,7 @@ public class ChallengeServiceTests : IntegrationTestsBase
         }
 
         // Act
-        var result = await _service.GetPaginatedChallenges(1, "user1", Level.Green, false, [Level.White], []);
+        var result = await _service.GetPaginatedChallenges(1, "user1", Level.Green, false, [Level.White], [], []);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -435,7 +435,7 @@ public class ChallengeServiceTests : IntegrationTestsBase
         }
 
         // Act
-        var result = await _service.GetPaginatedChallenges(1, "user1", Level.OliveGreen, false, [Level.White, Level.Green], []);
+        var result = await _service.GetPaginatedChallenges(1, "user1", Level.OliveGreen, false, [Level.White, Level.Green], [], []);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -455,7 +455,7 @@ public class ChallengeServiceTests : IntegrationTestsBase
         }
 
         // Act
-        var result = await _service.GetPaginatedChallenges(1, "user1", Level.White, false, [], [ChallengeCategory.SQL]);
+        var result = await _service.GetPaginatedChallenges(1, "user1", Level.White, false, [], [ChallengeCategory.SQL], []);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -476,7 +476,71 @@ public class ChallengeServiceTests : IntegrationTestsBase
         }
 
         // Act
-        var result = await _service.GetPaginatedChallenges(1, "user1", Level.Green, false, [Level.White], [ChallengeCategory.CSharp]);
+        var result = await _service.GetPaginatedChallenges(1, "user1", Level.Green, false, [Level.White], [ChallengeCategory.CSharp], []);
+
+        // Assert
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Items.Count, Is.EqualTo(1));
+        Assert.That(result.Items[0].Id, Is.EqualTo(1));
+    }
+
+    [Test]
+    public async Task GetPaginatedChallenges_WithPlatformFilter_ShouldReturnOnlyMatchingPlatform()
+    {
+        // Arrange
+        using (var seedContext = DbContextFactory.CreateDbContext())
+        {
+            seedContext.Challenges.Add(BuildChallenge(1, platform: ChallengePlatform.CodeWars));
+            seedContext.Challenges.Add(BuildChallenge(2, platform: ChallengePlatform.LeetCode));
+            seedContext.Challenges.Add(BuildChallenge(3, platform: ChallengePlatform.HackerRank));
+            await seedContext.SaveChangesAsync();
+        }
+
+        // Act
+        var result = await _service.GetPaginatedChallenges(1, "user1", Level.White, false, [], [], [ChallengePlatform.LeetCode]);
+
+        // Assert
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Items.Count, Is.EqualTo(1));
+        Assert.That(result.Items[0].Platform, Is.EqualTo(ChallengePlatform.LeetCode));
+    }
+
+    [Test]
+    public async Task GetPaginatedChallenges_WithMultipleSelectedPlatforms_ShouldReturnAllMatchingPlatforms()
+    {
+        // Arrange
+        using (var seedContext = DbContextFactory.CreateDbContext())
+        {
+            seedContext.Challenges.Add(BuildChallenge(1, platform: ChallengePlatform.CodeWars));
+            seedContext.Challenges.Add(BuildChallenge(2, platform: ChallengePlatform.LeetCode));
+            seedContext.Challenges.Add(BuildChallenge(3, platform: ChallengePlatform.HackerRank));
+            await seedContext.SaveChangesAsync();
+        }
+
+        // Act
+        var result = await _service.GetPaginatedChallenges(1, "user1", Level.White, false, [], [], [ChallengePlatform.CodeWars, ChallengePlatform.LeetCode]);
+
+        // Assert
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Items.Count, Is.EqualTo(2));
+        Assert.That(result.Items.Select(c => c.Id), Is.EquivalentTo([1, 2]));
+    }
+
+    [Test]
+    public async Task GetPaginatedChallenges_WithAllFilters_ShouldReturnOnlyMatchingChallenges()
+    {
+        // Arrange
+        using (var seedContext = DbContextFactory.CreateDbContext())
+        {
+            seedContext.Challenges.Add(BuildChallenge(1, level: Level.White, category: ChallengeCategory.CSharp, platform: ChallengePlatform.LeetCode));
+            seedContext.Challenges.Add(BuildChallenge(2, level: Level.White, category: ChallengeCategory.SQL, platform: ChallengePlatform.LeetCode));
+            seedContext.Challenges.Add(BuildChallenge(3, level: Level.White, category: ChallengeCategory.CSharp, platform: ChallengePlatform.CodeWars));
+            seedContext.Challenges.Add(BuildChallenge(4, level: Level.Green, category: ChallengeCategory.CSharp, platform: ChallengePlatform.LeetCode));
+            await seedContext.SaveChangesAsync();
+        }
+
+        // Act
+        var result = await _service.GetPaginatedChallenges(1, "user1", Level.Green, false, [Level.White], [ChallengeCategory.CSharp], [ChallengePlatform.LeetCode]);
 
         // Assert
         Assert.That(result, Is.Not.Null);
