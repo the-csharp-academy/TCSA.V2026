@@ -148,7 +148,7 @@ internal static class ReactProjectsHelper
                     "This is a CRUD Shopping List App with React and .NET Web API .",
                     "Users should be able to cross items from the shopping-list without deleting them. You can use a IsPickedUp boolean for that.",
                     "You should create two projects: A .NET WebApi and a React app.",
-                    "You state management libraries (i.e. Redux)."
+                    "You should use state management libraries (i.e. Redux)."
                 },
                 ResourcesIntro = "The resources from the previous projects will be helpful in the completion of this project, plus these tutorials:",
 
