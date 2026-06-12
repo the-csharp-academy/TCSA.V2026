@@ -1,13 +1,14 @@
+@using Microsoft.AspNetCore.WebUtilities
 @using Microsoft.Extensions.Options
 @using TCSA.V2026.Data.DTOs
 @using TCSA.V2026.Data.Models.Options
-@using TCSA.V2026.Helpers
 @using TCSA.V2026.Services
 @inherits LayoutComponentBase
 @inject ThemeService ThemeService
 @inject IHttpContextAccessor HttpContextAccessor
 @inject IJSRuntime JS
 @inject NavigationManager Nav
+@inject ISearchService SearchService
 @implements IAsyncDisposable
 
 <MudThemeProvider Theme="MyCustomTheme" @bind-IsDarkMode="@ThemeService.IsDarkMode" />
@@ -23,9 +24,9 @@
                        OnClick="@ToggleNavDrawer" />
         <MudImage Src="/img/logo.png" Width="40" />
         <MudAutocomplete T="SearchItem"
-                         ToStringFunc="@(i => i?.Title ?? string.Empty)"
+                         ToStringFunc="@(item => _lastSearchQuery)"
                          Placeholder="Search articles & projects..."
-                         SearchFunc="SearchHelper.QuickSearch"
+                         SearchFunc="CaptureAndSearch"
                          AdornmentIcon="@Icons.Material.Filled.Search"
                          ValueChanged="NavigateTo"
                          Clearable
@@ -103,6 +104,8 @@
 
 @code {
     private IJSObjectReference? _scrollModule;
+    private string _lastSearchQuery = string.Empty;
+    private string _lastScrolledUri = string.Empty;
 
     private bool _navOpen = true;
     private bool _feedOpen = true;
@@ -118,25 +121,55 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
+        if (Nav.Uri == _lastScrolledUri) return;
+        _lastScrolledUri = Nav.Uri;
+        try
         {
-            try {
-                await ScrollToAnchor();
-            } catch (JSDisconnectedException)
-            {
+            await ScrollToAnchor();
+        }
+        catch (JSDisconnectedException)
+        {
 
-            }
         }
     }
 
-    private async Task ScrollToAnchor() {
+    private async Task ScrollToAnchor()
+    {
         var uri = new Uri(Nav.Uri);
         var fragment = uri.Fragment.StartsWith("#") ? uri.Fragment.Substring(1) : uri.Fragment;
+        if (string.IsNullOrEmpty(fragment)) return;
 
-        if (!string.IsNullOrEmpty(fragment))
+        var query = QueryHelpers.ParseQuery(uri.Query);
+        var searchText = query.TryGetValue("q", out var q) ? q.FirstOrDefault() : null;
+        var terms = string.IsNullOrEmpty(searchText)
+            ? []
+            : SearchService.GetHighlightTerms(searchText);
+
+        _scrollModule = await JS.InvokeAsync<IJSObjectReference>("import", "./js/scroll-anchor.js");
+        await _scrollModule.InvokeVoidAsync("scrollToAnchor", fragment, terms);
+    }
+
+    private Task<IEnumerable<SearchItem>> CaptureAndSearch(string value, CancellationToken token)
+    {
+        _lastSearchQuery = value;
+        return SearchService.QuickSearch(value, token);
+    }
+
+    private void NavigateTo(SearchItem? item)
+    {
+        if (item is null) return;
+
+        if (!string.IsNullOrEmpty(_lastSearchQuery))
         {
-            _scrollModule = await JS.InvokeAsync<IJSObjectReference>("import", "./js/scroll-anchor.js");
-            await _scrollModule.InvokeVoidAsync("scrollToAnchor", fragment);
+            var parts = item.PageUrl.Split('#', 2);
+            var url = parts.Length == 2
+                ? $"{parts[0]}?q={Uri.EscapeDataString(_lastSearchQuery)}#{parts[1]}"
+                : item.PageUrl;
+            Nav.NavigateTo(url);
+        }
+        else
+        {
+            Nav.NavigateTo(item.PageUrl);
         }
     }
 
@@ -148,12 +181,6 @@
     private void ToggleNavDrawer()
     {
         _navOpen = !_navOpen;
-    }
-
-    private void NavigateTo(SearchItem? item)
-    {
-        if (item is not null)
-            Nav.NavigateTo(item.PageUrl);
     }
 
     private async Task ToggleTheme()
