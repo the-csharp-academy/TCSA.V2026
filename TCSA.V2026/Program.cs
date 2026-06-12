@@ -14,6 +14,7 @@ using TCSA.V2026.Data;
 using TCSA.V2026.Data.Helpers;
 using TCSA.V2026.Data.Models;
 using TCSA.V2026.Data.Models.Options;
+using TCSA.V2026.Data.Curriculum;
 using TCSA.V2026.Services;
 using TCSA.V2026.Services.Challenges;
 
@@ -76,6 +77,8 @@ builder.Services.AddScoped<IStatisticsService>(sp =>
 builder.Services.AddScoped<IFeedService, FeedService>();
 builder.Services.AddScoped<IAccountabilityBuddyService, AccountabilityBuddyService>();
 builder.Services.AddScoped<IDonateService, DonateService>();
+builder.Services.AddSingleton<ISearchService>(_ =>
+    new SearchService([..ArticleHelper.GetArticles(), ..ProjectHelper.GetProjects()]));
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<ICustomEmailSender, EmailSender>();
 builder.Services.AddSingleton<IPeerReviewPublisher, PeerReviewPublisher>();
@@ -124,10 +127,10 @@ logger.LogInformation("?? Application has started and logging is working!");
 
 ServiceProviderAccessor.ServiceProvider = app.Services;
 
-//if (app.Environment.IsDevelopment())
-//{
-//    await SeedData.Seed(app.Services);
-//}
+if (app.Environment.IsDevelopment())
+{
+    await SeedData.Seed(app.Services);
+}
 
 if (app.Environment.IsDevelopment())
 {

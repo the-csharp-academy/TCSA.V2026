@@ -1,21 +1,26 @@
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
-using TCSA.V2026.Data.Curriculum;
 using TCSA.V2026.Data.DTOs;
 using TCSA.V2026.Data.Models;
 using TCSA.V2026.Helpers.Constants;
 
-namespace TCSA.V2026.Helpers;
+namespace TCSA.V2026.Services;
 
-public static partial class SearchHelper
+public interface ISearchService
+{
+    Task<IEnumerable<SearchItem>> QuickSearch(string? value, CancellationToken token);
+    IReadOnlyCollection<string> GetHighlightTerms(string query);
+}
+
+public class SearchService : ISearchService
 {
     private const int QuickSearchLimit = 10;
     private const int ExactMatchWeight = 200;
     private const int PartialMatchWeight = 50;
-    private static readonly Dictionary<string, HashSet<SearchLocation>> _index = [];
-    private static readonly Dictionary<SearchLocation, string> _snippetLookup = [];
-    private static readonly List<Article> _allArticles = [.. ArticleHelper.GetArticles(), .. ProjectHelper.GetProjects()];
+
+    private static readonly Regex _htmlTagRegex = new("<[^>]+>", RegexOptions.Compiled);
+    private static readonly Regex _tokenizeRegex = new("[^a-z0-9]+", RegexOptions.Compiled);
     private static readonly Dictionary<string, string> _aliases = new()
     {
         ["c#"] = "csharp",
@@ -23,26 +28,21 @@ public static partial class SearchHelper
         ["asp.net"] = "aspnet",
         [".net"] = "dotnet"
     };
-
     private static readonly Dictionary<string, string> _reverseAliases =
         _aliases.ToDictionary(kvp => kvp.Value, kvp => kvp.Key);
 
-    [GeneratedRegex("<[^>]+>", RegexOptions.Compiled)]
-    private static partial Regex HtmlTagRegex();
+    private readonly Dictionary<string, HashSet<SearchLocation>> _index = [];
+    private readonly Dictionary<SearchLocation, string> _snippetLookup = [];
+    private readonly List<Article> _allArticles;
 
-    [GeneratedRegex("[^a-z0-9]+", RegexOptions.Compiled)]
-    private static partial Regex TokenizeRegex();
-
-    static SearchHelper()
+    public SearchService(IEnumerable<Article> articles)
     {
-        foreach (var article in ArticleHelper.GetArticles())
+        _allArticles = [..articles];
+        foreach (var article in _allArticles)
             IndexArticle(article);
-
-        foreach (var project in ProjectHelper.GetProjects())
-            IndexArticle(project);
     }
 
-    private static void IndexArticle(Article article)
+    private void IndexArticle(Article article)
     {
         IndexField(article.Id, ContentAnchors.ArticleTitleId, article.Title);
 
@@ -99,7 +99,7 @@ public static partial class SearchHelper
         }
     }
 
-    private static void IndexField(int articleId, string anchorId, string? text)
+    private void IndexField(int articleId, string anchorId, string? text)
     {
         if (string.IsNullOrWhiteSpace(text)) return;
 
@@ -127,12 +127,12 @@ public static partial class SearchHelper
 
     private static IEnumerable<string> Tokenize(string text)
     {
-        return TokenizeRegex().Split(Normalize(text))
+        return _tokenizeRegex.Split(Normalize(text))
             .Distinct()
             .Where(t => t.Length > 1);
     }
 
-    public static Task<IEnumerable<SearchItem>> QuickSearch(string? value, CancellationToken token)
+    public Task<IEnumerable<SearchItem>> QuickSearch(string? value, CancellationToken token)
     {
         if (string.IsNullOrWhiteSpace(value) || value.Length < 2)
             return Task.FromResult(Enumerable.Empty<SearchItem>());
@@ -150,41 +150,33 @@ public static partial class SearchHelper
             {
                 foreach (var location in exactLocations)
                 {
-                    if (!matchStrength.TryGetValue(location, out var existing) || ExactMatchWeight > existing)
-                        matchStrength[location] = ExactMatchWeight;
-                    if (!matchedTokens.ContainsKey(location))
-                        matchedTokens[location] = [];
-
-                    matchedTokens[location].Add(stringToken);
+                    matchStrength[location] = matchStrength.GetValueOrDefault(location) + ExactMatchWeight;
+                    if (!matchedTokens.TryGetValue(location, out var tokenList))
+                    {
+                        tokenList = [];
+                        matchedTokens[location] = tokenList;
+                    }
+                    tokenList.Add(stringToken);
                 }
             }
 
             foreach (var (indexedToken, locations) in _index)
                 if (indexedToken != stringToken && indexedToken.StartsWith(stringToken))
-                {
                     foreach (var location in locations)
-                    {
-                        if (!matchStrength.TryGetValue(location, out var existing) || PartialMatchWeight > existing)
-                            matchStrength[location] = PartialMatchWeight;
-                        if (!matchedTokens.ContainsKey(location))
-                            matchedTokens[location] = [];
-
-                        matchedTokens[location].Add(stringToken);
-        }
-                }
+                        matchStrength[location] = matchStrength.GetValueOrDefault(location) + PartialMatchWeight;
         }
 
         if (matchStrength.Count == 0)
             return Task.FromResult(Enumerable.Empty<SearchItem>());
 
         return Task.FromResult(matchStrength.Keys
-            .OrderByDescending(l => matchedTokens[l].Count)
+            .OrderByDescending(l => matchedTokens.GetValueOrDefault(l)?.Count ?? 0)
             .ThenByDescending(l => GetWeight(l.AnchorId) * matchStrength[l])
             .Select(location =>
             {
                 var article = _allArticles.First(a => a.Id == location.ArticleId);
-                var baseUrl = article is Project project
-                    ? $"/project/{project.Id}/{project.Slug}"
+                var baseUrl = article is Project p
+                    ? $"/project/{p.Id}/{p.Slug}"
                     : $"/article/{article.Id}/{article.Slug}";
 
                 _snippetLookup.TryGetValue(location, out var text);
@@ -194,43 +186,87 @@ public static partial class SearchHelper
             .Take(QuickSearchLimit));
     }
 
-    private static string ExtractSnippet(string text, string query, int contextChars = 20)
+    public IReadOnlyCollection<string> GetHighlightTerms(string query)
     {
-        var index = text.IndexOf(query, StringComparison.OrdinalIgnoreCase);
-        var matchTerm = query;
-
-        if (index < 0)
+        var terms = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var token in Tokenize(query))
         {
-            matchTerm = Tokenize(query).FirstOrDefault() ?? query;
-            if (!_reverseAliases.TryGetValue(matchTerm, out var original))
-                original = _reverseAliases.FirstOrDefault(kvp => kvp.Key.StartsWith(matchTerm)).Value;
-            if (original != null)
-                matchTerm = original;
-            index = text.IndexOf(matchTerm, StringComparison.OrdinalIgnoreCase);
-            if (index < 0)
-                return text.Length > contextChars ? text[..contextChars] + "..." : text;
+            terms.Add(token);
+            if (_reverseAliases.TryGetValue(token, out var original))
+                terms.Add(original);
+        }
+        return terms;
+    }
+
+    private string ExtractSnippet(string text, string query, int contextRadius = 40)
+    {
+        if (string.IsNullOrEmpty(text))
+            return string.Empty;
+
+        var terms = GetHighlightTerms(query);
+
+        var ranges = new List<(int Start, int End)>();
+        foreach (var term in terms)
+        {
+            var at = text.IndexOf(term, StringComparison.OrdinalIgnoreCase);
+            if (at >= 0)
+                ranges.Add((at, at + term.Length));
         }
 
-        var start = Math.Max(0, index - contextChars);
-        var end = Math.Min(text.Length, index + matchTerm.Length + contextChars);
-        var snippet = text[start..end];
+        if (ranges.Count == 0)
+        {
+            if (text.Length <= contextRadius)
+                return WebUtility.HtmlEncode(text);
+
+            var cut = text.IndexOf(' ', contextRadius);
+            var head = cut > 0 ? text[..cut] : text[..contextRadius];
+            return WebUtility.HtmlEncode(head) + "...";
+        }
+
+        ranges.Sort((a, b) => a.Start.CompareTo(b.Start));
+
+        var (Start, End) = ranges[0];
+        var start = Math.Max(0, Start - contextRadius);
+        var end = Math.Min(text.Length, End + contextRadius);
+
+        if (start > 0)
+        {
+            var boundary = text.LastIndexOf(' ', start);
+            if (boundary >= 0) start = boundary + 1;
+        }
+        if (end < text.Length)
+        {
+            var boundary = text.IndexOf(' ', end);
+            if (boundary >= 0) end = boundary;
+        }
+
         var prefix = start > 0 ? "..." : "";
         var suffix = end < text.Length ? "..." : "";
 
-        var matchInSnippet = snippet.IndexOf(matchTerm, StringComparison.OrdinalIgnoreCase);
-        if (matchInSnippet >= 0)
+        var sb = new StringBuilder(prefix);
+        var cursor = start;
+
+        foreach (var (mStart, mEnd) in ranges)
         {
-            var actualMatch = snippet.Substring(matchInSnippet, matchTerm.Length);
-            snippet = snippet[..matchInSnippet] + $"<mark>{actualMatch}</mark>" + snippet[(matchInSnippet + matchTerm.Length)..];
+            if (mStart < cursor || mStart < start || mEnd > end) continue;
+
+            sb.Append(WebUtility.HtmlEncode(text[cursor..mStart]));
+            sb.Append("<mark>");
+            sb.Append(WebUtility.HtmlEncode(text[mStart..mEnd]));
+            sb.Append("</mark>");
+            cursor = mEnd;
         }
 
-        return prefix + snippet + suffix;
+        sb.Append(WebUtility.HtmlEncode(text[cursor..end]));
+        sb.Append(suffix);
+
+        return sb.ToString();
     }
 
     private static string StripHtml(string? html)
     {
         if (string.IsNullOrEmpty(html)) return string.Empty;
-        return HtmlTagRegex().Replace(html, " ").Trim();
+        return _htmlTagRegex.Replace(html, " ").Trim();
     }
 
     private static int GetWeight(string anchorId) => anchorId switch
