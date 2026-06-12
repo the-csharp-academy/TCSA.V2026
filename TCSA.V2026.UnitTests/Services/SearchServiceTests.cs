@@ -490,4 +490,128 @@ public class SearchServiceTests
         Assert.That(results.First().IconUrl, Is.EqualTo("test-icon.png"));
     }
 
+    [Test]
+    public async Task PagedSearch_ReturnsEmpty_WhenQueryIsNull()
+    {
+        var sut = new SearchService([]);
+
+        var result = await sut.PagedSearch(null, 1, CancellationToken.None);
+
+        Assert.That(result.TotalItems, Is.Zero);
+        Assert.That(result.Items, Is.Empty);
+    }
+
+    [Test]
+    public async Task PagedSearch_ReturnsEmpty_WhenQueryIsTooShort()
+    {
+        var sut = new SearchService([]);
+
+        var result = await sut.PagedSearch("a", 1, CancellationToken.None);
+
+        Assert.That(result.TotalItems, Is.Zero);
+        Assert.That(result.Items, Is.Empty);
+    }
+
+    [Test]
+    public async Task PagedSearch_ReturnsEmpty_WhenNoMatchFound()
+    {
+        var sut = new SearchService([
+            new Article { Id = 1, Title = "Introduction to C#", Slug = "intro-to-csharp", Blocks = null }
+        ]);
+
+        var result = await sut.PagedSearch("python", 1, CancellationToken.None);
+
+        Assert.That(result.TotalItems, Is.Zero);
+        Assert.That(result.Items, Is.Empty);
+    }
+
+    [Test]
+    public async Task PagedSearch_TotalCount_ReflectsAllMatches_NotJustCurrentPage()
+    {
+        var articles = Enumerable.Range(1, PagingConstants.SearchPageSize + 5)
+            .Select(i => new Article { Id = i, Title = $"Test article {i}", Slug = $"test-{i}", Blocks = null })
+            .ToList<Article>();
+        var sut = new SearchService(articles);
+
+        var result = await sut.PagedSearch("test", 1, CancellationToken.None);
+
+        Assert.That(result.TotalItems, Is.EqualTo(PagingConstants.SearchPageSize + 5));
+        Assert.That(result.Items.Count, Is.EqualTo(PagingConstants.SearchPageSize));
+        Assert.That(result.TotalPages, Is.EqualTo(2));
+    }
+
+    [Test]
+    public async Task PagedSearch_ReturnsFirstPage_WhenPageIsNegative()
+    {
+        var sut = new SearchService([
+            new Article { Id = 1, Title = "Test article", Slug = "test", Blocks = null }
+        ]);
+
+        var result = await sut.PagedSearch("test", -5, CancellationToken.None);
+
+        Assert.That(result.PageNumber, Is.EqualTo(1));
+    }
+
+    [Test]
+    public async Task PagedSearch_TotalPages_IsOne_WhenResultsLessThanPageSize()
+    {
+        var sut = new SearchService([
+            new Article { Id = 1, Title = "Test article", Slug = "test", Blocks = null },
+            new Article { Id = 2, Title = "Test two", Slug = "test-two", Blocks = null },
+            new Article { Id = 3, Title = "Test three", Slug = "test-three", Blocks = null }
+        ]);
+
+        var result = await sut.PagedSearch("test", 1, CancellationToken.None);
+
+        Assert.That(result.TotalPages, Is.EqualTo(1));
+    }
+
+    [Test]
+    public async Task PagedSearch_TotalItems_IsZero_WhenNoResults()
+    {
+        var sut = new SearchService([
+            new Article { Id = 1, Title = "Introduction to C#", Slug = "intro-to-csharp", Blocks = null }
+        ]);
+
+        var result = await sut.PagedSearch("python", 1, CancellationToken.None);
+
+        Assert.That(result.TotalItems, Is.Zero);
+    }
+
+    [Test]
+    public async Task PagedSearch_Items_HaveCorrectPageUrl()
+    {
+        var sut = new SearchService([
+            new Project { Id = 5, Title = "Test project", Slug = "test-project", Blocks = null }
+        ]);
+
+        var result = await sut.PagedSearch("test", 1, CancellationToken.None);
+
+        Assert.That(result.Items[0].PageUrl, Does.StartWith("/project/5/test-project"));
+    }
+
+    [Test]
+    public async Task PagedSearch_RankingIsPreservedAcrossPages()
+    {
+        var articles = new List<Article>
+        {
+            new Article { Id = 1, Title = "Blazor overview", Slug = "blazor-overview", Blocks = null }
+        };
+        for (var i = 2; i <= PagingConstants.SearchPageSize + 2; i++)
+        {
+            articles.Add(new Article
+            {
+                Id = i,
+                Title = $"Article {i}",
+                Slug = $"article-{i}",
+                Blocks = [new Block { Paragraphs = [new Paragraph { Body = "Blazor is a framework." }] }]
+            });
+        }
+        var sut = new SearchService(articles);
+
+        var result = await sut.PagedSearch("blazor", 1, CancellationToken.None);
+
+        Assert.That(result.Items[0].Title, Is.EqualTo("Blazor overview"));
+    }
+
 }
