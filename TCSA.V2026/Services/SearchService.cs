@@ -296,8 +296,9 @@ public class SearchService : ISearchService
         return _htmlTagRegex.Replace(html, " ").Trim();
     }
 
-    private static int GetWeight(string anchorId) => anchorId switch
+    private static int GetWeight(string? anchorId) => anchorId switch
     {
+        null => 0,
         ContentAnchors.ArticleTitleId => 100,
         ContentAnchors.ProjectRequirementsIntroId => 80,
         ContentAnchors.ProjectRequirementsConclusionId => 80,
