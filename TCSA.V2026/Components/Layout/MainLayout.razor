@@ -1,4 +1,3 @@
-@using Microsoft.AspNetCore.WebUtilities
 @using Microsoft.Extensions.Options
 @using TCSA.V2026.Data.DTOs
 @using TCSA.V2026.Data.Models.Options
@@ -24,6 +23,9 @@
                        OnClick="@ToggleNavDrawer" />
         <MudImage Src="/img/logo.png" Width="40" />
         <MudAutocomplete T="SearchItem"
+                         ShowProgressIndicator="true"
+                         MaxLength="100"
+                         DebounceInterval="200"
                          ToStringFunc="@(item => _lastSearchQuery)"
                          Placeholder="Search articles & projects..."
                          SearchFunc="CaptureAndSearch"
