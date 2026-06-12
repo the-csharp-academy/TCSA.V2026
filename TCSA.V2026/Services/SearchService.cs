@@ -36,7 +36,7 @@ public class SearchService : ISearchService
 
     public SearchService(IEnumerable<Article> articles)
     {
-        _allArticles = [..articles];
+        _allArticles = [.. articles];
         foreach (var article in _allArticles)
             IndexArticle(article);
     }
@@ -133,56 +133,84 @@ public class SearchService : ISearchService
 
     public Task<IEnumerable<SearchItem>> QuickSearch(string? value, CancellationToken token)
     {
-        if (string.IsNullOrWhiteSpace(value) || value.Length < 2)
+        if (!TryGetTokens(value, out var tokens))
             return Task.FromResult(Enumerable.Empty<SearchItem>());
 
-        var tokens = Tokenize(value).ToList();
-        if (tokens.Count == 0)
-            return Task.FromResult(Enumerable.Empty<SearchItem>());
-
-        var matchStrength = new Dictionary<SearchLocation, int>();
-        var matchedTokens = new Dictionary<SearchLocation, HashSet<string>>();
-
-        foreach (var stringToken in tokens)
-        {
-            if (_index.TryGetValue(stringToken, out var exactLocations))
-            {
-                foreach (var location in exactLocations)
-                {
-                    matchStrength[location] = matchStrength.GetValueOrDefault(location) + ExactMatchWeight;
-                    if (!matchedTokens.TryGetValue(location, out var tokenList))
-                    {
-                        tokenList = [];
-                        matchedTokens[location] = tokenList;
-                    }
-                    tokenList.Add(stringToken);
-                }
-            }
-
-            foreach (var (indexedToken, locations) in _index)
-                if (indexedToken != stringToken && indexedToken.StartsWith(stringToken))
-                    foreach (var location in locations)
-                        matchStrength[location] = matchStrength.GetValueOrDefault(location) + PartialMatchWeight;
-        }
-
+        var (matchStrength, matchedTokens) = ScoreLocations(tokens);
         if (matchStrength.Count == 0)
             return Task.FromResult(Enumerable.Empty<SearchItem>());
 
-        return Task.FromResult(matchStrength.Keys
-            .OrderByDescending(l => matchedTokens.GetValueOrDefault(l)?.Count ?? 0)
-            .ThenByDescending(l => GetWeight(l.AnchorId) * matchStrength[l])
-            .Select(location =>
-            {
-                var article = _allArticles.First(a => a.Id == location.ArticleId);
-                var baseUrl = article is Project p
-                    ? $"/project/{p.Id}/{p.Slug}"
-                    : $"/article/{article.Id}/{article.Slug}";
-
-                _snippetLookup.TryGetValue(location, out var text);
-                var snippet = text != null ? ExtractSnippet(text, value) : null;
-                return new SearchItem(article.Title, $"{baseUrl}#{location.AnchorId}", article.IconUrl, snippet);
-            })
+        return Task.FromResult(GetRankedLocations(matchStrength, matchedTokens)
+            .Select(l => BuildSearchItem(l, value!))
             .Take(QuickSearchLimit));
+    }
+
+    private bool TryGetTokens(string? value, out List<string> tokens)
+    {
+        tokens = [];
+        if (string.IsNullOrWhiteSpace(value) || value.Length < 2)
+            return false;
+
+        tokens = Tokenize(value).ToList();
+        return tokens.Count > 0;
+    }
+
+    private void ScoreExactMatches(string token, Dictionary<SearchLocation, int> matchStrength, Dictionary<SearchLocation, HashSet<string>> matchedTokens)
+    {
+        if (!_index.TryGetValue(token, out var exactLocations)) return;
+
+        foreach (var location in exactLocations)
+        {
+            matchStrength[location] = matchStrength.GetValueOrDefault(location) + ExactMatchWeight;
+            if (!matchedTokens.TryGetValue(location, out var tokenList))
+            {
+                tokenList = [];
+                matchedTokens[location] = tokenList;
+            }
+            tokenList.Add(token);
+        }
+    }
+
+    private void ScorePartialMatches(string token, Dictionary<SearchLocation, int> matchStrength)
+    {
+        foreach (var (indexedToken, locations) in _index)
+            if (indexedToken != token && indexedToken.StartsWith(token))
+                foreach (var location in locations)
+                    matchStrength[location] = matchStrength.GetValueOrDefault(location) + PartialMatchWeight;
+    }
+
+    private (Dictionary<SearchLocation, int> matchStrength, Dictionary<SearchLocation, HashSet<string>> matchedTokens) ScoreLocations(List<string> tokens)
+    {
+        var matchStrength = new Dictionary<SearchLocation, int>();
+        var matchedTokens = new Dictionary<SearchLocation, HashSet<string>>();
+
+        foreach (var token in tokens)
+        {
+            ScoreExactMatches(token, matchStrength, matchedTokens);
+            ScorePartialMatches(token, matchStrength);
+        }
+
+        return (matchStrength, matchedTokens);
+    }
+
+    private IEnumerable<SearchLocation> GetRankedLocations(
+        Dictionary<SearchLocation, int> matchStrength,
+        Dictionary<SearchLocation,
+        HashSet<string>> matchedTokens)
+        => matchStrength.Keys
+            .OrderByDescending(l => matchedTokens.GetValueOrDefault(l)?.Count ?? 0)
+            .ThenByDescending(l => GetWeight(l.AnchorId) * matchStrength[l]);
+
+    private SearchItem BuildSearchItem(SearchLocation location, string query)
+    {
+        var article = _allArticles.First(a => a.Id == location.ArticleId);
+        var baseUrl = article is Project p
+            ? $"/project/{p.Id}/{p.Slug}"
+            : $"/article/{article.Id}/{article.Slug}";
+
+        _snippetLookup.TryGetValue(location, out var text);
+        var snippet = text != null ? ExtractSnippet(text, query) : null;
+        return new SearchItem(article.Title, $"{baseUrl}#{location.AnchorId}", article.IconUrl, snippet);
     }
 
     private IReadOnlyCollection<string> GetHighlightTerms(string query)
