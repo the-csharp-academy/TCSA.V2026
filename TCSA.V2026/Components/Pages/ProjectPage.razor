@@ -48,7 +48,8 @@
                         for (var paragraphIndex = 0; paragraphIndex < Project.Introduction.Count; paragraphIndex++)
                         {
                                 var paragraph = Project.Introduction[paragraphIndex];
-                                <MudText Class="mt-2" UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ProjectIntroductionParagraphId(paragraphIndex) })">
+                                var capturedParagraphIndex = paragraphIndex;
+                                <MudText Class="mt-2" UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ProjectIntroductionParagraphId(capturedParagraphIndex) })">
                                     @((MarkupString)(paragraph.Body))
                                 </MudText>
                         }
@@ -66,10 +67,11 @@
                                 @for (var reqIndex = 0; reqIndex < Project.Requirements.Count; reqIndex++)
                                 {
                                         var req = Project.Requirements[reqIndex];
+                                        var capturedReqIndex = reqIndex;
                                     <MudListItem>
                                         <div style="display: flex;">
                                             <MudIcon Icon="@Icons.Material.Filled.CheckBox" Color="Color.Success" Class="mr-2" />
-                                            <MudText UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ProjectRequirementId(reqIndex) })">@((MarkupString)(req))</MudText>
+                                            <MudText UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ProjectRequirementId(capturedReqIndex) })">@((MarkupString)(req))</MudText>
                                         </div>
                                     </MudListItem>
                                 }
@@ -91,8 +93,9 @@
                             @for (var itemIndex = 0; itemIndex < Project.LearningItems.Count; itemIndex++)
                             {
                                 var item = Project.LearningItems[itemIndex];
+                                var capturedItemIndex = itemIndex;
                                 <MudListItem>
-                                    <MudText Class="mt-2" UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ProjectLearningItemId(itemIndex) })">@((MarkupString)(item))</MudText>
+                                    <MudText Class="mt-2" UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ProjectLearningItemId(capturedItemIndex) })">@((MarkupString)(item))</MudText>
                                 </MudListItem>
                             }
                         </MudList>
@@ -108,10 +111,11 @@
                             @for (var itemIndex = 0; itemIndex < Project.Resources.Count; itemIndex++)
                             {
                                 var item = Project.Resources[itemIndex];
+                                var capturedItemIndex = itemIndex;
                                 <MudListItem>
                                     <div style="display: flex;">
                                         <MudIcon Icon="@Icons.Material.Filled.ArrowCircleRight" Color="Color.Primary" Class="mr-2" />
-                                        <MudText UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ProjectResourceId(itemIndex) })">@((MarkupString)(item))</MudText>
+                                        <MudText UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ProjectResourceId(capturedItemIndex) })">@((MarkupString)(item))</MudText>
                                     </div>
                                 </MudListItem>
                             }
@@ -128,10 +132,11 @@
                             @for (var tipIndex = 0; tipIndex < Project.Tips.Count; tipIndex++)
                             {
                                 var tip = Project.Tips[tipIndex];
+                                var capturedTipIndex = tipIndex;
                                 <MudListItem>
                                     <div style="display: flex;">
                                         <MudIcon Icon="@Icons.Material.Filled.CheckBox" Size="Size.Medium" Color="Color.Warning" Class="mr-2" />
-                                        <MudText UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ProjectTipId(tipIndex) })">@((MarkupString)(tip))</MudText>
+                                        <MudText UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ProjectTipId(capturedTipIndex) })">@((MarkupString)(tip))</MudText>
                                     </div>
                                 </MudListItem>
                             }
@@ -145,10 +150,11 @@
                             @for (var challengeIndex = 0; challengeIndex < Project.Challenges.Count; challengeIndex++)
                             {
                                 var challenge = Project.Challenges[challengeIndex];
+                                var capturedChallengeIndex = challengeIndex;
                                 <MudListItem>
                                     <div style="display: flex;">
                                         <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Size="Size.Medium" Color="Color.Error" Class="mr-2" />
-                                        <MudText UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ProjectChallengeId(challengeIndex) })">@((MarkupString)(challenge))</MudText>
+                                        <MudText UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ProjectChallengeId(capturedChallengeIndex) })">@((MarkupString)(challenge))</MudText>
                                     </div>
                                 </MudListItem>
                             }
@@ -159,14 +165,16 @@
                         @for (var blockIndex = 0; blockIndex < Project.Blocks.Count; blockIndex++)
                         {
                             var block = Project.Blocks[blockIndex];
+                            var capturedBlockIndex = blockIndex;
                             @if (!string.IsNullOrWhiteSpace(block.Title))
                             {
-                                <h2 class="mud-typography-h6 mt-10 mb-2" id="@ContentAnchors.ArticleBlockTitleId(blockIndex)">@block.Title</h2>
+                                <h2 class="mud-typography-h6 mt-10 mb-2" id="@ContentAnchors.ArticleBlockTitleId(capturedBlockIndex)">@block.Title</h2>
                             }
 
                             @for (var paragraphIndex = 0; paragraphIndex < block.Paragraphs.Count; paragraphIndex++)
                             {
                                 var paragraph = block.Paragraphs[paragraphIndex];
+                                var capturedParagraphIndex = paragraphIndex;
                                 if (paragraph.IsPicture)
                                 {
                                     <MudPaper Class="d-flex justify-center mx-20 mt-10 project-media-wrap" Elevation="0">
@@ -192,13 +200,13 @@
                                     {
                                         var bgStyle = $"background-color: {paragraph.BackgroundColor}; padding: 1rem;";
                                         var textStyle = $"color: {paragraph.FontColor};";
-                                        <MudText Class="mb-1" Style="@textStyle" Typo="Typo.body1" UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ArticleBlockParagraphId(blockIndex, paragraphIndex) })">
+                                        <MudText Class="mb-1" Style="@textStyle" Typo="Typo.body1" UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ArticleBlockParagraphId(capturedBlockIndex, capturedParagraphIndex) })">
                                             @((MarkupString)paragraph.Body)
                                         </MudText>
                                     }
                                     else
                                     {
-                                        <MudText Class="mt-2" Typo="Typo.body1" UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ArticleBlockParagraphId(blockIndex, paragraphIndex) })">
+                                        <MudText Class="mt-2" Typo="Typo.body1" UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ArticleBlockParagraphId(capturedBlockIndex, capturedParagraphIndex) })">
                                             @((MarkupString)paragraph.Body)
                                         </MudText>
                                     }

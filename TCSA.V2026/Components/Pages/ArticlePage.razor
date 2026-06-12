@@ -36,14 +36,16 @@
                 @for (var blockIndex = 0; blockIndex < Article.Blocks.Count; blockIndex++)
                 {
                     var block = Article.Blocks[blockIndex];
+                    var capturedBlockIndex = blockIndex;
                     if (!string.IsNullOrWhiteSpace(block.Title))
                     {
-                        <h2 class="mud-typography-h6 mt-10 mb-2" id="@ContentAnchors.ArticleBlockTitleId(blockIndex)">@block.Title</h2>
+                        <h2 class="mud-typography-h6 mt-10 mb-2" id="@ContentAnchors.ArticleBlockTitleId(capturedBlockIndex)">@block.Title</h2>
                     }
 
                     @for (var paragraphIndex = 0; paragraphIndex < block.Paragraphs.Count; paragraphIndex++)
                     {
                         var paragraph = block.Paragraphs[paragraphIndex];
+                        var capturedParagraphIndex = paragraphIndex;
                         if (paragraph.IsPicture)
                         {
                             <MudPaper Class="d-flex justify-center mx-20 mt-10 article-media-wrap" Elevation="0">
@@ -72,7 +74,7 @@
 
                                 <MudPaper Style="@bgStyle" Elevation="1" Class="my-2">
                                         <MudText Style="@textStyle" Typo="Typo.body1"
-                                            UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ArticleBlockParagraphId(blockIndex, paragraphIndex) })">
+                                            UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ArticleBlockParagraphId(capturedBlockIndex, capturedParagraphIndex) })">
                                         @((MarkupString)paragraph.Body)
                                     </MudText>
                                 </MudPaper>
@@ -80,7 +82,7 @@
                             else
                             {
                                     <MudText Class="mt-2 mb-5" Typo="Typo.body1"
-                                             UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ArticleBlockParagraphId(blockIndex, paragraphIndex) })">
+                                             UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ArticleBlockParagraphId(capturedBlockIndex, capturedParagraphIndex) })">
                                     @((MarkupString)paragraph.Body)
                                 </MudText>
                             }
