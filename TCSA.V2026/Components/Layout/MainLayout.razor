@@ -139,14 +139,8 @@
         var fragment = uri.Fragment.StartsWith("#") ? uri.Fragment.Substring(1) : uri.Fragment;
         if (string.IsNullOrEmpty(fragment)) return;
 
-        var query = QueryHelpers.ParseQuery(uri.Query);
-        var searchText = query.TryGetValue("q", out var q) ? q.FirstOrDefault() : null;
-        var terms = string.IsNullOrEmpty(searchText)
-            ? []
-            : SearchService.GetHighlightTerms(searchText);
-
         _scrollModule = await JS.InvokeAsync<IJSObjectReference>("import", "./js/scroll-anchor.js");
-        await _scrollModule.InvokeVoidAsync("scrollToAnchor", fragment, terms);
+        await _scrollModule.InvokeVoidAsync("scrollToAnchor", fragment);
     }
 
     private Task<IEnumerable<SearchItem>> CaptureAndSearch(string value, CancellationToken token)

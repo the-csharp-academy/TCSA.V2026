@@ -1,4 +1,4 @@
-export function scrollToAnchor(anchorId, highlightTerms) {
+export function scrollToAnchor(anchorId) {
     if (!anchorId) return;
 
     const element = document.getElementById(anchorId);
@@ -6,14 +6,10 @@ export function scrollToAnchor(anchorId, highlightTerms) {
 
     element.scrollIntoView({ behavior: 'smooth', block: 'end' });
 
-    if (!highlightTerms || highlightTerms.length === 0) return;
-
-    const originalText = element.textContent;
-    const escaped = highlightTerms.map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
-    const regex = new RegExp(`(${escaped.join('|')})`, 'gi');
-    element.innerHTML = originalText.replace(regex, '<mark>$1</mark>');
-
+    element.classList.add('search-highlight');
     setTimeout(() => {
-        element.textContent = originalText;
+        if (document.body.contains(element)) {
+            element.classList.remove('search-highlight');
+        }
     }, 2000);
 }

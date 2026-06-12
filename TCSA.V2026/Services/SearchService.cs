@@ -10,7 +10,6 @@ namespace TCSA.V2026.Services;
 public interface ISearchService
 {
     Task<IEnumerable<SearchItem>> QuickSearch(string? value, CancellationToken token);
-    IReadOnlyCollection<string> GetHighlightTerms(string query);
 }
 
 public class SearchService : ISearchService
@@ -186,7 +185,7 @@ public class SearchService : ISearchService
             .Take(QuickSearchLimit));
     }
 
-    public IReadOnlyCollection<string> GetHighlightTerms(string query)
+    private IReadOnlyCollection<string> GetHighlightTerms(string query)
     {
         var terms = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         foreach (var token in Tokenize(query))
