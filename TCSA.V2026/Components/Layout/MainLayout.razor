@@ -50,6 +50,20 @@
                     }
                 </MudStack>
             </ItemTemplate>
+            <AfterItemsTemplate>
+                @if (!string.IsNullOrWhiteSpace(_lastSearchQuery))
+                {
+                    <div class="pa-2">
+                        <MudButton FullWidth="true"
+                                   Variant="Variant.Text"
+                                   Color="Color.Primary"
+                                   StartIcon="@Icons.Material.Filled.ManageSearch"
+                                   Href="@($"/search?q={Uri.EscapeDataString(_lastSearchQuery)}")">
+                            See all results
+                        </MudButton>
+                    </div>
+                }
+            </AfterItemsTemplate>
         </MudAutocomplete>
         <MudSpacer />
         <MudSwitch UserAttributes="@(new Dictionary<string, object> { ["id"] = "theme-toggle" })"

@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using TCSA.V2026.Data.DTOs;
 using TCSA.V2026.Data.Models;
+using TCSA.V2026.Data.Models.Responses;
 using TCSA.V2026.Helpers.Constants;
 
 namespace TCSA.V2026.Services;
@@ -10,6 +11,7 @@ namespace TCSA.V2026.Services;
 public interface ISearchService
 {
     Task<IEnumerable<SearchItem>> QuickSearch(string? value, CancellationToken token);
+    Task<PaginatedList<SearchItem>> PagedSearch(string? query, int page, CancellationToken token);
 }
 
 public class SearchService : ISearchService
@@ -143,6 +145,28 @@ public class SearchService : ISearchService
         return Task.FromResult(GetRankedLocations(matchStrength, matchedTokens)
             .Select(l => BuildSearchItem(l, value!))
             .Take(QuickSearchLimit));
+    }
+
+    public Task<PaginatedList<SearchItem>> PagedSearch(string? query, int page, CancellationToken token)
+    {
+        if (!TryGetTokens(query, out var tokens))
+            return Task.FromResult(new PaginatedList<SearchItem>([], 0, 1, PagingConstants.SearchPageSize));
+
+        var (matchStrength, matchedTokens) = ScoreLocations(tokens);
+        if (matchStrength.Count == 0)
+            return Task.FromResult(new PaginatedList<SearchItem>([], 0, 1, PagingConstants.SearchPageSize));
+
+        var safePage = Math.Max(1, page);
+        var ranked = GetRankedLocations(matchStrength, matchedTokens).ToList();
+        var totalCount = ranked.Count;
+
+        var items = ranked
+            .Skip((safePage - 1) * PagingConstants.SearchPageSize)
+            .Take(PagingConstants.SearchPageSize)
+            .Select(l => BuildSearchItem(l, query!))
+            .ToList();
+
+        return Task.FromResult(new PaginatedList<SearchItem>(items, totalCount, safePage, PagingConstants.SearchPageSize));
     }
 
     private bool TryGetTokens(string? value, out List<string> tokens)
