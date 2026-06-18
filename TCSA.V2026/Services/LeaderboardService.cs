@@ -100,28 +100,31 @@ public class LeaderboardService(IDbContextFactory<ApplicationDbContext> _factory
 
     public async Task<List<UserLeaderboardDisplay>> GetUsersForLeaderboard(int pageNumber)
     {
-        var users = new List<ApplicationUser>();
         var result = new List<UserLeaderboardDisplay>();
         var index = (pageNumber - 1) * PagingConstants.LeaderboardPageSize;
 
         try
         {
-            using (var context = _factory.CreateDbContext())
-            {
-                users = await context.Users
+            using var context = _factory.CreateDbContext();
+            var users = await context.Users
                 .Where(x => x.ExperiencePoints > 0)
                 .OrderByDescending(x => x.ExperiencePoints)
                 .ThenBy(x => x.FirstName)
                 .ThenBy(x => x.LastName)
                 .Skip((pageNumber - 1) * PagingConstants.LeaderboardPageSize)
                 .Take(PagingConstants.LeaderboardPageSize)
+            .Select(u => new
+            {
+                u.Id,
+                u.Country,
+                u.Level,
+                u.DisplayName,
+                u.UserName,
+                u.ExperiencePoints,
+                u.GithubUsername,
+                u.LinkedInUrl
+            })
                 .ToListAsync();
-            }
-        }
-        catch (Exception ex)
-        {
-            return null;
-        }
 
         foreach (var user in users)
         {
@@ -143,6 +146,11 @@ public class LeaderboardService(IDbContextFactory<ApplicationDbContext> _factory
         }
 
         return result;
+    }
+        catch (Exception)
+        {
+            return [];
+        }
     }
 
     public async Task<int> GetNumberCountries()
