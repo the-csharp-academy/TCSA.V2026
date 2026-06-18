@@ -1,4 +1,4 @@
-﻿using Microsoft.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
 using TCSA.V2026.Data;
@@ -54,45 +54,43 @@ public class LeaderboardService(IDbContextFactory<ApplicationDbContext> _factory
 
     public async Task<List<UserReviewLeaderboardDisplay>> GetUserForReviewLeaderboard()
     {
-        var users = new List<ApplicationUser>();
         var result = new List<UserReviewLeaderboardDisplay>();
-        var index = 1;
 
         try
         {
-            using (var context = _factory.CreateDbContext())
+            using var context = _factory.CreateDbContext();
+            var users = await context.Users
+                .Where(u => u.ReviewExperiencePoints > 0)
+                .OrderByDescending(u => u.ReviewExperiencePoints)
+                .Take(PagingConstants.LeaderboardPageSize)
+                .Select(u => new
+                {
+                    u.Id,
+                    u.Country,
+                    u.DisplayName,
+                    u.UserName,
+                    TotalXp = u.ReviewExperiencePoints,
+                    ReviewsNumber = u.CodeReviewProjects.Count(),
+                }).ToListAsync();
+
+            int position = 1;
+            foreach (var user in users)
             {
-                users = await context.Users
-                .Include(x => x.CodeReviewProjects)
-                .Where(x => x.ReviewExperiencePoints > 0)
-                .ToListAsync();
-
-                foreach (ApplicationUser user in users)
+                var userForLeaderboard = new UserReviewLeaderboardDisplay
                 {
-                    var userForLeaderboard = new UserReviewLeaderboardDisplay
-                    {
-                        Id = user.Id,
-                        Country = user.Country,
-                        DisplayName = UserDisplayNameHelper.GetDisplayName(user.DisplayName, user.UserName),
-                        TotalXp = user.ReviewExperiencePoints,
-                        ReviewsNumber = user.CodeReviewProjects.Count()
-                    };
+                    Id = user.Id,
+                    Country = user.Country,
+                    DisplayName = UserDisplayNameHelper.GetDisplayName(user.DisplayName, user.UserName),
+                    TotalXp = user.TotalXp,
+                    ReviewsNumber = user.ReviewsNumber,
+                    Ranking = position
+                };
 
-                    result.Add(userForLeaderboard);
-                }
-
-                result = result
-                    .OrderByDescending(x => x.TotalXp)
-                    .Take(PagingConstants.LeaderboardPageSize)
-                    .ToList();
-
-                foreach (var user in result)
-                {
-                    user.Ranking = index;
-                    index++;
-                }
-                return result;
+                result.Add(userForLeaderboard);
+                position++;
             }
+
+            return result;
         }
         catch (Exception ex)
         {
