@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using System.Data;
 using TCSA.V2026.Data;
 using TCSA.V2026.Data.DTOs;
-using TCSA.V2026.Data.Models;
 using TCSA.V2026.Helpers;
 using TCSA.V2026.Helpers.Constants;
 
@@ -92,9 +91,9 @@ public class LeaderboardService(IDbContextFactory<ApplicationDbContext> _factory
 
             return result;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            return null;
+            return [];
         }
     }
 
@@ -107,12 +106,12 @@ public class LeaderboardService(IDbContextFactory<ApplicationDbContext> _factory
         {
             using var context = _factory.CreateDbContext();
             var users = await context.Users
-                .Where(x => x.ExperiencePoints > 0)
-                .OrderByDescending(x => x.ExperiencePoints)
-                .ThenBy(x => x.FirstName)
-                .ThenBy(x => x.LastName)
-                .Skip((pageNumber - 1) * PagingConstants.LeaderboardPageSize)
-                .Take(PagingConstants.LeaderboardPageSize)
+            .Where(x => x.ExperiencePoints > 0)
+            .OrderByDescending(x => x.ExperiencePoints)
+            .ThenBy(x => x.FirstName)
+            .ThenBy(x => x.LastName)
+            .Skip((pageNumber - 1) * PagingConstants.LeaderboardPageSize)
+            .Take(PagingConstants.LeaderboardPageSize)
             .Select(u => new
             {
                 u.Id,
@@ -124,29 +123,29 @@ public class LeaderboardService(IDbContextFactory<ApplicationDbContext> _factory
                 u.GithubUsername,
                 u.LinkedInUrl
             })
-                .ToListAsync();
+            .ToListAsync();
 
-        foreach (var user in users)
-        {
-            index++;
-            var userForLeaderboard = new UserLeaderboardDisplay
+            foreach (var user in users)
             {
-                Id = user.Id,
-                Country = user.Country,
-                Level = user.Level,
-                DisplayName = UserDisplayNameHelper.GetDisplayName(user.DisplayName, user.UserName),
-                ExperiencePoints = user.ExperiencePoints,
-                Ranking = index
-            };
+                index++;
+                var userForLeaderboard = new UserLeaderboardDisplay
+                {
+                    Id = user.Id,
+                    Country = user.Country,
+                    Level = user.Level,
+                    DisplayName = UserDisplayNameHelper.GetDisplayName(user.DisplayName, user.UserName),
+                    ExperiencePoints = user.ExperiencePoints,
+                    Ranking = index
+                };
 
-            userForLeaderboard.GithubUsername = user.GithubUsername ?? string.Empty;
-            userForLeaderboard.LinkedInUrl = user.LinkedInUrl ?? string.Empty;
+                userForLeaderboard.GithubUsername = user.GithubUsername ?? string.Empty;
+                userForLeaderboard.LinkedInUrl = user.LinkedInUrl ?? string.Empty;
 
-            result.Add(userForLeaderboard);
+                result.Add(userForLeaderboard);
+            }
+
+            return result;
         }
-
-        return result;
-    }
         catch (Exception)
         {
             return [];

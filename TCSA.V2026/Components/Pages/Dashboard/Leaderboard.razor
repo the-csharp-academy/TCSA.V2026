@@ -33,7 +33,7 @@
     else
     {
         @* <MudText>LoadTime: @LoadTime.TotalSeconds.ToString()</MudText> *@
-        if (Users != null && Users.Count > 0)
+        if (Users.Count > 0)
         {
             if (!IsReviews)
             {
@@ -128,8 +128,8 @@
     [Inject] private ILeaderboardService LeaderboardService { get; set; }
     [Inject] private IUserService UserService { get; set; }
 
-    private List<UserLeaderboardDisplay>? Users { get; set; } = null;
-    private List<UserReviewLeaderboardDisplay>? ReviewUsers { get; set; } = null;
+    private List<UserLeaderboardDisplay> Users { get; set; } = [];
+    private List<UserReviewLeaderboardDisplay> ReviewUsers { get; set; } = [];
 
     private ApplicationUser User;
     private int CurrentPage;
@@ -177,10 +177,9 @@
     {
         IsLoading = true;
 
-        var incomingUsers = await LeaderboardService.GetUsersForLeaderboard(pageNumber);
+        Users = await LeaderboardService.GetUsersForLeaderboard(pageNumber);
 
         CurrentPage = pageNumber;
-        Users = incomingUsers.ToList();
 
         IsLoading = false;
     }
@@ -191,8 +190,7 @@
         {
             IsReviews = true;
 
-            var incomingUsers = await LeaderboardService.GetUserForReviewLeaderboard();
-            ReviewUsers = incomingUsers.ToList();
+            ReviewUsers = await LeaderboardService.GetUserForReviewLeaderboard();
         }
         else
         {
