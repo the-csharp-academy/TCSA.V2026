@@ -1,4 +1,4 @@
-﻿using TCSA.V2026.Data.Enums;
+using TCSA.V2026.Data.Enums;
 using TCSA.V2026.Data.Helpers;
 using TCSA.V2026.Data.Models;
 using Block = TCSA.V2026.Data.Models.Block;
@@ -7,7 +7,9 @@ namespace TCSA.V2026.Data.Curriculum;
 
 public static class ArticleHelper
 {
-    public static List<Article> GetArticles()
+    private static readonly List<Article> _allArticles = BuildArticles();
+
+    private static List<Article> BuildArticles()
     {
         var configuration = ServiceProviderAccessor.ServiceProvider.GetService<IConfiguration>();
         var discordLink = configuration["Links:Discord"];
@@ -3222,7 +3224,6 @@ git push</code>"
             }
         };
     }
+
+    public static List<Article> GetArticles() => _allArticles;
 }
-
-
-

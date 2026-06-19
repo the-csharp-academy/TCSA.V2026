@@ -2,20 +2,17 @@
 @using System.Security.Claims
 @using TCSA.V2026.Data.Curriculum
 @using TCSA.V2026.Data.Models
+@using TCSA.V2026.Helpers.Constants
 @using TCSA.V2026.Services
 
 @rendermode @(new InteractiveServerRenderMode(prerender: false))
-
-@{
-    int blockIndex = 0;
-}
 
 <PageTitle>@Article.Title</PageTitle>
 
 <div class="article-theme">
 <MudContainer MaxWidth="MaxWidth.Large" Class="article-container">
     <MudPaper Class="jumbotron d-flex align-center justify-center mt-3 article-hero" Style=@GetBanner()>
-        <h1 class="mud-typography-h3 text-white mud-typography-align-center py-4 px-4 px-md-10 article-title">@Article.Title</h1>
+            <h1 class="mud-typography-h3 text-white mud-typography-align-center py-4 px-4 px-md-10 article-title" id="@ContentAnchors.ArticleTitleId">@Article.Title</h1>
     </MudPaper>
         <div class="completion-strip">
             <MudIcon Icon="@Icons.Material.Filled.People" Size="Size.Small" />
@@ -36,15 +33,19 @@
     <MudGrid Class="mt-4">
         <MudItem xs="12">
             <MudPaper Class="d-flex flex-column mud-width-full py-1 pb-10 px-4 px-md-10 section-panel section-panel-soft article-content">
-                @foreach (var block in Article.Blocks)
+                @for (var blockIndex = 0; blockIndex < Article.Blocks.Count; blockIndex++)
                 {
+                    var block = Article.Blocks[blockIndex];
+                    var capturedBlockIndex = blockIndex;
                     if (!string.IsNullOrWhiteSpace(block.Title))
                     {
-                        <h2 class="mud-typography-h6 mt-10 mb-2">@block.Title</h2>
+                        <h2 class="mud-typography-h6 mt-10 mb-2" id="@ContentAnchors.ArticleBlockTitleId(capturedBlockIndex)">@block.Title</h2>
                     }
 
-                    @foreach (var paragraph in block.Paragraphs)
+                    @for (var paragraphIndex = 0; paragraphIndex < block.Paragraphs.Count; paragraphIndex++)
                     {
+                        var paragraph = block.Paragraphs[paragraphIndex];
+                        var capturedParagraphIndex = paragraphIndex;
                         if (paragraph.IsPicture)
                         {
                             <MudPaper Class="d-flex justify-center mx-20 mt-10 article-media-wrap" Elevation="0">
@@ -72,14 +73,16 @@
                                 var textStyle = $"color: {paragraph.FontColor};";
 
                                 <MudPaper Style="@bgStyle" Elevation="1" Class="my-2">
-                                    <MudText Style="@textStyle" Typo="Typo.body1">
+                                        <MudText Style="@textStyle" Typo="Typo.body1"
+                                            UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ArticleBlockParagraphId(capturedBlockIndex, capturedParagraphIndex) })">
                                         @((MarkupString)paragraph.Body)
                                     </MudText>
                                 </MudPaper>
                             }
                             else
                             {
-                                <MudText Class="mt-2 mb-5" Typo="Typo.body1">
+                                    <MudText Class="mt-2 mb-5" Typo="Typo.body1"
+                                             UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ArticleBlockParagraphId(capturedBlockIndex, capturedParagraphIndex) })">
                                     @((MarkupString)paragraph.Body)
                                 </MudText>
                             }

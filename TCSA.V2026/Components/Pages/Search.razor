@@ -1,0 +1,165 @@
+@page "/search"
+@using TCSA.V2026.Data.DTOs
+@using TCSA.V2026.Data.Models.Responses
+@using TCSA.V2026.Helpers.Constants
+@using TCSA.V2026.Services
+
+<PageTitle>Search</PageTitle>
+
+<MudContainer Class="mt-4 mb-4">
+    <h1 class="visually-hidden">Search Results</h1>
+
+    <MudStack Row AlignItems="AlignItems.Center" Spacing="2" Class="mb-4">
+        <MudTextField T="string"
+                      @bind-Value="_inputQuery"
+                      Placeholder="Search articles and projects..."
+                      Adornment="Adornment.End"
+                      AdornmentIcon="@Icons.Material.Filled.Search"
+                      AdornmentColor="Color.Primary"
+                      Immediate="true"
+                      OnKeyDown="HandleKeyDown"
+                      MaxLength="100"
+                      Variant="Variant.Outlined"
+                      Style="max-width:480px" />
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   OnClick="RunSearch">
+            Search
+        </MudButton>
+    </MudStack>
+
+    @if (_isLoading)
+    {
+        <MudProgressCircular Color="Color.Default" Indeterminate="true" />
+    }
+    else if (_result is null || _result.TotalItems == 0)
+    {
+        @if (!string.IsNullOrWhiteSpace(Q))
+        {
+            <MudText Typo="Typo.body1" Class="mt-4">
+                No results found for <strong>@Q</strong>.
+            </MudText>
+        }
+    }
+    else
+    {
+        <MudText Typo="Typo.body2" Class="mb-2">
+            @_result.TotalItems result@(_result.TotalItems == 1 ? "" : "s") for <strong>@Q</strong>
+        </MudText>
+
+        <MudGrid Spacing="3">
+            @foreach (var item in _result.Items)
+            {
+                <MudItem xs="12" sm="6" md="4">
+                    <MudCard Elevation="3" Style="height:100%">
+                        <MudCardHeader>
+                            <CardHeaderAvatar>
+                                <MudAvatar Rounded="true">
+                                    <MudImage Src="@($"img/icons/{(string.IsNullOrEmpty(item.IconUrl) ? "article-placeholder.png" : item.IconUrl)}")"
+                                              Alt="icon"
+                                              Fluid="true" />
+                                </MudAvatar>
+                            </CardHeaderAvatar>
+                            <CardHeaderContent>
+                                <MudText Typo="Typo.subtitle2" Style="font-weight:bold">@item.Title</MudText>
+                            </CardHeaderContent>
+                        </MudCardHeader>
+                        @if (!string.IsNullOrEmpty(item.Snippet))
+                        {
+                            <MudCardContent>
+                                <MudText Typo="Typo.body2">@((MarkupString)item.Snippet)</MudText>
+                            </MudCardContent>
+                        }
+                        <MudCardActions>
+                            <MudButton Variant="Variant.Text"
+                                       Color="Color.Primary"
+                                       Href="@item.PageUrl">
+                                View
+                            </MudButton>
+                        </MudCardActions>
+                    </MudCard>
+                </MudItem>
+            }
+        </MudGrid>
+
+        @if (_result.TotalPages > 1)
+        {
+            <MudBreakpointProvider OnBreakpointChanged="BreakpointChanged">
+                <MudPagination Count="_result.TotalPages"
+                               Selected="_currentPage"
+                               SelectedChanged="OnPageChanged"
+                               BoundaryCount="_boundaryCount"
+                               Size="_paginationSize"
+                               Class="mt-4 d-flex justify-center" />
+            </MudBreakpointProvider>
+        }
+    }
+</MudContainer>
+
+@code {
+    [Inject] private ISearchService SearchService { get; set; } = default!;
+    [Inject] private NavigationManager Nav { get; set; } = default!;
+
+    [SupplyParameterFromQuery(Name = "q")]
+    public string? Q { get; set; }
+
+    [SupplyParameterFromQuery(Name = "page")]
+    public int? Page { get; set; }
+
+    private string _inputQuery = string.Empty;
+    private PaginatedList<SearchItem>? _result;
+    private int _currentPage = 1;
+    private bool _isLoading = false;
+    private int _boundaryCount = 2;
+    private Size _paginationSize = Size.Medium;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _inputQuery = Q ?? string.Empty;
+        _currentPage = Math.Max(1, Page ?? 1);
+        await LoadResults();
+    }
+
+    private async Task LoadResults()
+    {
+        if (string.IsNullOrWhiteSpace(Q))
+        {
+            _result = null;
+            return;
+        }
+
+        _isLoading = true;
+        _result = await SearchService.PagedSearch(Q, _currentPage, CancellationToken.None);
+        _isLoading = false;
+    }
+
+    private void RunSearch()
+    {
+        if (string.IsNullOrWhiteSpace(_inputQuery)) return;
+        Nav.NavigateTo($"/search?q={Uri.EscapeDataString(_inputQuery)}&page=1");
+    }
+
+    private void HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter") RunSearch();
+    }
+
+    private void OnPageChanged(int page)
+    {
+        Nav.NavigateTo($"/search?q={Uri.EscapeDataString(Q ?? string.Empty)}&page={page}");
+    }
+
+    private void BreakpointChanged(Breakpoint breakpoint)
+    {
+        if (breakpoint < Breakpoint.Sm)
+        {
+            _paginationSize = Size.Small;
+            _boundaryCount = 1;
+        }
+        else
+        {
+            _paginationSize = Size.Large;
+            _boundaryCount = 2;
+        }
+    }
+}
