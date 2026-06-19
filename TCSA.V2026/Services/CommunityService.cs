@@ -14,7 +14,7 @@ public interface ICommunityService
     Task<BaseResponse> CreateIssue(IssueType type, string issueUrl, string Title, string userId);
 }
 
-public class CommunityService(IDbContextFactory<ApplicationDbContext> _factory): ICommunityService
+public class CommunityService(IDbContextFactory<ApplicationDbContext> _factory) : ICommunityService
 {
     public async Task<BaseResponse> CreateIssue(IssueType type, string issueUrl, string title, string userId)
     {

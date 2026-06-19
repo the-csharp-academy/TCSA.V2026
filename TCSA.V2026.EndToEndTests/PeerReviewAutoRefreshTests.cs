@@ -1,5 +1,6 @@
 using Microsoft.Playwright;
 using System.Text;
+using TCSA.V2026.Helpers;
 
 namespace TCSA.V2026.EndToEndTests;
 
@@ -7,7 +8,7 @@ namespace TCSA.V2026.EndToEndTests;
 [NonParallelizable]
 public class PeerReviewAutoRefreshTests : EndToEndTestsBase
 {
-    private const long HabitLoggerRepoId = 573675655;
+    private const long HabitLoggerRepoId = (long)GithubRepository.HabitLogger;
     private const int HabitLoggerPrNumber = 392;
 
     [Test]

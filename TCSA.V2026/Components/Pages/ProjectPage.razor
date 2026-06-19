@@ -7,6 +7,7 @@
 @using TCSA.V2026.Data.Models.Options
 @using TCSA.V2026.Data.Models.Responses
 @using TCSA.V2026.Helpers
+@using TCSA.V2026.Helpers.Constants
 @using TCSA.V2026.Models
 @using TCSA.V2026.Services
 @using TCSA.V2026.Services.Challenges
@@ -27,7 +28,7 @@
     {
         <MudPaper Class="jumbotron d-flex align-center justify-center mt-3 project-hero"
                   Style=@GetBanner()>
-            <h1 class="mud-typography-h3 text-white mud-typography-align-center py-4 px-4 px-md-10 project-title">@Project.Title</h1>
+            <h1 class="mud-typography-h3 text-white mud-typography-align-center py-4 px-4 px-md-10 project-title" id="@ContentAnchors.ArticleTitleId">@Project.Title</h1>
         </MudPaper>
             <div class="completion-strip">
                 <MudIcon Icon="@Icons.Material.Filled.People" Size="Size.Small" />
@@ -44,9 +45,13 @@
                 <MudPaper Class="d-flex flex-column mud-width-full py-1 pb-10 px-4 px-md-10 section-panel section-panel-soft project-content">
                     @if (Project.Introduction != null)
                     {
-                        foreach (var paragraph in Project.Introduction)
+                        for (var paragraphIndex = 0; paragraphIndex < Project.Introduction.Count; paragraphIndex++)
                         {
-                            <MudText Class="mt-2">@((MarkupString)(paragraph.Body))</MudText>
+                                var paragraph = Project.Introduction[paragraphIndex];
+                                var capturedParagraphIndex = paragraphIndex;
+                                <MudText Class="mt-2" UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ProjectIntroductionParagraphId(capturedParagraphIndex) })">
+                                    @((MarkupString)(paragraph.Body))
+                                </MudText>
                         }
                     }
                     @if (Project.Id != 86)
@@ -54,17 +59,19 @@
                         <h2 class="mud-typography-h6 mt-10 mb-2">@Project.LanguageHeadings.Requirements</h2>
                         @if (!string.IsNullOrEmpty(Project.RequirementsIntro))
                         {
-                            <MudText Class="mt-2">@((MarkupString)(Project.RequirementsIntro))</MudText>
+                            <MudText Class="mt-2" UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ProjectRequirementsIntroId })">@((MarkupString)(Project.RequirementsIntro))</MudText>
                         }
                         @if (Project.Requirements != null)
                         {
                             <MudList ReadOnly="true" T="MarkupString" Color="Color.Default">
-                                @foreach (var req in Project.Requirements)
+                                @for (var reqIndex = 0; reqIndex < Project.Requirements.Count; reqIndex++)
                                 {
+                                        var req = Project.Requirements[reqIndex];
+                                        var capturedReqIndex = reqIndex;
                                     <MudListItem>
                                         <div style="display: flex;">
                                             <MudIcon Icon="@Icons.Material.Filled.CheckBox" Color="Color.Success" Class="mr-2" />
-                                            <MudText>@((MarkupString)(req))</MudText>
+                                            <MudText UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ProjectRequirementId(capturedReqIndex) })">@((MarkupString)(req))</MudText>
                                         </div>
                                     </MudListItem>
                                 }
@@ -72,7 +79,7 @@
                         }
                         @if (!string.IsNullOrEmpty(Project.RequirementsConclusion))
                         {
-                            <MudText Class="mt-2">@((MarkupString)(Project.RequirementsConclusion))</MudText>
+                            <MudText Class="mt-2" UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ProjectRequirementsConclusionId })">@((MarkupString)(Project.RequirementsConclusion))</MudText>
                         }
                     }
                     @if (Project.LearningItems != null)
@@ -80,13 +87,15 @@
                         <h2 class="mud-typography-h6 mt-10 mb-2">@Project.LanguageHeadings.Learn</h2>
                         @if (!string.IsNullOrEmpty(Project.LearningIntro))
                         {
-                            <MudText Class="mt-2 mb-2">@((MarkupString)(Project.LearningIntro))</MudText>
+                            <MudText Class="mt-2 mb-2" UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ProjectLearningIntroId })">@((MarkupString)(Project.LearningIntro))</MudText>
                         }
                         <MudList Class="mt-2" T="MarkupString" Color="Color.Default">
-                            @foreach (var item in Project.LearningItems)
+                            @for (var itemIndex = 0; itemIndex < Project.LearningItems.Count; itemIndex++)
                             {
+                                var item = Project.LearningItems[itemIndex];
+                                var capturedItemIndex = itemIndex;
                                 <MudListItem>
-                                    <MudText Class="mt-2">@((MarkupString)(item))</MudText>
+                                    <MudText Class="mt-2" UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ProjectLearningItemId(capturedItemIndex) })">@((MarkupString)(item))</MudText>
                                 </MudListItem>
                             }
                         </MudList>
@@ -96,34 +105,38 @@
                         <h2 class="mud-typography-h6 mt-10 mb-2">@Project.LanguageHeadings.Resources</h2>
                         @if (!string.IsNullOrEmpty(Project.ResourcesIntro))
                         {
-                            <MudText Class="mt-2 mb-2">@((MarkupString)(Project.ResourcesIntro))</MudText>
+                            <MudText Class="mt-2 mb-2" UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ProjectResourcesIntroId })">@((MarkupString)(Project.ResourcesIntro))</MudText>
                         }
                         <MudList T="MarkupString" Color="Color.Default">
-                            @foreach (var item in Project.Resources)
+                            @for (var itemIndex = 0; itemIndex < Project.Resources.Count; itemIndex++)
                             {
+                                var item = Project.Resources[itemIndex];
+                                var capturedItemIndex = itemIndex;
                                 <MudListItem>
                                     <div style="display: flex;">
                                         <MudIcon Icon="@Icons.Material.Filled.ArrowCircleRight" Color="Color.Primary" Class="mr-2" />
-                                        <MudText>@((MarkupString)(item))</MudText>
+                                        <MudText UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ProjectResourceId(capturedItemIndex) })">@((MarkupString)(item))</MudText>
                                     </div>
                                 </MudListItem>
                             }
                         </MudList>
                         @if (!string.IsNullOrEmpty(Project.ResourcesConclusion))
                         {
-                            <MudText Class="mt-2">@((MarkupString)(Project.ResourcesConclusion))</MudText>
+                            <MudText Class="mt-2" UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ProjectResourcesConclusionId })">@((MarkupString)(Project.ResourcesConclusion))</MudText>
                         }
                     }
                     @if (Project.Tips != null)
                     {
                         <h2 class="mud-typography-h6 mt-10 mb-2">@Project.LanguageHeadings.Tips</h2>
                         <MudList T="MarkupString" Color="Color.Default">
-                            @foreach (var tip in Project.Tips)
+                            @for (var tipIndex = 0; tipIndex < Project.Tips.Count; tipIndex++)
                             {
+                                var tip = Project.Tips[tipIndex];
+                                var capturedTipIndex = tipIndex;
                                 <MudListItem>
                                     <div style="display: flex;">
                                         <MudIcon Icon="@Icons.Material.Filled.CheckBox" Size="Size.Medium" Color="Color.Warning" Class="mr-2" />
-                                        <MudText>@((MarkupString)(tip))</MudText>
+                                        <MudText UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ProjectTipId(capturedTipIndex) })">@((MarkupString)(tip))</MudText>
                                     </div>
                                 </MudListItem>
                             }
@@ -134,12 +147,14 @@
                     {
                         <h2 class="mud-typography-h6 mt-10 mb-2">@Project.LanguageHeadings.Challenges</h2>
                         <MudList T="MarkupString" Color="Color.Default">
-                            @foreach (var challenge in Project.Challenges)
+                            @for (var challengeIndex = 0; challengeIndex < Project.Challenges.Count; challengeIndex++)
                             {
+                                var challenge = Project.Challenges[challengeIndex];
+                                var capturedChallengeIndex = challengeIndex;
                                 <MudListItem>
                                     <div style="display: flex;">
                                         <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Size="Size.Medium" Color="Color.Error" Class="mr-2" />
-                                        <MudText>@((MarkupString)(challenge))</MudText>
+                                        <MudText UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ProjectChallengeId(capturedChallengeIndex) })">@((MarkupString)(challenge))</MudText>
                                     </div>
                                 </MudListItem>
                             }
@@ -147,16 +162,19 @@
                     }
                     @if (Project.Blocks != null)
                     {
-                        @foreach (var block in Project.Blocks)
+                        @for (var blockIndex = 0; blockIndex < Project.Blocks.Count; blockIndex++)
                         {
+                            var block = Project.Blocks[blockIndex];
+                            var capturedBlockIndex = blockIndex;
                             @if (!string.IsNullOrWhiteSpace(block.Title))
                             {
-                                <h2 class="mud-typography-h6 mt-10 mb-2">@block.Title</h2>
-
+                                <h2 class="mud-typography-h6 mt-10 mb-2" id="@ContentAnchors.ArticleBlockTitleId(capturedBlockIndex)">@block.Title</h2>
                             }
 
-                            @foreach (var paragraph in block.Paragraphs)
+                            @for (var paragraphIndex = 0; paragraphIndex < block.Paragraphs.Count; paragraphIndex++)
                             {
+                                var paragraph = block.Paragraphs[paragraphIndex];
+                                var capturedParagraphIndex = paragraphIndex;
                                 if (paragraph.IsPicture)
                                 {
                                     <MudPaper Class="d-flex justify-center mx-20 mt-10 project-media-wrap" Elevation="0">
@@ -182,13 +200,13 @@
                                     {
                                         var bgStyle = $"background-color: {paragraph.BackgroundColor}; padding: 1rem;";
                                         var textStyle = $"color: {paragraph.FontColor};";
-                                        <MudText Class="mb-1" Style="@textStyle" Typo="Typo.body1">
+                                        <MudText Class="mb-1" Style="@textStyle" Typo="Typo.body1" UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ArticleBlockParagraphId(capturedBlockIndex, capturedParagraphIndex) })">
                                             @((MarkupString)paragraph.Body)
                                         </MudText>
                                     }
                                     else
                                     {
-                                        <MudText Class="mt-2" Typo="Typo.body1">
+                                        <MudText Class="mt-2" Typo="Typo.body1" UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ArticleBlockParagraphId(capturedBlockIndex, capturedParagraphIndex) })">
                                             @((MarkupString)paragraph.Body)
                                         </MudText>
                                     }
@@ -382,7 +400,7 @@
     private string GetBanner()
     {
         var banner = string.IsNullOrEmpty(Project.BannerUrl) ? "article-banner.jpg" : Project.BannerUrl;
-        return $"min-height: 350px; background-image: url('/img/banners/{banner}'); background-size: cover; background-position: center;";
+        return $"min-height: 350px; background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/img/banners/{banner}'); background-size: cover; background-position: center;";
     }
 
     private async Task CheckCodeWars()

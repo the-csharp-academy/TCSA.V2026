@@ -61,12 +61,13 @@ public class DiscordService : IDiscordService
             await _client.Rest.SendMessageAsync(_channelId, $"{gif}");
 
             return true;
-        } catch (Exception e)
+        }
+        catch (Exception e)
         {
             Console.WriteLine(e.Message);
             return false;
         }
-       
+
     }
 
     private static ulong GetNewRoleId(Level belt)

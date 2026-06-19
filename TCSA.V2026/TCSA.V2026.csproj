@@ -11,8 +11,8 @@
 
   <ItemGroup>
     <PackageReference Include="AspNet.Security.OAuth.GitHub" />
-    <PackageReference Include="Humanizer"/>
-    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore"/>
+    <PackageReference Include="Humanizer" />
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
@@ -42,7 +42,6 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\img\Belts\" />
-    <Folder Include="wwwroot\img\Flags\" />
   </ItemGroup>
 
 

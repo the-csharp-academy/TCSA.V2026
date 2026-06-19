@@ -26,7 +26,7 @@ public static class ActivityHelper
             activityToAdd.ActivityType = item.ActivityType;
             activityToAdd.Date = item.DateSubmitted;
 
-            if(item.ActivityType == ActivityType.ArticleRead)
+            if (item.ActivityType == ActivityType.ArticleRead)
             {
                 var article = articles.FirstOrDefault(a => a.Id == item.ProjectId);
 
@@ -58,13 +58,13 @@ public static class ActivityHelper
 
             if (item.ActivityType == ActivityType.ProjectCompleted)
             {
-                var project = projects.FirstOrDefault(x => x.Id == item.ProjectId); 
-                activityToAdd.Description = project == null 
+                var project = projects.FirstOrDefault(x => x.Id == item.ProjectId);
+                activityToAdd.Description = project == null
                     ? $"You completed the issue <b>{user.Issues.FirstOrDefault(x => x.ProjectId == item.ProjectId)?.Title}</b>."
                     : $"You completed the project <b>{projects.FirstOrDefault(x => x.Id == item.ProjectId)?.Title}</b>.";
 
-                activityToAdd.ExperiencePoints = project == null 
-                    ? user.Issues.FirstOrDefault(x => x.ProjectId == item.ProjectId).ExperiencePoints 
+                activityToAdd.ExperiencePoints = project == null
+                    ? user.Issues.FirstOrDefault(x => x.ProjectId == item.ProjectId).ExperiencePoints
                     : project.ExperiencePoints;
             }
 
@@ -78,10 +78,10 @@ public static class ActivityHelper
                 var challenge = user.UserChallenges.FirstOrDefault(x => x.ChallengeId == item.ChallengeId).Challenge;
                 activityToAdd.Description = $"You completed the challenge <b>{challenge.Name}</b>.";
                 activityToAdd.ExperiencePoints = challenge.ExperiencePoints;
-                
+
             }
 
-            if (item.ActivityType == ActivityType.CodeReviewCompleted) 
+            if (item.ActivityType == ActivityType.CodeReviewCompleted)
             {
                 var project = projects.FirstOrDefault(x => x.Id == item.ProjectId);
                 activityToAdd.Description = $"You completed a <b>{project.Title} review.</b>";
@@ -104,7 +104,7 @@ public static class ActivityHelper
 
         return activityDisplay;
     }
-    public static List<ActivityDisplay> CheckForDupes (List<ActivityDisplay> activities)
+    public static List<ActivityDisplay> CheckForDupes(List<ActivityDisplay> activities)
     {
         var activitySet = new HashSet<string>();
         foreach (var activity in activities)

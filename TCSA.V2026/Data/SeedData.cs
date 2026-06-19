@@ -245,7 +245,7 @@ public static class SeedData
                 {
                     ProjectId = 12,
                     GithubUrl = "https://github.com/TheCSharpAcademy/CodeReviews.Console.Calculator/pull/392",
-                    IsCompleted = true,
+                    IsCompleted = false,
                     IsArchived = false,
                     IsPendingNotification = false,
                     IsPendingReview = true,

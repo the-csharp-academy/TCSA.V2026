@@ -59,7 +59,7 @@ public sealed class DonateService : IDonateService
         };
 
         db.UserDonations.Add(donation);
-        await db.SaveChangesAsync(); 
+        await db.SaveChangesAsync();
 
         var session = await CreateDonationCheckoutSessionAsync(userStripe.StripeCustomerId, donation, currency);
 

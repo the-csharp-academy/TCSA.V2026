@@ -2487,6 +2487,6 @@ public class OopCourse
                         }
                     }
                 }
-        };   
+        };
     }
 }

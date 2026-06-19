@@ -68,7 +68,7 @@ public class PointsHelperTests
         Assert.That(breakdown.Total.Equals(15));
     }
 
-    [Test]  
+    [Test]
     public void ArticlesAndProjectsAndReviewsShouldReturnCorrectPoints()
     {
         var user = new ApplicationUser
@@ -87,8 +87,8 @@ public class PointsHelperTests
                     IsCompleted = true,
                 }
             },
-            CodeReviewProjects = new List<UserReview> 
-            { 
+            CodeReviewProjects = new List<UserReview>
+            {
                 new UserReview
                 {
                     DashboardProject = new DashboardProject

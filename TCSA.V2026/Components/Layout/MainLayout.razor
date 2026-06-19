@@ -3,7 +3,6 @@
 @using TCSA.V2026.Components.UI
 @using TCSA.V2026.Data.DTOs
 @using TCSA.V2026.Data.Models.Options
-@using TCSA.V2026.Helpers
 @using TCSA.V2026.Services
 @inherits LayoutComponentBase
 @inject ThemeService ThemeService
@@ -14,6 +13,7 @@
 @inject IUserService UserService
 @inject IDialogService DialogService
 @inject ILogger<MainLayout> Logger
+@inject ISearchService SearchService
 @implements IAsyncDisposable
 
 <MudThemeProvider Theme="MyCustomTheme" @bind-IsDarkMode="@ThemeService.IsDarkMode" />
@@ -29,9 +29,12 @@
                        OnClick="@ToggleNavDrawer" />
         <MudImage Src="/img/logo.png" Width="40" />
         <MudAutocomplete T="SearchItem"
-                         ToStringFunc="@(i => i?.Title ?? string.Empty)"
+                         ShowProgressIndicator="true"
+                         MaxLength="100"
+                         DebounceInterval="200"
+                         ToStringFunc="@(item => _lastSearchQuery)"
                          Placeholder="Search articles & projects..."
-                         SearchFunc="SearchHelper.Search"
+                         SearchFunc="CaptureAndSearch"
                          AdornmentIcon="@Icons.Material.Filled.Search"
                          ValueChanged="NavigateTo"
                          Clearable
@@ -42,11 +45,31 @@
                          Class="ml-4 appbar-search"
                          AdornmentColor="Color.Primary">
             <ItemTemplate Context="item">
-                <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
-                    <img src="img/icons/@(string.IsNullOrEmpty(item.IconUrl) ? "article-placeholder.png" : item.IconUrl)" style="height:2em;max-width:100%;" />
-                    <MudText Typo="Typo.body2">@item.Title</MudText>
+                <MudStack Spacing="0">
+                    <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+                        <img src="img/icons/@(string.IsNullOrEmpty(item.IconUrl) ? "article-placeholder.png" : item.IconUrl)" style="height:2em;max-width:100%;" />
+                        <MudText Typo="Typo.body2">@item.Title</MudText>
+                    </MudStack>
+                    @if (!string.IsNullOrEmpty(item.Snippet))
+                    {
+                        <MudText Typo="Typo.caption" Class="mud-text-secondary ml-1">@((MarkupString)item.Snippet)</MudText>
+                    }
                 </MudStack>
             </ItemTemplate>
+            <AfterItemsTemplate>
+                @if (!string.IsNullOrWhiteSpace(_lastSearchQuery))
+                {
+                    <div class="pa-2">
+                        <MudButton FullWidth="true"
+                                   Variant="Variant.Text"
+                                   Color="Color.Primary"
+                                   StartIcon="@Icons.Material.Filled.ManageSearch"
+                                   Href="@($"/search?q={Uri.EscapeDataString(_lastSearchQuery)}")">
+                            See all results
+                        </MudButton>
+                    </div>
+                }
+            </AfterItemsTemplate>
         </MudAutocomplete>
         <MudSpacer />
         <MudSwitch UserAttributes="@(new Dictionary<string, object> { ["id"] = "theme-toggle" })"
@@ -132,6 +155,10 @@
 </div>
 
 @code {
+    private IJSObjectReference? _scrollModule;
+    private string _lastSearchQuery = string.Empty;
+    private string _lastScrolledUri = string.Empty;
+
     private bool _navOpen = true;
     private bool _feedOpen = true;
     private bool _onboardingChecked;
@@ -161,6 +188,18 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (Nav.Uri != _lastScrolledUri)
+        {
+            _lastScrolledUri = Nav.Uri;
+            try
+            {
+                await ScrollToAnchor();
+            }
+            catch (JSDisconnectedException)
+            {
+            }
+        }
+
         if (!firstRender || _onboardingChecked)
         {
             return;
@@ -192,9 +231,14 @@
         }
     }
 
-    private void ToggleFeedDrawer()
+    private async Task ScrollToAnchor()
     {
-        _feedOpen = !_feedOpen;
+        var uri = new Uri(Nav.Uri);
+        var fragment = uri.Fragment.StartsWith("#") ? uri.Fragment.Substring(1) : uri.Fragment;
+        if (string.IsNullOrEmpty(fragment)) return;
+
+        _scrollModule = await JS.InvokeAsync<IJSObjectReference>("import", "./js/scroll-anchor.js");
+        await _scrollModule.InvokeVoidAsync("scrollToAnchor", fragment);
     }
 
     private void ToggleChecklistDrawer()
@@ -208,15 +252,37 @@
         StateHasChanged();
     }
 
-    private void ToggleNavDrawer()
+    private void ToggleNavDrawer() {
+         _navOpen = !_navOpen;
+    }
+
+    private Task<IEnumerable<SearchItem>> CaptureAndSearch(string value, CancellationToken token)
     {
-        _navOpen = !_navOpen;
+        _lastSearchQuery = value;
+        return SearchService.QuickSearch(value, token);
     }
 
     private void NavigateTo(SearchItem? item)
     {
-        if (item is not null)
+        if (item is null) return;
+
+        if (!string.IsNullOrEmpty(_lastSearchQuery))
+        {
+            var parts = item.PageUrl.Split('#', 2);
+            var url = parts.Length == 2
+                ? $"{parts[0]}?q={Uri.EscapeDataString(_lastSearchQuery)}#{parts[1]}"
+                : item.PageUrl;
+            Nav.NavigateTo(url);
+        }
+        else
+        {
             Nav.NavigateTo(item.PageUrl);
+        }
+    }
+
+    private void ToggleFeedDrawer()
+    {
+        _feedOpen = !_feedOpen;
     }
 
     private async Task StartOnboardingAsync()
@@ -289,6 +355,11 @@
             if (_tourInstance != null)
             {
                 await _tourInstance.DisposeAsync();
+            }
+
+            if (_scrollModule != null)
+            {
+                await _scrollModule.DisposeAsync();
             }
         } catch (JSDisconnectedException)
         {

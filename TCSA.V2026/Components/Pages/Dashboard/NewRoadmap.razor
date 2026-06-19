@@ -1,155 +1,153 @@
 @page "/newroadmap"
 @using MudBlazor
+@using TCSA.V2026.Data.DTOs
+@using TCSA.V2026.Data.Models
+@using TCSA.V2026.Helpers
 
-<h3>Roadmap</h3>
-<div class="roadmap-container">
-    @foreach (var node in Nodes)
-    {
-        <div class="roadmap-node-wrapper">
-            <MudCard Class="roadmap-node" Style="cursor:pointer;" @onclick="() => OpenNodeDialog(Nodes.IndexOf(node))">
-                <MudCardContent>
-                    <MudIcon Icon="@node.Icon" Size="Size.Large" Color="Color.Primary" />
-                </MudCardContent>
-                <MudCardActions>
-                    <MudText Typo="Typo.subtitle2">@node.Title</MudText>
-                </MudCardActions>
-            </MudCard>
-            @if (Nodes.IndexOf(node) < Nodes.Count - 1)
-            {
-                <div class="roadmap-connector"></div>
-            }
-        </div>
-    }
-</div>
+<MudContainer>
+    <div class="roadmap-grid"
+         style="grid-template-columns: repeat(@ColumnCount, 140px); grid-template-rows: repeat(@RowCount, 140px);">
 
-@if (DialogOpen && SelectedNode != null)
-{
-    <div class="modal-overlay" @onclick="CloseDialog">
-        <div class="modal-content" @onclick:stopPropagation>
-            <div class="modal-header">
-                <MudText Typo="Typo.h5">@SelectedNode.Title</MudText>
-                <MudIconButton Icon="@Icons.Material.Filled.Close" OnClick="CloseDialog" />
+        @foreach (var cell in Cells)
+        {
+            <div class="roadmap-cell"
+                 style="grid-row: @(cell.Row + 1); grid-column: @(cell.Column + 1);">
+
+                @if (cell.ConnectTop)
+                {
+                    <div class="connector connector-top"></div>
+                }
+
+                @if (cell.ConnectRight)
+                {
+                    <div class="connector connector-right"></div>
+                }
+
+                @if (cell.ConnectBottom)
+                {
+                    <div class="connector connector-bottom"></div>
+                }
+
+                @if (cell.ConnectLeft)
+                {
+                    <div class="connector connector-left"></div>
+                }
+
+                @if (!string.IsNullOrEmpty(cell.Title))
+                {
+                    <MudTooltip Text=@($"{cell.Content}")>
+                        <MudCard Class="roadmap-node">
+                            <MudCardContent Class="roadmap-node-content">
+                                <img src="@($"img/icons/{cell.Icon}")"
+                                     alt="@cell.Title"
+                                     class="roadmap-node-image" />
+                            </MudCardContent>
+                            <MudCardActions Class="roadmap-node-actions">
+                                <MudText Typo="Typo.subtitle2">@cell.Title</MudText>
+                            </MudCardActions>
+                        </MudCard>
+                    </MudTooltip>
+                }
             </div>
-            <div class="modal-body">
-                <MudText>@SelectedNode.Content</MudText>
-            </div>
-            <div class="modal-footer">
-                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="CloseDialog">Close</MudButton>
-            </div>
-        </div>
+        }
     </div>
+</MudContainer>
+
+@code {
+    List<RoadmapGridCell> Cells = new();
+
+    int RowCount => Cells.Max(c => c.Row) + 1;
+    int ColumnCount => Cells.Max(c => c.Column) + 1;
+
+    protected override void OnInitialized()
+    {
+        Cells = RoadmapHelper.GetCellsForPublicRoadmap(Area.Blazor, Area.React);
+    }
 }
 
 <style>
-.roadmap-container {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    margin: 40px 0;
-    flex-wrap: wrap;
-}
+    .roadmap-grid {
+        display: grid;
+        margin: 40px 0;
+    }
 
-.roadmap-node-wrapper {
-    display: flex;
-    align-items: center;
-}
+    .roadmap-cell {
+        position: relative;
+        width: 140px;
+        height: 140px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 
-.roadmap-node {
-    min-width: 100px;
-    min-height: 100px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    margin: 0 8px;
-    transition: box-shadow 0.3s ease, transform 0.3s ease;
-}
+    .roadmap-node {
+        width: 100px;
+        height: 100px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        transition: box-shadow 0.3s ease, transform 0.3s ease;
+        z-index: 2;
+        background: white;
+        position: relative;
+    }
 
-.roadmap-node:hover {
-    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-    transform: translateY(-2px);
-}
+    .roadmap-node-content {
+        padding: 8px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
 
-.roadmap-connector {
-    width: 60px;
-    height: 2px;
-    border-bottom: 2px dotted #1976d2;
-    margin: 0 8px;
-}
+    .roadmap-node-image {
+        width: 56px;
+        height: 56px;
+        object-fit: contain;
+    }
 
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-}
+    .roadmap-node-actions {
+        justify-content: center;
+        padding-top: 0;
+    }
 
-.modal-content {
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 32px rgba(0, 0, 0, 0.2);
-    max-width: 500px;
-    width: 90%;
-    z-index: 1001;
-}
+        .roadmap-node:hover {
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+            transform: translateY(-2px);
+        }
 
-.modal-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 24px;
-    border-bottom: 1px solid #e0e0e0;
-}
+    .connector {
+        position: absolute;
+        z-index: 1;
+        pointer-events: none;
+    }
 
-.modal-body {
-    padding: 24px;
-    max-height: 400px;
-    overflow-y: auto;
-}
+    .connector-right {
+        left: 50%;
+        top: 50%;
+        width: 50%;
+        border-top: 2px solid blue;
+    }
 
-.modal-footer {
-    display: flex;
-    justify-content: flex-end;
-    padding: 16px 24px;
-    border-top: 1px solid #e0e0e0;
-    gap: 8px;
-}
+    .connector-left {
+        right: 50%;
+        top: 50%;
+        width: 50%;
+        border-top: 2px solid blue;
+    }
+
+    .connector-bottom {
+        top: 50%;
+        left: 50%;
+        height: 50%;
+        border-left: 2px solid blue;
+    }
+
+    .connector-top {
+        bottom: 50%;
+        left: 50%;
+        height: 50%;
+        border-left: 2px solid blue;
+    }
 </style>
-
-@code {
-    public class RoadmapNode
-    {
-        public string Title { get; set; }
-        public string Icon { get; set; }
-        public string Content { get; set; }
-    }
-
-    List<RoadmapNode> Nodes = new()
-    {
-        new RoadmapNode { Title = "Start", Icon = Icons.Material.Filled.Flag, Content = "This is the starting point of your roadmap." },
-        new RoadmapNode { Title = "Learn", Icon = Icons.Material.Filled.School, Content = "Here you learn the basics." },
-        new RoadmapNode { Title = "Build", Icon = Icons.Material.Filled.Build, Content = "Now you build your first project!" }
-    };
-
-    bool DialogOpen = false;
-    RoadmapNode? SelectedNode;
-
-    void OpenNodeDialog(int index)
-    {
-        SelectedNode = Nodes[index];
-        DialogOpen = true;
-    }
-
-    void CloseDialog()
-    {
-        DialogOpen = false;
-        SelectedNode = null;
-    }
-}

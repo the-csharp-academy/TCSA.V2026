@@ -2,6 +2,7 @@ using Moq;
 using TCSA.V2026.Data.DTOs;
 using TCSA.V2026.Data.Models;
 using TCSA.V2026.Data.Models.Responses;
+using TCSA.V2026.Helpers;
 using TCSA.V2026.Services;
 using TCSA.V2026.Webhooks;
 
@@ -77,7 +78,7 @@ public class GithubServiceTests : IntegrationTestsBase
             Action = "opened",
             Repository = new Repository
             {
-                Id = 573911382
+                Id = (long)GithubRepository.MathGame
             },
             PullRequest = new PullRequest
             {
@@ -102,7 +103,7 @@ public class GithubServiceTests : IntegrationTestsBase
             Action = "opened",
             Repository = new Repository
             {
-                Id = 573911382
+                Id = (long)GithubRepository.MathGame
             },
             PullRequest = new PullRequest
             {
@@ -189,7 +190,7 @@ public class GithubServiceTests : IntegrationTestsBase
             },
             Repository = new Repository
             {
-                Id = 573911382
+                Id = (long)GithubRepository.Calculator
             },
             PullRequest = new PullRequest
             {
@@ -248,8 +249,9 @@ public class GithubServiceTests : IntegrationTestsBase
 
         var dto = new PullRequestReviewDto
         {
+            Action = "opened",
             Review = new Review { State = "approved" },
-            Repository = new Repository { Id = 573911382 },
+            Repository = new Repository { Id = (long)GithubRepository.Calculator },
             PullRequest = new PullRequest { Number = prNumber }
         };
 
