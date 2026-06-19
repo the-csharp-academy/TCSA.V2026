@@ -20,6 +20,7 @@ public class MainLayoutTests : BunitContext
 {
     private readonly Mock<IDialogService> _dialogServiceMock = new();
     private readonly Mock<IUserService> _userServiceMock = new();
+    private readonly Mock<ISearchService> _searchServiceMock = new();
 
     private const string TestUserId = "test-user-id";
 
@@ -44,6 +45,7 @@ public class MainLayoutTests : BunitContext
         Services.AddLogging();
         Services.AddMudServices();
         Services.AddSingleton(_dialogServiceMock.Object);
+        Services.AddSingleton(_searchServiceMock.Object);
 
         AddAuthorization();
     }
