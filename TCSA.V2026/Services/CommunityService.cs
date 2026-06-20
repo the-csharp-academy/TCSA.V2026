@@ -106,7 +106,7 @@ public class CommunityService(IDbContextFactory<ApplicationDbContext> _factory) 
         {
             using (var context = _factory.CreateDbContext())
             {
-                var project = context.DashboardProjects.FirstOrDefault(context => context.ProjectId == issueId);
+                var project = await context.DashboardProjects.FirstOrDefaultAsync(context => context.ProjectId == issueId);
 
                 project.GithubUrl = githubUrl;
                 project.IsPendingReview = true;
