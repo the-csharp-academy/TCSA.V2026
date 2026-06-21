@@ -1,0 +1,50 @@
+@page "/contact"
+
+<PageTitle>Contact Us - The C# Academy</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="mt-8 mb-8">
+    <MudPaper Elevation="2" Class="pa-6" Rounded="true">
+        <MudText Typo="Typo.h4" Class="mb-2">Contact Us</MudText>
+        <MudText Typo="Typo.body2" Class="mb-6">
+            Have questions, feedback, or want to contribute? We'd love to hear from you. Reach out to us through any of the channels below.
+        </MudText>
+
+        <MudDivider Class="mb-6" />
+
+        <MudStack Spacing="4">
+            <!-- Email -->
+            <div>
+                <MudText Typo="Typo.h6" Class="mb-3">Email</MudText>
+                <MudText Typo="Typo.body2" Class="mb-2">
+                    Send us an email and we'll get back to you as soon as possible. We typically respond within 2-3 business days.
+                </MudText>
+                <MudLink Href="mailto:thecsharpacademy@gmail.com" Typo="Typo.body1">
+                    support@thecsharpacademy.com
+                </MudLink>
+            </div>
+
+            <!-- Discord -->
+            <div>
+                <MudText Typo="Typo.h6" Class="mb-3">Discord Community</MudText>
+                <MudText Typo="Typo.body2" Class="mb-2">
+                    Join our Discord community to chat with other developers, get quick help, and stay updated with the latest news.
+                </MudText>
+                <MudLink Href="https://discord.com/invite/aDMDET8ywB" Target="_blank" Typo="Typo.body1">
+                    Join our Discord Server
+                </MudLink>
+            </div>
+
+            <!-- Website -->
+            <div>
+                <MudText Typo="Typo.h6" Class="mb-3">Website</MudText>
+                <MudLink Href="https://thecsharpacademy.com" Target="_blank" Typo="Typo.body1">
+                    https://thecsharpacademy.com
+                </MudLink>
+            </div>
+        </MudStack>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    // Contact page - provides contact information
+}
