@@ -1,5 +1,6 @@
 @page "/article/{ArticleId:int}/{ArticleSlug}"
 @using System.Security.Claims
+@using TCSA.V2026.Components.Ads
 @using TCSA.V2026.Data.Curriculum
 @using TCSA.V2026.Data.Models
 @using TCSA.V2026.Helpers.Constants
@@ -10,7 +11,7 @@
 <PageTitle>@Article.Title</PageTitle>
 
 <div class="article-theme">
-<MudContainer MaxWidth="MaxWidth.Large" Class="article-container">
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="article-container">
     <MudPaper Class="jumbotron d-flex align-center justify-center mt-3 article-hero" Style=@GetBanner()>
             <h1 class="mud-typography-h3 text-white mud-typography-align-center py-4 px-4 px-md-10 article-title" id="@ContentAnchors.ArticleTitleId">@Article.Title</h1>
     </MudPaper>
@@ -31,7 +32,7 @@
     }
 
     <MudGrid Class="mt-4">
-        <MudItem xs="12">
+        <MudItem xs="12" md="10">
             <MudPaper Class="d-flex flex-column mud-width-full py-1 pb-10 px-4 px-md-10 section-panel section-panel-soft article-content">
                 @for (var blockIndex = 0; blockIndex < Article.Blocks.Count; blockIndex++)
                 {
@@ -89,6 +90,13 @@
                         }
                     }
                 }
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" md="2">
+            <MudPaper Class="d-flex align-center justify-center mud-width-full py-8 mt-4">
+                <div style="width:250px; min-height:250px;">
+                    <CourseSidebarAd />
+                </div>
             </MudPaper>
         </MudItem>
     </MudGrid>

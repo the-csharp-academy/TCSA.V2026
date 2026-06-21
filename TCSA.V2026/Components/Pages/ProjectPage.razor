@@ -1,6 +1,7 @@
 @page "/project/{ProjectId:int}/{ProjectSlug}"
 @using System.Security.Claims
 @using Microsoft.Extensions.Options
+@using TCSA.V2026.Components.Ads
 @using TCSA.V2026.Components.UI
 @using TCSA.V2026.Data.Curriculum
 @using TCSA.V2026.Data.Models
@@ -17,7 +18,7 @@
 <PageTitle>@Project.Title</PageTitle>
 
 <div class="project-theme">
-<MudContainer MaxWidth="MaxWidth.Medium" Class="project-container">
+<MudContainer MaxWidth="MaxWidth.ExtraExtraLarge" Class="project-container">
     @if (IsLoading)
     {
         <div class="loading-state">
@@ -41,7 +42,7 @@
         }
 
         <MudGrid Class="mt-4">
-            <MudItem xs="12">
+            <MudItem xs="12" md="10">
                 <MudPaper Class="d-flex flex-column mud-width-full py-1 pb-10 px-4 px-md-10 section-panel section-panel-soft project-content">
                     @if (Project.Introduction != null)
                     {
@@ -318,6 +319,13 @@
                         }
                     }
 
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12" md="2">
+                <MudPaper Class="d-flex align-center justify-center mud-width-full py-8 mt-4">
+                    <div style="width:250px; min-height:250px;">
+                        <CourseSidebarAd />
+                    </div>
                 </MudPaper>
             </MudItem>
         </MudGrid>

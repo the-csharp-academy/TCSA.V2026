@@ -1,5 +1,6 @@
 @page "/course/{courseId:int}/article/{articleDisplayId:int}/{articleId:int}/{isCode:bool}"
 @using System.Security.Claims
+@using TCSA.V2026.Components.Ads
 @using TCSA.V2026.Data.Curriculum
 @using TCSA.V2026.Data.Models
 @using TCSA.V2026.Services
@@ -14,7 +15,7 @@
     }
     else
     {
-        <MudItem xs="12" md="3">
+        <MudItem xs="12" md="2">
             <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
                 <MudList T="string" Dense="true">
                     @for (int i = 0; i < Course.Articles.Count; i++)
@@ -27,7 +28,7 @@
                 </MudList>
             </MudPaper>
         </MudItem>
-        <MudItem xs="12" md="9">
+        <MudItem xs="12" md="8">
             <MudPaper Class="d-flex flex-column mud-width-full mt-3 pt-5 pb-5 px-5">
                 @if (IsLoggedIn && IsCompleted)
                 {
@@ -112,6 +113,13 @@
                 </MudGrid>
             </MudPaper>
         </MudItem>
+        <MudItem xs="12" md="2">
+    <MudPaper Class="d-flex align-center justify-center mud-width-full py-8 mt-4">
+        <div style="width:250px; min-height:250px;">
+       <CourseSidebarAd />
+    </div>
+    </MudPaper>
+</MudItem>
     }
 </MudGrid>
 
