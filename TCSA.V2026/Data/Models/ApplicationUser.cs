@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Identity;
-using System.ComponentModel.DataAnnotations;
 using TCSA.V2026.Data.Enums;
 
 namespace TCSA.V2026.Data.Models;
@@ -21,6 +20,10 @@ public class ApplicationUser : IdentityUser
     public bool HasPendingBeltNotification { get; set; }
     public bool HasUnreviewableProjectNotification { get; set; }
     public bool GithubLogin { get; set; }
+    public bool HasCompletedWelcome { get; set; }
+    public bool HasCompletedTour { get; set; }
+    public bool HasDismissedChecklist { get; set; }
+    public DateTimeOffset? OnboardingStartedDate { get; set; }
     public DateTimeOffset CreatedDate { get; set; }
     public Level Level { get; set; }
     public virtual DailyStreak DailyStreak { get; set; } = new();

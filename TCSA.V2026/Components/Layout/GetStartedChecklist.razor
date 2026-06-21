@@ -1,0 +1,61 @@
+@using TCSA.V2026.Data.DTOs
+@using TCSA.V2026.Services
+
+@inject IUserService UserService
+@inject NavigationManager Nav
+
+<div class="pa-3">
+    <MudText Typo="Typo.body1" Align="Align.Center" Style="font-weight: bold;" Class="mb-1">Getting Started</MudText>
+    <div class="d-flex justify-center my-2">
+        <MudButton Variant="Variant.Filled"
+                   Size="Size.Small"
+                   Disabled="_isDismissing"
+                   Color="Color.Primary"
+                   OnClick="DismissAsync">
+            Skip for now
+        </MudButton>
+    </div>
+
+    @foreach (var task in Tasks)
+    {
+        <MudDivider />
+        <div class="py-2 d-flex align-center gap-2">
+            <MudIcon Icon="@(task.IsCompleted ? Icons.Material.Filled.CheckCircle : Icons.Material.Outlined.RadioButtonUnchecked)"
+                     Color="@(task.IsCompleted ? Color.Success : Color.Default)"
+                     Size="Size.Small" />
+            <div style="flex: 1;">
+                <MudText Typo="Typo.body2"
+                         Style="@(task.IsCompleted ? "text-decoration: line-through; opacity: 0.6;" : "")">
+                    @task.Label
+                </MudText>
+            </div>
+            @if (!task.IsCompleted && task.NavigationUrl != null)
+            {
+                <MudIconButton Icon="@Icons.Material.Filled.ArrowForward"
+                               Size="Size.Small"
+                               Color="Color.Primary"
+                               OnClick="@(() => Nav.NavigateTo(task.NavigationUrl))"
+                               aria-label="@task.NavigationUrlLabel" />
+            }
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public List<ChecklistTaskDto> Tasks { get; set; } = new();
+    [Parameter] public string UserId { get; set; } = string.Empty;
+    [Parameter] public EventCallback OnDismissed { get; set; }
+
+    private bool _isDismissing = false;
+
+    private async Task DismissAsync()
+    {
+        _isDismissing = true;
+        if (!string.IsNullOrWhiteSpace(UserId))
+        {
+            await UserService.MarkChecklistDismissed(UserId);
+        }
+        await OnDismissed.InvokeAsync();
+        _isDismissing = false;
+    }
+}

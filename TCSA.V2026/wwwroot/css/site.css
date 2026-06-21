@@ -170,3 +170,9 @@ deep .external-email-wrap .form-floating > .form-control {
             width: 100% !important;
             min-width: 100% !important;
         }
+
+@media (max-width: 600px) {
+    .shepherd-element {
+        max-width: calc(100vw - 140px) !important;
+    }
+}
