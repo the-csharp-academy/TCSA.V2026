@@ -1,8 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using TCSA.V2026.Data;
+using TCSA.V2026.Data.DTOs;
 using TCSA.V2026.Data.Enums;
 using TCSA.V2026.Data.Models;
 using TCSA.V2026.Data.Models.Responses;
+using TCSA.V2026.Helpers;
 
 namespace TCSA.V2026.Services;
 
@@ -19,6 +21,10 @@ public interface IUserService
     Task<ApplicationUser?> GetUserByIdWithShowcaseItems(string? userid);
     Task<List<ApplicationUser>> GetRecentlyJoinedUsers(int count);
     Task<BaseResponse> AcknowledgeBeltNotification(string userId);
+    Task<OnboardingStatusDto> GetOnboardingStatus(string userId);
+    Task<BaseResponse> MarkWelcomeSeen(string userId);
+    Task<BaseResponse> MarkTourCompleted(string userId);
+    Task<BaseResponse> MarkChecklistDismissed(string userId);
 }
 
 public class UserService : IUserService
@@ -310,6 +316,82 @@ public class UserService : IUserService
         }
         catch (Exception ex)
         {
+            return new BaseResponse { Status = ResponseStatus.Fail, Message = ex.Message };
+        }
+    }
+
+    public async Task<OnboardingStatusDto> GetOnboardingStatus(string userId)
+    {
+        try
+        {
+            using (var context = _factory.CreateDbContext())
+            {
+                var user = await context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == userId);
+                if (user == null || user.OnboardingStartedDate == null)
+                {
+                    return new OnboardingStatusDto();
+                }
+
+                return new OnboardingStatusDto
+                {
+                    ShowWelcome = !user.HasCompletedWelcome,
+                    ShowTour = !user.HasCompletedTour,
+                    ShowChecklist = !user.HasDismissedChecklist,
+                    Tasks = !user.HasDismissedChecklist ? ChecklistHelper.BuildProfileTasks(user) : new()
+                };
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to retrieve onboarding status for userId: {UserId}", userId);
+            return new OnboardingStatusDto();
+        }
+    }
+
+    public Task<BaseResponse> MarkWelcomeSeen(string userId)
+    {
+        return UpdateOnboardingFlag(userId, user =>
+        {
+            user.HasCompletedWelcome = true;
+        });
+    }
+
+    public Task<BaseResponse> MarkTourCompleted(string userId)
+    {
+        return UpdateOnboardingFlag(userId, user =>
+        {
+            user.HasCompletedTour = true;
+        });
+    }
+
+    public Task<BaseResponse> MarkChecklistDismissed(string userId)
+    {
+        return UpdateOnboardingFlag(userId, user =>
+        {
+            user.HasDismissedChecklist = true;
+        });
+    }
+    private async Task<BaseResponse> UpdateOnboardingFlag(string userId, Action<ApplicationUser> applyUpdate)
+    {
+        try
+        {
+            using (var context = _factory.CreateDbContext())
+            {
+                var user = await context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+                if (user == null)
+                {
+                    return new BaseResponse { Status = ResponseStatus.Fail, Message = "User not found." };
+                }
+
+                applyUpdate(user);
+                await context.SaveChangesAsync();
+            }
+
+            return new BaseResponse { Status = ResponseStatus.Success };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to update onboarding flags for userId: {UserId}", userId);
             return new BaseResponse { Status = ResponseStatus.Fail, Message = ex.Message };
         }
     }

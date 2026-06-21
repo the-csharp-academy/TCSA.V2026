@@ -1,4 +1,6 @@
 @using Microsoft.Extensions.Options
+@using System.Security.Claims
+@using TCSA.V2026.Components.UI
 @using TCSA.V2026.Data.DTOs
 @using TCSA.V2026.Data.Models.Options
 @using TCSA.V2026.Services
@@ -7,6 +9,10 @@
 @inject IHttpContextAccessor HttpContextAccessor
 @inject IJSRuntime JS
 @inject NavigationManager Nav
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IUserService UserService
+@inject IDialogService DialogService
+@inject ILogger<MainLayout> Logger
 @inject ISearchService SearchService
 @implements IAsyncDisposable
 
@@ -78,10 +84,18 @@
     <MudDrawer id="nav-drawer" @bind-Open="_navOpen" Variant="DrawerVariant.Responsive" ClipMode="DrawerClipMode.Always" Elevation="2">
         <NavMenu />
     </MudDrawer>
-    @if (string.IsNullOrEmpty(Nav.ToBaseRelativePath(Nav.Uri)))
+    @if (string.IsNullOrEmpty(Nav.ToBaseRelativePath(Nav.Uri)) && !_showChecklist)
     {
         <MudDrawer id="feed-drawer" Variant="DrawerVariant.Responsive" @bind-Open="_feedOpen" Anchor="Anchor.Right" ClipMode="DrawerClipMode.Always" Elevation="2">
             <CommunityFeedWidget />
+        </MudDrawer>
+    }
+    @if (_showChecklist && !string.IsNullOrEmpty(UserId))
+    {
+        <MudDrawer id="checklist-drawer" Variant="DrawerVariant.Responsive" @bind-Open="_checklistOpen" Anchor="Anchor.Right" ClipMode="DrawerClipMode.Always" Elevation="2">
+            <GetStartedChecklist Tasks="_checklistTasks"
+                                 UserId="@UserId"
+                                 OnDismissed="HandleChecklistDismissed" />
         </MudDrawer>
     }
     <MudMainContent Class="pt-16">
@@ -89,7 +103,7 @@
     </MudMainContent>
 </MudLayout>
 
-@if (string.IsNullOrEmpty(Nav.ToBaseRelativePath(Nav.Uri)))
+@if (string.IsNullOrEmpty(Nav.ToBaseRelativePath(Nav.Uri)) && !_showChecklist)
 {
     <MudHidden Breakpoint="Breakpoint.SmAndDown" Invert="true">
         @if (!_navOpen)
@@ -111,6 +125,28 @@
                 Title="@(_feedOpen ? "Close News Feed" : "Open News Feed")" />
     </MudHidden>
 }
+@if (_showChecklist && !string.IsNullOrEmpty(UserId))
+{
+    <MudHidden Breakpoint="Breakpoint.SmAndDown" Invert="true">
+        @if (!_navOpen)
+        {
+            <MudFab StartIcon="@(_checklistOpen ? Icons.Material.Filled.Close : Icons.Material.Filled.Checklist)"
+                    Color="Color.Primary"
+                    Style="position: fixed; bottom: 32px; right: 32px; z-index: 1305;"
+                    OnClick="@ToggleChecklistDrawer"
+                    aria-label="Toggle Getting Started Checklist"
+                    Title="@(_checklistOpen ? "Close Checklist" : "Open Getting Started Checklist")" />
+        }
+    </MudHidden>
+    <MudHidden Breakpoint="Breakpoint.SmAndDown">
+        <MudFab StartIcon="@(_checklistOpen ? Icons.Material.Filled.Close : Icons.Material.Filled.Checklist)"
+                Color="Color.Primary"
+                Style="position: fixed; bottom: 32px; right: 32px; z-index: 1305;"
+                OnClick="@ToggleChecklistDrawer"
+                aria-label="Toggle Getting Started Checklist"
+                Title="@(_checklistOpen ? "Close Checklist" : "Open Getting Started Checklist")" />
+    </MudHidden>
+}
 
 <div id="blazor-error-ui" data-nosnippet>
     An unhandled error has occurred.
@@ -125,27 +161,73 @@
 
     private bool _navOpen = true;
     private bool _feedOpen = true;
+    private bool _onboardingChecked;
+    private bool _showChecklist = false;
+    private bool _checklistOpen = true;
+    private List<ChecklistTaskDto> _checklistTasks = new();
+    private string UserId = string.Empty;
 
-    protected override void OnInitialized()
+    private IJSObjectReference? _onboardingModule;
+    private IJSObjectReference? _tourInstance;
+    private DotNetObjectReference<MainLayout>? _dotNetRef;
+
+    protected override async Task OnInitializedAsync()
     {
         var themeCookie = HttpContextAccessor.HttpContext?.Request.Cookies["theme"];
         if (themeCookie != null)
         {
             ThemeService.IsDarkMode = themeCookie == "dark";
-        };
+        }
+
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity?.IsAuthenticated == true)
+        {
+            UserId = authState.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
+        }
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (Nav.Uri == _lastScrolledUri) return;
-        _lastScrolledUri = Nav.Uri;
+        if (Nav.Uri != _lastScrolledUri)
+        {
+            _lastScrolledUri = Nav.Uri;
+            try
+            {
+                await ScrollToAnchor();
+            }
+            catch (JSDisconnectedException)
+            {
+            }
+        }
+
+        if (!firstRender || _onboardingChecked)
+        {
+            return;
+        }
+
         try
         {
-            await ScrollToAnchor();
-        }
-        catch (JSDisconnectedException)
-        {
+            if (string.IsNullOrWhiteSpace(UserId))
+            {
+                return;
+            }
 
+            var status = await UserService.GetOnboardingStatus(UserId);
+            _showChecklist = status.ShowChecklist;
+            _checklistTasks = status.Tasks;
+            if (status.ShowWelcome)
+            {
+                await StartOnboardingAsync();
+            }
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to start onboarding welcome dialog.");
+        }
+        finally
+        {
+            _onboardingChecked = true;
         }
     }
 
@@ -157,6 +239,21 @@
 
         _scrollModule = await JS.InvokeAsync<IJSObjectReference>("import", "./js/scroll-anchor.js");
         await _scrollModule.InvokeVoidAsync("scrollToAnchor", fragment);
+    }
+
+    private void ToggleChecklistDrawer()
+    {
+        _checklistOpen = !_checklistOpen;
+    }
+
+    private void HandleChecklistDismissed()
+    {
+        _showChecklist = false;
+        StateHasChanged();
+    }
+
+    private void ToggleNavDrawer() {
+         _navOpen = !_navOpen;
     }
 
     private Task<IEnumerable<SearchItem>> CaptureAndSearch(string value, CancellationToken token)
@@ -188,9 +285,23 @@
         _feedOpen = !_feedOpen;
     }
 
-    private void ToggleNavDrawer()
+    private async Task StartOnboardingAsync()
     {
-        _navOpen = !_navOpen;
+        var options = new DialogOptions
+        {
+            CloseOnEscapeKey = false,
+            BackdropClick = false,
+            NoHeader = true
+        };
+        var parameters = new DialogParameters<TCSAWelcomeDialog>
+        {
+            { p => p.UserId, UserId },
+        };
+
+        var dialog = await DialogService.ShowAsync<TCSAWelcomeDialog>(null, parameters, options);
+        var dialogResult = await dialog.Result;
+
+        if (!dialogResult.Canceled) await StartTour();
     }
 
     private async Task ToggleTheme()
@@ -200,10 +311,52 @@
         await JS.InvokeVoidAsync("setCookie", "theme", ThemeService.IsDarkMode ? "dark" : "light", 365);   
     }
 
+    private async Task StartTour()
+    {
+        try
+        {
+            if (_tourInstance != null)
+            {
+                await _tourInstance.DisposeAsync();
+            }
+            _onboardingModule ??= await JS.InvokeAsync<IJSObjectReference>("import", "./js/onboarding-tour.js");
+            _tourInstance = await _onboardingModule.InvokeAsync<IJSObjectReference>("initOnboarding");
+            _dotNetRef = DotNetObjectReference.Create(this);
+
+            await _tourInstance.InvokeVoidAsync("startTour", _dotNetRef);
+        } catch (JSDisconnectedException)
+        {
+
+        }
+    }
+
+    [JSInvokable]
+    public async Task OpenNavDrawer()
+    {
+        _navOpen = true;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    [JSInvokable]
+    public async Task CompleteTour()
+    {
+        await UserService.MarkTourCompleted(UserId);
+    }
+
     async ValueTask IAsyncDisposable.DisposeAsync()
     {
         try
         {
+            if (_onboardingModule != null)
+            {
+                await _onboardingModule.DisposeAsync();
+            }
+
+            if (_tourInstance != null)
+            {
+                await _tourInstance.DisposeAsync();
+            }
+
             if (_scrollModule != null)
             {
                 await _scrollModule.DisposeAsync();
@@ -212,6 +365,8 @@
         {
             
         }
+
+        _dotNetRef?.Dispose();
     }
 
     MudTheme MyCustomTheme = new MudTheme()

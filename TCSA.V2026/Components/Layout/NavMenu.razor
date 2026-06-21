@@ -7,79 +7,91 @@
 <div style="display: flex; flex-direction: column; height: 100%;">
 <MudNavMenu Dense="true">
     <MudNavLink Href="" IconColor="Color.Primary" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Home</MudNavLink>
-    <MudNavLink Href="Gallery" IconColor="Color.Primary" Icon="@Icons.Material.Filled.Bento">Gallery</MudNavLink>
+        <MudNavLink Href="Gallery" IconColor="Color.Primary" Icon="@Icons.Material.Filled.Bento" UserAttributes="@(new() { ["id"] = "nav-gallery" })">Gallery</MudNavLink>
     <MudNavLink Href="Feed"
                 Match="NavLinkMatch.Prefix"
                 Icon="@Icons.Material.Filled.Feed"
+                UserAttributes="@(new() { ["id"] = "nav-community-feed" })"
                 IconColor="Color.Primary">
         Community Feed
     </MudNavLink>
     <MudNavLink Href="Articles/articles"
                 Match="NavLinkMatch.Prefix"
                 Icon="@Icons.Material.Filled.Newspaper"
+                UserAttributes="@(new() { ["id"] = "nav-articles" })"
                 IconColor="Color.Primary">
         Articles
     </MudNavLink>
     <MudNavLink Href="Articles/blog"
                 Match="NavLinkMatch.Prefix"
                 Icon="@Icons.Material.Filled.Book"
+                UserAttributes="@(new() { ["id"] = "nav-blog" })"
                 IconColor="Color.Primary">
         Blog
     </MudNavLink>
     <AuthorizeView>
         <Authorized>
-            <MudNavGroup Title="Dashboard" Icon="@Icons.Material.Filled.Dashboard" IconColor="Color.Primary">
+                <MudNavGroup Title="Dashboard" Icon="@Icons.Material.Filled.Dashboard" IconColor="Color.Primary" UserAttributes="@(new() { ["id"] = "nav-dashboard-group" })">
                 <MudNavLink Href="Dashboard"
                             Match="NavLinkMatch.All"
                             Icon="@Icons.Material.Filled.GridView"
+                            UserAttributes="@(new() { ["id"] = "nav-overview" })"
                             IconColor="Color.Primary">
                     Overview
                 </MudNavLink>
                 <MudNavLink Href="Dashboard/profile"
                             Match="NavLinkMatch.Prefix"
                             Icon="@Icons.Material.Filled.VerifiedUser"
+                            UserAttributes="@(new() { ["id"] = "nav-profile" })"
                             IconColor="Color.Primary">
                     Profile
                 </MudNavLink>
                 <MudNavLink Href="Dashboard/Roadmap"
                             Match="NavLinkMatch.Prefix"
                             Icon="@Icons.Material.Filled.Map"
+                            UserAttributes="@(new() { ["id"] = "nav-roadmap" })"
                             IconColor="Color.Primary">
                     Roadmap
                 </MudNavLink>
                 <MudNavLink Href="Dashboard/Leaderboard"
                             Match="NavLinkMatch.Prefix"
                             Icon="@Icons.Material.Filled.Leaderboard"
+                            UserAttributes="@(new() { ["id"] = "nav-leaderboard" })"
                             IconColor="Color.Primary">
                     Leaderboard
                 </MudNavLink>
                 <MudNavLink Href="Dashboard/Activity"
                             Match="NavLinkMatch.Prefix"
                             Icon="@Icons.Material.Filled.Hiking"
+                            UserAttributes="@(new() { ["id"] = "nav-activity" })"
                             IconColor="Color.Primary">
                     Activity
                 </MudNavLink>
                 <MudNavLink Href="Dashboard/Community"
                             Match="NavLinkMatch.Prefix"
                             Icon="@Icons.Material.Filled.Groups"
+                            UserAttributes="@(new() { ["id"] = "nav-community" })"
                             IconColor="Color.Primary">
                     Community
                 </MudNavLink>
                 <MudNavLink Href="Dashboard/Reviews"
                             Match="NavLinkMatch.Prefix"
                             Icon="@Icons.Material.Filled.RateReview"
+                            UserAttributes="@(new() { ["id"] = "nav-peer-reviews" })"
                             IconColor="Color.Primary">
                     Peer Reviews
                 </MudNavLink>
                 <MudNavLink Href="Dashboard/Courses"
                             Match="NavLinkMatch.Prefix"
                             Icon="@Icons.Material.Filled.LibraryBooks"
+                            UserAttributes="@(new() { ["id"] = "nav-courses" })"
                             IconColor="Color.Primary">
                     Courses
                 </MudNavLink>
                 <MudNavLink Href="Dashboard/Challenges"
                             Match="NavLinkMatch.Prefix"
                             Icon="@Icons.Material.Filled.Sports"
+                            UserAttributes="@(new() { ["id"] = "nav-challenges" })"
                             IconColor="Color.Primary">
                     Challenges
                 </MudNavLink>
@@ -94,6 +106,7 @@
                         Match="NavLinkMatch.Prefix"
                         Target="_blank"
                         Icon="@Icons.Material.Filled.School"
+                        UserAttributes="@(new() { ["id"] = "nav-vip" })"
                         IconColor="Color.Primary">
                 VIP Membership
             </MudNavLink>
@@ -113,6 +126,7 @@
                         Match="NavLinkMatch.Prefix"
                         Target="_blank"
                         Icon="@Icons.Material.Filled.Coffee"
+                            UserAttributes="@(new() { ["id"] = "nav-coffee" })"
                         IconColor="Color.Primary">
                 Buy Us A Coffee
             </MudNavLink>
