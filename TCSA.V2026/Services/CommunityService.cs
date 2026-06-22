@@ -31,8 +31,8 @@ public class CommunityService(IDbContextFactory<ApplicationDbContext> _factory) 
         {
             using (var context = _factory.CreateDbContext())
             {
-                var lastIssue = await context.Issues.OrderBy(x => x.ProjectId).LastOrDefaultAsync();
-                int nextProjectId = lastIssue != null ? lastIssue.ProjectId + 1 : 1;
+                var lastIssue = await context.Issues.OrderByDescending(x => x.ProjectId).Select(x => x.ProjectId).FirstOrDefaultAsync();
+                int nextProjectId = lastIssue != 0 ? lastIssue + 1 : 1;
 
                 var existingIssue = await context.Issues.FirstOrDefaultAsync(i => i.GithubUrl == issueUrl);
 
@@ -106,7 +106,7 @@ public class CommunityService(IDbContextFactory<ApplicationDbContext> _factory) 
         {
             using (var context = _factory.CreateDbContext())
             {
-                var project = context.DashboardProjects.FirstOrDefault(context => context.ProjectId == issueId);
+                var project = await context.DashboardProjects.FirstOrDefaultAsync(context => context.ProjectId == issueId);
 
                 project.GithubUrl = githubUrl;
                 project.IsPendingReview = true;
