@@ -48,6 +48,14 @@
 
     private bool _isDismissing = false;
 
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Tasks.Count > 0 && Tasks.All(t => t.IsCompleted))
+        {
+            await DismissAsync();
+        }
+    }
+
     private async Task DismissAsync()
     {
         _isDismissing = true;
