@@ -6,7 +6,14 @@ public class OnboardingStateService
 
     public async Task NotifyChangedAsync()
     {
-        if (OnChange != null)
-            await OnChange.Invoke();
+        if (OnChange == null) return;
+
+        foreach (var handler in OnChange.GetInvocationList())
+        {
+            if (handler is Func<Task> asyncHandler)
+            {
+                await asyncHandler.Invoke();
+            }
+        }
     }
 }
