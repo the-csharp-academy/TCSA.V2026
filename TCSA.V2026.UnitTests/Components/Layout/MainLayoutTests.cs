@@ -46,6 +46,7 @@ public class MainLayoutTests : BunitContext
         Services.AddMudServices();
         Services.AddSingleton(_dialogServiceMock.Object);
         Services.AddSingleton(_searchServiceMock.Object);
+        Services.AddScoped<OnboardingStateService>();
 
         AddAuthorization();
     }
@@ -193,5 +194,65 @@ public class MainLayoutTests : BunitContext
                     i.Arguments.Count > 0 &&
                     i.Arguments[0]?.ToString() == "./js/onboarding-tour.js"),
                 Is.True));
+    }
+
+    [Test]
+    public async Task OnboardingStateNotification_WithShowWelcome_ShowsWelcomeDialog()
+    {
+        // Arrange
+        _userServiceMock
+            .Setup(s => s.GetOnboardingStatus(TestUserId))
+            .ReturnsAsync(new OnboardingStatusDto { ShowWelcome = false });
+
+        SetupDialogMock(canceled: true);
+        AuthorizeAs(TestUserId);
+        var cut = RenderMainLayout();
+
+        cut.WaitForAssertion(() =>
+            _userServiceMock.Verify(s => s.GetOnboardingStatus(TestUserId), Times.Once));
+
+        // Act
+        _userServiceMock
+            .Setup(s => s.GetOnboardingStatus(TestUserId))
+            .ReturnsAsync(new OnboardingStatusDto { ShowWelcome = true });
+
+        var onboardingState = Services.GetRequiredService<OnboardingStateService>();
+        await cut.InvokeAsync(() => onboardingState.NotifyChangedAsync());
+
+        // Assert
+        cut.WaitForAssertion(() =>
+            _dialogServiceMock.Verify(
+                s => s.ShowAsync<TCSAWelcomeDialog>(
+                    null,
+                    It.IsAny<DialogParameters<TCSAWelcomeDialog>>(),
+                    It.IsAny<DialogOptions>()),
+                Times.Once));
+    }
+
+    [Test]
+    public async Task OnboardingStateNotification_WithShowChecklist_ShowsChecklistComponent()
+    {
+        // Arrange
+        _userServiceMock
+            .Setup(s => s.GetOnboardingStatus(TestUserId))
+            .ReturnsAsync(new OnboardingStatusDto { ShowChecklist = false });
+
+        AuthorizeAs(TestUserId);
+        var cut = RenderMainLayout();
+
+        cut.WaitForAssertion(() =>
+            _userServiceMock.Verify(s => s.GetOnboardingStatus(TestUserId), Times.Once));
+
+        // Act
+        _userServiceMock
+            .Setup(s => s.GetOnboardingStatus(TestUserId))
+            .ReturnsAsync(new OnboardingStatusDto { ShowChecklist = true, Tasks = [] });
+
+        var onboardingState = Services.GetRequiredService<OnboardingStateService>();
+        await cut.InvokeAsync(() => onboardingState.NotifyChangedAsync());
+
+        // Assert
+        cut.WaitForAssertion(() =>
+            Assert.That(cut.FindComponents<GetStartedChecklist>(), Is.Not.Empty));
     }
 }
