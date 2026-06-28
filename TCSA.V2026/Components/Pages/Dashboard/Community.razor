@@ -2,6 +2,7 @@
 @using Microsoft.AspNetCore.Authorization
 @using System.Security.Claims
 @using TCSA.V2026.Data.Curriculum
+@using TCSA.V2026.Data.Enums
 @using TCSA.V2026.Data.Models
 @using TCSA.V2026.Data.Models.Responses
 @using TCSA.V2026.Components.UI
@@ -74,7 +75,7 @@
                                     Size="@Size.Small"
                                     Variant="@Variant.Filled" Color="@Color.Primary"
                                     Disabled="@_isProcessing"
-                                    OnClick="@(() => SubmitToReviewDialog(context.Item.ProjectId))"
+                                    OnClick="@(() => SubmitToReviewDialog(context.Item))"
                                     EndIcon="@Icons.Material.Filled.Send">
                                         Submit PR
                                     </MudButton>
@@ -127,15 +128,20 @@
         IsLoading = false;
     }
 
-    private async Task SubmitToReviewDialog(int projectId)
+    private async Task SubmitToReviewDialog(CommunityIssue issue)
     {
         _isProcessing = true;
 
         try
         {
             var options = new DialogOptions { CloseOnEscapeKey = true };
-            var parameters = new DialogParameters<TCSASubmitProjectDialog> { { x => x.ProjectId, projectId }, { x => x.IsIssue, true }, { x => x.User, User} };
-            var dialog = await DialogService.ShowAsync<TCSASubmitProjectDialog>("Submit Issue", parameters, options);
+            var parameters = new DialogParameters<TCSASubmitIssueToReviewDialog>
+            {
+                { x => x.ProjectId, issue.ProjectId },
+                { x => x.CommunityProject, (CommunityProject)issue.CommunityProjectId },
+                { x => x.CurrentGithubUrl, User.DashboardProjects.FirstOrDefault(d => d.ProjectId == issue.ProjectId)?.GithubUrl ?? string.Empty }
+            };
+            var dialog = await DialogService.ShowAsync<TCSASubmitIssueToReviewDialog>("Submit Issue", parameters, options);
             var result = await dialog.Result;
 
             if (!result.Canceled)
@@ -158,9 +164,8 @@
         try
         {
             var options = new DialogOptions { CloseOnEscapeKey = true };
-            var parameters = new DialogParameters<TCSASubmitIssueDialog>{ { x => x.UserId, UserId } };
 
-            var dialog = await DialogService.ShowAsync<TCSASubmitIssueDialog>("Submit Issue", parameters, options);
+            var dialog = await DialogService.ShowAsync<TCSASubmitIssueDialog>("Submit Issue", options);
             var result = await dialog.Result;
 
             if (!result.Canceled)
@@ -206,9 +211,8 @@
     {
         return commProjectId switch
         {
-            54 => "Point Of Sale",
-            87 => "Academy V2",
-            207 => "Academy 2026"
+            (int)CommunityProject.TCSA => "Academy 2026",
+            (int)CommunityProject.KnowTheCity => "Know The City",
         };
     }
 }
