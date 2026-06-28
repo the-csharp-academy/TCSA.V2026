@@ -25,6 +25,8 @@ public interface IUserService
     Task<BaseResponse> MarkWelcomeSeen(string userId);
     Task<BaseResponse> MarkTourCompleted(string userId);
     Task<BaseResponse> MarkChecklistDismissed(string userId);
+    Task<BaseResponse> RestartOnboarding(string userId);
+    Task<BaseResponse> ResumeChecklist(string userId);
 }
 
 public class UserService : IUserService
@@ -371,6 +373,25 @@ public class UserService : IUserService
             user.HasDismissedChecklist = true;
         });
     }
+
+    public Task<BaseResponse> RestartOnboarding(string userId)
+    {
+        return UpdateOnboardingFlag(userId, user =>
+        {
+            user.HasCompletedWelcome = false;
+            user.HasCompletedTour = false;
+            user.OnboardingStartedDate = DateTime.UtcNow;
+        });
+    }
+
+    public Task<BaseResponse> ResumeChecklist(string userId)
+    {
+        return UpdateOnboardingFlag(userId, user =>
+        {
+            user.HasDismissedChecklist = false;
+        });
+    }
+
     private async Task<BaseResponse> UpdateOnboardingFlag(string userId, Action<ApplicationUser> applyUpdate)
     {
         try

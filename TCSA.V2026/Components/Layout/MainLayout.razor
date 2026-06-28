@@ -14,6 +14,7 @@
 @inject IDialogService DialogService
 @inject ILogger<MainLayout> Logger
 @inject ISearchService SearchService
+@inject OnboardingStateService OnboardingState
 @implements IAsyncDisposable
 
 <MudThemeProvider Theme="MyCustomTheme" @bind-IsDarkMode="@ThemeService.IsDarkMode" />
@@ -184,6 +185,8 @@
         {
             UserId = authState.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
         }
+
+        OnboardingState.OnChange += SyncOnboardingStateAsync;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -207,19 +210,7 @@
 
         try
         {
-            if (string.IsNullOrWhiteSpace(UserId))
-            {
-                return;
-            }
-
-            var status = await UserService.GetOnboardingStatus(UserId);
-            _showChecklist = status.ShowChecklist;
-            _checklistTasks = status.Tasks;
-            if (status.ShowWelcome)
-            {
-                await StartOnboardingAsync();
-            }
-            await InvokeAsync(StateHasChanged);
+            await SyncOnboardingStateAsync();
         }
         catch (Exception ex)
         {
@@ -343,8 +334,26 @@
         await UserService.MarkTourCompleted(UserId);
     }
 
+    private async Task SyncOnboardingStateAsync()
+    {
+        if (string.IsNullOrWhiteSpace(UserId)) return;
+
+        var status = await UserService.GetOnboardingStatus(UserId);
+        _showChecklist = status.ShowChecklist;
+        _checklistTasks = status.Tasks;
+
+        if (status.ShowWelcome)
+        {
+            await StartOnboardingAsync();
+        }
+
+        await InvokeAsync(StateHasChanged);
+    }
+
     async ValueTask IAsyncDisposable.DisposeAsync()
     {
+        OnboardingState.OnChange -= SyncOnboardingStateAsync;
+
         try
         {
             if (_onboardingModule != null)
