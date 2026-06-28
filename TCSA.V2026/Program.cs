@@ -88,6 +88,7 @@ builder.Services.AddControllers();
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ThemeService>();
+builder.Services.AddScoped<OnboardingStateService>();
 
 builder.Services.AddDiscordGateway(options =>
 {
