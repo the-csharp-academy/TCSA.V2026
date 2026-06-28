@@ -18,7 +18,7 @@
 <PageTitle>@Project.Title</PageTitle>
 
 <div class="project-theme">
-<MudContainer MaxWidth="MaxWidth.ExtraExtraLarge" Class="project-container">
+<MudContainer MaxWidth="MaxWidth.Large" Class="project-container">
     @if (IsLoading)
     {
         <div class="loading-state">
@@ -42,7 +42,7 @@
         }
 
         <MudGrid Class="mt-4">
-            <MudItem xs="12" md="10">
+            <MudItem xs="12">
                 <MudPaper Class="d-flex flex-column mud-width-full py-1 pb-10 px-4 px-md-10 section-panel section-panel-soft project-content">
                     @if (Project.Introduction != null)
                     {
@@ -321,13 +321,13 @@
 
                 </MudPaper>
             </MudItem>
-            <MudItem xs="12" md="2">
+           @*  <MudItem xs="12" md="2">
                 <MudPaper Class="d-flex align-center justify-center mud-width-full py-8 mt-4">
                     <div style="width:250px; min-height:250px;">
                         <CourseSidebarAd />
                     </div>
                 </MudPaper>
-            </MudItem>
+            </MudItem> *@
         </MudGrid>
     }
 </MudContainer>
