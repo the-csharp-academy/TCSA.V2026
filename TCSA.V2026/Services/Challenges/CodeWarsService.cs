@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Net;
 using System.Text.Json;
 using TCSA.V2026.Data;
-using TCSA.V2026.Data.DTOs;
+using TCSA.V2026.Data.DTOs.Challenges;
 using TCSA.V2026.Data.Helpers.ProjectsSubHelpers;
 using TCSA.V2026.Data.Models;
 using TCSA.V2026.Data.Models.Responses;

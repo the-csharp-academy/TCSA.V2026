@@ -12,7 +12,6 @@ public interface IUserService
 {
     Task<ApplicationUser> GetUserById(string userId);
     Task<ApplicationUser> GetUserForDashboard(string userId);
-    Task<ApplicationUser> GetUserChallengeDetails(string userId);
     Task<ApplicationUser> GetDetailedUserById(string userId);
     Task<ApplicationUser> GetUserProfileById(string userId);
     Task<BaseResponse> SaveProfile(ApplicationUser user);
@@ -252,30 +251,6 @@ public class UserService : IUserService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to retrieve GetUserByIdWithShowcaseItems {UserId}", userId);
-            return null;
-        }
-    }
-
-    public async Task<ApplicationUser> GetUserChallengeDetails(string userId)
-    {
-        try
-        {
-            using (var context = _factory.CreateDbContext())
-            {
-                var user =
-                await context.AspNetUsers
-                .AsNoTracking()
-                .Include(x => x.UserChallenges)
-                    .ThenInclude(x => x.Challenge)
-                .AsSplitQuery()
-                .FirstOrDefaultAsync(x => x.Id.Equals(userId));
-
-                return user;
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to retrieve GetUserChallengeDetails {UserId}", userId);
             return null;
         }
     }

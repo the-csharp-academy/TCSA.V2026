@@ -1,4 +1,4 @@
-using TCSA.V2026.Data.DTOs;
+using TCSA.V2026.Data.DTOs.Challenges;
 using TCSA.V2026.Data.Models.Responses;
 
 namespace TCSA.V2026.Services.Challenges;
