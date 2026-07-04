@@ -17,7 +17,10 @@
     <meta name="twitter:image" content="https://thecsharpacademy.com/img/logo.png" />
 
     <!-- Google AdSense Verification -->
-    <meta name="google-adsense-account" content="ca-pub-4831088216810061">
+    @if (!IsAuthPage)
+    {
+        <meta name="google-adsense-account" content="ca-pub-4831088216810061">
+    }
 
    
     <!-- Canonical URL -->
@@ -74,14 +77,27 @@
 @code {
     [CascadingParameter]
     private HttpContext HttpContext { get; set; } = default!;
-    private IComponentRenderMode? RenderModeForPage => HttpContext.Request.Path switch
+
+    private bool IsAuthPage;
+
+    protected override void OnInitialized()
     {
-        var path when path.StartsWithSegments("/Account/Login", StringComparison.InvariantCultureIgnoreCase) => null,
-        var path when path.StartsWithSegments("/Account/Register", StringComparison.InvariantCultureIgnoreCase) => null,
-        var path when path.StartsWithSegments("/Account/LoginWith2fa", StringComparison.InvariantCultureIgnoreCase) => null,
-        var path when path.StartsWithSegments("/Account/LoginWithRecoveryCode", StringComparison.InvariantCultureIgnoreCase) => null,
-        var path when path.StartsWithSegments("/Account/ExternalLogin", StringComparison.InvariantCultureIgnoreCase) => null,
-        var path when path.StartsWithSegments("/Account/SignOut", StringComparison.InvariantCultureIgnoreCase) => null,
-        _ => new InteractiveServerRenderMode(prerender: false)
-    };
+        // Safe to read HttpContext here during the initial HTTP request
+        if (HttpContext is not null)
+        {
+            var path = HttpContext.Request.Path;
+            
+            IsAuthPage = path.StartsWithSegments("/Account/Login", StringComparison.InvariantCultureIgnoreCase) ||
+                          path.StartsWithSegments("/Account/Register", StringComparison.InvariantCultureIgnoreCase) ||
+                          path.StartsWithSegments("/Account/LoginWith2fa", StringComparison.InvariantCultureIgnoreCase) ||
+                          path.StartsWithSegments("/Account/LoginWithRecoveryCode", StringComparison.InvariantCultureIgnoreCase) ||
+                          path.StartsWithSegments("/Account/ExternalLogin", StringComparison.InvariantCultureIgnoreCase) ||
+                          path.StartsWithSegments("/Account/SignOut", StringComparison.InvariantCultureIgnoreCase);
+        }
+    }
+
+    // Now this property safely reads a stable boolean variable and won't crash your live SignalR circuits
+    private IComponentRenderMode? RenderModeForPage => IsAuthPage
+        ? null
+        : new InteractiveServerRenderMode(prerender: false);
 }
