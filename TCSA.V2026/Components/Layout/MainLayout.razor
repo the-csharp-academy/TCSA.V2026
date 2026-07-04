@@ -15,6 +15,7 @@
 @inject ILogger<MainLayout> Logger
 @inject ISearchService SearchService
 @inject OnboardingStateService OnboardingState
+@inject IOptions<LinksOptions> LinkOptions
 @implements IAsyncDisposable
 
 <MudThemeProvider Theme="MyCustomTheme" @bind-IsDarkMode="@ThemeService.IsDarkMode" />
@@ -99,10 +100,59 @@
                                  OnDismissed="HandleChecklistDismissed" />
         </MudDrawer>
     }
-    <MudMainContent Class="pt-16">
+    <MudMainContent Class="pt-16 pb-16">
         @Body
     </MudMainContent>
 </MudLayout>
+
+<!-- Fixed Footer Bar -->
+<div style="position: fixed; bottom: 0; left: 0; right: 0; background-color: var(--mud-palette-background); border-top: 1px solid var(--mud-palette-divider); z-index: 10000; padding: 12px 16px;">
+    <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Spacing="2">
+        <MudStack Row="true" Spacing="1">
+            <MudLink Href="about" Underline="Underline.None" Class="d-flex align-center" Style="padding: 8px 12px;">
+                <MudIcon Icon="@Icons.Material.Filled.Info" Size="Size.Small" Class="mr-2" />
+                <MudText Typo="Typo.body2">About</MudText>
+            </MudLink>
+            <MudLink Href="contact" Underline="Underline.None" Class="d-flex align-center" Style="padding: 8px 12px;">
+                <MudIcon Icon="@Icons.Material.Filled.Mail" Size="Size.Small" Class="mr-2" />
+                <MudText Typo="Typo.body2">Contact</MudText>
+            </MudLink>
+            <MudLink Href="privacy" Underline="Underline.None" Class="d-flex align-center" Style="padding: 8px 12px;">
+                <MudIcon Icon="@Icons.Material.Filled.Security" Size="Size.Small" Class="mr-2" />
+                <MudText Typo="Typo.body2">Privacy</MudText>
+            </MudLink>
+        </MudStack>
+        <MudStack Row="true" Justify="Justify.Center" Spacing="1">
+            <MudLink Color="Color.Primary"
+                     Href="@LinkOptions.Value.Discord"
+                     Target="_blank"
+                     Class="mud-icon-button mud-button-root"
+                     UserAttributes="@(new() { ["aria-label"] = "Discord", ["rel"] = "noopener noreferrer" })"
+                     Style="padding: 4px;">
+                <MudIcon Icon=@Icons.Custom.Brands.Discord Size="Size.Small"
+                         UserAttributes="@(new() { ["aria-hidden"] = "true" })" />
+            </MudLink>
+            <MudLink Color="Color.Primary"
+                     Href="@LinkOptions.Value.Youtube"
+                     Target="_blank"
+                     Class="mud-icon-button mud-button-root"
+                     UserAttributes="@(new() { ["aria-label"] = "YouTube", ["rel"] = "noopener noreferrer" })"
+                     Style="padding: 4px;">
+                <MudIcon Icon=@Icons.Custom.Brands.YouTube Size="Size.Small"
+                         UserAttributes="@(new() { ["aria-hidden"] = "true" })" />
+            </MudLink>
+            <MudLink Color="Color.Primary"
+                     Href="@LinkOptions.Value.Linkedin"
+                     Target="_blank"
+                     Class="mud-icon-button mud-button-root"
+                     UserAttributes="@(new() { ["aria-label"] = "LinkedIn", ["rel"] = "noopener noreferrer" })"
+                     Style="padding: 4px;">
+                <MudIcon Icon=@Icons.Custom.Brands.LinkedIn Size="Size.Small"
+                         UserAttributes="@(new() { ["aria-hidden"] = "true" })" />
+            </MudLink>
+        </MudStack>
+    </MudStack>
+</div>
 
 @if (string.IsNullOrEmpty(Nav.ToBaseRelativePath(Nav.Uri)) && !_showChecklist)
 {
