@@ -884,12 +884,12 @@ public class ConsoleProjectsHelper
                 },
                 Requirements = new List<string>
                 {
-                    "In this project, you'll create tests for the Coding Tracker App, the second project in the course.",
-                    "You'll need to create a CodingTracker.Tests project, parallel to your coding tracker and reference it in your csproj file",
-                    "You'll need to create <b>unit tests</b> for the validation methods, making sure the app correctly prevents the user from giving incorrect inputs.",
-                    "You'll need to create <b>integration tests</b> to all methods that interact with your database, making sure the data is retrieved or persisted correctly.",
+                    "In this project, you'll create tests for the PhoneBook App, the second project in the course.",
+                    "You'll need to create a PhoneBook.UnitTests project and a PhoneBook.IntegrationTests project, all under the same solution as the Phonebook app.",
+                    "Your unit tests should test <b>at least</b> the input validation methods, making sure the app correctly prevents the user from inserting incorrect data.",
+                    "Your integration tests cannot use InMemoryDatabase, as it doesn't mimick the behavior of a SQL database correctly. If your project uses SQL Server, using SQLite for the tests is still acceptable",
                     "You can user whatever testing library you want. The most popular are NUnit and Xunit.",
-                    "You should test both correct and incorrect inputs"
+                    "You should test both correct and incorrect inputs."
                 },
                 ResourcesIntro = "Here are a few resources that might be helpful.",
                 Resources = new List<string>
@@ -908,7 +908,7 @@ public class ConsoleProjectsHelper
                 },
                 Challenges = new List<string>
                 {
-                    "From now on you'll be required to write tests in many projects. To get a bit more practice before moving on, try going back and writing tests for more apps. The Phonebook, the Shifts Logger and the Document Processor could be significantly enhanced with a good testing suite."
+                    "From now on you'll be required to write tests in many projects. To get a bit more practice before moving on, try going back and writing tests for more apps. The Shifts Logger and the Document Processor could be significantly enhanced with a good testing suite."
                 }
             },
         };
