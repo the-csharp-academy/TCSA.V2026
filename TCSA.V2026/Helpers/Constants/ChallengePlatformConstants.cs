@@ -25,6 +25,22 @@ public static class ChallengePlatformConstants
                     }
                 }
                 """;
+
+            public const string GetDailyChallenge = """
+                query getDailyProblem {
+                    activeDailyCodingChallengeQuestion {
+                        date
+                        question {
+                            title
+                            titleSlug
+                            difficulty
+                            isPaidOnly
+                            content
+                            topicTags { name slug }
+                        }
+                    }
+                }
+                """;
         }
     }
 }
