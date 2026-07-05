@@ -85,6 +85,10 @@ html, body {
     color: white !important;
 }
 
+.appbar-search {
+    max-width: 320px;
+}
+
 .appbar-search .mud-input-slot {
     color: white !important;
 }
