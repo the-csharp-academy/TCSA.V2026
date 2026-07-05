@@ -2,6 +2,7 @@
 @using Microsoft.AspNetCore.Authorization
 @using System.Security.Claims
 @using TCSA.V2026.Data.DTOs
+@using TCSA.V2026.Data.DTOs.Challenges
 @using TCSA.V2026.Data.Enums
 @using TCSA.V2026.Data.Models
 @using TCSA.V2026.Data.Models.Responses
@@ -25,7 +26,7 @@
                 <MudText Typo="Typo.subtitle1" Style="font-weight: bold; color: white;">COMPLETED</MudText>
             </MudStack>
             <MudStack Spacing="0" AlignItems="AlignItems.Center" Class="px-4 px-md-5">
-                <MudText Style="font-size: 2.5rem; font-weight: bolder;">@CompletedChallenges.Count</MudText>
+                <MudText Style="font-size: 2.5rem; font-weight: bolder;">@ChallengeStatistics?.CompletedChallenges</MudText>
                 <MudText Style="font-size: 1.25rem;">Challenges</MudText>
             </MudStack>
         </MudPaper>
@@ -35,9 +36,9 @@
                 <MudText Typo="Typo.subtitle1" Style="font-weight: bold; color: white;">STREAK</MudText>
             </MudStack>
             <MudStack Spacing="0" AlignItems="AlignItems.Center" Class="px-4 px-md-5">
-                <MudText Style="font-size: 2.5rem; font-weight: bolder;">@UserStreak.CurrentStreak</MudText>
+                <MudText Style="font-size: 2.5rem; font-weight: bolder;">@ChallengeStatistics?.DailyStreakDetails.CurrentStreak</MudText>
                 <MudText Style="font-size: 1.25rem;">Days</MudText>
-                <MudText Typo="Typo.caption">Best: @UserStreak.LongestStreak days</MudText>
+                <MudText Typo="Typo.caption">Best: @ChallengeStatistics?.DailyStreakDetails.LongestStreak days</MudText>
             </MudStack>
         </MudPaper>
     </MudStack>
@@ -49,45 +50,60 @@
     else
     {
         @*  <MudText>LoadTime: @LoadTime.TotalSeconds.ToString()</MudText> *@
-        if (ChallengesList != null && ChallengesList.Count > 0)
-        {
-            <MudStack Row Class="mt-6 mb-4" Spacing="4" AlignItems="AlignItems.Center" Breakpoint="Breakpoint.Xs">                
-                <MudCheckBox @bind-Value="@ShowCompleted"
-                Label="Show Completed"
-                CheckedIcon="@Icons.Material.Outlined.CheckBox"
-                UncheckedIcon="@Icons.Material.Outlined.CheckBoxOutlineBlank" />
-                <MudStack Row Spacing="4">
-                    <MudSelect T="Level"
-                    Label="Filter by Level"
-                    Placeholder="Level"
-                    Class="flex-grow-0"
-                    MultiSelection="true"                
-                    @bind-SelectedValues="SelectedLevels">
-                        @foreach (Level item in Enum.GetValues(typeof(Level)))
+        <MudStack Row Class="mt-6 mb-4" Spacing="4" AlignItems="AlignItems.Center" Breakpoint="Breakpoint.Xs">
+            <MudCheckBox @bind-Value="@ShowCompleted"
+                         @bind-Value:after="HandleShowCompletedChanged"
+                         Label="Show Completed"
+                         CheckedIcon="@Icons.Material.Outlined.CheckBox"
+                         UncheckedIcon="@Icons.Material.Outlined.CheckBoxOutlineBlank" />
+            <MudStack Row Spacing="4">
+                <MudSelect T="Level"
+                           Label="Filter by Level"
+                           Placeholder="Level"
+                           Class="flex-grow-0"
+                           MultiSelection="true"
+                           SelectedValues="SelectedLevels"
+                           SelectedValuesChanged="@((IEnumerable<Level> values) => HandleLevelSelection(values))">
+                    @foreach (Level item in Enum.GetValues(typeof(Level)))
+                    {
+                        <MudSelectItem Value="@item">@item.ToString()</MudSelectItem>
+                    }
+                </MudSelect>
+                <MudSelect T="ChallengeCategory"
+                           Label="Filter by Category"
+                           Placeholder="Category"
+                           Class="flex-grow-0"
+                           MultiSelection="true"
+                           SelectedValues="SelectedCategories"
+                           SelectedValuesChanged="@((IEnumerable<ChallengeCategory> values) => HandleCategorySelection(values))">
+                    @foreach (ChallengeCategory item in Enum.GetValues(typeof(ChallengeCategory)))
+                    {
+                        if (item != ChallengeCategory.Unknown)
                         {
                             <MudSelectItem Value="@item">@item.ToString()</MudSelectItem>
                         }
-                    </MudSelect>
-                    <MudSelect T="ChallengeCategory"
-                    Label="Filter by Category"
-                    Placeholder="Category"
-                    Class="flex-grow-0"
-                    MultiSelection="true"
-                    @bind-SelectedValues="SelectedCategories">
-                        @foreach (ChallengeCategory item in Enum.GetValues(typeof(ChallengeCategory)))
-                        {
-                            if(item != ChallengeCategory.Unknown)
-                            {
-                                <MudSelectItem Value="@item">@item.ToString()</MudSelectItem>
-                            }
-                        }
-                    </MudSelect>
-                </MudStack>
+                    }
+                </MudSelect>
+                <MudSelect T="ChallengePlatform"
+                           Label="Filter by Platform"
+                           Placeholder="Platform"
+                           Class="flex-grow-0"
+                           MultiSelection="true"
+                           SelectedValues="SelectedPlatforms"
+                           SelectedValuesChanged="@((IEnumerable<ChallengePlatform> values) => HandlePlatformSelection(values))">
+                    @foreach (ChallengePlatform item in Enum.GetValues(typeof(ChallengePlatform)))
+                    {
+                        <MudSelectItem Value="@item">@item.ToString()</MudSelectItem>
+                    }
+                </MudSelect>
             </MudStack>
-            <MudStack Spacing="4">
-                @foreach (var challenge in PaginatedChallenges)
+        </MudStack>
+        if (PaginatedChallenges != null && PaginatedChallenges.Items.Count > 0)
+        {
+            <MudStack Spacing="4" Class="mb-4">
+                @foreach (var challenge in PaginatedChallenges.Items)
                 {
-                    <MudPaper Elevation="3" Outlined="false" Class="py-2 px-2 px-sm-5" Style="@(CompletedChallenges.Contains(challenge.Id) ? "border: 2px solid green;" : "")">
+                    <MudPaper Elevation="3" Outlined="false" Class="py-2 px-2 px-sm-5" Style="@(challenge.IsCompleted ? "border: 2px solid green;" : "")">
                         <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
                             <MudStack Row Spacing="5">
                                 <MudImage ObjectFit="ObjectFit.Contain" Width="60" Src="@($"img/belts/{challenge.Level}-belt.png")" />
@@ -113,7 +129,7 @@
                                 StartIcon="fas fa-eye">
                                     View
                                 </MudButton>
-                                @if (!CompletedChallenges.Contains(challenge.Id))
+                                @if (!challenge.IsCompleted)
                                 {
                                     <MudButton Size="@Size.Small"
                                     Variant="@Variant.Filled"
@@ -142,22 +158,27 @@
                     </MudPaper>
                 }
             </MudStack>
-            @if (Pages > 1) {
+            @if (PaginatedChallenges.TotalPages > 1) {
                 <MudBreakpointProvider OnBreakpointChanged="BreakpointChanged">
                     <MudPagination Class="mt-3 justify-center"
                     Style="width: 100%;"
-                    Count="Pages"
+                    Count="PaginatedChallenges.TotalPages"
                     Selected="CurrentPage"
-                    SelectedChanged="OnPageChanged"
+                    SelectedChanged="OnPageChangedAsync"
                     BoundaryCount="_boundaryCount"
                     Size="_paginationSize" />
                 </MudBreakpointProvider>
             }
+        } else
+        {
+            <MudText Typo="Typo.h4" Align="Align.Center">
+                No challenges match your search.
+            </MudText>
         }
     }
 </MudContainer>
 
-@code {
+    @code {
     [Inject] private NavigationManager Navigation { get; set; }
     [Inject] private AuthenticationStateProvider AuthenticationState { get; set; }
     [Inject] private IChallengeService ChallengeService { get; set; }
@@ -167,57 +188,16 @@
     [Inject] private IJSRuntime JS { get; set; }
     [Inject] private ISnackbar Snackbar { get; set; }
 
-    private List<Challenge> ChallengesList = new();
-    private DailyStreak UserStreak = new();
-    private List<int> CompletedChallenges = new();
+    private ChallengeStatistics? ChallengeStatistics;
     private ApplicationUser User { get; set; }
-    private List<Challenge> FilteredChallenges =>
-        ChallengesList.Where(c =>
-            (!_showCompleted || IsCompleted(c.Id)) &&
-            (!_selectedLevels.Any() || _selectedLevels.Contains(c.Level)) &&
-            (!_selectedCategories.Any() || _selectedCategories.Contains(c.Category))
-        )
-        .ToList();
 
-    private List<Challenge> PaginatedChallenges => FilteredChallenges
-        .Skip((CurrentPage - 1) * PagingConstants.ChallengesPageSize)
-        .Take(PagingConstants.ChallengesPageSize)
-        .ToList();
-
-    private int Pages => (int)Math.Ceiling((double)TotalFilteredChallenges / PagingConstants.ChallengesPageSize);
     private int CurrentPage = 1;
-    private int TotalFilteredChallenges => FilteredChallenges.Count;
+    private PaginatedList<ChallengeDetails>? PaginatedChallenges;
 
-    private IEnumerable<Level> _selectedLevels = new HashSet<Level>();
-    private IEnumerable<Level> SelectedLevels
-    {
-        get => _selectedLevels;
-        set
-        {
-            _selectedLevels = value;
-            CurrentPage = 1;
-        }
-    }
-    private IEnumerable<ChallengeCategory> _selectedCategories = new HashSet<ChallengeCategory>();
-    private IEnumerable<ChallengeCategory> SelectedCategories
-    {
-        get => _selectedCategories;
-        set
-        {
-            _selectedCategories = value;
-            CurrentPage = 1;
-        }
-    }
-    private bool _showCompleted = false;
-    private bool ShowCompleted
-    {
-        get => _showCompleted;
-        set
-        {
-            _showCompleted = value;
-            CurrentPage = 1;
-        }
-    }
+    private IEnumerable<Level> SelectedLevels = [];
+    private IEnumerable<ChallengeCategory> SelectedCategories = [];
+    private IEnumerable<ChallengePlatform> SelectedPlatforms = [];
+    private bool ShowCompleted = false;
 
     private HashSet<int> ProcessingChallenges = new();
     private Dictionary<int, DateTime> ChallengeCooldowns = new();
@@ -243,10 +223,9 @@
 
         var claims = authSate.User;
         UserId = claims.FindFirstValue(ClaimTypes.NameIdentifier);
-        User = await UserService.GetUserChallengeDetails(UserId);
-        ChallengesList = await ChallengeService.GetChallenges(User.Level);
-        CompletedChallenges = User.UserChallenges.Select(uc => uc.ChallengeId).ToList();
-        UserStreak = await ChallengeService.GetStreakInfo(UserId);
+        User = await UserService.GetUserProfileById(UserId);
+        await GetChallenges();
+        ChallengeStatistics = await ChallengeService.GetChallengeStatistics(UserId);
 
         LoadTime = DateTime.UtcNow - startTime;
 
@@ -285,11 +264,6 @@
         }
     }
 
-    private bool IsCompleted(int id)
-    {
-        return CompletedChallenges.Contains(id);
-    }
-
     private bool IsInCooldown(int challengeId)
     {
         return ChallengeCooldowns.TryGetValue(challengeId, out var until)
@@ -326,9 +300,8 @@
             Snackbar.Add("Sync Successful", Severity.Success);
 
             await ChallengeService.UpdateStreakInfo(UserId);
-            UserStreak = await ChallengeService.GetStreakInfo(UserId);
-            User = await UserService.GetUserChallengeDetails(UserId);
-            CompletedChallenges = User.UserChallenges.Select(uc => uc.ChallengeId).ToList();
+            ChallengeStatistics = await ChallengeService.GetChallengeStatistics(UserId);
+            await GetChallenges();
         }
         else
         {
@@ -339,9 +312,43 @@
         ProcessingChallenges.Remove(challengeId);
     }
 
-    private void OnPageChanged(int page)
+    private async Task OnPageChangedAsync(int page)
     {
         CurrentPage = page;
+        await GetChallenges();
+    }
+
+    private async Task GetChallenges()
+    {
+        PaginatedChallenges = await ChallengeService.GetPaginatedChallenges(
+           CurrentPage, UserId, User.Level, ShowCompleted, SelectedLevels, SelectedCategories, SelectedPlatforms);
+    }
+
+    private async Task HandleLevelSelection(IEnumerable<Level> values)
+    {
+        CurrentPage = 1;
+        SelectedLevels = values;
+        await GetChallenges();
+    }
+
+    private async Task HandleCategorySelection(IEnumerable<ChallengeCategory> values)
+    {
+        CurrentPage = 1;
+        SelectedCategories = values;
+        await GetChallenges();
+    }
+
+    private async Task HandleShowCompletedChanged()
+    {
+        CurrentPage = 1;
+        await GetChallenges();
+    }
+
+    private async Task HandlePlatformSelection(IEnumerable<ChallengePlatform> values)
+    {
+        CurrentPage = 1;
+        SelectedPlatforms = values;
+        await GetChallenges();
     }
 
     private void BreakpointChanged(Breakpoint breakpoint)

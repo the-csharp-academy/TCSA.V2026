@@ -1,50 +1,129 @@
-using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using TCSA.V2026.Data;
+using TCSA.V2026.Data.DTOs.Challenges;
 using TCSA.V2026.Data.Enums;
 using TCSA.V2026.Data.Models;
+using TCSA.V2026.Data.Models.Responses;
+using TCSA.V2026.Helpers.Constants;
 
 namespace TCSA.V2026.Services;
 
 public interface IChallengeService
 {
-    Task<List<Challenge>> GetChallenges(Level level);
-    Task<DailyStreak> GetStreakInfo(string userId);
+    Task<PaginatedList<ChallengeDetails>?> GetPaginatedChallenges(int pageNumber,
+        string userId,
+        Level userLevel,
+        bool showCompleted,
+        IEnumerable<Level> selectedLevels,
+        IEnumerable<ChallengeCategory> selectedCategories,
+        IEnumerable<ChallengePlatform> selectedPlatforms);
+    Task<ChallengeStatistics?> GetChallengeStatistics(string userId);
     Task UpdateStreakInfo(string userId);
 }
 
 public class ChallengeService(IDbContextFactory<ApplicationDbContext> _factory) : IChallengeService
 {
-    public async Task<List<Challenge>> GetChallenges(Level level)
+    public async Task<ChallengeStatistics?> GetChallengeStatistics(string userId)
     {
-        using (var context = _factory.CreateDbContext())
+        try
         {
-            var currentUtcDate = DateTime.UtcNow;
-            return await context.Challenges
-                .Where(c => c.ReleaseDate <= currentUtcDate && c.Level <= level + 1)
-                .OrderByDescending(c => c.ReleaseDate)
-                .ToListAsync()
-                .ConfigureAwait(false);
-        }
-    }
+            using var context = _factory.CreateDbContext();
+            var data = await context.Users
+                .Where(u => u.Id == userId)
+                .Select(u => new
+                {
+                    Streak = u.DailyStreak,
+                    ChallengeCount = u.UserChallenges.Count
+                })
+                .FirstOrDefaultAsync();
 
-    public async Task<DailyStreak> GetStreakInfo(string userId)
-    {
-        using (var context = _factory.CreateDbContext())
-        {
-            var streakInfo = await context.DailyStreaks.FirstOrDefaultAsync(s => s.AppUserId == userId);
+            if (data == null) return null;
 
-            if (streakInfo is null) return new DailyStreak();
+            var streak = data.Streak;
 
-            if (streakInfo.CurrentStreak > 0 &&
-                streakInfo.LastCompletedDate < DateTime.UtcNow.Date.AddDays(-1))
+            if (streak.CurrentStreak > 0 && streak.LastCompletedDate < DateTime.UtcNow.Date.AddDays(-1))
             {
-                streakInfo.CurrentStreak = 0;
-                context.DailyStreaks.Update(streakInfo);
+                streak.CurrentStreak = 0;
                 await context.SaveChangesAsync();
             }
 
-            return streakInfo;
+            return new ChallengeStatistics(
+                new DailyStreakDetails(streak.CurrentStreak, streak.LongestStreak, streak.LastCompletedDate),
+                data.ChallengeCount
+            );
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+    }
+
+    public async Task<PaginatedList<ChallengeDetails>?> GetPaginatedChallenges(
+        int pageNumber,
+        string userId,
+        Level userLevel,
+        bool showCompleted,
+        IEnumerable<Level> selectedLevels,
+        IEnumerable<ChallengeCategory> selectedCategories,
+        IEnumerable<ChallengePlatform> selectedPlatforms
+    )
+    {
+        try
+        {
+            using var context = _factory.CreateDbContext();
+            var currentUtcDate = DateTime.UtcNow;
+            var query = context.Challenges
+                .Where(c => c.ReleaseDate <= currentUtcDate && c.Level <= userLevel + 1)
+                .AsNoTracking();
+
+            if (!showCompleted)
+            {
+                query = query.Where(c => !c.UserChallenges.Any(uc => uc.UserId == userId));
+            }
+
+            if (selectedLevels.Any())
+            {
+                query = query.Where(c => selectedLevels.Contains(c.Level));
+            }
+
+            if (selectedCategories.Any())
+            {
+                query = query.Where(c => selectedCategories.Contains(c.Category));
+            }
+
+            if (selectedPlatforms.Any())
+            {
+                query = query.Where(c => selectedPlatforms.Contains(c.Platform));
+            }
+
+            var totalItems = await query.CountAsync();
+
+            var items = await query
+                .OrderByDescending(c => c.ReleaseDate)
+                .Skip((pageNumber - 1) * PagingConstants.ChallengesPageSize)
+                .Take(PagingConstants.ChallengesPageSize).Select(c => new ChallengeDetails
+                (
+                    c.Id,
+                    c.ExternalId,
+                    c.UserChallenges.Any(uc => uc.UserId == userId),
+                    c.Level,
+                    c.Name,
+                    c.Description,
+                    c.Category,
+                    c.Platform,
+                    c.ExperiencePoints
+                )).ToListAsync();
+
+            return new PaginatedList<ChallengeDetails>(
+                items,
+                totalItems,
+                pageNumber,
+                PagingConstants.ChallengesPageSize
+            );
+        }
+        catch (Exception)
+        {
+            return null;
         }
     }
 
