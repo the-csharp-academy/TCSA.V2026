@@ -1,4 +1,3 @@
-﻿using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using TCSA.V2026.Data;
 using TCSA.V2026.Data.Curriculum;
@@ -29,10 +28,10 @@ public class ProjectService(IDbContextFactory<ApplicationDbContext> _factory) : 
         {
             using (var context = _factory.CreateDbContext())
             {
-                var projects = context.DashboardProjects
+                var projects = await context.DashboardProjects
                     .Where(p => p.AppUserId == userId)
                     .Where(p => p.IsPendingNotification)
-                    .ToList();
+                    .ToListAsync();
 
                 foreach (var p in projects)
                 {
@@ -63,8 +62,8 @@ public class ProjectService(IDbContextFactory<ApplicationDbContext> _factory) : 
         {
             using (var context = _factory.CreateDbContext())
             {
-                var project = context.DashboardProjects
-                    .FirstOrDefault(p => p.Id == dashboardProjectId);
+                var project = await context.DashboardProjects
+                    .FirstOrDefaultAsync(p => p.Id == dashboardProjectId);
 
                 if (project == null)
                 {
@@ -272,9 +271,9 @@ public class ProjectService(IDbContextFactory<ApplicationDbContext> _factory) : 
         {
             using (var context = _factory.CreateDbContext())
             {
-                var project = context.DashboardProjects
+                var project = await context.DashboardProjects
                     .Include(dp => dp.AppUser)
-                    .FirstOrDefault(p => p.Id == projectId);
+                    .FirstOrDefaultAsync(p => p.Id == projectId);
 
                 if (project == null)
                 {
