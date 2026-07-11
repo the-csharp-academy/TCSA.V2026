@@ -13,7 +13,7 @@ public interface IProjectService
     Task<bool> IsProjectCompleted(string userId, int projectId);
     Task<List<int>> GetCompletedProjectsById(string userId);
     Task<BaseResponse> PostArticle(int projectId, string userId, string url, bool isArticle, bool isUpdate);
-    Task<BaseResponse> DeleteProject(int dashboardProjectId, string userId);
+    Task<ServiceResponse> DeleteProject(int dashboardProjectId, string userId);
     Task<BaseResponse> Archive(int dashboardProjectId);
     Task<BaseResponse> AcknowledgeNotifications(string userId);
     Task<int> GetCompletionCount(int projectId, bool isArticle);
@@ -56,20 +56,19 @@ public class ProjectService(IDbContextFactory<ApplicationDbContext> _factory) : 
         }
     }
 
-    public async Task<BaseResponse> DeleteProject(int dashboardProjectId, string userId)
+    public async Task<ServiceResponse> DeleteProject(int dashboardProjectId, string userId)
     {
         try
         {
             using (var context = _factory.CreateDbContext())
             {
-                var project = await context.DashboardProjects
-                    .FirstOrDefaultAsync(p => p.Id == dashboardProjectId);
+                var project = await context.DashboardProjects.FirstOrDefaultAsync(p => p.Id == dashboardProjectId);
 
                 if (project == null)
                 {
-                    return new BaseResponse
+                    return new ServiceResponse
                     {
-                        Status = ResponseStatus.Fail,
+                        IsSuccessful = false,
                         Message = "Project Not Found"
                     };
                 }
@@ -82,16 +81,16 @@ public class ProjectService(IDbContextFactory<ApplicationDbContext> _factory) : 
                 await context.SaveChangesAsync();
             }
 
-            return new BaseResponse
+            return new ServiceResponse
             {
-                Status = ResponseStatus.Success,
+                IsSuccessful = true
             };
         }
         catch (Exception ex)
         {
-            return new BaseResponse
+            return new ServiceResponse
             {
-                Status = ResponseStatus.Fail,
+                IsSuccessful = false,
                 Message = ex.Message
             };
         }

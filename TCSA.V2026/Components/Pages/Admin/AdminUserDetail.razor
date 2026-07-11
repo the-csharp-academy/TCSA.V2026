@@ -211,19 +211,19 @@
                                     </MudButton>
                                     <MudButton Size="@Size.Small"
                                                Variant="@Variant.Filled"
-                                               Color="@Color.Error"
-                                               OnClick="@(() => OpenConfirmationDialog(context.Item.DashboardProjectId.Value))"
-                                               StartIcon="@Icons.Material.Filled.Delete">
-                                        Delete
-                                    </MudButton>
-                                    <MudButton Size="@Size.Small"
-                                               Variant="@Variant.Filled"
                                                Color="@Color.Warning"
                                                OnClick="@(() => JS.InvokeVoidAsync("window.open", context.Item.GithubUrl, "_blank", "noopener,noreferrer"))"
                                                StartIcon="@Icons.Material.Filled.Visibility">
                                         View
                                     </MudButton>
                                 }
+                                <MudButton Size="@Size.Small"
+                                           Variant="@Variant.Filled"
+                                           Color="@Color.Error"
+                                           OnClick="@(() => OpenDeleteConfirmationDialog(context.Item.DashboardProjectId.Value))"
+                                           StartIcon="@Icons.Material.Filled.Delete">
+                                    Delete
+                                </MudButton>
                             </MudStack>
                         </CellTemplate>
                     </TemplateColumn>
@@ -511,7 +511,7 @@
         return project == null ? User.Issues.FirstOrDefault(x => x.ProjectId == projectId).Title : project.Title;
     }
 
-    private async Task OpenConfirmationDialog(int dbProjectId)
+    private async Task OpenDeleteConfirmationDialog(int dbProjectId)
     {
         var options = new DialogOptions { CloseOnEscapeKey = true };
 
@@ -522,7 +522,7 @@
         {
             var apiResult = await ProjectService.DeleteProject(dbProjectId, UserId);
 
-            if (apiResult.Status == ResponseStatus.Success)
+            if (apiResult.IsSuccessful)
             {
                 Snackbar.Add("Project deleted  successfully!", Severity.Success);
                 UserDisplay = await GetUserDisplay();
