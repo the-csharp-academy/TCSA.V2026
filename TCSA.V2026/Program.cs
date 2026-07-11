@@ -64,7 +64,6 @@ builder.Services.AddScoped<IChallengePlatformFactory, ChallengePlatformFactory>(
 builder.Services.AddScoped<ChallengeManager>();
 builder.Services.AddScoped<IDiscordService, DiscordService>();
 builder.Services.AddScoped<IActivityService, ActivityService>();
-builder.Services.AddScoped<IGithubService, GithubService>();
 builder.Services.AddScoped<IGalleryService, GalleryService>();
 builder.Services.AddScoped<StatisticsService>();
 builder.Services.AddScoped<IStatisticsService>(sp =>
