@@ -180,3 +180,22 @@ deep .external-email-wrap .form-floating > .form-control {
         max-width: calc(100vw - 140px) !important;
     }
 }
+
+/* Mentorship Page Responsive Styles */
+@media (max-width: 960px) {
+    .mentorship-title {
+        font-size: 1.75rem !important;
+    }
+
+    .mentorship-hero-visual {
+        min-height: 200px;
+    }
+
+    .hero-icon-container {
+        font-size: 100px;
+    }
+
+    .pricing-card-featured {
+        transform: scale(1);
+    }
+}

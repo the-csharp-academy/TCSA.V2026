@@ -1,0 +1,417 @@
+@page "/mentorship"
+@using TCSA.V2026.Data.Models
+@rendermode RenderMode.InteractiveServer
+<PageTitle>1-on-1 Mentorship - The C# Academy</PageTitle>
+
+<div class="mentorship-page">
+    <!-- Hero Section -->
+    <MudContainer MaxWidth="MaxWidth.Large" Class="mt-10 mb-10">
+        <MudPaper Class="pa-10 mentorship-hero" Elevation="8">
+            <MudGrid Spacing="3">
+                <MudItem xs="12" md="6" Class="d-flex flex-column justify-center">
+                    <MudChip T="string" Color="Color.Success" Variant="Variant.Outlined" Class="mb-4 mentorship-chip">Personalized Learning</MudChip>
+                    <h1 class="mentorship-title mud-typography-h2">
+                        Level Up Your Skills With Personalized 1-on-1 Mentorship
+                    </h1>
+                    <MudText Class="mt-4 mentorship-subtitle mud-typography-body1" Style="opacity: 0.95;">
+                        Get expert guidance tailored to your goals. Whether you're starting your C# journey or mastering advanced concepts, we're here to accelerate your growth.
+                    </MudText>
+
+                    <MudStack Row="true" Spacing="3" Class="mt-8">
+                        <MudButton Variant="Variant.Filled"
+                                   Color="Color.Success"
+                                   Size="Size.Large"
+                                   StartIcon="@Icons.Material.Filled.Edit"
+                                   Class="mentorship-subscribe-btn"
+                                   OnClick="@ScrollToSubscribe">
+                            Subscribe Now
+                        </MudButton>
+                        <MudButton Variant="Variant.Outlined"
+                                   Color="Color.Primary"
+                                   Size="Size.Large"
+                                   EndIcon="@Icons.Material.Filled.CalendarToday"
+                                   Href="https://calendly.com" Target="_blank">
+                            View Calendar
+                        </MudButton>
+                    </MudStack>
+                </MudItem>
+
+                <MudItem xs="12" md="6" Class="d-flex justify-center align-center">
+                    <MudPaper Class="mentorship-hero-visual" Elevation="0">
+                        <div class="hero-icon-container">
+                            <MudIcon Icon="@Icons.Material.Filled.School" Class="mentorship-hero-icon"></MudIcon>
+                        </div>
+                    </MudPaper>
+                </MudItem>
+            </MudGrid>
+        </MudPaper>
+    </MudContainer>
+
+    <!-- Cards Section -->
+    <MudContainer MaxWidth="MaxWidth.Large" Class="mt-15 mb-10">
+        <div class="cards-section">
+            <MudText Typo="Typo.h4" Class="mb-8 text-center fw-bold">
+                Learn More About Our Mentorship
+            </MudText>
+
+            <MudGrid Spacing="3">
+                <!-- How It Works Card -->
+                <MudItem xs="12" md="4">
+                    <MudPaper Class="mentorship-card" Elevation="6">
+                        <MudCardContent>
+                            <div class="card-icon-wrapper bg-primary">
+                                <MudIcon Icon="@Icons.Material.Filled.Timeline" Class="card-icon"></MudIcon>
+                            </div>
+                            <MudText Typo="Typo.h6" Class="mt-4 mb-3">How It Works</MudText>
+                            <MudText Typo="Typo.body2" Style="color: #666;">
+                                Discover our structured mentorship approach: one-on-one sessions, goal-setting, progress tracking, and continuous support tailored to your learning pace.
+                            </MudText>
+                            <MudButton Variant="Variant.Text" Color="Color.Primary" Class="mt-4 px-0">
+                                Learn More <MudIcon Icon="@Icons.Material.Filled.ArrowForward" Size="Size.Small" Class="ms-2"></MudIcon>
+                            </MudButton>
+                        </MudCardContent>
+                    </MudPaper>
+                </MudItem>
+
+                <!-- Who Is It For Card -->
+                <MudItem xs="12" md="4">
+                    <MudPaper Class="mentorship-card" Elevation="6">
+                        <MudCardContent>
+                            <div class="card-icon-wrapper bg-success">
+                                <MudIcon Icon="@Icons.Material.Filled.Groups" Class="card-icon"></MudIcon>
+                            </div>
+                            <MudText Typo="Typo.h6" Class="mt-4 mb-3">Who Is It For</MudText>
+                            <MudText Typo="Typo.body2" Style="color: #666;">
+                                Perfect for beginners starting their C# journey, career-changers, professionals aiming to advance their skills, and anyone seeking personalized guidance.
+                            </MudText>
+                            <MudButton Variant="Variant.Text" Color="Color.Success" Class="mt-4 px-0">
+                                See If It Fits <MudIcon Icon="@Icons.Material.Filled.ArrowForward" Size="Size.Small" Class="ms-2"></MudIcon>
+                            </MudButton>
+                        </MudCardContent>
+                    </MudPaper>
+                </MudItem>
+
+                <!-- Success Stories Card -->
+                <MudItem xs="12" md="4">
+                    <MudPaper Class="mentorship-card" Elevation="6">
+                        <MudCardContent>
+                            <div class="card-icon-wrapper bg-info">
+                                <MudIcon Icon="@Icons.Material.Filled.EmojiEvents" Class="card-icon"></MudIcon>
+                            </div>
+                            <MudText Typo="Typo.h6" Class="mt-4 mb-3">Success Stories</MudText>
+                            <MudText Typo="Typo.body2" Style="color: #666;">
+                                See how mentees have transformed their careers, landed their dream jobs, and built impressive projects with personalized guidance and support.
+                            </MudText>
+                            <MudButton Variant="Variant.Text" Color="Color.Info" Class="mt-4 px-0">
+                                Read Stories <MudIcon Icon="@Icons.Material.Filled.ArrowForward" Size="Size.Small" Class="ms-2"></MudIcon>
+                            </MudButton>
+                        </MudCardContent>
+                    </MudPaper>
+                </MudItem>
+            </MudGrid>
+        </div>
+    </MudContainer>
+
+    <!-- Pricing/Subscription Section -->
+    <MudContainer MaxWidth="MaxWidth.Large" Class="mt-15 mb-10">
+        <MudPaper Class="subscription-section pa-10" Elevation="6">
+            <MudText Typo="Typo.h4" Class="mb-2 text-center fw-bold">Ready to Start Your Journey?</MudText>
+            <MudText Typo="Typo.body1" Class="mb-8 text-center" Style="color: #666;">
+                Join our mentorship program and transform your learning experience
+            </MudText>
+
+            <MudGrid Spacing="3" Class="mt-4">
+                <MudItem xs="12" md="4" Class="d-flex justify-center">
+                    <MudPaper Class="pricing-card" Elevation="4">
+                        <MudCardContent>
+                            <MudText Typo="Typo.h6" Class="text-center mb-2">Starter</MudText>
+                            <MudText Typo="Typo.h5" Class="text-center mud-primary-text fw-bold mb-4">1 Session/Month</MudText>
+                            <MudList T="string">
+                                <MudListItem Icon="@Icons.Material.Filled.Check" IconColor="Color.Success">
+                                    Monthly session
+                                </MudListItem>
+                                <MudListItem Icon="@Icons.Material.Filled.Check" IconColor="Color.Success">
+                                    Code reviews
+                                </MudListItem>
+                                <MudListItem Icon="@Icons.Material.Filled.Check" IconColor="Color.Success">
+                                    Email support
+                                </MudListItem>
+                            </MudList>
+                            <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" Class="mt-6">
+                                Get Started
+                            </MudButton>
+                        </MudCardContent>
+                    </MudPaper>
+                </MudItem>
+
+                <MudItem xs="12" md="4" Class="d-flex justify-center">
+                    <MudPaper Class="pricing-card pricing-card-featured" Elevation="8">
+                        <div class="featured-badge">Popular</div>
+                        <MudCardContent>
+                            <MudText Typo="Typo.h6" Class="text-center mb-2">Professional</MudText>
+                            <MudText Typo="Typo.h5" Class="text-center mud-success-text fw-bold mb-4">2 Sessions/Month</MudText>
+                            <MudList T="string">
+                                <MudListItem Icon="@Icons.Material.Filled.Check" IconColor="Color.Success">
+                                    2 monthly sessions
+                                </MudListItem>
+                                <MudListItem Icon="@Icons.Material.Filled.Check" IconColor="Color.Success">
+                                    Project guidance
+                                </MudListItem>
+                                <MudListItem Icon="@Icons.Material.Filled.Check" IconColor="Color.Success">
+                                    Priority support
+                                </MudListItem>
+                                <MudListItem Icon="@Icons.Material.Filled.Check" IconColor="Color.Success">
+                                    Resource library
+                                </MudListItem>
+                            </MudList>
+                            <MudButton Variant="Variant.Filled" Color="Color.Success" FullWidth="true" Class="mt-6">
+                                Get Started
+                            </MudButton>
+                        </MudCardContent>
+                    </MudPaper>
+                </MudItem>
+
+                <MudItem xs="12" md="4" Class="d-flex justify-center">
+                    <MudPaper Class="pricing-card" Elevation="4">
+                        <MudCardContent>
+                            <MudText Typo="Typo.h6" Class="text-center mb-2">Elite</MudText>
+                            <MudText Typo="Typo.h5" Class="text-center mud-primary-text fw-bold mb-4">Unlimited</MudText>
+                            <MudList T="string">
+                                <MudListItem Icon="@Icons.Material.Filled.Check" IconColor="Color.Success">
+                                    Unlimited sessions
+                                </MudListItem>
+                                <MudListItem Icon="@Icons.Material.Filled.Check" IconColor="Color.Success">
+                                    Career coaching
+                                </MudListItem>
+                                <MudListItem Icon="@Icons.Material.Filled.Check" IconColor="Color.Success">
+                                    Direct messaging
+                                </MudListItem>
+                                <MudListItem Icon="@Icons.Material.Filled.Check" IconColor="Color.Success">
+                                    Custom curriculum
+                                </MudListItem>
+                            </MudList>
+                            <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" Class="mt-6">
+                                Get Started
+                            </MudButton>
+                        </MudCardContent>
+                    </MudPaper>
+                </MudItem>
+            </MudGrid>
+        </MudPaper>
+    </MudContainer>
+
+    <!-- CTA Section -->
+    <MudContainer MaxWidth="MaxWidth.Large" Class="mt-15 mb-15">
+        <MudPaper Class="cta-section pa-10 text-center" Elevation="8">
+            <MudText Typo="Typo.h4" Class="mb-4 fw-bold">Have Questions?</MudText>
+            <MudText Typo="Typo.body1" Class="mb-6" Style="opacity: 0.95;">
+                Schedule a free consultation call to discuss your goals and see if our mentorship is right for you.
+            </MudText>
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       Size="Size.Large"
+                       StartIcon="@Icons.Material.Filled.Phone"
+                       Href="https://calendly.com" Target="_blank">
+                Schedule Free Consultation
+            </MudButton>
+        </MudPaper>
+    </MudContainer>
+</div>
+
+<style>
+    .mentorship-page {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+        padding: 20px 0;
+    }
+
+    .mentorship-hero {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        color: white;
+        border-radius: 12px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .mentorship-hero::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 600px;
+        height: 600px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+    }
+
+    .mentorship-title {
+        font-weight: 700 !important;
+        font-size: 2.5rem !important;
+        line-height: 1.2;
+        color: white;
+    }
+
+    .mentorship-hero .mud-typography-body1 {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        color: white;
+    }
+
+    .mentorship-chip {
+        width: fit-content;
+    }
+
+    .mentorship-subscribe-btn {
+        font-weight: 600;
+        padding: 12px 32px !important;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .mentorship-hero-visual {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 300px;
+        backdrop-filter: blur(10px);
+    }
+
+    .hero-icon-container {
+        font-size: 150px;
+        color: rgba(255, 255, 255, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .mentorship-hero-icon {
+        font-size: inherit;
+    }
+
+    .cards-section {
+        width: 100%;
+    }
+
+    .mentorship-card {
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        background: white;
+    }
+
+    .mentorship-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15) !important;
+    }
+
+    .card-icon-wrapper {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+    }
+
+    .card-icon {
+        font-size: 36px;
+        color: white;
+    }
+
+    .bg-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .bg-success {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    }
+
+    .bg-info {
+        background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    }
+
+    .features-section {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        border-radius: 12px;
+    }
+
+    .subscription-section {
+        background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+        border-radius: 12px;
+    }
+
+    .pricing-card {
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        position: relative;
+        max-width: 320px;
+        width: 100%;
+    }
+
+    .pricing-card-featured {
+        transform: scale(1.05);
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        color: white;
+    }
+
+    .pricing-card-featured .mud-typography {
+        color: white;
+    }
+
+    .pricing-card:hover {
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15) !important;
+    }
+
+    .featured-badge {
+        position: absolute;
+        top: -12px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        color: white;
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.875rem;
+    }
+
+    .cta-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        color: white;
+        border-radius: 12px;
+    }
+
+    .cta-section .mud-typography {
+        color: white;
+    }
+
+    .mud-primary-text {
+        color: #667eea !important;
+    }
+
+    .mud-success-text {
+        color: #11998e !important;
+    }
+
+    .fw-bold {
+        font-weight: 600 !important;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+</style>
+
+@code {
+    private async Task ScrollToSubscribe()
+    {
+        await JS.InvokeVoidAsync("mentorshipScroll.scrollToSubscribe");
+    }
+
+    [Inject]
+    private IJSRuntime JS { get; set; }
+}
