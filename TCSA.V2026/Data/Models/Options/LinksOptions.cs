@@ -6,4 +6,5 @@ public sealed class LinksOptions
     public string Discord { get; set; } = string.Empty;
     public string Youtube { get; set; } = string.Empty;
     public string Linkedin { get; set; } = string.Empty;
+    public string MentorLinkedin { get; set; } = string.Empty;
 }
