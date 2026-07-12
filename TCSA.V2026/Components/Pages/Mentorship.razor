@@ -58,7 +58,7 @@
                                 <MudIcon Icon="@Icons.Material.Filled.Person" Class="card-icon"></MudIcon>
                             </div>
                             <MudText Typo="Typo.h6" Class="mt-4 mb-3">Meet Your Mentor</MudText>
-                            <MudText Typo="Typo.body2" Style="color: #666;">
+                            <MudText Typo="Typo.body2" Class="mentor-muted-text">
                                 Get to know the mentor who will guide your learning, review your code, and help you stay focused on the next right step.
                             </MudText>
                             <MudButton Variant="Variant.Text" Color="Color.Info" Class="mt-4 px-0" Href="/mentorship#meet-your-mentor">
@@ -74,7 +74,7 @@
                                 <MudIcon Icon="@Icons.Material.Filled.Timeline" Class="card-icon"></MudIcon>
                             </div>
                             <MudText Typo="Typo.h6" Class="mt-4 mb-3">How It Works</MudText>
-                            <MudText Typo="Typo.body2" Style="color: #666;">
+                            <MudText Typo="Typo.body2" Class="mentor-muted-text">
                                 Discover our structured mentorship approach: one-on-one sessions, goal-setting, progress tracking, and continuous support tailored to your learning pace.
                             </MudText>
                             <MudButton Variant="Variant.Text" Color="Color.Primary" Class="mt-4 px-0" Href="/mentorship#how-it-works">
@@ -90,7 +90,7 @@
                                 <MudIcon Icon="@Icons.Material.Filled.Groups" Class="card-icon"></MudIcon>
                             </div>
                             <MudText Typo="Typo.h6" Class="mt-4 mb-3">Who Is It For</MudText>
-                            <MudText Typo="Typo.body2" Style="color: #666;">
+                            <MudText Typo="Typo.body2" Class="mentor-muted-text">
                                 Perfect for beginners starting their C# journey, career-changers, professionals aiming to advance their skills, and anyone seeking personalized guidance.
                             </MudText>
                             <MudButton Variant="Variant.Text" Color="Color.Success" Class="mt-4 px-0" Href="/mentorship#audience-tracks">
@@ -127,27 +127,12 @@
                                    Disabled="@string.IsNullOrWhiteSpace(LinkedinUrl)">
                             LinkedIn
                         </MudButton>
-                        <MudButton Variant="Variant.Outlined"
-                                   Class="mentor-outline-button"
-                                   StartIcon="@Icons.Material.Filled.Route"
-                                   Href="/mentorship#how-it-works">
-                            How It Works
-                        </MudButton>
                     </MudStack>
                 </MudItem>
                 <MudItem xs="12" md="5">
                     <div class="mentor-card">
                         <div class="mentor-avatar">
                             <img src="/img/pablo.png" alt="Pablo" class="mentor-avatar-image" />
-                        </div>
-                        <MudText Typo="Typo.h5" Class="mentor-name">Pablo</MudText>
-                        <MudText Typo="Typo.body1" Class="mentor-location">
-                            Brisbane, Australia
-                        </MudText>
-                        <div class="mentor-tags">
-                            <span>C#</span>
-                            <span>Mentorship</span>
-                            <span>Career growth</span>
                         </div>
                     </div>
                 </MudItem>
@@ -156,76 +141,17 @@
 
         <MudPaper Class="mentor-guarantee-panel pa-6 mt-8" Elevation="6">
             <div class="mentor-guarantee-icon-wrap">
-                <MudIcon Icon="@Icons.Material.Filled.Savings" Class="mentor-guarantee-icon"></MudIcon>
+                <img src="/img/Icons/icons8-piggy-bank-with-coin-94.png" alt="" class="mentor-guarantee-icon" />
             </div>
             <div>
                 <MudText Typo="Typo.h4" Class="mentor-guarantee-title mb-2">
                     Money Back Guarantee
                 </MudText>
                 <MudText Typo="Typo.body1" Class="mentor-guarantee-copy">
-                    If you do not see results in your first month, you get your money back. The goal is simple: visible progress, better code, and a clearer path forward.
+                    If you do not see results in your first two weeks, you get your money back. The goal is simple: visible progress, better code, and a clearer path forward.
                 </MudText>
             </div>
         </MudPaper>
-
-        <MudGrid id="audience-tracks" Spacing="4" Class="mt-8">
-            <MudItem xs="12" md="6">
-                <MudPaper Class="mentor-panel pa-6" Elevation="5">
-                    <MudText Typo="Typo.h5" Class="mentor-section-title mb-4">Where I've Worked</MudText>
-                    <div class="timeline">
-                        <div class="timeline-item">
-                            <span class="timeline-dot dot-green"></span>
-                            <div>
-                                <MudText Typo="Typo.h6">EB Games</MudText>
-                                <MudText Typo="Typo.body2">1 year of professional coding experience in a fast-moving retail technology environment.</MudText>
-                            </div>
-                        </div>
-                        <div class="timeline-item">
-                            <span class="timeline-dot dot-blue"></span>
-                            <div>
-                                <MudText Typo="Typo.h6">Business Automation Works</MudText>
-                                <MudText Typo="Typo.body2">4 years building, maintaining, and improving business software with practical outcomes in mind.</MudText>
-                            </div>
-                        </div>
-                    </div>
-                </MudPaper>
-            </MudItem>
-
-            <MudItem xs="12" md="6">
-                <MudPaper Class="mentor-panel pa-6 mentor-style-panel" Elevation="5">
-                    <MudText Typo="Typo.h5" Class="mentor-section-title mb-4">How I Mentor</MudText>
-                    <MudText Typo="Typo.body1" Class="mb-4">
-                        My goal is to make programming feel less mysterious and more manageable. We'll focus on practical code, clear next steps, and the habits that help you keep improving after each session.
-                    </MudText>
-                    <MudGrid Spacing="2">
-                        <MudItem xs="12" sm="6">
-                            <div class="mentor-principle">
-                                <MudIcon Icon="@Icons.Material.Filled.Route" />
-                                <span>Clear learning path</span>
-                            </div>
-                        </MudItem>
-                        <MudItem xs="12" sm="6">
-                            <div class="mentor-principle">
-                                <MudIcon Icon="@Icons.Material.Filled.RateReview" />
-                                <span>Helpful code reviews</span>
-                            </div>
-                        </MudItem>
-                        <MudItem xs="12" sm="6">
-                            <div class="mentor-principle">
-                                <MudIcon Icon="@Icons.Material.Filled.Psychology" />
-                                <span>Problem-solving practice</span>
-                            </div>
-                        </MudItem>
-                        <MudItem xs="12" sm="6">
-                            <div class="mentor-principle">
-                                <MudIcon Icon="@Icons.Material.Filled.TrendingUp" />
-                                <span>Career-minded guidance</span>
-                            </div>
-                        </MudItem>
-                    </MudGrid>
-                </MudPaper>
-            </MudItem>
-        </MudGrid>
     </MudContainer>
 
     <!-- How It Works Section -->
@@ -261,6 +187,41 @@
                             <MudIcon Icon="@Icons.Material.Filled.AssignmentTurnedIn"></MudIcon>
                             <span>Production tickets in The C# Academy</span>
                         </div>
+                    </div>
+                </MudItem>
+            </MudGrid>
+        </MudPaper>
+
+        <MudPaper Class="production-panel pa-6 mt-8" Elevation="5">
+            <MudText Typo="Typo.h4" Class="mentor-section-title mb-4">
+                Work Like a Junior Developer
+            </MudText>
+            <MudText Typo="Typo.body1" Class="production-copy mb-5">
+                To make the most of your mentorhsip, beyond your own project, you'll work under my guidance on tickets in The C# Academy. We will simulate an enterprise environment, where you'll be onboarded onto our codebase and start working on easy maintenance tasks. As you get more experience and learn the technologies required to work on The C# Academy website you'll be given more complex tasks, such as fixing complicated bugs, writing unit tests and even creating new features. You'll be working on a real production website, that will directly impact the users of the academy. While not the same as working in a company, I strive to simulate that environment as close as possible. This will help bridge the gap between working in your own projects and the real world of enterprise software development, where professional standards are required.
+            </MudText>
+            <MudGrid Spacing="2">
+                <MudItem xs="12" sm="6">
+                    <div class="practice-item">
+                        <MudIcon Icon="@Icons.Material.Filled.BugReport"></MudIcon>
+                        <span>Investigate real issues</span>
+                    </div>
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <div class="practice-item">
+                        <MudIcon Icon="@Icons.Material.Filled.AccountTree"></MudIcon>
+                        <span>Work from tickets</span>
+                    </div>
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <div class="practice-item">
+                        <MudIcon Icon="@Icons.Material.Filled.Code"></MudIcon>
+                        <span>Ship production changes</span>
+                    </div>
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <div class="practice-item">
+                        <MudIcon Icon="@Icons.Material.Filled.FactCheck"></MudIcon>
+                        <span>Learn review standards</span>
                     </div>
                 </MudItem>
             </MudGrid>
@@ -319,48 +280,13 @@
                 </MudPaper>
             </MudItem>
         </MudGrid>
-
-        <MudPaper Class="production-panel pa-6 mt-8" Elevation="5">
-            <MudText Typo="Typo.h4" Class="mentor-section-title mb-4">
-                Work Like a Junior Developer
-            </MudText>
-            <MudText Typo="Typo.body1" Class="production-copy mb-5">
-                To make the most of your mentorhsip, beyond your own project, you'll work under my guidance on tickets in The C# Academy. We will simulate an enterprise environment, where you'll be onboarded onto our codebase and start working on easy maintenance tasks. As you get more experience and learn the technologies required to work on The C# Academy website you'll be given more complex tasks, such as fixing complicated bugs, writing unit tests and even creating new features. You'll be working on a real production website, that will directly impact the users of the academy. While not the same as working in a company, I strive to simulate that environment as close as possible. This will help close the gap between working in your own projects and the real world of software development, with professional standards. 
-            </MudText>
-            <MudGrid Spacing="2">
-                <MudItem xs="12" sm="6">
-                    <div class="practice-item">
-                        <MudIcon Icon="@Icons.Material.Filled.BugReport"></MudIcon>
-                        <span>Investigate real issues</span>
-                    </div>
-                </MudItem>
-                <MudItem xs="12" sm="6">
-                    <div class="practice-item">
-                        <MudIcon Icon="@Icons.Material.Filled.AccountTree"></MudIcon>
-                        <span>Work from tickets</span>
-                    </div>
-                </MudItem>
-                <MudItem xs="12" sm="6">
-                    <div class="practice-item">
-                        <MudIcon Icon="@Icons.Material.Filled.Code"></MudIcon>
-                        <span>Ship production changes</span>
-                    </div>
-                </MudItem>
-                <MudItem xs="12" sm="6">
-                    <div class="practice-item">
-                        <MudIcon Icon="@Icons.Material.Filled.FactCheck"></MudIcon>
-                        <span>Learn review standards</span>
-                    </div>
-                </MudItem>
-            </MudGrid>
-        </MudPaper>
     </MudContainer>
 
     <!-- Pricing/Subscription Section -->
     <MudContainer MaxWidth="MaxWidth.Large" Class="mt-15 mb-10">
         <MudPaper Class="subscription-section pa-10" Elevation="6">
             <MudText Typo="Typo.h4" Class="mb-2 text-center fw-bold">Ready to Start Your Journey?</MudText>
-            <MudText Typo="Typo.body1" Class="mb-8 text-center" Style="color: #666;">
+            <MudText Typo="Typo.body1" Class="mb-8 text-center mentor-muted-text">
                 Join our mentorship program and transform your learning experience
             </MudText>
 
@@ -369,18 +295,9 @@
                     <MudPaper Class="pricing-card" Elevation="4">
                         <MudCardContent>
                             <MudText Typo="Typo.h6" Class="text-center mb-2">Starter</MudText>
-                            <MudText Typo="Typo.h5" Class="text-center mud-primary-text fw-bold mb-4">1 Session/Month</MudText>
-                            <MudList T="string">
-                                <MudListItem Icon="@Icons.Material.Filled.Check" IconColor="Color.Success">
-                                    Monthly session
-                                </MudListItem>
-                                <MudListItem Icon="@Icons.Material.Filled.Check" IconColor="Color.Success">
-                                    Code reviews
-                                </MudListItem>
-                                <MudListItem Icon="@Icons.Material.Filled.Check" IconColor="Color.Success">
-                                    Email support
-                                </MudListItem>
-                            </MudList>
+                            <MudText Typo="Typo.h4" Class="text-center pricing-price mud-primary-text fw-bold">$29.99</MudText>
+                            <MudText Typo="Typo.body2" Class="text-center mentor-muted-text mb-4">per month</MudText>
+                            <MudText Typo="Typo.h5" Class="text-center mud-primary-text fw-bold mb-4">2 Session/Month</MudText>
                             <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" Class="mt-6">
                                 Get Started
                             </MudButton>
@@ -393,21 +310,9 @@
                         <div class="featured-badge">Popular</div>
                         <MudCardContent>
                             <MudText Typo="Typo.h6" Class="text-center mb-2">Professional</MudText>
-                            <MudText Typo="Typo.h5" Class="text-center mud-success-text fw-bold mb-4">2 Sessions/Month</MudText>
-                            <MudList T="string">
-                                <MudListItem Icon="@Icons.Material.Filled.Check" IconColor="Color.Success">
-                                    2 monthly sessions
-                                </MudListItem>
-                                <MudListItem Icon="@Icons.Material.Filled.Check" IconColor="Color.Success">
-                                    Project guidance
-                                </MudListItem>
-                                <MudListItem Icon="@Icons.Material.Filled.Check" IconColor="Color.Success">
-                                    Priority support
-                                </MudListItem>
-                                <MudListItem Icon="@Icons.Material.Filled.Check" IconColor="Color.Success">
-                                    Resource library
-                                </MudListItem>
-                            </MudList>
+                            <MudText Typo="Typo.h4" Class="text-center pricing-price fw-bold">$39.99</MudText>
+                            <MudText Typo="Typo.body2" Class="text-center mb-4">per month</MudText>
+                            <MudText Typo="Typo.h5" Class="text-center mud-success-text fw-bold mb-4">4 Sessions/Month</MudText>
                             <MudButton Variant="Variant.Filled" Color="Color.Success" FullWidth="true" Class="mt-6">
                                 Get Started
                             </MudButton>
@@ -419,21 +324,10 @@
                     <MudPaper Class="pricing-card" Elevation="4">
                         <MudCardContent>
                             <MudText Typo="Typo.h6" Class="text-center mb-2">Elite</MudText>
+                            <MudText Typo="Typo.h4" Class="text-center pricing-price mud-primary-text fw-bold">$109.99</MudText>
+                            <MudText Typo="Typo.body2" Class="text-center mentor-muted-text mb-4">per month</MudText>
                             <MudText Typo="Typo.h5" Class="text-center mud-primary-text fw-bold mb-4">Unlimited</MudText>
-                            <MudList T="string">
-                                <MudListItem Icon="@Icons.Material.Filled.Check" IconColor="Color.Success">
-                                    Unlimited sessions
-                                </MudListItem>
-                                <MudListItem Icon="@Icons.Material.Filled.Check" IconColor="Color.Success">
-                                    Career coaching
-                                </MudListItem>
-                                <MudListItem Icon="@Icons.Material.Filled.Check" IconColor="Color.Success">
-                                    Direct messaging
-                                </MudListItem>
-                                <MudListItem Icon="@Icons.Material.Filled.Check" IconColor="Color.Success">
-                                    Custom curriculum
-                                </MudListItem>
-                            </MudList>
+  
                             <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" Class="mt-6">
                                 Get Started
                             </MudButton>
@@ -455,7 +349,7 @@
                        Color="Color.Primary"
                        Size="Size.Large"
                        StartIcon="@Icons.Material.Filled.Phone"
-                       Href="https://calendly.com" Target="_blank">
+                       Href="https://calendly.com/pablo-queensland/30min" Target="_blank">
                 Schedule Free Consultation
             </MudButton>
         </MudPaper>
@@ -464,9 +358,25 @@
 
 <style>
     .mentorship-page {
-        background: linear-gradient(135deg, #f6f7fb 0%, #e8edf5 100%);
+        --mentor-page-bg: var(--mud-palette-background, #f6f7fb);
+        --mentor-surface: var(--mud-palette-surface, #ffffff);
+        --mentor-surface-muted: var(--mud-palette-background-grey, #f4f6fb);
+        --mentor-text: var(--mud-palette-text-primary, #273043);
+        --mentor-muted: var(--mud-palette-text-secondary, #5b6475);
+        --mentor-border: var(--mud-palette-lines-default, rgba(28, 35, 109, 0.14));
+        --mentor-soft-border: color-mix(in srgb, var(--mentor-border) 70%, transparent);
+        --mentor-primary: var(--mud-palette-primary, #1c236d);
+        --mentor-primary-text: var(--mud-palette-primary, #1c236d);
+        background: var(--mentor-page-bg);
         min-height: 100vh;
         padding: 20px 0;
+        color: var(--mentor-text);
+    }
+
+    .mud-theme-dark .mentorship-page,
+    .mud-application.mud-theme-dark .mentorship-page {
+        --mentor-surface-muted: #20242d;
+        --mentor-soft-border: rgba(255, 255, 255, 0.16);
     }
 
     .mentorship-hero {
@@ -543,7 +453,8 @@
         height: 100%;
         display: flex;
         flex-direction: column;
-        background: white;
+        background: var(--mentor-surface) !important;
+        border: 1px solid var(--mentor-soft-border);
     }
 
     .mentorship-card:hover {
@@ -579,13 +490,17 @@
     }
 
     .features-section {
-        background: #f4f6fb;
+        background: var(--mentor-surface-muted) !important;
         border-radius: 12px;
     }
 
     .subscription-section {
-        background: #f4f6fb;
+        background: var(--mentor-surface-muted) !important;
         border-radius: 12px;
+    }
+
+    .mentor-muted-text {
+        color: var(--mentor-muted) !important;
     }
 
     .pricing-card {
@@ -594,6 +509,11 @@
         position: relative;
         max-width: 320px;
         width: 100%;
+    }
+
+    .pricing-price {
+        line-height: 1;
+        margin-bottom: 4px !important;
     }
 
     .pricing-card-featured {
@@ -634,7 +554,7 @@
     }
 
     .mud-primary-text {
-        color: #1c236d !important;
+        color: var(--mentor-primary-text) !important;
     }
 
     .mud-success-text {
@@ -714,25 +634,19 @@
     }
 
     .mentor-card {
-        border-radius: 12px;
-        background: rgba(255, 255, 255, 0.10);
-        border: 1px solid rgba(255, 255, 255, 0.20);
-        backdrop-filter: blur(12px);
-        padding: 32px;
-        text-align: center;
-    }
-
-    .mentor-avatar {
-        width: 128px;
-        height: 128px;
-        border-radius: 50%;
-        margin: 0 auto 18px;
         display: flex;
         align-items: center;
         justify-content: center;
-        background: #eef2f7;
-        box-shadow: 0 18px 36px rgba(28, 35, 109, 0.25);
-        overflow: hidden;
+        min-height: 360px;
+    }
+
+    .mentor-avatar {
+        width: min(320px, 78vw);
+        height: min(320px, 78vw);
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .mentor-avatar-image {
@@ -740,32 +654,7 @@
         height: 100%;
         display: block;
         object-fit: cover;
-    }
-
-    .mentor-name {
-        color: white;
-        font-weight: 800 !important;
-    }
-
-    .mentor-location {
-        color: rgba(255, 255, 255, 0.86);
-    }
-
-    .mentor-tags {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 8px;
-        margin-top: 20px;
-    }
-
-    .mentor-tags span {
-        border-radius: 999px;
-        background: rgba(255, 255, 255, 0.12);
-        color: white;
-        font-size: 0.85rem;
-        font-weight: 700;
-        padding: 6px 12px;
+        border-radius: 50%;
     }
 
     .mentor-guarantee-panel {
@@ -774,8 +663,9 @@
         gap: 20px;
         align-items: center;
         border-radius: 12px;
-        background: #ffffff !important;
-        border: 1px solid rgba(28, 35, 109, 0.14);
+        background: var(--mentor-surface) !important;
+        border: 1px solid var(--mentor-soft-border);
+        border-left: 6px solid #2f6f73;
     }
 
     .mentor-guarantee-icon-wrap {
@@ -785,26 +675,28 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background: #f4f6fb;
-        box-shadow: 0 12px 24px rgba(28, 35, 109, 0.10);
+        background: #2f6f73;
+        box-shadow: 0 12px 24px rgba(47, 111, 115, 0.24);
     }
 
     .mentor-guarantee-icon {
-        color: #1c236d;
-        font-size: 42px;
+        width: 52px;
+        height: 52px;
+        display: block;
+        object-fit: contain;
     }
 
     .mentor-guarantee-title,
     .mentor-section-title,
     .track-title {
-        color: #1c236d;
+        color: var(--mentor-primary-text);
         font-weight: 800 !important;
     }
 
     .mentor-guarantee-copy,
     .track-copy,
     .production-copy {
-        color: #5b6475;
+        color: var(--mentor-muted);
         line-height: 1.65;
     }
 
@@ -855,8 +747,8 @@
     .production-panel {
         height: 100%;
         border-radius: 12px;
-        background: rgba(255, 255, 255, 0.94) !important;
-        border: 1px solid rgba(28, 35, 109, 0.08);
+        background: var(--mentor-surface) !important;
+        border: 1px solid var(--mentor-soft-border);
     }
 
     .timeline {
@@ -888,13 +780,13 @@
     }
 
     .timeline-item .mud-typography-h6 {
-        color: #273043;
+        color: var(--mentor-text);
         font-weight: 800;
     }
 
     .timeline-item .mud-typography-body2,
     .mentor-style-panel .mud-typography-body1 {
-        color: #5b6475;
+        color: var(--mentor-muted);
         line-height: 1.6;
     }
 
@@ -906,10 +798,10 @@
         align-items: center;
         gap: 10px;
         border-radius: 10px;
-        background: #f7fbff;
-        border: 1px solid #dce9f5;
+        background: var(--mentor-surface-muted);
+        border: 1px solid var(--mentor-soft-border);
         padding: 12px;
-        color: #1c236d;
+        color: var(--mentor-primary-text);
         font-weight: 700;
     }
 
@@ -970,11 +862,11 @@
         align-items: center;
         justify-content: center;
         margin-bottom: 18px;
-        background: #f4f6fb;
+        background: var(--mentor-surface-muted);
     }
 
     .track-icon .mud-icon-root {
-        color: #1c236d;
+        color: var(--mentor-primary-text);
         font-size: 38px;
     }
 
