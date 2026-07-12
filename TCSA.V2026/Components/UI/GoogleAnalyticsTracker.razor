@@ -1,0 +1,35 @@
+@using Microsoft.AspNetCore.Components.Routing
+@implements IDisposable
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+
+@code {
+    protected override void OnInitialized()
+    {
+        NavigationManager.LocationChanged += HandleLocationChanged;
+    }
+
+    private async void HandleLocationChanged(object? sender, LocationChangedEventArgs args)
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync(
+                "tcsaAnalytics.trackPageView",
+                args.Location,
+                null);
+        }
+        catch (JSDisconnectedException)
+        {
+            // The Blazor circuit was disconnected.
+        }
+        catch (ObjectDisposedException)
+        {
+            // The component was disposed during navigation.
+        }
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= HandleLocationChanged;
+    }
+}
