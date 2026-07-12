@@ -55,7 +55,22 @@
             </MudText>
 
             <MudGrid Spacing="3">
-                <!-- How It Works Card -->
+                <MudItem xs="12" md="4">
+                    <MudPaper Class="mentorship-card" Elevation="6">
+                        <MudCardContent>
+                            <div class="card-icon-wrapper bg-info">
+                                <MudIcon Icon="@Icons.Material.Filled.Person" Class="card-icon"></MudIcon>
+                            </div>
+                            <MudText Typo="Typo.h6" Class="mt-4 mb-3">Meet Your Mentor</MudText>
+                            <MudText Typo="Typo.body2" Style="color: #666;">
+                                Get to know the mentor who will guide your learning, review your code, and help you stay focused on the next right step.
+                            </MudText>
+                            <MudButton Variant="Variant.Text" Color="Color.Info" Class="mt-4 px-0" Href="/mentorship/mentor">
+                                Learn More <MudIcon Icon="@Icons.Material.Filled.ArrowForward" Size="Size.Small" Class="ms-2"></MudIcon>
+                            </MudButton>
+                        </MudCardContent>
+                    </MudPaper>
+                </MudItem>
                 <MudItem xs="12" md="4">
                     <MudPaper Class="mentorship-card" Elevation="6">
                         <MudCardContent>
@@ -66,14 +81,12 @@
                             <MudText Typo="Typo.body2" Style="color: #666;">
                                 Discover our structured mentorship approach: one-on-one sessions, goal-setting, progress tracking, and continuous support tailored to your learning pace.
                             </MudText>
-                            <MudButton Variant="Variant.Text" Color="Color.Primary" Class="mt-4 px-0">
+                            <MudButton Variant="Variant.Text" Color="Color.Primary" Class="mt-4 px-0" Href="/mentorship/how-it-works">
                                 Learn More <MudIcon Icon="@Icons.Material.Filled.ArrowForward" Size="Size.Small" Class="ms-2"></MudIcon>
                             </MudButton>
                         </MudCardContent>
                     </MudPaper>
                 </MudItem>
-
-                <!-- Who Is It For Card -->
                 <MudItem xs="12" md="4">
                     <MudPaper Class="mentorship-card" Elevation="6">
                         <MudCardContent>
@@ -90,24 +103,7 @@
                         </MudCardContent>
                     </MudPaper>
                 </MudItem>
-
-                <!-- Success Stories Card -->
-                <MudItem xs="12" md="4">
-                    <MudPaper Class="mentorship-card" Elevation="6">
-                        <MudCardContent>
-                            <div class="card-icon-wrapper bg-info">
-                                <MudIcon Icon="@Icons.Material.Filled.EmojiEvents" Class="card-icon"></MudIcon>
-                            </div>
-                            <MudText Typo="Typo.h6" Class="mt-4 mb-3">Success Stories</MudText>
-                            <MudText Typo="Typo.body2" Style="color: #666;">
-                                See how mentees have transformed their careers, landed their dream jobs, and built impressive projects with personalized guidance and support.
-                            </MudText>
-                            <MudButton Variant="Variant.Text" Color="Color.Info" Class="mt-4 px-0">
-                                Read Stories <MudIcon Icon="@Icons.Material.Filled.ArrowForward" Size="Size.Small" Class="ms-2"></MudIcon>
-                            </MudButton>
-                        </MudCardContent>
-                    </MudPaper>
-                </MudItem>
+              
             </MudGrid>
         </div>
     </MudContainer>

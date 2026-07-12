@@ -1,0 +1,334 @@
+@page "/mentorship/how-it-works"
+
+<PageTitle>How Mentorship Works - The C# Academy</PageTitle>
+
+<div class="how-page">
+    <MudContainer MaxWidth="MaxWidth.Large" Class="py-10">
+        <MudPaper Class="how-hero pa-8 pa-md-12" Elevation="8">
+            <MudGrid Spacing="4" Class="how-hero-grid">
+                <MudItem xs="12" md="7">
+                    <MudChip T="string" Class="how-chip mb-4" Variant="Variant.Filled">
+                        Practical mentorship
+                    </MudChip>
+                    <MudText Typo="Typo.h2" Class="how-title mb-4">
+                        Clear goals, close feedback, real software work.
+                    </MudText>
+                    <MudText Typo="Typo.h6" Class="how-subtitle mb-6">
+                        The program adapts to your level. Beginners close knowledge gaps and follow the roadmap with regular code reviews. Experienced developers build a professional project and contribute to The C# Academy like a junior dev on a production team.
+                    </MudText>
+                    <MudStack Row="true" Spacing="2" Class="how-actions">
+                        <MudButton Variant="Variant.Filled"
+                                   Class="primary-action"
+                                   StartIcon="@Icons.Material.Filled.Route"
+                                   Href="#tracks">
+                            View Tracks
+                        </MudButton>
+                        <MudButton Variant="Variant.Outlined"
+                                   Class="secondary-action"
+                                   StartIcon="@Icons.Material.Filled.ArrowBack"
+                                   Href="/mentorship">
+                            Back to Mentorship
+                        </MudButton>
+                    </MudStack>
+                </MudItem>
+                <MudItem xs="12" md="5">
+                    <div class="how-summary">
+                        <div class="summary-row">
+                            <MudIcon Icon="@Icons.Material.Filled.Map"></MudIcon>
+                            <span>Personal roadmap</span>
+                        </div>
+                        <div class="summary-row">
+                            <MudIcon Icon="@Icons.Material.Filled.RateReview"></MudIcon>
+                            <span>Close code reviews</span>
+                        </div>
+                        <div class="summary-row">
+                            <MudIcon Icon="@Icons.Material.Filled.RocketLaunch"></MudIcon>
+                            <span>Professional project delivery</span>
+                        </div>
+                        <div class="summary-row">
+                            <MudIcon Icon="@Icons.Material.Filled.AssignmentTurnedIn"></MudIcon>
+                            <span>Production tickets in The C# Academy</span>
+                        </div>
+                    </div>
+                </MudItem>
+            </MudGrid>
+        </MudPaper>
+
+        <MudGrid id="tracks" Spacing="4" Class="mt-8">
+            <MudItem xs="12" md="6">
+                <MudPaper Class="track-card beginner-track pa-6" Elevation="5">
+                    <div class="track-icon">
+                        <MudIcon Icon="@Icons.Material.Filled.School"></MudIcon>
+                    </div>
+                    <MudText Typo="Typo.h4" Class="track-title mb-3">For Beginners</MudText>
+                    <MudText Typo="Typo.body1" Class="track-copy mb-5">
+                        We'll identify what is missing, close the gaps, and follow The C# Academy roadmap at a pace that keeps you moving without leaving shaky foundations behind.
+                    </MudText>
+                    <div class="track-list">
+                        <div>
+                            <MudIcon Icon="@Icons.Material.Filled.CheckCircle"></MudIcon>
+                            <span>Find and fix knowledge gaps</span>
+                        </div>
+                        <div>
+                            <MudIcon Icon="@Icons.Material.Filled.CheckCircle"></MudIcon>
+                            <span>Follow a structured C# roadmap</span>
+                        </div>
+                        <div>
+                            <MudIcon Icon="@Icons.Material.Filled.CheckCircle"></MudIcon>
+                            <span>Get close reviews on your code</span>
+                        </div>
+                    </div>
+                </MudPaper>
+            </MudItem>
+
+            <MudItem xs="12" md="6">
+                <MudPaper Class="track-card experienced-track pa-6" Elevation="5">
+                    <div class="track-icon">
+                        <MudIcon Icon="@Icons.Material.Filled.Engineering"></MudIcon>
+                    </div>
+                    <MudText Typo="Typo.h4" Class="track-title mb-3">For Developers With Experience</MudText>
+                    <MudText Typo="Typo.body1" Class="track-copy mb-5">
+                        We'll build a professional project end to end, covering the parts that separate hobby code from production-ready software.
+                    </MudText>
+                    <div class="track-list">
+                        <div>
+                            <MudIcon Icon="@Icons.Material.Filled.CheckCircle"></MudIcon>
+                            <span>Design and architecture decisions</span>
+                        </div>
+                        <div>
+                            <MudIcon Icon="@Icons.Material.Filled.CheckCircle"></MudIcon>
+                            <span>Development to professional standards</span>
+                        </div>
+                        <div>
+                            <MudIcon Icon="@Icons.Material.Filled.CheckCircle"></MudIcon>
+                            <span>Deployment, CI/CD, and release workflow</span>
+                        </div>
+                    </div>
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+
+        <MudGrid Spacing="4" Class="mt-8">
+            <MudItem xs="12">
+                <MudPaper Class="production-panel pa-6" Elevation="5">
+                    <MudText Typo="Typo.h4" Class="section-title mb-4">
+                        Work Like a Junior Developer
+                    </MudText>
+                    <MudText Typo="Typo.body1" Class="production-copy mb-5">
+                        Beyond your own project, you'll work under my guidance on tickets in The C# Academy. That means reading an existing codebase, understanding requirements, making changes, opening work for review, and learning the rhythm of a real production app.
+                    </MudText>
+                    <MudGrid Spacing="2">
+                        <MudItem xs="12" sm="6">
+                            <div class="practice-item">
+                                <MudIcon Icon="@Icons.Material.Filled.BugReport"></MudIcon>
+                                <span>Investigate real issues</span>
+                            </div>
+                        </MudItem>
+                        <MudItem xs="12" sm="6">
+                            <div class="practice-item">
+                                <MudIcon Icon="@Icons.Material.Filled.AccountTree"></MudIcon>
+                                <span>Work from tickets</span>
+                            </div>
+                        </MudItem>
+                        <MudItem xs="12" sm="6">
+                            <div class="practice-item">
+                                <MudIcon Icon="@Icons.Material.Filled.Code"></MudIcon>
+                                <span>Ship production changes</span>
+                            </div>
+                        </MudItem>
+                        <MudItem xs="12" sm="6">
+                            <div class="practice-item">
+                                <MudIcon Icon="@Icons.Material.Filled.FactCheck"></MudIcon>
+                                <span>Learn review standards</span>
+                            </div>
+                        </MudItem>
+                    </MudGrid>
+                </MudPaper>
+            </MudItem>
+
+        </MudGrid>
+    </MudContainer>
+</div>
+
+<style>
+    .how-page {
+        min-height: 100vh;
+        background:
+            radial-gradient(circle at 10% 12%, rgba(47, 128, 237, 0.18), transparent 30%),
+            radial-gradient(circle at 88% 18%, rgba(249, 115, 22, 0.18), transparent 28%),
+            linear-gradient(135deg, #f8fbff 0%, #f2f8f1 48%, #fff5ed 100%);
+        padding-bottom: 24px;
+    }
+
+    .how-hero {
+        border-radius: 12px;
+        color: white;
+        background: linear-gradient(135deg, #1c236d 0%, #2f80ed 44%, #11998e 100%) !important;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .how-hero::after {
+        content: "";
+        position: absolute;
+        width: 360px;
+        height: 360px;
+        right: -90px;
+        top: -120px;
+        border-radius: 50%;
+        border: 54px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .how-hero > .mud-grid {
+        position: relative;
+        z-index: 1;
+    }
+
+    .how-hero-grid {
+        align-items: center;
+    }
+
+    .how-chip {
+        width: fit-content;
+        background: rgba(255, 255, 255, 0.18) !important;
+        color: white !important;
+        font-weight: 700;
+    }
+
+    .how-title {
+        color: white;
+        font-weight: 800 !important;
+        line-height: 1.08;
+    }
+
+    .how-subtitle {
+        color: white;
+        line-height: 1.55;
+        max-width: 760px;
+    }
+
+    .how-actions {
+        flex-wrap: wrap;
+    }
+
+    .primary-action {
+        background: #f2c94c !important;
+        color: #1c236d !important;
+        font-weight: 800;
+    }
+
+    .secondary-action {
+        color: white !important;
+        border-color: rgba(255, 255, 255, 0.72) !important;
+    }
+
+    .how-summary {
+        display: grid;
+        gap: 14px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.16);
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        backdrop-filter: blur(12px);
+        padding: 26px;
+    }
+
+    .summary-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-height: 54px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.14);
+        color: white;
+        font-weight: 800;
+        padding: 12px 14px;
+    }
+
+    .summary-row .mud-icon-root {
+        color: #f2c94c;
+        flex: 0 0 auto;
+    }
+
+    .track-card,
+    .production-panel {
+        height: 100%;
+        border-radius: 12px;
+        border: 1px solid rgba(28, 35, 109, 0.08);
+        background: rgba(255, 255, 255, 0.95) !important;
+    }
+
+    .beginner-track {
+        border-top: 8px solid #38ef7d;
+    }
+
+    .experienced-track {
+        border-top: 8px solid #2f80ed;
+    }
+
+    .track-icon {
+        width: 68px;
+        height: 68px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 18px;
+        background: linear-gradient(135deg, #f2c94c 0%, #ff6f61 100%);
+    }
+
+    .track-icon .mud-icon-root {
+        color: white;
+        font-size: 38px;
+    }
+
+    .track-title,
+    .section-title {
+        color: #1c236d;
+        font-weight: 800 !important;
+    }
+
+    .track-copy,
+    .production-copy {
+        color: #5b6475;
+        line-height: 1.65;
+    }
+
+    .track-list {
+        display: grid;
+        gap: 12px;
+    }
+
+    .track-list div,
+    .practice-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-height: 54px;
+        border-radius: 10px;
+        background: #f7fbff;
+        border: 1px solid #dce9f5;
+        color: #273043;
+        font-weight: 700;
+        padding: 12px;
+    }
+
+    .track-list .mud-icon-root {
+        color: #11998e;
+        flex: 0 0 auto;
+    }
+
+    .practice-item .mud-icon-root {
+        color: #c9436e;
+        flex: 0 0 auto;
+    }
+
+    @@media (max-width: 600px) {
+        .how-title {
+            font-size: 2.2rem !important;
+        }
+
+        .how-hero {
+            padding: 32px 24px !important;
+        }
+    }
+</style>
