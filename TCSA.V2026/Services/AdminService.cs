@@ -1,5 +1,4 @@
-﻿using Microsoft.CodeAnalysis;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using TCSA.V2026.Data;
 using TCSA.V2026.Data.DTOs;
 using TCSA.V2026.Data.Enums;
@@ -15,9 +14,9 @@ public interface IAdminService
     Task<List<AdminEventDisplay>> GetAdminEvents();
     Task<List<AdminPendingDisplay>> GetAdminPendingProjects();
     Task<List<ApplicationUser>> SearchUsers(string? email, string? userName, string? displayName, string? discordAlias);
-    Task<BaseResponse> ChangeBelt(string userId, Level newBelt);
-    Task<BaseResponse> ChangePoints(string userId, int points);
-    Task<BaseResponse> RequestChanges(int dashboardProjectId);
+    Task<ServiceResponse> ChangeBelt(string userId, Level newBelt);
+    Task<ServiceResponse> ChangePoints(string userId, int points);
+    Task<ServiceResponse> RequestChanges(int dashboardProjectId);
     Task<ServiceResponse> ChangeReviewPoints(string userId, int points);
 }
 
@@ -26,7 +25,7 @@ public class AdminService(
     IDiscordService _discordService
     ) : IAdminService
 {
-    public async Task<BaseResponse> ChangePoints(string userId, int points)
+    public async Task<ServiceResponse> ChangePoints(string userId, int points)
     {
         try
         {
@@ -39,16 +38,16 @@ public class AdminService(
                 await context.SaveChangesAsync();
 
             }
-            return new BaseResponse
+            return new ServiceResponse
             {
-                Status = ResponseStatus.Success,
+                IsSuccessful = true,
             };
         }
         catch (Exception ex)
         {
-            return new BaseResponse
+            return new ServiceResponse
             {
-                Status = ResponseStatus.Fail,
+                IsSuccessful = true,
                 Message = ex.Message
             };
         }
@@ -82,7 +81,7 @@ public class AdminService(
         }
     }
 
-    public async Task<BaseResponse> ChangeBelt(string userId, Level newBelt)
+    public async Task<ServiceResponse> ChangeBelt(string userId, Level newBelt)
     {
         try
         {
@@ -110,16 +109,16 @@ public class AdminService(
                     await _discordService.ChangeDiscordBelt(user.DiscordAlias!, newBelt);
                 }
             }
-            return new BaseResponse
+            return new ServiceResponse
             {
-                Status = ResponseStatus.Success,
+                IsSuccessful = true,
             };
         }
         catch (Exception ex)
         {
-            return new BaseResponse
+            return new ServiceResponse
             {
-                Status = ResponseStatus.Fail,
+                IsSuccessful = false,
                 Message = ex.Message
             };
         }
@@ -231,7 +230,7 @@ public class AdminService(
         return null;
     }
 
-    public async Task<BaseResponse> RequestChanges(int dashboardProjectId)
+    public async Task<ServiceResponse> RequestChanges(int dashboardProjectId)
     {
         try
         {
@@ -241,9 +240,9 @@ public class AdminService(
 
                 if (project == null)
                 {
-                    return new BaseResponse
+                    return new ServiceResponse
                     {
-                        Status = ResponseStatus.Fail,
+                        IsSuccessful = false,
                         Message = "Project Not Found"
                     };
                 }
@@ -253,16 +252,16 @@ public class AdminService(
                 await context.SaveChangesAsync();
             }
 
-            return new BaseResponse
+            return new ServiceResponse
             {
-                Status = ResponseStatus.Success,
+                IsSuccessful = true,
             };
         }
         catch (Exception ex)
         {
-            return new BaseResponse
+            return new ServiceResponse
             {
-                Status = ResponseStatus.Fail,
+                IsSuccessful = false,
                 Message = ex.Message
             };
         }

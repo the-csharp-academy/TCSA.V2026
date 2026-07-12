@@ -337,7 +337,7 @@
     {
         var result = await AdminService.ChangeBelt(UserId, SelectedLevel);
 
-        if (result.Status == ResponseStatus.Success)
+        if (result.IsSuccessful)
         {
             Snackbar.Add("Belt Updated!", Severity.Success);
 
@@ -357,7 +357,7 @@
     {
         var result = await AdminService.RequestChanges(adminActivity.DashboardProjectId!.Value);
 
-        if (result.Status == ResponseStatus.Success)
+        if (result.IsSuccessful)
         {
             Snackbar.Add("Changes Requested!", Severity.Success);
 
@@ -375,7 +375,7 @@
     {
         var result = await AdminService.ChangePoints(UserId, XpInput);
 
-        if (result.Status == ResponseStatus.Success)
+        if (result.IsSuccessful)
         {
             Snackbar.Add("Points Updated!", Severity.Success);
 

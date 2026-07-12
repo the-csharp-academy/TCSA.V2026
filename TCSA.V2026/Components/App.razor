@@ -99,5 +99,5 @@
     // Now this property safely reads a stable boolean variable and won't crash your live SignalR circuits
     private IComponentRenderMode? RenderModeForPage => IsAuthPage
         ? null
-        : new InteractiveServerRenderMode(prerender: false);
+        : new InteractiveServerRenderMode(prerender: true);
 }
