@@ -194,7 +194,7 @@ public class OopCourse
                             {
                                 Paragraphs = new List<Paragraph>
                                 {
-                                    new Paragraph { Body = "Before we start learning OOP we need to build the course's project. Let's start by spinning up a Console app. If you've never created a console app before this course isn't for you. <a href='project/53/math-game' target='_blank'>We suggest you watch the tutorial in this article first</a>." }
+                                    new Paragraph { Body = "Before we start learning OOP we need to build the course's project. Let's start by spinning up a Console app. If you've never created a console app before this course isn't for you. We suggest you watch the tutorial in <a href='project/53/math-game' target='_blank' style='color: #7DA2C8; text-decoration: underline;'>this article</a> first." }
                                 }
                             },
                             new Block
@@ -245,7 +245,7 @@ public class OopCourse
                                         IsCode = true,
                                         Body = "var menuChoices = new string[3] { \"View Books\", \"Add Book\", \"Delete Book\" };\r\n\r\nvar choice = AnsiConsole.Prompt(\r\n        new SelectionPrompt&lt;string&gt;()\r\n        .Title(\"What do you want to do next?\")\r\n        .AddChoices(menuChoices));"
                                     },
-                                    new Paragraph { Body = "Again if the above code is totally foreign to you, this course might not be the best suit for your current level. <a href='project/53/math-game' target='_blank'>We suggest you watch the tutorial in this article first</a>." },
+                                    new Paragraph { Body = "Again if the above code is totally foreign to you, this course might not be the best suit for your current level. We suggest you watch the tutorial in <a href='project/53/math-game' target='_blank' style='color: #7DA2C8; text-decoration: underline;'>this article</a> first." },
                                     new Paragraph { Body = "Let's explain the code:" },
                                     new Paragraph
 {
