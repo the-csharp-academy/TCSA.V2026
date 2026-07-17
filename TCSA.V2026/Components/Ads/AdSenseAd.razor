@@ -1,0 +1,32 @@
+@inject IJSRuntime JS
+
+<ins class="adsbygoogle"
+     style="@AdStyle"
+     data-ad-client="ca-pub-4831088216810061"
+     data-ad-slot="@Slot"
+     data-ad-format="@Format"
+     data-full-width-responsive="@FullWidthResponsive.ToString().ToLowerInvariant()">
+</ins>
+
+@code
+{
+    [Parameter, EditorRequired]
+    public required string Slot { get; set; }
+
+    [Parameter]
+    public string Format { get; set; } = "auto";
+
+    [Parameter]
+    public string AdStyle { get; set; } = "display:block";
+
+    [Parameter]
+    public bool FullWidthResponsive { get; set; } = true;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("loadAdsense");
+        }
+    }
+}

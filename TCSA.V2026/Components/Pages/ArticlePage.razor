@@ -32,7 +32,7 @@
     }
 
     <MudGrid Class="mt-4">
-        <MudItem xs="12">
+        <MudItem xs="12" md="9">
             <MudPaper Class="d-flex flex-column mud-width-full py-1 pb-10 px-4 px-md-10 section-panel section-panel-soft article-content">
                 @for (var blockIndex = 0; blockIndex < Article.Blocks.Count; blockIndex++)
                 {
@@ -94,13 +94,14 @@
                 }
             </MudPaper>
         </MudItem>
-@*         <MudItem xs="12" md="2">
-            <MudPaper Class="d-flex align-center justify-center mud-width-full py-8 mt-4">
-                <div style="width:250px; min-height:250px;">
-                    <CourseSidebarAd />
+
+        <MudItem xs="12" md="3">
+            <aside class="article-ad-rail" aria-label="Advertisement">
+                <div class="article-sidebar-ad">
+                    <AdSenseAd Slot="1156719860" />
                 </div>
-            </MudPaper>
-        </MudItem> *@
+            </aside>
+        </MudItem>
     </MudGrid>
 
     @if (IsLoggedIn && !IsCompleted)
@@ -302,6 +303,17 @@
         margin-top: 0.4rem;
     }
 
+    .article-ad-rail {
+        position: sticky;
+        top: 86px;
+    }
+
+    .article-sidebar-ad {
+        width: 100%;
+        min-width: 0;
+        min-height: 600px;
+    }
+
     .article-content-block {
         border-radius: 14px;
         margin: 1.25rem 0;
@@ -352,6 +364,11 @@
     }
 
     @@media (max-width: 960px) {
+        .article-ad-rail {
+            position: static;
+            margin-top: 1rem;
+        }
+
         .article-hero {
             border-radius: 20px;
         }

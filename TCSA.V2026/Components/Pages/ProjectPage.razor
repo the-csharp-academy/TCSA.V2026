@@ -42,7 +42,7 @@
         }
 
         <MudGrid Class="mt-4">
-            <MudItem xs="12">
+            <MudItem xs="12" md="9">
                 <MudPaper Class="d-flex flex-column mud-width-full py-1 pb-10 px-4 px-md-10 section-panel section-panel-soft project-content">
                     @if (Project.Introduction != null)
                     {
@@ -321,13 +321,14 @@
 
                 </MudPaper>
             </MudItem>
-           @*  <MudItem xs="12" md="2">
-                <MudPaper Class="d-flex align-center justify-center mud-width-full py-8 mt-4">
-                    <div style="width:250px; min-height:250px;">
-                        <CourseSidebarAd />
+
+            <MudItem xs="12" md="3">
+                <aside class="project-ad-rail" aria-label="Advertisement">
+                    <div class="project-sidebar-ad">
+                        <AdSenseAd Slot="5997983008" />
                     </div>
-                </MudPaper>
-            </MudItem> *@
+                </aside>
+            </MudItem>
         </MudGrid>
     }
 </MudContainer>
@@ -553,6 +554,17 @@
         margin-top: 0.4rem;
     }
 
+    .project-ad-rail {
+        position: sticky;
+        top: 86px;
+    }
+
+    .project-sidebar-ad {
+        width: 100%;
+        min-width: 0;
+        min-height: 600px;
+    }
+
     .project-media-wrap {
         border-radius: 16px;
     }
@@ -587,6 +599,15 @@
     }
 
     @@media (max-width: 960px) {
+        .project-ad-rail {
+            position: static;
+            margin-top: 1rem;
+        }
+
+        .project-sidebar-ad {
+            min-height: 250px;
+        }
+
         .project-hero {
             border-radius: 20px;
         }
