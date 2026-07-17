@@ -1,257 +1,436 @@
 @page "/dashboard/Courses"
 @using Microsoft.AspNetCore.Authorization
 @using System.Security.Claims
+@using TCSA.V2026.Components.UI
 @using TCSA.V2026.Data.Curriculum
 @using TCSA.V2026.Data.DTOs
 @using TCSA.V2026.Data.Models
-@using TCSA.V2026.Data.Models.Responses
-@using TCSA.V2026.Components.UI
-@using TCSA.V2026.Helpers
 @using TCSA.V2026.Services
 @attribute [Authorize]
 
 <PageTitle>Courses</PageTitle>
 
-<MudContainer>
+<MudContainer MaxWidth="MaxWidth.Large" Class="courses-page">
     <h1 class="visually-hidden">Courses</h1>
-    @if (User != null)
+    @if (User is not null)
     {
-        <DashboardToolBar User=@User></DashboardToolBar>
+        <DashboardToolBar User="@User"></DashboardToolBar>
     }
 
     @if (IsLoading)
     {
-        <MudProgressCircular Color="Color.Default" Indeterminate="true" />
+        <div class="courses-loading">
+            <MudProgressCircular Color="Color.Primary" Indeterminate="true" Size="Size.Large" />
+        </div>
     }
     else
     {
-        foreach (var course in DashboardCourses)
-        {
-            <MudCard Class="mt-1" Style="@(course.Status == DashBoardCourseStatus.Completed ? "border: 2px solid green;" : null)">
-                <MudCardHeader Class="d-flex align-items-center flex-wrap">
-                    <CardHeaderAvatar>
-                        <MudImage Width="40" Src="@($"img/icons/{course.ImgUrl}")" />
-                    </CardHeaderAvatar>
-                    <CardHeaderContent>
-                        <h2 class="mud-typography-body1" style="font-weight: bold">@course.Title</h2>
-                        <MudText Typo="Typo.body2">@course.Description</MudText>
-                    </CardHeaderContent>
-                    <CardHeaderActions>
-                        <MudBreakpointProvider OnBreakpointChanged="BreakpointChanged">
-                            @if (course.Status == DashBoardCourseStatus.Completed)
-                            {
-                                <MudChip Class="ml-5 mt-5"
-                                         T="string"
-                                         Size="@_chipSize"
-                                         Color="Color.Success">
-                                    Completed
-                                </MudChip>
-                            }
-                            else if (course.Status == DashBoardCourseStatus.InProgress)
-                            {
-                                <MudChip Class="ml-5 mt-5"
-                                         T="string"
-                                         Size="@_chipSize"
-                                         Color="Color.Primary">
-                                    In Progress
-                                </MudChip>
-                            }
-                            else if (course.Status == DashBoardCourseStatus.NotStarted)
-                            {
-                                <MudChip Class="ml-5 mt-5"
-                                         T="string"
-                                         Size="@_chipSize"
-                                         Color="Color.Info">
-                                    Not Started
-                                </MudChip>
-                            }
-                            <MudButton Class="ml-5 mr-5 mt-5"
-                                       Size="@_buttonSize"
-                                       Variant="@Variant.Filled"
-                                       OnClick="@(() => NavigateToCourse(course.Id))"
-                                       Color="Color.Primary"
-                                       StartIcon="fas fa-eye">
-                                Go To Course
-                            </MudButton>
-                        </MudBreakpointProvider>
-                    </CardHeaderActions>
-                </MudCardHeader>
-            </MudCard>
-        }
+        <section class="courses-hero">
+            <div>
+                <MudText Typo="Typo.overline" Class="courses-eyebrow">Learning Path</MudText>
+                <MudText Typo="Typo.h3" Class="courses-heading">Courses</MudText>
+                <MudText Typo="Typo.body1" Class="courses-copy">
+                    Keep moving through focused C# Academy courses and track your progress chapter by chapter.
+                </MudText>
+            </div>
+            <div class="courses-summary">
+                <div>
+                    <span class="summary-value">@CompletedChapters</span>
+                    <span class="summary-label">chapters completed</span>
+                </div>
+                <div>
+                    <span class="summary-value">@CoursesInProgress</span>
+                    <span class="summary-label">in progress</span>
+                </div>
+                <div>
+                    <span class="summary-value">@CompletedCourses</span>
+                    <span class="summary-label">courses finished</span>
+                </div>
+            </div>
+        </section>
+
+        <div class="overall-progress">
+            <div>
+                <MudText Typo="Typo.subtitle2">Overall progress</MudText>
+                <MudText Typo="Typo.caption">@CompletedChapters of @TotalChapters chapters completed</MudText>
+            </div>
+            <MudProgressLinear Value="@OverallProgress" Color="Color.Primary" Rounded="true" Class="overall-progress-bar" />
+        </div>
+
+        <MudGrid Spacing="3" Class="courses-grid">
+            @foreach (var course in DashboardCourses)
+            {
+                <MudItem xs="12" sm="6" lg="4">
+                    <article class="@GetCourseCardClass(course.Status)">
+                        <div class="course-card-header">
+                            <div class="course-icon-shell">
+                                <MudImage Width="38" Height="38" Src="@($"img/icons/{course.ImgUrl}")" Alt="@course.Title" />
+                            </div>
+                            <MudChip T="string"
+                                     Size="Size.Small"
+                                     Variant="Variant.Filled"
+                                     Color="@GetStatusColor(course.Status)">
+                                @GetStatusLabel(course.Status)
+                            </MudChip>
+                        </div>
+
+                        <div class="course-card-body">
+                            <MudText Typo="Typo.h6" Class="course-card-title">@course.Title</MudText>
+                            <MudText Typo="Typo.body2" Class="course-card-description">@course.Description</MudText>
+                        </div>
+
+                        <div class="course-progress-row">
+                            <MudText Typo="Typo.caption">@course.CompletedChapters / @course.TotalChapters @course.ChapterLabel</MudText>
+                            <MudText Typo="Typo.caption">@course.ProgressPercent%</MudText>
+                        </div>
+                        <MudProgressLinear Value="@course.ProgressPercent"
+                                           Color="@GetStatusColor(course.Status)"
+                                           Rounded="true"
+                                           Class="course-progress-bar" />
+
+                        <MudButton FullWidth="true"
+                                   Variant="Variant.Filled"
+                                   Color="Color.Primary"
+                                   StartIcon="@Icons.Material.Filled.PlayArrow"
+                                   OnClick="@(() => NavigateToCourse(course.Id))"
+                                   Class="course-action">
+                            @GetActionLabel(course.Status)
+                        </MudButton>
+                    </article>
+                </MudItem>
+            }
+        </MudGrid>
     }
 </MudContainer>
 
-@code {
-    [Inject] private NavigationManager Navigation { get; set; }
-    [Inject] private AuthenticationStateProvider AuthenticationState { get; set; }  
-    [Inject] private IUserService UserService { get; set; }
+<style>
+    .courses-page {
+        padding-top: 24px;
+        padding-bottom: 48px;
+    }
 
-    private ApplicationUser User { get; set; }
-    private List<Course> CourseList = CourseHelper.GetCourses();
-    private List<DashboardCourseInfo> DashboardCourses = new();
+    .courses-loading {
+        min-height: 360px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .courses-hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(260px, 420px);
+        gap: 24px;
+        align-items: center;
+        margin-top: 20px;
+        padding: 28px;
+        border: 1px solid var(--mud-palette-lines-default);
+        border-radius: 8px;
+        background: linear-gradient(135deg, rgba(25, 118, 210, 0.12), rgba(76, 175, 80, 0.08));
+    }
+
+    .courses-eyebrow {
+        color: var(--mud-palette-primary);
+        font-weight: 700;
+    }
+
+    .courses-heading {
+        margin-top: 4px;
+        font-weight: 800;
+    }
+
+    .courses-copy {
+        max-width: 680px;
+        margin-top: 10px;
+        color: var(--mud-palette-text-secondary);
+    }
+
+    .courses-summary {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .courses-summary > div {
+        min-height: 92px;
+        padding: 16px;
+        border: 1px solid var(--mud-palette-lines-default);
+        border-radius: 8px;
+        background: var(--mud-palette-surface);
+    }
+
+    .summary-value {
+        display: block;
+        font-size: 1.75rem;
+        line-height: 1;
+        font-weight: 800;
+    }
+
+    .summary-label {
+        display: block;
+        margin-top: 8px;
+        color: var(--mud-palette-text-secondary);
+        font-size: 0.8125rem;
+    }
+
+    .overall-progress {
+        display: grid;
+        grid-template-columns: minmax(180px, 260px) minmax(0, 1fr);
+        gap: 18px;
+        align-items: center;
+        margin: 24px 0 18px;
+        padding: 18px 20px;
+        border: 1px solid var(--mud-palette-lines-default);
+        border-radius: 8px;
+        background: var(--mud-palette-surface);
+    }
+
+    .overall-progress-bar,
+    .course-progress-bar {
+        height: 8px;
+    }
+
+    .courses-grid {
+        align-items: stretch;
+    }
+
+    .course-card {
+        --course-accent: #64748b;
+        --course-border: rgba(100, 116, 139, 0.42);
+        --course-tint: rgba(100, 116, 139, 0.08);
+        --course-icon-bg: rgba(100, 116, 139, 0.12);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+        padding: 20px;
+        border: 1px solid var(--course-border);
+        border-left: 6px solid var(--course-accent);
+        border-radius: 8px;
+        background: linear-gradient(135deg, var(--course-tint) 0%, var(--mud-palette-surface) 44%, var(--mud-palette-surface) 100%);
+        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.08);
+        transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+    }
+
+    .course-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 16px 36px rgba(0, 0, 0, 0.12);
+        border-color: var(--course-accent);
+    }
+
+    .course-card.not-started {
+        --course-accent: #64748b;
+        --course-border: rgba(100, 116, 139, 0.42);
+        --course-tint: rgba(100, 116, 139, 0.08);
+        --course-icon-bg: rgba(100, 116, 139, 0.12);
+    }
+
+    .course-card.in-progress {
+        --course-accent: #b7791f;
+        --course-border: rgba(183, 121, 31, 0.48);
+        --course-tint: rgba(183, 121, 31, 0.1);
+        --course-icon-bg: rgba(183, 121, 31, 0.14);
+    }
+
+    .course-card.completed {
+        --course-accent: #2f7d5a;
+        --course-border: rgba(47, 125, 90, 0.5);
+        --course-tint: rgba(47, 125, 90, 0.1);
+        --course-icon-bg: rgba(47, 125, 90, 0.14);
+    }
+
+    .course-card-header,
+    .course-progress-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .course-icon-shell {
+        width: 54px;
+        height: 54px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        background: var(--course-icon-bg);
+    }
+
+    .course-card-body {
+        min-height: 96px;
+    }
+
+    .course-card-title {
+        font-weight: 800;
+        line-height: 1.2;
+    }
+
+    .course-card-description {
+        margin-top: 8px;
+        color: var(--mud-palette-text-secondary);
+    }
+
+    .course-action {
+        margin-top: auto;
+    }
+
+    @@media (max-width: 900px) {
+        .courses-hero {
+            grid-template-columns: 1fr;
+        }
+
+        .overall-progress {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @@media (max-width: 600px) {
+        .courses-page {
+            padding-top: 16px;
+        }
+
+        .courses-hero {
+            padding: 20px;
+        }
+
+        .courses-summary {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+@code {
+    [Inject] private NavigationManager Navigation { get; set; } = default!;
+    [Inject] private AuthenticationStateProvider AuthenticationState { get; set; } = default!;
+    [Inject] private IUserService UserService { get; set; } = default!;
+
+    private ApplicationUser? User { get; set; }
+    private List<Course> CourseList { get; } = CourseHelper.GetCourses();
+    private List<CourseCardInfo> DashboardCourses { get; set; } = new();
 
     private bool IsLoading = true;
     private string UserId = string.Empty;
-    private TimeSpan LoadTime = TimeSpan.Zero;
-    private Size _chipSize = Size.Large;
-    private Size _buttonSize = Size.Medium;
+
+    private int CompletedChapters => DashboardCourses.Sum(course => course.CompletedChapters);
+    private int TotalChapters => DashboardCourses.Sum(course => course.TotalChapters);
+    private int CompletedCourses => DashboardCourses.Count(course => course.Status == DashBoardCourseStatus.Completed);
+    private int CoursesInProgress => DashboardCourses.Count(course => course.Status == DashBoardCourseStatus.InProgress);
+    private double OverallProgress => TotalChapters == 0 ? 0 : Math.Round((double)CompletedChapters / TotalChapters * 100);
 
     protected override async Task OnInitializedAsync()
     {
-        var startTime = DateTime.UtcNow;
-        var authSate = await AuthenticationState.GetAuthenticationStateAsync();
+        var authState = await AuthenticationState.GetAuthenticationStateAsync();
 
-        if (!authSate.User.Identity.IsAuthenticated)
+        if (authState.User.Identity?.IsAuthenticated != true)
         {
             Navigation.NavigateTo("Account/Login");
+            return;
         }
 
-        var claims = authSate.User;
-        UserId = claims.FindFirstValue(ClaimTypes.NameIdentifier);
+        UserId = authState.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
         User = await UserService.GetUserById(UserId);
 
         GetCourseInfo();
-
-        LoadTime = DateTime.UtcNow - startTime;
 
         IsLoading = false;
     }
 
     private void GetCourseInfo()
     {
-        var oopCourse = CourseList.FirstOrDefault(x => x.Id == 1);
-        var oopIds = oopCourse.Articles.Select(c => c.Id).ToList();
-        var completedOopIds = oopIds.Where(id => User.DashboardProjects.Any(dp => dp.IsCompleted && dp.ProjectId == id)).ToList();
+        if (User is null)
+        {
+            DashboardCourses = new();
+            return;
+        }
 
-        DashboardCourses.Add
-        (
-            new DashboardCourseInfo
-                {
-                    Id = 1,
-                    Title = oopCourse.Title,
-                    Description = $"{completedOopIds.Count} out of {oopIds.Count} chapters completed",
-                    ImgUrl = oopCourse.ImgUrl,
-                    Status = GetCourseStatus(completedOopIds, oopIds),
-                }
-        );
-
-        var webApiCourse = CourseList.FirstOrDefault(x => x.Id == 3);
-        var webApiIds = webApiCourse.Articles.Select(c => c.Id).ToList();
-        var completeWebApiIds = webApiIds.Where(id => User.DashboardProjects.Any(dp => dp.IsCompleted && dp.ProjectId == id)).ToList();
-
-        DashboardCourses.Add
-        (
-            new DashboardCourseInfo
-                {
-                    Id = 3,
-                    Title = webApiCourse.Title,
-                    Description = $"{completeWebApiIds.Count} out of {webApiIds.Count} chapters completed",
-                    ImgUrl = webApiCourse.ImgUrl,
-                    Status = GetCourseStatus(completeWebApiIds, webApiIds)
-                }
-        );
-
-        var sqlCourse = CourseList.FirstOrDefault(x => x.Id == 4);
-        var sqlCourseIds = sqlCourse.Articles.Select(c => c.Id).ToList();
-        var completeSqlCourseIds = sqlCourseIds.Where(id => User.DashboardProjects.Any(dp => dp.IsCompleted && dp.ProjectId == id)).ToList();
-
-        DashboardCourses.Add
-        (
-            new DashboardCourseInfo
+        DashboardCourses = CourseList
+            .Where(course => course.Articles.Count > 0)
+            .Select(course =>
             {
-                Id = 4,
-                Title = sqlCourse.Title,
-                Description = $"{completeSqlCourseIds.Count} out of {sqlCourseIds.Count} chapters completed",
-                ImgUrl = sqlCourse.ImgUrl,
-                Status = GetCourseStatus(completeSqlCourseIds, sqlCourseIds)
-            }
-        );
+                var articleIds = course.Articles.Select(article => article.Id).ToList();
+                var completedCount = articleIds.Count(id =>
+                    User.DashboardProjects.Any(project => project.IsCompleted && project.ProjectId == id));
 
-        var wpfCourse = CourseList.FirstOrDefault(x => x.Id == 5);
-        var wpfCourseIds = wpfCourse.Articles.Select(c => c.Id).ToList();
-        var completeWpfCourseIds = wpfCourseIds.Where(id => User.DashboardProjects.Any(dp => dp.IsCompleted && dp.ProjectId == id)).ToList();
-
-        DashboardCourses.Add
-        (
-            new DashboardCourseInfo
+                return new CourseCardInfo
                 {
-                    Id = 5,
-                    Title = wpfCourse.Title,
-                    Description = $"{completeWpfCourseIds.Count} out of {wpfCourseIds.Count} chapters completed",
-                    ImgUrl = wpfCourse.ImgUrl,
-                    Status = GetCourseStatus(completeWpfCourseIds, wpfCourseIds)
-                }
-        );
-
-        var diCourse = CourseList.FirstOrDefault(x => x.Id == 6);
-        var diCourseIds = diCourse.Articles.Select(c => c.Id).ToList();
-        var completeDiCourseIds = diCourseIds.Where(id => User.DashboardProjects.Any(dp => dp.IsCompleted && dp.ProjectId == id)).ToList();
-
-        DashboardCourses.Add
-        (
-            new DashboardCourseInfo
-            {
-                Id = 6,
-                Title = diCourse.Title,
-                Description = $"{completeDiCourseIds.Count} out of {diCourseIds.Count} chapters completed",
-                ImgUrl = diCourse.ImgUrl,
-                Status = GetCourseStatus(completeDiCourseIds, diCourseIds)
-            }
-        );
-
-        var reactCourse = CourseList.FirstOrDefault(x => x.Id == 7);
-        var reactCourseIds = reactCourse.Articles.Select(c => c.Id).ToList();
-        var completeReactCourseIds = reactCourseIds.Where(id => User.DashboardProjects.Any(dp => dp.IsCompleted && dp.ProjectId == id)).ToList();
-
-        // DashboardCourses.Add
-        // (
-        //     new DashboardCourseInfo
-        //     {
-        //         Id = 7,
-        //         Title = reactCourse.Title,
-        //         Description = $"{completeReactCourseIds.Count} out of {reactCourseIds.Count} chapters completed",
-        //         ImgUrl = reactCourse.ImgUrl,
-        //         Status = GetCourseStatus(completeReactCourseIds, diCourseIds)
-        //     }
-        // );
+                    Id = course.Id,
+                    Title = course.Title,
+                    Description = course.Description,
+                    ImgUrl = course.ImgUrl,
+                    CompletedChapters = completedCount,
+                    TotalChapters = articleIds.Count,
+                    Status = GetCourseStatus(completedCount, articleIds.Count)
+                };
+            })
+            .ToList();
     }
 
     private void NavigateToCourse(int courseId)
     {
         var course = CourseList.Single(c => c.Id == courseId);
         var firstArticle = course.Articles.First();
-        var isCode = false;
+        const bool isCode = false;
+
         Navigation.NavigateTo($"/course/{courseId}/article/{firstArticle.CourseDisplayId}/{firstArticle.Id}/{isCode}");
     }
 
-    private void BreakpointChanged(Breakpoint breakpoint)
+    private static DashBoardCourseStatus GetCourseStatus(int completedCount, int totalCount)
     {
-        if (breakpoint < Breakpoint.Sm)
-        {
-            _chipSize = Size.Small;
-            _buttonSize = Size.Small;
-        } else
-        {
-            _chipSize = Size.Large;
-            _buttonSize = Size.Medium;
-        }
-
-        StateHasChanged();
-    }
-
-    private DashBoardCourseStatus GetCourseStatus(List<int> completedIds, List<int> allIds)
-    {
-        if (completedIds.Count == 0)
+        if (completedCount == 0)
         {
             return DashBoardCourseStatus.NotStarted;
         }
-        else if (completedIds.Count == allIds.Count)
+
+        return completedCount == totalCount
+            ? DashBoardCourseStatus.Completed
+            : DashBoardCourseStatus.InProgress;
+    }
+
+    private static Color GetStatusColor(DashBoardCourseStatus status)
+    {
+        return status switch
         {
-            return DashBoardCourseStatus.Completed;
-        }
-        else
+            DashBoardCourseStatus.Completed => Color.Success,
+            DashBoardCourseStatus.InProgress => Color.Primary,
+            _ => Color.Default
+        };
+    }
+
+    private static string GetStatusLabel(DashBoardCourseStatus status)
+    {
+        return status switch
         {
-            return DashBoardCourseStatus.InProgress;
-        }
+            DashBoardCourseStatus.Completed => "Completed",
+            DashBoardCourseStatus.InProgress => "In Progress",
+            _ => "Not Started"
+        };
+    }
+
+    private static string GetActionLabel(DashBoardCourseStatus status)
+    {
+        return status == DashBoardCourseStatus.NotStarted ? "Start Course" : "Continue Course";
+    }
+
+    private static string GetCourseCardClass(DashBoardCourseStatus status)
+    {
+        return status switch
+        {
+            DashBoardCourseStatus.Completed => "course-card completed",
+            DashBoardCourseStatus.InProgress => "course-card in-progress",
+            _ => "course-card not-started"
+        };
+    }
+
+    private sealed class CourseCardInfo
+    {
+        public int Id { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public string ImgUrl { get; set; } = string.Empty;
+        public int CompletedChapters { get; set; }
+        public int TotalChapters { get; set; }
+        public DashBoardCourseStatus Status { get; set; }
+        public double ProgressPercent => TotalChapters == 0 ? 0 : Math.Round((double)CompletedChapters / TotalChapters * 100);
+        public string ChapterLabel => TotalChapters == 1 ? "chapter" : "chapters";
     }
 }

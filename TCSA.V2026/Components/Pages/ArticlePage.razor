@@ -38,57 +38,59 @@
                 {
                     var block = Article.Blocks[blockIndex];
                     var capturedBlockIndex = blockIndex;
-                    if (!string.IsNullOrWhiteSpace(block.Title))
-                    {
-                        <h2 class="mud-typography-h6 mt-10 mb-2" id="@ContentAnchors.ArticleBlockTitleId(capturedBlockIndex)">@block.Title</h2>
-                    }
-
-                    @for (var paragraphIndex = 0; paragraphIndex < block.Paragraphs.Count; paragraphIndex++)
-                    {
-                        var paragraph = block.Paragraphs[paragraphIndex];
-                        var capturedParagraphIndex = paragraphIndex;
-                        if (paragraph.IsPicture)
+                    <div class="@GetBlockClass(block)" style="@GetBlockStyle(block)">
+                        @if (!string.IsNullOrWhiteSpace(block.Title))
                         {
-                            <MudPaper Class="d-flex justify-center mx-20 mt-10 article-media-wrap" Elevation="0">
-                                <MudImage Src="@GetImage(paragraph)" Alt="Image paragraph" Fluid="true" Class="rounded-lg" />
-                            </MudPaper>
+                            <h2 class="mud-typography-h6 mt-10 mb-2" id="@ContentAnchors.ArticleBlockTitleId(capturedBlockIndex)">@block.Title</h2>
                         }
 
-                        else if (paragraph.IsVideo)
+                        @for (var paragraphIndex = 0; paragraphIndex < block.Paragraphs.Count; paragraphIndex++)
                         {
-                            <div class="video-wrapper mt-3 mb-4">
-                                <iframe class="video-iframe" src="@paragraph.VideoUrl" allowfullscreen></iframe>
-                            </div>
-                        }
-
-                        else if (paragraph.IsCode)
-                        {
-                            <pre class="line-numbers"><code class="language-csharp">@((MarkupString)paragraph.Body)</code></pre>
-                        }
-
-                        else if (!string.IsNullOrEmpty(paragraph.Body))
-                        {
-                            if (!string.IsNullOrWhiteSpace(paragraph.BackgroundColor))
+                            var paragraph = block.Paragraphs[paragraphIndex];
+                            var capturedParagraphIndex = paragraphIndex;
+                            if (paragraph.IsPicture)
                             {
-                                var bgStyle = $"background-color: {paragraph.BackgroundColor}; padding: 1rem;";
-                                var textStyle = $"color: {paragraph.FontColor};";
-
-                                <MudPaper Style="@bgStyle" Elevation="1" Class="my-2">
-                                        <MudText Style="@textStyle" Typo="Typo.body1"
-                                            UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ArticleBlockParagraphId(capturedBlockIndex, capturedParagraphIndex) })">
-                                        @((MarkupString)paragraph.Body)
-                                    </MudText>
+                                <MudPaper Class="d-flex justify-center mx-20 mt-10 article-media-wrap" Elevation="0">
+                                    <MudImage Src="@GetImage(paragraph)" Alt="Image paragraph" Fluid="true" Class="rounded-lg" />
                                 </MudPaper>
                             }
-                            else
+
+                            else if (paragraph.IsVideo)
                             {
+                                <div class="video-wrapper mt-3 mb-4">
+                                    <iframe class="video-iframe" src="@paragraph.VideoUrl" allowfullscreen></iframe>
+                                </div>
+                            }
+
+                            else if (paragraph.IsCode)
+                            {
+                                <pre class="line-numbers"><code class="language-csharp">@((MarkupString)paragraph.Body)</code></pre>
+                            }
+
+                            else if (!string.IsNullOrEmpty(paragraph.Body))
+                            {
+                                if (!string.IsNullOrWhiteSpace(paragraph.BackgroundColor))
+                                {
+                                    var bgStyle = $"background-color: {paragraph.BackgroundColor}; padding: 1rem;";
+                                    var textStyle = $"color: {paragraph.FontColor};";
+
+                                    <MudPaper Style="@bgStyle" Elevation="1" Class="my-2">
+                                            <MudText Style="@textStyle" Typo="Typo.body1"
+                                                UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ArticleBlockParagraphId(capturedBlockIndex, capturedParagraphIndex) })">
+                                            @((MarkupString)paragraph.Body)
+                                        </MudText>
+                                    </MudPaper>
+                                }
+                                else
+                                {
                                     <MudText Class="mt-2 mb-5" Typo="Typo.body1"
                                              UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ArticleBlockParagraphId(capturedBlockIndex, capturedParagraphIndex) })">
-                                    @((MarkupString)paragraph.Body)
-                                </MudText>
+                                        @((MarkupString)paragraph.Body)
+                                    </MudText>
+                                }
                             }
                         }
-                    }
+                    </div>
                 }
             </MudPaper>
         </MudItem>
@@ -150,6 +152,35 @@
     }
 
     private string GetImage(Paragraph paragraph) => $"img/{paragraph.PictureUrl}";
+
+    private static string GetBlockClass(Data.Models.Block block)
+    {
+        return string.IsNullOrWhiteSpace(block.CssClass)
+            ? "article-content-block"
+            : $"article-content-block {block.CssClass}";
+    }
+
+    private static string? GetBlockStyle(Data.Models.Block block)
+    {
+        if (string.IsNullOrWhiteSpace(block.BackgroundColor) && string.IsNullOrWhiteSpace(block.FontColor))
+        {
+            return null;
+        }
+
+        var styles = new List<string>();
+
+        if (!string.IsNullOrWhiteSpace(block.BackgroundColor))
+        {
+            styles.Add($"background-color: {block.BackgroundColor}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(block.FontColor))
+        {
+            styles.Add($"color: {block.FontColor}");
+        }
+
+        return string.Join("; ", styles);
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -269,6 +300,28 @@
 
     .article-content {
         margin-top: 0.4rem;
+    }
+
+    .article-content-block {
+        border-radius: 14px;
+        margin: 1.25rem 0;
+    }
+
+    .article-content-block[style*="background-color"] {
+        padding: 1.25rem 1.4rem;
+    }
+
+    .course-exercise-block {
+        padding: 1.4rem 1.5rem 0.5rem;
+        border: 1px solid color-mix(in srgb, var(--mud-palette-success) 28%, var(--mud-palette-lines-default));
+        border-left: 6px solid color-mix(in srgb, var(--mud-palette-success) 76%, #2f6f62);
+        background: linear-gradient(135deg, color-mix(in srgb, var(--mud-palette-success) 13%, var(--mud-palette-surface)) 0%, var(--mud-palette-surface) 72%);
+        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.08);
+    }
+
+    .course-exercise-block h2 {
+        margin-top: 0 !important;
+        color: color-mix(in srgb, var(--mud-palette-success) 72%, var(--mud-palette-text-primary));
     }
 
     .article-media-wrap {

@@ -416,7 +416,7 @@ public class WebApiCourse
                                           Body = "public class Flight\r\n{\r\n    public int Id { get; set; }\r\n    public int FlightNumber { get; set; }\r\n    public string AirlineName { get; set; } = string.Empty;\r\n    public string DepartureAirportCode { get; set; } = string.Empty;\r\n    public string ArrivalAirportCode { get; set; } = string.Empty;\r\n    public DateTime DepartureDateTime { get; set; }\r\n    public DateTime ArrivalDateTime { get; set; }\r\n    public int PassengerCapacity { get; set; }\r\n}"
                                       },
                                        new Paragraph { Body = "This class represents a <b>flight in the database</b>, and each of these properties correspond to a column in the Flights table." },
-                                        new Paragraph { Body = "If you've never used a Model before in C#, we recommend <a href='https://www.thecsharpacademy.com/course/1/article/0/0/false' target='_blank'>you do our Object Oriented Programming Crash Course</a> first. You might need to close some knowledge gaps before learning about Web APIs." },
+                                        new Paragraph { Body = "If you've never used a Model before in C#, we recommend <a href='https://www.thecsharpacademy.com/course/1/article/1/500025/false' target='_blank'>you do our Object Oriented Programming Crash Course</a> first. You might need to close some knowledge gaps before learning about Web APIs." },
                                 },
                             },
                             new Block
@@ -521,7 +521,7 @@ public class WebApiCourse
                                 Title = "Database File",
                                 Paragraphs = new List<Paragraph>
                                 {
-                                      new Paragraph { Body = "In the picture above we can also see a <b>Flights.db</b> file. This is an Sqlite database file. You can visualise its contents using an external app such as <a href='https://www.thecsharpacademy.com/course/1/article/0/0/false' target='_blank'>DB Browser</a>." },
+                                      new Paragraph { Body = "In the picture above we can also see a <b>Flights.db</b> file. This is an Sqlite database file. You can visualise its contents using an external app such as <a href='https://www.thecsharpacademy.com/course/1/article/1/0/false' target='_blank'>DB Browser</a>." },
                                       new Paragraph { Body = "Then open the file using Db Browser. You should see the created tables:" },
                                       new Paragraph {
                                           IsPicture = true,
@@ -567,7 +567,7 @@ public class WebApiCourse
                                 Paragraphs = new List<Paragraph>
                                 {
                                     new Paragraph {
-                                        Body = "An <b>interface</b> in programming is a way to define a contract or a set of rules that a class must follow. It's like a blueprint for classes, specifying what methods should be implemented, but typically it doesn't provide the implementation details itself. If you haven't worked with C# interfaces before, we recommend <a href='https://www.thecsharpacademy.com/course/1/article/0/0/false' target='_blank'>you do our Object Oriented Programming Crash Course</a>."
+                                        Body = "An <b>interface</b> in programming is a way to define a contract or a set of rules that a class must follow. It's like a blueprint for classes, specifying what methods should be implemented, but typically it doesn't provide the implementation details itself. If you haven't worked with C# interfaces before, we recommend <a href='https://www.thecsharpacademy.com/course/1/article/1/500025/false' target='_blank'>you do our Object Oriented Programming Crash Course</a>."
                                     },
                                     new Paragraph {
                                         Body = "Although <a href='https://stackoverflow.com/questions/6802573/interfaces-whats-the-point' target='_blank'>there's a lot of debate about the necessity and importance of using interfaces</a>, it can't be disputed that they are an important part of C# design, being applied in several design patterns. In our app we will be using the <b>Dependency Inversion Principle (DIP)</b>, which is one of the five <b>SOLID principles</b> of object-oriented programming."

@@ -17,7 +17,7 @@ public class OopCourse
                     new Article
                     {
                         Id = 500025,
-                        CourseDisplayId = 0,
+                        CourseDisplayId = 1,
                         Title = "Introduction",
                         Slug = "oop-introduction",
                         Description = "Let's create the console app, install a package and write some code!",
@@ -78,7 +78,7 @@ public class OopCourse
                     new Article
                     {
                         Id = 500000,
-                        CourseDisplayId = 1,
+                        CourseDisplayId = 2,
                         Title = "What Is OOP?",
                         Slug = "getting-started-with-csharp",
                         Description = "Learn the fundamentals of C# programming language.",
@@ -118,7 +118,7 @@ public class OopCourse
                     new Article
                     {
                         Id = 500001,
-                        CourseDisplayId = 2,
+                        CourseDisplayId = 3,
                         Title = "About this course",
                         Slug = "getting-started-with-csharp",
                         Description = "About this Cou",
@@ -182,7 +182,7 @@ public class OopCourse
                     new Article
                     {
                         Id = 500002,
-                        CourseDisplayId = 3,
+                        CourseDisplayId = 4,
                         Title = "Creating the Course Project",
                         Slug = "oop-course-project",
                         Description = "Let's create the console app, install a package and write some code!",
@@ -278,7 +278,7 @@ public class OopCourse
                     new Article
                     {
                         Id = 500003,
-                        CourseDisplayId = 4,
+                        CourseDisplayId = 5,
                         Title = "Basic Functionality",
                         Slug = "oop-course-project-functionality",
                         Description = "Let's create the console app, install a package and write some code!",
@@ -377,7 +377,7 @@ public class OopCourse
                     new Article
                     {
                         Id = 500004,
-                        CourseDisplayId = 5,
+                        CourseDisplayId = 6,
                         Title = "Enumerations",
                         Slug = "object-oriented-enums",
                         Description = "Let's create the console app, install a package and write some code!",
@@ -461,7 +461,7 @@ public class OopCourse
                     new Article
                     {
                         Id = 500005,
-                        CourseDisplayId = 6,
+                        CourseDisplayId = 7,
                         Title = "Methods",
                         Slug = "object-oriented-methods",
                         Description = "Let's create the console app, install a package and write some code!",
@@ -539,7 +539,7 @@ public class OopCourse
                     new Article
                     {
                         Id = 500006,
-                        CourseDisplayId = 7,
+                        CourseDisplayId = 8,
                         Title = "Classes",
                         Slug = "object-oriented-classes",
                         Description = "Let's create the console app, install a package and write some code!",
@@ -639,7 +639,7 @@ public class OopCourse
                     new Article
                     {
                         Id = 500007,
-                        CourseDisplayId = 8,
+                        CourseDisplayId = 9,
                         Title = "Top-level Statements",
                         Slug = "c-sharp-top-level-statements",
                         Description = "Let's create the console app, install a package and write some code!",
@@ -685,7 +685,7 @@ public class OopCourse
                     new Article
                     {
                         Id = 500008,
-                        CourseDisplayId = 9,
+                        CourseDisplayId = 10,
                         Title = "Access Modifiers",
                         Slug = "object-oriented-access-modifiers",
                         Description = "Let's create the console app, install a package and write some code!",
@@ -747,7 +747,7 @@ public class OopCourse
                     new Article
                     {
                         Id = 500009,
-                        CourseDisplayId = 10,
+                        CourseDisplayId = 11,
                         Title = "Creating More Classes",
                         Slug = "object-oriented-more-classes",
                         Description = "Let's create the console app, install a package and write some code!",
@@ -848,7 +848,7 @@ public class OopCourse
                     new Article
                     {
                         Id = 500010,
-                        CourseDisplayId = 11,
+                        CourseDisplayId = 12,
                         Title = "Objects",
                         Slug = "object-oriented-objects",
                         Description = "Let's create the console app, install a package and write some code!",
@@ -909,7 +909,7 @@ public class OopCourse
                     new Article
                     {
                         Id = 500011,
-                        CourseDisplayId = 12,
+                        CourseDisplayId = 13,
                         Title = "Static",
                         Slug = "object-oriented-static",
                         Description = "Let's create the console app, install a package and write some code!",
@@ -955,7 +955,7 @@ public class OopCourse
                     new Article
                     {
                         Id = 500012,
-                        CourseDisplayId = 13,
+                        CourseDisplayId = 14,
                         Title = "Practicing With Objects",
                         Slug = "object-oriented-practice",
                         Description = "Let's create the console app, install a package and write some code!",
@@ -1086,7 +1086,7 @@ public class OopCourse
                     new Article
                     {
                         Id = 500013,
-                        CourseDisplayId = 14,
+                        CourseDisplayId = 15,
                         Title = "Tuples",
                         Slug = "object-oriented-tuples",
                         Description = "Let's create the console app, install a package and write some code!",
@@ -1142,7 +1142,7 @@ public class OopCourse
                     new Article
                     {
                         Id = 500014,
-                        CourseDisplayId = 15,
+                        CourseDisplayId = 16,
                         Title = "Constructors",
                         Slug = "object-oriented-constructors",
                         Description = "Let's create the console app, install a package and write some code!",
@@ -1234,7 +1234,7 @@ public class OopCourse
                     new Article
                     {
                         Id = 500015,
-                        CourseDisplayId = 16,
+                        CourseDisplayId = 17,
                         Title = "Properties",
                         Slug = "object-oriented-properties",
                         Description = "Let's create the console app, install a package and write some code!",
@@ -1289,7 +1289,7 @@ public class OopCourse
                     new Article
                     {
                         Id = 500016,
-                        CourseDisplayId = 17,
+                        CourseDisplayId = 18,
                         Title = "Models",
                         Slug = "object-oriented-models",
                         Description = "Let's create the console app, install a package and write some code!",
@@ -1439,7 +1439,7 @@ public class OopCourse
                     new Article
                     {
                         Id = 500017,
-                        CourseDisplayId = 18,
+                        CourseDisplayId = 19,
                         Title = "Abstract Classes",
                         Slug = "object-oriented-abstract-classes",
                         Description = "Let's create the console app, install a package and write some code!",
@@ -1499,7 +1499,7 @@ public class OopCourse
                     new Article
                     {
                         Id = 500018,
-                        CourseDisplayId = 19,
+                        CourseDisplayId = 20,
                         Title = "Applying Abstract Classes",
                         Slug = "applying-abstract-classes",
                         Description = "Let's create the console app, install a package and write some code!",
@@ -1629,7 +1629,7 @@ public class OopCourse
                     new Article
                     {
                         Id = 500019,
-                        CourseDisplayId = 20,
+                        CourseDisplayId = 21,
                         Title = "Refactoring",
                         Slug = "oop-refactoring",
                         Description = "Let's create the console app, install a package and write some code!",
@@ -1795,7 +1795,7 @@ public class OopCourse
                     new Article
                     {
                         Id = 500020,
-                        CourseDisplayId = 21,
+                        CourseDisplayId = 22,
                         Title = "Interfaces",
                         Slug = "interfaces",
                         Description = "Let's create the console app, install a package and write some code!",
@@ -1822,7 +1822,7 @@ public class OopCourse
                     new Article
                     {
                         Id = 500021,
-                        CourseDisplayId = 22,
+                        CourseDisplayId = 23,
                         Title = "Applying Interfaces",
                         Slug = "applying-interfaces",
                         Description = "Let's create the console app, install a package and write some code!",
@@ -2032,7 +2032,7 @@ public class OopCourse
                     new Article
                     {
                         Id = 500022,
-                        CourseDisplayId = 23,
+                        CourseDisplayId = 24,
                         Title = "Modifying The Menu",
                         Slug = "oop-modifying-menu",
                         Description = "Let's create the console app, install a package and write some code!",
@@ -2242,7 +2242,7 @@ public class OopCourse
                     new Article
                     {
                         Id = 500023,
-                        CourseDisplayId = 24,
+                        CourseDisplayId = 25,
                         Title = "Complex Inheritance",
                         Slug = "oop-complex-inheritance",
                         Description = "Let's create the console app, install a package and write some code!",
@@ -2447,7 +2447,7 @@ public class OopCourse
                     new Article
                     {
                         Id = 500024,
-                        CourseDisplayId = 25,
+                        CourseDisplayId = 26,
                         Title = "Conclusion",
                         Slug = "oop-conclusion",
                         Description = "Let's create the console app, install a package and write some code!",

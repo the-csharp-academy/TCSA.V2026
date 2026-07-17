@@ -91,47 +91,49 @@
                     <div class="course-content">
                         @foreach (var block in BlocksToShow)
                         {
-                            if (!string.IsNullOrEmpty(block.Title))
-                            {
-                                <h2 class="course-block-title">@block.Title</h2>
-                            }
+                            <div class="@GetBlockClass(block)" style="@GetBlockStyle(block)">
+                                @if (!string.IsNullOrEmpty(block.Title))
+                                {
+                                    <h2 class="course-block-title">@block.Title</h2>
+                                }
 
-                            @foreach (var paragraph in block.Paragraphs)
-                            {
-                                if (paragraph.IsCode)
+                                @foreach (var paragraph in block.Paragraphs)
                                 {
-                                    <MudPaper Class="course-code-block overflow-auto line-numbers" Elevation="0">
-                                        <pre class="line-numbers"><code class="language-csharp">@((MarkupString)paragraph.Body)</code></pre>
-                                    </MudPaper>
-                                }
-                                else if (paragraph.IsPicture)
-                                {
-                                    var imageSrc = $"img/courseimages/{paragraph.PictureUrl}";
-                                    <MudPaper Class="course-image-panel" Elevation="1">
-                                        <MudImage Src="@imageSrc" Alt="Course image" Fluid="true" />
-                                    </MudPaper>
-                                }
-                                else
-                                {
-                                    if (!string.IsNullOrWhiteSpace(paragraph.BackgroundColor))
+                                    if (paragraph.IsCode)
                                     {
-                                        var bgStyle = $"background-color: {paragraph.BackgroundColor}; padding: 1rem";
-                                        var textStyle = $"color: {paragraph.FontColor};";
-
-                                        <MudPaper Style="@bgStyle" Elevation="1" Class="course-callout">
-                                            <MudText Style="@textStyle" Typo="Typo.body1">
-                                                @((MarkupString)paragraph.Body)
-                                            </MudText>
+                                        <MudPaper Class="course-code-block overflow-auto line-numbers" Elevation="0">
+                                            <pre class="line-numbers"><code class="language-csharp">@((MarkupString)paragraph.Body)</code></pre>
+                                        </MudPaper>
+                                    }
+                                    else if (paragraph.IsPicture)
+                                    {
+                                        var imageSrc = $"img/courseimages/{paragraph.PictureUrl}";
+                                        <MudPaper Class="course-image-panel" Elevation="1">
+                                            <MudImage Src="@imageSrc" Alt="Course image" Fluid="true" />
                                         </MudPaper>
                                     }
                                     else
                                     {
-                                        <MudText Class="course-paragraph" Typo="Typo.body1">
-                                            @((MarkupString)paragraph.Body)
-                                        </MudText>
+                                        if (!string.IsNullOrWhiteSpace(paragraph.BackgroundColor))
+                                        {
+                                            var bgStyle = $"background-color: {paragraph.BackgroundColor}; padding: 1rem";
+                                            var textStyle = $"color: {paragraph.FontColor};";
+
+                                            <MudPaper Style="@bgStyle" Elevation="1" Class="course-callout">
+                                                <MudText Style="@textStyle" Typo="Typo.body1">
+                                                    @((MarkupString)paragraph.Body)
+                                                </MudText>
+                                            </MudPaper>
+                                        }
+                                        else
+                                        {
+                                            <MudText Class="course-paragraph" Typo="Typo.body1">
+                                                @((MarkupString)paragraph.Body)
+                                            </MudText>
+                                        }
                                     }
                                 }
-                            }
+                            </div>
                         }
                     </div>
 
@@ -339,11 +341,38 @@
         padding: 8px 36px 32px;
     }
 
+    .course-content-block {
+        border-radius: 12px;
+        margin: 20px 0;
+    }
+
+    .course-content-block[style*="background-color"] {
+        padding: 20px 22px;
+    }
+
+    .course-exercise-block {
+        margin: 30px 0;
+        padding: 22px 24px 8px;
+        border: 1px solid color-mix(in srgb, var(--mud-palette-success) 28%, var(--mud-palette-lines-default));
+        border-left: 6px solid color-mix(in srgb, var(--mud-palette-success) 76%, #2f6f62);
+        background: linear-gradient(135deg, color-mix(in srgb, var(--mud-palette-success) 13%, var(--mud-palette-surface)) 0%, var(--mud-palette-surface) 72%);
+        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.08);
+    }
+
+    .course-exercise-block .course-block-title {
+        margin-top: 0;
+        color: color-mix(in srgb, var(--mud-palette-success) 72%, var(--mud-palette-text-primary));
+        border-left-color: color-mix(in srgb, var(--mud-palette-success) 76%, #2f6f62);
+    }
+
     .course-block-title {
-        color: var(--mud-palette-primary);
+        color: #a63a3a;
         font-size: 1.35rem;
         font-weight: 800;
+        line-height: 1.25;
         margin: 34px 0 14px;
+        padding-left: 14px;
+        border-left: 4px solid #c85b5b;
     }
 
     .course-paragraph {
@@ -455,6 +484,35 @@
     private string CourseProgressText => $"{CourseProgress:0.#}% complete";
     private string LessonLabel => IsCode ? $"Lesson {ArticleDisplayId} · source code" : $"Lesson {ArticleDisplayId}";
     private bool ShowArticleActions => (!IsCode && IsLoggedIn && !IsCompleted) || (!IsCode && Article.Blocks.Any(x => x.IsCourseCodePage));
+
+    private static string GetBlockClass(Data.Models.Block block)
+    {
+        return string.IsNullOrWhiteSpace(block.CssClass)
+            ? "course-content-block"
+            : $"course-content-block {block.CssClass}";
+    }
+
+    private static string? GetBlockStyle(Data.Models.Block block)
+    {
+        if (string.IsNullOrWhiteSpace(block.BackgroundColor) && string.IsNullOrWhiteSpace(block.FontColor))
+        {
+            return null;
+        }
+
+        var styles = new List<string>();
+
+        if (!string.IsNullOrWhiteSpace(block.BackgroundColor))
+        {
+            styles.Add($"background-color: {block.BackgroundColor}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(block.FontColor))
+        {
+            styles.Add($"color: {block.FontColor}");
+        }
+
+        return string.Join("; ", styles);
+    }
 
     private string GetNavItemClass(int articleId)
     {
