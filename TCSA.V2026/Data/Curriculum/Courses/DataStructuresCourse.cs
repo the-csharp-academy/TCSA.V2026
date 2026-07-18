@@ -71,7 +71,7 @@ public class DataStructuresCourse
                                 },
                                 new Paragraph
                                 {
-                                    Body = "Big O notation, linked lists, trees, heaps, graphs, and advanced algorithms belong in a future <b>Data Structures and Algorithms</b> course. You do not need that knowledge to begin this course."
+                                    Body = "Big O notation, complexity analysis, linked lists, trees, heaps, graphs, and advanced algorithms belong in a future <b>Data Structures and Algorithms</b> course. You do not need that knowledge to begin this course."
                                 }
                             }
                         },
@@ -297,7 +297,7 @@ public class DataStructuresCourse
                                 new Paragraph
                                 {
                                     IsCode = true,
-                                    Body = "using Spectre.Console;\r\n\r\nnamespace TCSA.Study.DataStructures;\r\n\r\npublic sealed class StoreApp\r\n{\r\n    public void Run()\r\n    {\r\n        bool isRunning = true;\r\n\r\n        while (isRunning)\r\n        {\r\n            AnsiConsole.Clear();\r\n            DisplayTitle();\r\n\r\n            string choice = AnsiConsole.Prompt(\r\n                new SelectionPrompt<string>()\r\n                    .Title(\"What would you like to do?\")\r\n                    .PageSize(5)\r\n                    .AddChoices(\r\n                        \"View Departments\",\r\n                        \"Exit\"));\r\n\r\n            switch (choice)\r\n            {\r\n                case \"View Departments\":\r\n                    ShowDepartmentsPlaceholder();\r\n                    break;\r\n                case \"Exit\":\r\n                    isRunning = false;\r\n                    break;\r\n            }\r\n        }\r\n    }\r\n\r\n    private static void DisplayTitle()\r\n    {\r\n        AnsiConsole.Write(\r\n            new FigletText(\"Store Management\")\r\n                .Centered()\r\n                .Color(Color.Green));\r\n    }\r\n\r\n    private static void ShowDepartmentsPlaceholder()\r\n    {\r\n        AnsiConsole.Clear();\r\n        AnsiConsole.MarkupLine(\"[yellow]Departments haven't been implemented yet.[/]\");\r\n        AnsiConsole.MarkupLine(\"[grey]Press any key to return to the menu...[/]\");\r\n        Console.ReadKey(intercept: true);\r\n    }\r\n}"
+                                    Body = "using Spectre.Console;\r\n\r\nnamespace TCSA.Study.DataStructures;\r\n\r\npublic sealed class StoreApp\r\n{\r\n    public void Run()\r\n    {\r\n        bool isRunning = true;\r\n\r\n        while (isRunning)\r\n        {\r\n            AnsiConsole.Clear();\r\n            DisplayTitle();\r\n\r\n            string choice = AnsiConsole.Prompt(\r\n                new SelectionPrompt&lt;string&gt;()\r\n                    .Title(\"What would you like to do?\")\r\n                    .PageSize(5)\r\n                    .AddChoices(\r\n                        \"View Departments\",\r\n                        \"Exit\"));\r\n\r\n            switch (choice)\r\n            {\r\n                case \"View Departments\":\r\n                    ShowDepartmentsPlaceholder();\r\n                    break;\r\n                case \"Exit\":\r\n                    isRunning = false;\r\n                    break;\r\n            }\r\n        }\r\n    }\r\n\r\n    private static void DisplayTitle()\r\n    {\r\n        AnsiConsole.Write(\r\n            new FigletText(\"Store Management\")\r\n                .Centered()\r\n                .Color(Color.Green));\r\n    }\r\n\r\n    private static void ShowDepartmentsPlaceholder()\r\n    {\r\n        AnsiConsole.Clear();\r\n        AnsiConsole.MarkupLine(\"[yellow]Departments haven't been implemented yet.[/]\");\r\n        AnsiConsole.MarkupLine(\"[grey]Press any key to return to the menu...[/]\");\r\n        Console.ReadKey(intercept: true);\r\n    }\r\n}"
                                 }
                             }
                         },
@@ -499,7 +499,7 @@ public class DataStructuresCourse
                                 new Paragraph
                                 {
                                     IsCode = true,
-                                    Body = "for (int index = 0; index < departments.Length; index++)\r\n{\r\n    Console.WriteLine($\"{index + 1}. {departments[index]}\");\r\n}"
+                                    Body = "for (int index = 0; index &lt; departments.Length; index++)\r\n{\r\n    Console.WriteLine($\"{index + 1}. {departments[index]}\");\r\n}"
                                 },
                                 new Paragraph
                                 {
@@ -669,7 +669,7 @@ public class DataStructuresCourse
                                 new Paragraph
                                 {
                                     IsCode = true,
-                                    Body = "private static void ShowDepartments()\r\n{\r\n    AnsiConsole.Clear();\r\n\r\n    var table = new Table()\r\n        .Title(\"[green]Store Departments[/]\")\r\n        .AddColumn(\"Number\")\r\n        .AddColumn(\"Department\");\r\n\r\n    for (int index = 0; index < Departments.Length; index++)\r\n    {\r\n        table.AddRow(\r\n            (index + 1).ToString(),\r\n            Markup.Escape(Departments[index]));\r\n    }\r\n\r\n    AnsiConsole.Write(table);\r\n    AnsiConsole.MarkupLine(\"[grey]Press any key to return to the menu...[/]\");\r\n    Console.ReadKey(intercept: true);\r\n}"
+                                    Body = "private static void ShowDepartments()\r\n{\r\n    AnsiConsole.Clear();\r\n\r\n    var table = new Table()\r\n        .Title(\"[green]Store Departments[/]\")\r\n        .AddColumn(\"Number\")\r\n        .AddColumn(\"Department\");\r\n\r\n    for (int index = 0; index &lt; Departments.Length; index++)\r\n    {\r\n        table.AddRow(\r\n            (index + 1).ToString(),\r\n            Markup.Escape(Departments[index]));\r\n    }\r\n\r\n    AnsiConsole.Write(table);\r\n    AnsiConsole.MarkupLine(\"[grey]Press any key to return to the menu...[/]\");\r\n    Console.ReadKey(intercept: true);\r\n}"
                                 },
                                 new Paragraph
                                 {
@@ -790,7 +790,7 @@ public class DataStructuresCourse
                                 new Paragraph
                                 {
                                     IsCode = true,
-                                    Body = "int homeIndex = Array.IndexOf(Departments, \"Home\");\r\n\r\nif (homeIndex >= 0)\r\n{\r\n    Console.WriteLine($\"Home is department number {homeIndex + 1}.\");\r\n}\r\nelse\r\n{\r\n    Console.WriteLine(\"Home was not found.\");\r\n}"
+                                    Body = "int homeIndex = Array.IndexOf(Departments, \"Home\");\r\n\r\nif (homeIndex &gt;= 0)\r\n{\r\n    Console.WriteLine($\"Home is department number {homeIndex + 1}.\");\r\n}\r\nelse\r\n{\r\n    Console.WriteLine(\"Home was not found.\");\r\n}"
                                 },
                                 new Paragraph
                                 {
@@ -900,7 +900,7 @@ public class DataStructuresCourse
                                 new Paragraph
                                 {
                                     IsCode = true,
-                                    Body = "var products = new List<string>();"
+                                    Body = "var products = new List&lt;string&gt;();"
                                 },
                                 new Paragraph
                                 {
@@ -909,7 +909,7 @@ public class DataStructuresCourse
                                 new Paragraph
                                 {
                                     IsCode = true,
-                                    Body = "List<string> products =\r\n[\r\n    \"Wireless Mouse\",\r\n    \"Coffee Beans\",\r\n    \"Running Shoes\"\r\n];"
+                                    Body = "List&lt;string&gt; products =\r\n[\r\n    \"Wireless Mouse\",\r\n    \"Coffee Beans\",\r\n    \"Running Shoes\"\r\n];"
                                 },
                                 new Paragraph
                                 {
@@ -929,7 +929,7 @@ public class DataStructuresCourse
                                 new Paragraph
                                 {
                                     IsCode = true,
-                                    Body = "var products = new List<string>();\r\n\r\nproducts.Add(\"Wireless Mouse\");\r\nproducts.Add(\"Coffee Beans\");\r\n\r\nConsole.WriteLine(products.Count);    // 2\r\nConsole.WriteLine(products.Capacity); // At least 2"
+                                    Body = "var products = new List&lt;string&gt;();\r\n\r\nproducts.Add(\"Wireless Mouse\");\r\nproducts.Add(\"Coffee Beans\");\r\n\r\nConsole.WriteLine(products.Count);    // 2\r\nConsole.WriteLine(products.Capacity); // At least 2"
                                 },
                                 new Paragraph
                                 {
@@ -949,7 +949,7 @@ public class DataStructuresCourse
                                 new Paragraph
                                 {
                                     IsCode = true,
-                                    Body = "var products = new List<string>();\r\n\r\nproducts.Add(\"Wireless Mouse\");\r\nproducts.AddRange([\"Coffee Beans\", \"Running Shoes\"]);\r\nproducts.Insert(1, \"Desk Lamp\");\r\n\r\n// Wireless Mouse, Desk Lamp, Coffee Beans, Running Shoes"
+                                    Body = "var products = new List&lt;string&gt;();\r\n\r\nproducts.Add(\"Wireless Mouse\");\r\nproducts.AddRange([\"Coffee Beans\", \"Running Shoes\"]);\r\nproducts.Insert(1, \"Desk Lamp\");\r\n\r\n// Wireless Mouse, Desk Lamp, Coffee Beans, Running Shoes"
                                 },
                                 new Paragraph
                                 {
@@ -969,7 +969,7 @@ public class DataStructuresCourse
                                 new Paragraph
                                 {
                                     IsCode = true,
-                                    Body = "List<string> products = [\"Mouse\", \"Coffee\", \"Shoes\"];\r\n\r\nConsole.WriteLine(products[0]);  // Mouse\r\nConsole.WriteLine(products[^1]); // Shoes\r\n\r\nproducts[0] = \"Wireless Mouse\";"
+                                    Body = "List&lt;string&gt; products = [\"Mouse\", \"Coffee\", \"Shoes\"];\r\n\r\nConsole.WriteLine(products[0]);  // Mouse\r\nConsole.WriteLine(products[^1]); // Shoes\r\n\r\nproducts[0] = \"Wireless Mouse\";"
                                 },
                                 new Paragraph
                                 {
@@ -989,7 +989,7 @@ public class DataStructuresCourse
                                 new Paragraph
                                 {
                                     IsCode = true,
-                                    Body = "List<string> products = [\"Mouse\", \"Coffee\", \"Shoes\"];\r\n\r\nbool hasCoffee = products.Contains(\"Coffee\");\r\nint shoesIndex = products.IndexOf(\"Shoes\");\r\nbool hasLongName = products.Exists(name => name.Length > 5);\r\nstring? firstWithS = products.Find(name => name.StartsWith('S'));"
+                                    Body = "List&lt;string&gt; products = [\"Mouse\", \"Coffee\", \"Shoes\"];\r\n\r\nbool hasCoffee = products.Contains(\"Coffee\");\r\nint shoesIndex = products.IndexOf(\"Shoes\");\r\nbool hasLongName = products.Exists(name =&gt; name.Length &gt; 5);\r\nstring? firstWithS = products.Find(name =&gt; name.StartsWith('S'));"
                                 },
                                 new Paragraph
                                 {
@@ -1009,7 +1009,7 @@ public class DataStructuresCourse
                                 new Paragraph
                                 {
                                     IsCode = true,
-                                    Body = "List<string> products = [\"Mouse\", \"Coffee\", \"Shoes\", \"Coffee\"];\r\n\r\nbool removed = products.Remove(\"Coffee\"); // Removes the first match\r\nproducts.RemoveAt(0);                        // Removes by index\r\nint removedCount = products.RemoveAll(name => name == \"Coffee\");\r\nproducts.Clear();                            // Removes everything"
+                                    Body = "List&lt;string&gt; products = [\"Mouse\", \"Coffee\", \"Shoes\", \"Coffee\"];\r\n\r\nbool removed = products.Remove(\"Coffee\"); // Removes the first match\r\nproducts.RemoveAt(0);                        // Removes by index\r\nint removedCount = products.RemoveAll(name =&gt; name == \"Coffee\");\r\nproducts.Clear();                            // Removes everything"
                                 },
                                 new Paragraph
                                 {
@@ -1082,7 +1082,7 @@ public class DataStructuresCourse
                 {
                     Id = 500306,
                     CourseDisplayId = 7,
-                    Title = "Applying List<T>: Product Management",
+                    Title = "Applying List<T>",
                     Slug = "apply-list-t-product-management",
                     Description = "Create the Product model and use List<Product> to view, add, and update store products.",
                     Area = Area.Course,
@@ -1144,7 +1144,7 @@ public class DataStructuresCourse
                                 new Paragraph
                                 {
                                     IsCode = true,
-                                    Body = "private static readonly List<Product> Products =\r\n[\r\n    new Product\r\n    {\r\n        Name = \"Wireless Mouse\",\r\n        Sku = \"ELE-001\",\r\n        Price = 29.99m,\r\n        Department = \"Electronics\",\r\n        StockQuantity = 12\r\n    },\r\n    new Product\r\n    {\r\n        Name = \"Coffee Beans\",\r\n        Sku = \"GRO-004\",\r\n        Price = 14.50m,\r\n        Department = \"Groceries\",\r\n        StockQuantity = 20\r\n    }\r\n];"
+                                    Body = "private static readonly List&lt;Product&gt; Products =\r\n[\r\n    new Product\r\n    {\r\n        Name = \"Wireless Mouse\",\r\n        Sku = \"ELE-001\",\r\n        Price = 29.99m,\r\n        Department = \"Electronics\",\r\n        StockQuantity = 12\r\n    },\r\n    new Product\r\n    {\r\n        Name = \"Coffee Beans\",\r\n        Sku = \"GRO-004\",\r\n        Price = 14.50m,\r\n        Department = \"Groceries\",\r\n        StockQuantity = 20\r\n    }\r\n];"
                                 },
                                 new Paragraph
                                 {
@@ -1185,7 +1185,7 @@ public class DataStructuresCourse
                                 new Paragraph
                                 {
                                     IsCode = true,
-                                    Body = "private static void ShowProductMenu()\r\n{\r\n    bool returnToMainMenu = false;\r\n\r\n    while (!returnToMainMenu)\r\n    {\r\n        AnsiConsole.Clear();\r\n\r\n        string choice = AnsiConsole.Prompt(\r\n            new SelectionPrompt<string>()\r\n                .Title(\"[green]Product Management[/]\")\r\n                .AddChoices(\r\n                    \"View All Products\",\r\n                    \"Add Product\",\r\n                    \"Update Product\",\r\n                    \"Return to Main Menu\"));\r\n\r\n        switch (choice)\r\n        {\r\n            case \"View All Products\":\r\n                ShowProducts();\r\n                break;\r\n            case \"Add Product\":\r\n                AddProduct();\r\n                break;\r\n            case \"Update Product\":\r\n                UpdateProduct();\r\n                break;\r\n            case \"Return to Main Menu\":\r\n                returnToMainMenu = true;\r\n                break;\r\n        }\r\n    }\r\n}"
+                                    Body = "private static void ShowProductMenu()\r\n{\r\n    bool returnToMainMenu = false;\r\n\r\n    while (!returnToMainMenu)\r\n    {\r\n        AnsiConsole.Clear();\r\n\r\n        string choice = AnsiConsole.Prompt(\r\n            new SelectionPrompt&lt;string&gt;()\r\n                .Title(\"[green]Product Management[/]\")\r\n                .AddChoices(\r\n                    \"View All Products\",\r\n                    \"Add Product\",\r\n                    \"Update Product\",\r\n                    \"Return to Main Menu\"));\r\n\r\n        switch (choice)\r\n        {\r\n            case \"View All Products\":\r\n                ShowProducts();\r\n                break;\r\n            case \"Add Product\":\r\n                AddProduct();\r\n                break;\r\n            case \"Update Product\":\r\n                UpdateProduct();\r\n                break;\r\n            case \"Return to Main Menu\":\r\n                returnToMainMenu = true;\r\n                break;\r\n        }\r\n    }\r\n}"
                                 },
                                 new Paragraph
                                 {
@@ -1217,7 +1217,7 @@ public class DataStructuresCourse
                                 new Paragraph
                                 {
                                     IsCode = true,
-                                    Body = "private static void AddProduct()\r\n{\r\n    AnsiConsole.Clear();\r\n\r\n    string sku = AnsiConsole.Ask<string>(\"SKU:\").Trim().ToUpperInvariant();\r\n\r\n    if (Products.Exists(product => product.Sku == sku))\r\n    {\r\n        AnsiConsole.MarkupLine($\"[red]A product with SKU {Markup.Escape(sku)} already exists.[/]\");\r\n        Pause();\r\n        return;\r\n    }\r\n\r\n    string name = AnsiConsole.Ask<string>(\"Name:\").Trim();\r\n    string department = AnsiConsole.Prompt(\r\n        new SelectionPrompt<string>()\r\n            .Title(\"Department:\")\r\n            .AddChoices(Departments));\r\n    decimal price = AnsiConsole.Ask<decimal>(\"Price:\");\r\n    int stockQuantity = AnsiConsole.Ask<int>(\"Stock quantity:\");\r\n\r\n    Products.Add(new Product\r\n    {\r\n        Name = name,\r\n        Sku = sku,\r\n        Price = price,\r\n        Department = department,\r\n        StockQuantity = stockQuantity\r\n    });\r\n\r\n    AnsiConsole.MarkupLine(\"[green]Product added successfully.[/]\");\r\n    Pause();\r\n}"
+                                    Body = "private static void AddProduct()\r\n{\r\n    AnsiConsole.Clear();\r\n\r\n    string sku = AnsiConsole.Ask&lt;string&gt;(\"SKU:\").Trim().ToUpperInvariant();\r\n\r\n    if (Products.Exists(product =&gt; product.Sku == sku))\r\n    {\r\n        AnsiConsole.MarkupLine($\"[red]A product with SKU {Markup.Escape(sku)} already exists.[/]\");\r\n        Pause();\r\n        return;\r\n    }\r\n\r\n    string name = AnsiConsole.Ask&lt;string&gt;(\"Name:\").Trim();\r\n    string department = AnsiConsole.Prompt(\r\n        new SelectionPrompt&lt;string&gt;()\r\n            .Title(\"Department:\")\r\n            .AddChoices(Departments));\r\n    decimal price = AnsiConsole.Ask&lt;decimal&gt;(\"Price:\");\r\n    int stockQuantity = AnsiConsole.Ask&lt;int&gt;(\"Stock quantity:\");\r\n\r\n    Products.Add(new Product\r\n    {\r\n        Name = name,\r\n        Sku = sku,\r\n        Price = price,\r\n        Department = department,\r\n        StockQuantity = stockQuantity\r\n    });\r\n\r\n    AnsiConsole.MarkupLine(\"[green]Product added successfully.[/]\");\r\n    Pause();\r\n}"
                                 },
                                 new Paragraph
                                 {
@@ -1233,7 +1233,7 @@ public class DataStructuresCourse
                                 new Paragraph
                                 {
                                     IsCode = true,
-                                    Body = "private static void UpdateProduct()\r\n{\r\n    AnsiConsole.Clear();\r\n\r\n    if (Products.Count == 0)\r\n    {\r\n        AnsiConsole.MarkupLine(\"[yellow]There are no products to update.[/]\");\r\n        Pause();\r\n        return;\r\n    }\r\n\r\n    string selectedSku = AnsiConsole.Prompt(\r\n        new SelectionPrompt<string>()\r\n            .Title(\"Choose a product:\")\r\n            .AddChoices(Products.Select(product => product.Sku)));\r\n\r\n    Product product = Products.Find(product => product.Sku == selectedSku)!;\r\n\r\n    product.Name = AnsiConsole.Ask(\"Name:\", product.Name);\r\n    product.Department = AnsiConsole.Prompt(\r\n        new SelectionPrompt<string>()\r\n            .Title(\"Department:\")\r\n            .AddChoices(Departments));\r\n    product.Price = AnsiConsole.Ask(\"Price:\", product.Price);\r\n    product.StockQuantity = AnsiConsole.Ask(\"Stock quantity:\", product.StockQuantity);\r\n\r\n    AnsiConsole.MarkupLine(\"[green]Product updated successfully.[/]\");\r\n    Pause();\r\n}"
+                                    Body = "private static void UpdateProduct()\r\n{\r\n    AnsiConsole.Clear();\r\n\r\n    if (Products.Count == 0)\r\n    {\r\n        AnsiConsole.MarkupLine(\"[yellow]There are no products to update.[/]\");\r\n        Pause();\r\n        return;\r\n    }\r\n\r\n    string selectedSku = AnsiConsole.Prompt(\r\n        new SelectionPrompt&lt;string&gt;()\r\n            .Title(\"Choose a product:\")\r\n            .AddChoices(Products.Select(product =&gt; product.Sku)));\r\n\r\n    Product product = Products.Find(product =&gt; product.Sku == selectedSku)!;\r\n\r\n    product.Name = AnsiConsole.Ask(\"Name:\", product.Name);\r\n    product.Department = AnsiConsole.Prompt(\r\n        new SelectionPrompt&lt;string&gt;()\r\n            .Title(\"Department:\")\r\n            .AddChoices(Departments));\r\n    product.Price = AnsiConsole.Ask(\"Price:\", product.Price);\r\n    product.StockQuantity = AnsiConsole.Ask(\"Stock quantity:\", product.StockQuantity);\r\n\r\n    AnsiConsole.MarkupLine(\"[green]Product updated successfully.[/]\");\r\n    Pause();\r\n}"
                                 },
                                 new Paragraph
                                 {
@@ -1315,23 +1315,433 @@ public class DataStructuresCourse
                                 new Paragraph
                                 {
                                     IsCode = true,
-                                    Body = "// 1. Add numbers and print Count\r\nvar numbers = new List<int>();\r\nforeach (int number in new[] { 10, 20, 30, 40, 50 })\r\n{\r\n    numbers.Add(number);\r\n    Console.WriteLine(numbers.Count);\r\n}\r\n\r\n// 2. Insert and print indexes\r\nnumbers.Insert(1, 15);\r\nfor (int index = 0; index < numbers.Count; index++)\r\n{\r\n    Console.WriteLine($\"{index}: {numbers[index]}\");\r\n}\r\n\r\n// 3. Remove by value and index\r\nbool removed = numbers.Remove(30);\r\nConsole.WriteLine(removed);\r\nnumbers.RemoveAt(0);\r\n\r\n// 4. Check for zero stock\r\nbool hasOutOfStockProduct = Products\r\n    .Exists(product => product.StockQuantity == 0);\r\n\r\n// 5. Find an Electronics product\r\nProduct? electronicsProduct = Products\r\n    .Find(product => product.Department == \"Electronics\");\r\n\r\nif (electronicsProduct is null)\r\n{\r\n    Console.WriteLine(\"No Electronics product was found.\");\r\n}\r\nelse\r\n{\r\n    Console.WriteLine(electronicsProduct.Name);\r\n}\r\n\r\n// 6. Sort a separate list of names\r\nList<string> productNames = Products\r\n    .Select(product => product.Name)\r\n    .ToList();\r\nproductNames.Sort();\r\n\r\nforeach (string productName in productNames)\r\n{\r\n    Console.WriteLine(productName);\r\n}"
+                                    Body = "// 1. Add numbers and print Count\r\nvar numbers = new List&lt;int&gt;();\r\nforeach (int number in new[] { 10, 20, 30, 40, 50 })\r\n{\r\n    numbers.Add(number);\r\n    Console.WriteLine(numbers.Count);\r\n}\r\n\r\n// 2. Insert and print indexes\r\nnumbers.Insert(1, 15);\r\nfor (int index = 0; index &lt; numbers.Count; index++)\r\n{\r\n    Console.WriteLine($\"{index}: {numbers[index]}\");\r\n}\r\n\r\n// 3. Remove by value and index\r\nbool removed = numbers.Remove(30);\r\nConsole.WriteLine(removed);\r\nnumbers.RemoveAt(0);\r\n\r\n// 4. Check for zero stock\r\nbool hasOutOfStockProduct = Products\r\n    .Exists(product =&gt; product.StockQuantity == 0);\r\n\r\n// 5. Find an Electronics product\r\nProduct? electronicsProduct = Products\r\n    .Find(product =&gt; product.Department == \"Electronics\");\r\n\r\nif (electronicsProduct is null)\r\n{\r\n    Console.WriteLine(\"No Electronics product was found.\");\r\n}\r\nelse\r\n{\r\n    Console.WriteLine(electronicsProduct.Name);\r\n}\r\n\r\n// 6. Sort a separate list of names\r\nList&lt;string&gt; productNames = Products\r\n    .Select(product =&gt; product.Name)\r\n    .ToList();\r\nproductNames.Sort();\r\n\r\nforeach (string productName in productNames)\r\n{\r\n    Console.WriteLine(productName);\r\n}"
                                 },
                                 new Paragraph { Body = "<b>7. Validate non-negative values</b>" },
                                 new Paragraph
                                 {
                                     IsCode = true,
-                                    Body = "decimal price = AnsiConsole.Prompt(\r\n    new TextPrompt<decimal>(\"Price:\")\r\n        .Validate(value => value >= 0\r\n            ? ValidationResult.Success()\r\n            : ValidationResult.Error(\"[red]Price cannot be negative.[/]\")));\r\n\r\nint stockQuantity = AnsiConsole.Prompt(\r\n    new TextPrompt<int>(\"Stock quantity:\")\r\n        .Validate(value => value >= 0\r\n            ? ValidationResult.Success()\r\n            : ValidationResult.Error(\"[red]Stock cannot be negative.[/]\")));"
+                                    Body = "decimal price = AnsiConsole.Prompt(\r\n    new TextPrompt&lt;decimal&gt;(\"Price:\")\r\n        .Validate(value =&gt; value &gt;= 0\r\n            ? ValidationResult.Success()\r\n            : ValidationResult.Error(\"[red]Price cannot be negative.[/]\")));\r\n\r\nint stockQuantity = AnsiConsole.Prompt(\r\n    new TextPrompt&lt;int&gt;(\"Stock quantity:\")\r\n        .Validate(value =&gt; value &gt;= 0\r\n            ? ValidationResult.Success()\r\n            : ValidationResult.Error(\"[red]Stock cannot be negative.[/]\")));"
                                 },
                                 new Paragraph { Body = "<b>8. View products by department</b>" },
                                 new Paragraph
                                 {
                                     IsCode = true,
-                                    Body = "private static void ShowProductsByDepartment()\r\n{\r\n    string department = AnsiConsole.Prompt(\r\n        new SelectionPrompt<string>()\r\n            .Title(\"Choose a department:\")\r\n            .AddChoices(Departments));\r\n\r\n    List<Product> matchingProducts = Products\r\n        .Where(product => product.Department == department)\r\n        .ToList();\r\n\r\n    foreach (Product product in matchingProducts)\r\n    {\r\n        AnsiConsole.MarkupLine(Markup.Escape(product.Name));\r\n    }\r\n\r\n    Pause();\r\n}"
+                                    Body = "private static void ShowProductsByDepartment()\r\n{\r\n    string department = AnsiConsole.Prompt(\r\n        new SelectionPrompt&lt;string&gt;()\r\n            .Title(\"Choose a department:\")\r\n            .AddChoices(Departments));\r\n\r\n    List&lt;Product&gt; matchingProducts = Products\r\n        .Where(product =&gt; product.Department == department)\r\n        .ToList();\r\n\r\n    foreach (Product product in matchingProducts)\r\n    {\r\n        AnsiConsole.MarkupLine(Markup.Escape(product.Name));\r\n    }\r\n\r\n    Pause();\r\n}"
                                 },
                                 new Paragraph
                                 {
                                     Body = "Add <code class='inline-code'>View Products By Department</code> to the product menu and call <code class='inline-code'>ShowProductsByDepartment</code> from its switch case."
+                                }
+                            }
+                        }
+                    }
+                },
+                new Article
+                {
+                    Id = 500307,
+                    CourseDisplayId = 8,
+                    Title = "Dictionary<TKey, TValue>",
+                    Slug = "dictionary-tkey-tvalue",
+                    Description = "Learn key-value collections and add direct SKU lookup to the Store Management System.",
+                    Area = Area.Course,
+                    ExperiencePoints = 1,
+                    Blocks = new List<Block>
+                    {
+                        new Block
+                        {
+                            Paragraphs = new List<Paragraph>
+                            {
+                                new Paragraph
+                                {
+                                    Body = "Our product list is excellent for displaying products in order, but finding one product by SKU requires searching through the list. A SKU is not merely a position; it is a meaningful, unique identifier. That makes this feature a natural fit for <code class='inline-code'>Dictionary&lt;TKey, TValue&gt;</code>."
+                                },
+                                new Paragraph
+                                {
+                                    Body = "In this chapter, you will learn how dictionaries model key-value relationships and then build the store's <b>Find Product by SKU</b> feature."
+                                }
+                            }
+                        },
+                        new Block
+                        {
+                            Title = "What Is a Dictionary?",
+                            Paragraphs = new List<Paragraph>
+                            {
+                                new Paragraph
+                                {
+                                    Body = "A dictionary stores pairs. Each pair contains a <b>key</b> and a <b>value</b>. The key identifies the value, much like a word identifies its definition in a printed dictionary."
+                                },
+                                new Paragraph
+                                {
+                                    IsCode = true,
+                                    Body = "Dictionary&lt;string, decimal&gt; prices = new();\r\n\r\nprices.Add(\"ELE-001\", 29.99m);\r\nprices.Add(\"GRO-004\", 14.50m);\r\n\r\nConsole.WriteLine(prices[\"ELE-001\"]); // 29.99"
+                                },
+                                new Paragraph
+                                {
+                                    Body = "Here, <code class='inline-code'>string</code> is the key type and <code class='inline-code'>decimal</code> is the value type. A store dictionary can instead map a string SKU to an entire Product object: <code class='inline-code'>Dictionary&lt;string, Product&gt;</code>."
+                                }
+                            }
+                        },
+                        new Block
+                        {
+                            Title = "Keys Must Be Unique",
+                            Paragraphs = new List<Paragraph>
+                            {
+                                new Paragraph
+                                {
+                                    Body = "A dictionary cannot contain the same key twice. Two products may share a price or department because values do not need to be unique, but each SKU key must identify only one product."
+                                },
+                                new Paragraph
+                                {
+                                    IsCode = true,
+                                    Body = "var productsBySku = new Dictionary&lt;string, string&gt;\r\n{\r\n    [\"ELE-001\"] = \"Wireless Mouse\",\r\n    [\"GRO-004\"] = \"Coffee Beans\"\r\n};\r\n\r\n// Throws ArgumentException because ELE-001 already exists.\r\nproductsBySku.Add(\"ELE-001\", \"Keyboard\");"
+                                },
+                                new Paragraph
+                                {
+                                    Body = "The indexer uses square brackets. During initialization it adds the pairs. On an existing dictionary, assigning through the indexer adds a missing key or replaces the value of an existing key. Use that behavior deliberately; it can overwrite data."
+                                }
+                            }
+                        },
+                        new Block
+                        {
+                            Title = "Adding Pairs Safely",
+                            Paragraphs = new List<Paragraph>
+                            {
+                                new Paragraph
+                                {
+                                    IsCode = true,
+                                    Body = "var stockBySku = new Dictionary&lt;string, int&gt;();\r\n\r\nstockBySku.Add(\"ELE-001\", 12);\r\n\r\nbool added = stockBySku.TryAdd(\"GRO-004\", 20);\r\nbool duplicateAdded = stockBySku.TryAdd(\"ELE-001\", 99);\r\n\r\nConsole.WriteLine(added);          // True\r\nConsole.WriteLine(duplicateAdded); // False"
+                                },
+                                new Paragraph
+                                {
+                                    Body = "<code class='inline-code'>Add</code> throws when the key already exists. <code class='inline-code'>TryAdd</code> returns false instead. Both are useful: choose whether a duplicate represents an exceptional programming mistake or an expected condition that the application should handle."
+                                }
+                            }
+                        },
+                        new Block
+                        {
+                            Title = "Reading Values Safely",
+                            Paragraphs = new List<Paragraph>
+                            {
+                                new Paragraph
+                                {
+                                    IsCode = true,
+                                    Body = "if (stockBySku.TryGetValue(\"ELE-001\", out int stock))\r\n{\r\n    Console.WriteLine($\"Stock: {stock}\");\r\n}\r\nelse\r\n{\r\n    Console.WriteLine(\"Product not found.\");\r\n}"
+                                },
+                                new Paragraph
+                                {
+                                    Body = "Reading <code class='inline-code'>stockBySku[\"MISSING\"]</code> throws <code class='inline-code'>KeyNotFoundException</code>. <code class='inline-code'>TryGetValue</code> is usually the best choice when a key comes from user input because a missing value is a normal possibility. It checks for the key and retrieves its value in one operation."
+                                },
+                                new Paragraph
+                                {
+                                    Body = "<code class='inline-code'>ContainsKey</code> answers only whether a key exists. Avoid checking with <code class='inline-code'>ContainsKey</code> and then reading with the indexer when <code class='inline-code'>TryGetValue</code> can do both jobs clearly."
+                                }
+                            }
+                        },
+                        new Block
+                        {
+                            Title = "Updating and Removing Pairs",
+                            Paragraphs = new List<Paragraph>
+                            {
+                                new Paragraph
+                                {
+                                    IsCode = true,
+                                    Body = "stockBySku[\"ELE-001\"] = 15;\r\n\r\nbool removed = stockBySku.Remove(\"GRO-004\");\r\nConsole.WriteLine(removed);\r\n\r\nstockBySku.Clear();"
+                                },
+                                new Paragraph
+                                {
+                                    Body = "Assigning through the indexer changes the value associated with a key. <code class='inline-code'>Remove</code> returns whether a pair was removed, and <code class='inline-code'>Clear</code> removes every pair. Removing a dictionary entry does not destroy an object that may also be referenced elsewhere."
+                                }
+                            }
+                        },
+                        new Block
+                        {
+                            Title = "Iterating Through a Dictionary",
+                            Paragraphs = new List<Paragraph>
+                            {
+                                new Paragraph
+                                {
+                                    IsCode = true,
+                                    Body = "foreach (KeyValuePair&lt;string, int&gt; pair in stockBySku)\r\n{\r\n    Console.WriteLine($\"{pair.Key}: {pair.Value}\");\r\n}\r\n\r\nforeach (string sku in stockBySku.Keys)\r\n{\r\n    Console.WriteLine(sku);\r\n}\r\n\r\nforeach (int quantity in stockBySku.Values)\r\n{\r\n    Console.WriteLine(quantity);\r\n}"
+                                },
+                                new Paragraph
+                                {
+                                    Body = "Enumerating the dictionary produces <code class='inline-code'>KeyValuePair&lt;TKey, TValue&gt;</code> values. The <code class='inline-code'>Keys</code> and <code class='inline-code'>Values</code> properties provide views of only one side of the pairs. Do not depend on dictionary order to communicate business meaning; use a list when ordered presentation is the requirement."
+                                }
+                            }
+                        },
+                        new Block
+                        {
+                            Title = "String Keys and Comparers",
+                            Paragraphs = new List<Paragraph>
+                            {
+                                new Paragraph
+                                {
+                                    IsCode = true,
+                                    Body = "var productsBySku = new Dictionary&lt;string, Product&gt;(\r\n    StringComparer.OrdinalIgnoreCase);"
+                                },
+                                new Paragraph
+                                {
+                                    Body = "By default, string keys are case-sensitive, so <code class='inline-code'>ELE-001</code> and <code class='inline-code'>ele-001</code> are different keys. SKU input should not fail because of letter casing, so the store uses <code class='inline-code'>StringComparer.OrdinalIgnoreCase</code>. The comparer belongs to the dictionary and applies consistently to additions and lookups."
+                                },
+                                new Paragraph
+                                {
+                                    Body = "A <b>string comparer</b> is the rule the dictionary uses to decide whether two string keys are equal. <code class='inline-code'>Ordinal</code> compares their character values rather than applying the language rules of a particular culture. <code class='inline-code'>IgnoreCase</code> makes uppercase and lowercase versions compare as equal. This culture-independent behavior is appropriate for identifiers such as SKUs, file extensions, protocol values, and internal codes."
+                                },
+                                new Paragraph
+                                {
+                                    IsCode = true,
+                                    Body = "ProductsBySku.ContainsKey(\"ELE-001\"); // True\r\nProductsBySku.ContainsKey(\"ele-001\"); // Also true"
+                                }
+                            }
+                        },
+                        new Block
+                        {
+                            Title = "List or Dictionary?",
+                            Paragraphs = new List<Paragraph>
+                            {
+                                new Paragraph
+                                {
+                                    Body = RedDotList(
+                                        "Use <code class='inline-code'>List&lt;T&gt;</code> when values form an ordered sequence and you work with positions or the whole collection.",
+                                        "Use <code class='inline-code'>Dictionary&lt;TKey, TValue&gt;</code> when a unique key is the natural way to locate a value.",
+                                        "A dictionary is not a replacement for every list. The store keeps its Product list for ordered display.",
+                                        "The store adds a dictionary as an index for direct SKU lookup.")
+                                },
+                                new Paragraph
+                                {
+                                    Body = "Using both collections means the application must keep them synchronized. Later applications might choose one authoritative collection or hide synchronization inside a dedicated service. Here, maintaining both explicitly makes their different purposes visible."
+                                }
+                            }
+                        },
+                        new Block
+                        {
+                            Title = "Explain Lists vs Dictionaries Like I Am 10",
+                            Paragraphs = new List<Paragraph>
+                            {
+                                new Paragraph
+                                {
+                                    BackgroundColor = "#1C236D",
+                                    FontColor = "#FFF",
+                                    Body = "Imagine your products are written in a notebook. A <b>List</b> is like writing every product on a numbered line: Mouse is first, Coffee is second, and Shoes is third. It is easy to read the notebook from top to bottom or ask for the item on a particular line. But if you ask, ‘Where is product ELE-001?’, you may need to read the lines until you find it.<br><br>A <b>Dictionary</b> is like a set of labelled drawers. Each drawer has a unique SKU written on the front. When you need ELE-001, you go to the drawer labelled ELE-001 and find its Product inside. You do not ask for drawer number zero or one; you ask using the meaningful label.<br><br>The store uses <b>both</b>: the List is the notebook used to display all products in order, and the Dictionary is the labelled-drawer system used to find one product by SKU."
+                                }
+                            }
+                        },
+                        new Block
+                        {
+                            Title = "Application: Create the SKU Index",
+                            Paragraphs = new List<Paragraph>
+                            {
+                                new Paragraph
+                                {
+                                    Body = "In <code class='inline-code'>StoreApp.cs</code>, add this field immediately after <code class='inline-code'>Products</code>. Field order matters because the initializer reads the product list:"
+                                },
+                                new Paragraph
+                                {
+                                    IsCode = true,
+                                    Body = "private static readonly Dictionary&lt;string, Product&gt; ProductsBySku =\r\n    Products.ToDictionary(\r\n        product =&gt; product.Sku,\r\n        StringComparer.OrdinalIgnoreCase);"
+                                },
+                                new Paragraph
+                                {
+                                    Body = "<code class='inline-code'>ToDictionary</code> creates one pair for each Product. The lambda chooses the SKU as the key, while the Product itself becomes the value. Duplicate starting SKUs would cause initialization to fail, which exposes invalid seed data immediately."
+                                }
+                            }
+                        },
+                        new Block
+                        {
+                            Title = "Keep New Products Synchronized",
+                            Paragraphs = new List<Paragraph>
+                            {
+                                new Paragraph
+                                {
+                                    Body = "In <code class='inline-code'>AddProduct</code>, replace the list-based duplicate check with the dictionary check:"
+                                },
+                                new Paragraph
+                                {
+                                    IsCode = true,
+                                    Body = "if (ProductsBySku.ContainsKey(sku))\r\n{\r\n    AnsiConsole.MarkupLine(\r\n        $\"[red]A product with SKU {Markup.Escape(sku)} already exists.[/]\");\r\n    Pause();\r\n    return;\r\n}"
+                                },
+                                new Paragraph
+                                {
+                                    Body = "Then create the Product in a variable and add the same object to both collections:"
+                                },
+                                new Paragraph
+                                {
+                                    IsCode = true,
+                                    Body = "var product = new Product\r\n{\r\n    Name = name,\r\n    Sku = sku,\r\n    Price = price,\r\n    Department = department,\r\n    StockQuantity = stockQuantity\r\n};\r\n\r\nProducts.Add(product);\r\nProductsBySku.Add(product.Sku, product);"
+                                },
+                                new Paragraph
+                                {
+                                    Body = "Both collections reference the same Product object. Updating its Name, Price, Department, or StockQuantity through either collection is visible through the other. The SKU is init-only, so the dictionary key cannot silently become inconsistent with the Product."
+                                }
+                            }
+                        },
+                        new Block
+                        {
+                            Title = "Do We Need to Change UpdateProduct?",
+                            Paragraphs = new List<Paragraph>
+                            {
+                                new Paragraph
+                                {
+                                    Body = "You do <b>not</b> need to add the Product to the dictionary again when changing its Name, Department, Price, or StockQuantity. The list and dictionary do not hold separate copies. They both hold a reference to the same Product object:"
+                                },
+                                new Paragraph
+                                {
+                                    IsCode = true,
+                                    Body = "Product fromList = Products.Find(product =&gt; product.Sku == selectedSku)!;\r\nProduct fromDictionary = ProductsBySku[selectedSku];\r\n\r\nConsole.WriteLine(ReferenceEquals(fromList, fromDictionary)); // True\r\n\r\nfromList.Price = 39.99m;\r\nConsole.WriteLine(fromDictionary.Price); // 39.99"
+                                },
+                                new Paragraph
+                                {
+                                    Body = "Your existing <code class='inline-code'>UpdateProduct</code> method can therefore remain unchanged. You could optionally replace its <code class='inline-code'>Products.Find(...)</code> call with <code class='inline-code'>ProductsBySku[selectedSku]</code>, but that is an alternative lookup, not a synchronization requirement."
+                                },
+                                new Paragraph
+                                {
+                                    Body = "The situation would be different if SKU could change. A dictionary does not automatically move an entry when a property inside its value changes. You would need to remove the old key and add the new key. This course made <code class='inline-code'>Sku</code> init-only specifically so that inconsistency cannot happen."
+                                }
+                            }
+                        },
+                        new Block
+                        {
+                            Title = "Add Find Product to the Main Menu",
+                            Paragraphs = new List<Paragraph>
+                            {
+                                new Paragraph
+                                {
+                                    Body = "Add <code class='inline-code'>Find Product by SKU</code> after <code class='inline-code'>Manage Products</code> in the main menu, then add its switch case:"
+                                },
+                                new Paragraph
+                                {
+                                    IsCode = true,
+                                    Body = ".AddChoices(\r\n    \"View Departments\",\r\n    \"Manage Products\",\r\n    \"Find Product by SKU\",\r\n    \"Exit\"));"
+                                },
+                                new Paragraph
+                                {
+                                    IsCode = true,
+                                    Body = "case \"Find Product by SKU\":\r\n    FindProductBySku();\r\n    break;"
+                                }
+                            }
+                        },
+                        new Block
+                        {
+                            Title = "Find and Display the Product",
+                            Paragraphs = new List<Paragraph>
+                            {
+                                new Paragraph
+                                {
+                                    IsCode = true,
+                                    Body = "private static void FindProductBySku()\r\n{\r\n    AnsiConsole.Clear();\r\n\r\n    string sku = AnsiConsole.Ask&lt;string&gt;(\"Enter product SKU:\").Trim();\r\n\r\n    if (!ProductsBySku.TryGetValue(sku, out Product? product))\r\n    {\r\n        AnsiConsole.MarkupLine(\r\n            $\"[yellow]No product was found with SKU {Markup.Escape(sku)}.[/]\");\r\n        Pause();\r\n        return;\r\n    }\r\n\r\n    var table = new Table()\r\n        .Title(\"[green]Product Details[/]\")\r\n        .AddColumn(\"Field\")\r\n        .AddColumn(\"Value\")\r\n        .AddRow(\"Name\", Markup.Escape(product.Name))\r\n        .AddRow(\"SKU\", Markup.Escape(product.Sku))\r\n        .AddRow(\"Department\", Markup.Escape(product.Department))\r\n        .AddRow(\"Price\", product.Price.ToString(\"C\"))\r\n        .AddRow(\"Stock\", product.StockQuantity.ToString());\r\n\r\n    AnsiConsole.Write(table);\r\n    Pause();\r\n}"
+                                },
+                                new Paragraph
+                                {
+                                    Body = "Spectre.Console handles input and display only. The important dictionary operation is <code class='inline-code'>TryGetValue</code>: it converts a user-provided SKU into either the matching Product or a clear not-found path."
+                                }
+                            }
+                        },
+                        new Block
+                        {
+                            Title = "Inspect the Dictionary in the Debugger",
+                            Paragraphs = new List<Paragraph>
+                            {
+                                new Paragraph
+                                {
+                                    Body = "A debugger lets you pause the program and inspect its data while it is running. This is one of the best ways to turn the dictionary from an abstract idea into something you can see."
+                                },
+                                new Paragraph
+                                {
+                                    Body = "Place a breakpoint inside <code class='inline-code'>FindProductBySku</code>, either on its opening brace or on the <code class='inline-code'>TryGetValue</code> line. Start the application in debug mode, choose <b>Find Product by SKU</b>, and enter a SKU. Visual Studio will pause before the lookup finishes."
+                                },
+                                new Paragraph
+                                {
+                                    IsPicture = true,
+                                    PictureUrl = "c8-ch8-inspect-dictionary.png"
+                                },
+                                new Paragraph
+                                {
+                                    Body = "While execution is paused, hover over <code class='inline-code'>ProductsBySku</code> or find it in the Locals window. Expand the dictionary, then expand one entry. Notice the two parts of the pair: <b>Key</b> contains the SKU such as <code class='inline-code'>ELE-001</code>, and <b>Value</b> contains the corresponding Product object. Expand Value again to inspect its Name, Department, Price, and StockQuantity."
+                                },
+                                new Paragraph
+                                {
+                                    Body = "Repeat the lookup using different casing, such as <code class='inline-code'>ele-001</code>. The dictionary still returns the entry whose stored key is <code class='inline-code'>ELE-001</code> because it was created with <code class='inline-code'>StringComparer.OrdinalIgnoreCase</code>. Inspecting this behavior at a breakpoint helps connect the code you wrote with the key-value structure held in memory."
+                                }
+                            }
+                        },
+                        new Block
+                        {
+                            Title = "Exercises",
+                            CssClass = ExerciseBlockClass,
+                            Paragraphs = new List<Paragraph>
+                            {
+                                new Paragraph
+                                {
+                                    Body = ExerciseList(
+                                        "Create a dictionary mapping three country codes to country names, then retrieve one value with its key.",
+                                        "Use <code class='inline-code'>TryAdd</code> to attempt adding the same country code twice and print both results.",
+                                        "Ask for a country code and use <code class='inline-code'>TryGetValue</code> to display either the country or a not-found message.",
+                                        "Update one value through the indexer, remove another key, and print the dictionary's <code class='inline-code'>Count</code>.",
+                                        "Print every SKU and product name from <code class='inline-code'>ProductsBySku</code>.",
+                                        "Prove that lowercase SKU input finds an uppercase key when using <code class='inline-code'>StringComparer.OrdinalIgnoreCase</code>.",
+                                        "Add a method that asks for a SKU and changes the matching product's stock quantity.",
+                                        "Explain what could go wrong if a product were added to <code class='inline-code'>Products</code> but not to <code class='inline-code'>ProductsBySku</code>.")
+                                },
+                                new Paragraph
+                                {
+                                    Body = "Try every exercise before checking the solutions. Press the <b>View Source Code</b> button below when you are ready to compare your work with example answers."
+                                }
+                            }
+                        },
+                        new Block
+                        {
+                            Title = "Chapter Summary",
+                            Paragraphs = new List<Paragraph>
+                            {
+                                new Paragraph
+                                {
+                                    Body = RedDotList(
+                                        "A dictionary associates each unique key with one value.",
+                                        "Use <code class='inline-code'>TryAdd</code> when duplicate keys are an expected possibility.",
+                                        "Use <code class='inline-code'>TryGetValue</code> when a requested key may be absent.",
+                                        "A string comparer can define case-insensitive key behavior consistently.",
+                                        "The store retains its Product list for display and uses a dictionary as its SKU index.")
+                                },
+                                new Paragraph
+                                {
+                                    Body = "The next chapter introduces <code class='inline-code'>HashSet&lt;T&gt;</code> and uses it to guarantee that every product's tags remain unique."
+                                }
+                            }
+                        },
+                        new Block
+                        {
+                            IsCourseCodePage = true,
+                            Title = "Dictionary Exercise Answers",
+                            Paragraphs = new List<Paragraph>
+                            {
+                                new Paragraph { Body = "These are example answers. Your variable names and messages may differ." },
+                                new Paragraph
+                                {
+                                    IsCode = true,
+                                    Body = "// 1. Create and retrieve\r\nvar countries = new Dictionary&lt;string, string&gt;\r\n{\r\n    [\"AU\"] = \"Australia\",\r\n    [\"BR\"] = \"Brazil\",\r\n    [\"JP\"] = \"Japan\"\r\n};\r\nConsole.WriteLine(countries[\"AU\"]);\r\n\r\n// 2. TryAdd duplicates\r\nbool firstAdd = countries.TryAdd(\"NZ\", \"New Zealand\");\r\nbool secondAdd = countries.TryAdd(\"NZ\", \"Duplicate\");\r\nConsole.WriteLine($\"{firstAdd}, {secondAdd}\");\r\n\r\n// 3. Safe user lookup\r\nstring code = Console.ReadLine()?.Trim().ToUpperInvariant() ?? string.Empty;\r\nif (countries.TryGetValue(code, out string? country))\r\n{\r\n    Console.WriteLine(country);\r\n}\r\nelse\r\n{\r\n    Console.WriteLine(\"Country not found.\");\r\n}\r\n\r\n// 4. Update, remove, and Count\r\ncountries[\"BR\"] = \"Federative Republic of Brazil\";\r\ncountries.Remove(\"JP\");\r\nConsole.WriteLine(countries.Count);"
+                                },
+                                new Paragraph { Body = "<b>5. Print the SKU index</b>" },
+                                new Paragraph
+                                {
+                                    IsCode = true,
+                                    Body = "foreach (KeyValuePair&lt;string, Product&gt; pair in ProductsBySku)\r\n{\r\n    Console.WriteLine($\"{pair.Key}: {pair.Value.Name}\");\r\n}"
+                                },
+                                new Paragraph { Body = "<b>6. Verify case-insensitive lookup</b>" },
+                                new Paragraph
+                                {
+                                    IsCode = true,
+                                    Body = "bool found = ProductsBySku.TryGetValue(\"ele-001\", out Product? product);\r\nConsole.WriteLine(found);\r\nConsole.WriteLine(product?.Name);"
+                                },
+                                new Paragraph { Body = "<b>7. Update stock by SKU</b>" },
+                                new Paragraph
+                                {
+                                    IsCode = true,
+                                    Body = "private static void UpdateStockBySku()\r\n{\r\n    string sku = AnsiConsole.Ask&lt;string&gt;(\"Enter product SKU:\").Trim();\r\n\r\n    if (!ProductsBySku.TryGetValue(sku, out Product? product))\r\n    {\r\n        AnsiConsole.MarkupLine(\"[yellow]Product not found.[/]\");\r\n        Pause();\r\n        return;\r\n    }\r\n\r\n    product.StockQuantity = AnsiConsole.Prompt(\r\n        new TextPrompt&lt;int&gt;(\"New stock quantity:\")\r\n            .Validate(quantity =&gt; quantity &gt;= 0\r\n                ? ValidationResult.Success()\r\n                : ValidationResult.Error(\"[red]Stock cannot be negative.[/]\")));\r\n\r\n    Pause();\r\n}"
+                                },
+                                new Paragraph
+                                {
+                                    Body = "<b>8.</b> If only the list is updated, the product appears in product listings but cannot be found by SKU. The two collections disagree about the application's state. Centralizing additions in one method helps prevent that synchronization bug."
                                 }
                             }
                         }

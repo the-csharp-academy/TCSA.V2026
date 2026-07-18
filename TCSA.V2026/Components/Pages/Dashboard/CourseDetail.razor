@@ -15,7 +15,7 @@
             <MudProgressCircular Color="Color.Primary" Indeterminate="true" Size="Size.Large" />
         </div>
     }
-    else
+    else if (Course is not null && Article is not null)
     {
         <MudPaper Class="@(IsLoggedIn ? "course-hero" : "course-hero course-hero-public")" Elevation="4">
             <div class="course-hero-main">
@@ -84,8 +84,20 @@
                     </div>
                     @if (ShowThirdAd)
                     {
-                        <div class="course-sidebar-ad">
+                        <div class="course-sidebar-ad course-sidebar-ad-third">
                             <AdSenseAd Slot="3309220423" />
+                        </div>
+                    }
+                    @if (ShowFourthAd)
+                    {
+                        <div class="course-sidebar-ad course-sidebar-ad-fourth">
+                            <AdSenseAd Slot="8230942835" />
+                        </div>
+                    }
+                    @if (ShowFifthAd)
+                    {
+                        <div class="course-sidebar-ad course-sidebar-ad-fifth">
+                            <AdSenseAd Slot="4207937346" />
                         </div>
                     }
                 </aside>
@@ -290,6 +302,28 @@
         flex-direction: column;
         gap: 10rem;
         padding: 2rem 0;
+        position: relative;
+    }
+
+    .course-sidebar-ad-third {
+        position: absolute;
+        top: calc(100% + 10rem);
+        left: 0;
+        right: 0;
+    }
+
+    .course-sidebar-ad-fourth {
+        position: absolute;
+        top: calc(100% + 20rem + 600px);
+        left: 0;
+        right: 0;
+    }
+
+    .course-sidebar-ad-fifth {
+        position: absolute;
+        top: calc(100% + 30rem + 1200px);
+        left: 0;
+        right: 0;
     }
 
     .course-sidebar-ad {
@@ -520,6 +554,8 @@
     private bool IsCompleted = false;
     private bool IsSubmitting = false;
     private bool ShowThirdAd = false;
+    private bool ShowFourthAd = false;
+    private bool ShowFifthAd = false;
     private bool _thirdAdMeasured = false;
     private string UserId = string.Empty;
     private string _lastRenderedCode = string.Empty;
@@ -610,6 +646,8 @@
     protected async override Task OnParametersSetAsync()
     {
         ShowThirdAd = false;
+        ShowFourthAd = false;
+        ShowFifthAd = false;
         _thirdAdMeasured = false;
         IsLoggedIn = false;
         IsCompleted = false;
@@ -617,14 +655,19 @@
 
         Course = CourseHelper.GetCourses().FirstOrDefault(x => x.Id == CourseId);
 
-        if (Course != null)
-        {
-            Article = Course.Articles.FirstOrDefault(a => a.CourseDisplayId == ArticleDisplayId);
-        }
+        Article = Course?.Articles.FirstOrDefault(a => a.Id == ArticleId)
+            ?? Course?.Articles.FirstOrDefault(a => a.CourseDisplayId == ArticleDisplayId);
 
         BlocksToShow = IsCode
-      ? Article.Blocks.Where(x => x.IsCourseCodePage).ToList()
-      : Article.Blocks.Where(x => !x.IsCourseCodePage).ToList();
+            ? Article?.Blocks.Where(x => x.IsCourseCodePage).ToList() ?? []
+            : Article?.Blocks.Where(x => !x.IsCourseCodePage).ToList() ?? [];
+
+        if (Course is null || Article is null)
+        {
+            IsLoading = false;
+            NavigationManager.NavigateTo("/dashboard/Courses");
+            return;
+        }
 
         var AuthSate = await AuthenticationState.GetAuthenticationStateAsync();
 
@@ -650,8 +693,10 @@
         {
             _thirdAdMeasured = true;
             ShowThirdAd = await JSRuntime.InvokeAsync<bool>("canShowThirdCourseAd");
+            ShowFourthAd = await JSRuntime.InvokeAsync<bool>("canShowFourthCourseAd");
+            ShowFifthAd = await JSRuntime.InvokeAsync<bool>("canShowFifthCourseAd");
 
-            if (ShowThirdAd)
+            if (ShowThirdAd || ShowFourthAd || ShowFifthAd)
             {
                 await InvokeAsync(StateHasChanged);
             }

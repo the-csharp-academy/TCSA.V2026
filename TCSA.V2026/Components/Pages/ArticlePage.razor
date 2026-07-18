@@ -106,6 +106,24 @@
                 <div class="article-sidebar-ad">
                     <AdSenseAd Slot="5655082087" />
                 </div>
+                @if (ShowThirdAd)
+                {
+                    <div class="article-sidebar-ad article-sidebar-ad-third">
+                        <AdSenseAd Slot="4211806779" />
+                    </div>
+                }
+                @if (ShowFourthAd)
+                {
+                    <div class="article-sidebar-ad article-sidebar-ad-fourth">
+                        <AdSenseAd Slot="8638136949" />
+                    </div>
+                }
+                @if (ShowFifthAd)
+                {
+                    <div class="article-sidebar-ad article-sidebar-ad-fifth">
+                        <AdSenseAd Slot="1394191889" />
+                    </div>
+                }
             </aside>
         </MudItem>
     </MudGrid>
@@ -142,6 +160,10 @@
     private bool IsCompleted = false;
     private bool IsLoading = true;
     private bool IsSubmitting = false;
+    private bool ShowThirdAd = false;
+    private bool ShowFourthAd = false;
+    private bool ShowFifthAd = false;
+    private bool _thirdAdMeasured = false;
     private string UserId = string.Empty;
     private string BackgroundImage;
     private int CompletionCount = 0;
@@ -196,11 +218,28 @@
             await JS.InvokeVoidAsync("highlightCode");
         }
 
+        if (!IsLoading && !_thirdAdMeasured)
+        {
+            _thirdAdMeasured = true;
+            ShowThirdAd = await JS.InvokeAsync<bool>("canShowThirdArticleAd");
+            ShowFourthAd = await JS.InvokeAsync<bool>("canShowFourthArticleAd");
+            ShowFifthAd = await JS.InvokeAsync<bool>("canShowFifthArticleAd");
+
+            if (ShowThirdAd || ShowFourthAd || ShowFifthAd)
+            {
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+
         var AuthSate = await AuthenticationState.GetAuthenticationStateAsync();
     }
 
     protected async override Task OnParametersSetAsync()
     {
+        ShowThirdAd = false;
+        ShowFourthAd = false;
+        ShowFifthAd = false;
+        _thirdAdMeasured = false;
         Article = ArticleHelper.GetArticles().Single(x => x.Id == ArticleId);
 
         var AuthSate = await AuthenticationState.GetAuthenticationStateAsync();
@@ -334,6 +373,28 @@
         flex-direction: column;
         gap: 10rem;
         padding: 2rem 0;
+        position: relative;
+    }
+
+    .article-sidebar-ad-third {
+        position: absolute;
+        top: calc(100% + 10rem);
+        left: 0;
+        right: 0;
+    }
+
+    .article-sidebar-ad-fourth {
+        position: absolute;
+        top: calc(100% + 20rem + 600px);
+        left: 0;
+        right: 0;
+    }
+
+    .article-sidebar-ad-fifth {
+        position: absolute;
+        top: calc(100% + 30rem + 1200px);
+        left: 0;
+        right: 0;
     }
 
     .article-sidebar-ad {

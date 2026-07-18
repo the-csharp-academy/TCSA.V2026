@@ -336,6 +336,18 @@
                     <div class="project-sidebar-ad">
                         <AdSenseAd Slot="5606980623" />
                     </div>
+                    @if (ShowThirdAd)
+                    {
+                        <div class="project-sidebar-ad project-sidebar-ad-third">
+                            <AdSenseAd Slot="9300602069" />
+                        </div>
+                    }
+                    @if (ShowFourthAd)
+                    {
+                        <div class="project-sidebar-ad project-sidebar-ad-fourth">
+                            <AdSenseAd Slot="7604377012" />
+                        </div>
+                    }
                 </aside>
             </MudItem>
         </MudGrid>
@@ -373,6 +385,9 @@
     private bool CodeWarsNotFoundShowing = false;
     private bool IsAdmin = false;
     private int CompletionCount = 0;
+    private bool ShowThirdAd = false;
+    private bool ShowFourthAd = false;
+    private bool _thirdAdMeasured = false;
 
     protected async override Task OnInitializedAsync()
     {
@@ -458,11 +473,26 @@
             await JS.InvokeVoidAsync("highlightCode");
         }
 
+        if (!IsLoading && !_thirdAdMeasured)
+        {
+            _thirdAdMeasured = true;
+            ShowThirdAd = await JS.InvokeAsync<bool>("canShowThirdProjectAd");
+            ShowFourthAd = await JS.InvokeAsync<bool>("canShowFourthProjectAd");
+
+            if (ShowThirdAd || ShowFourthAd)
+            {
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+
         var AuthSate = await AuthenticationState.GetAuthenticationStateAsync();
     }
 
     protected async override Task OnParametersSetAsync()
     {
+        ShowThirdAd = false;
+        ShowFourthAd = false;
+        _thirdAdMeasured = false;
         Project = ProjectHelper.GetProjects().Single(x => x.Id == ProjectId);
 
         var AuthSate = await AuthenticationState.GetAuthenticationStateAsync();
@@ -643,12 +673,27 @@
         flex-direction: column;
         gap: 10rem;
         padding: 2rem 0;
+        position: relative;
     }
 
     .project-sidebar-ad {
         width: 100%;
         min-width: 0;
         min-height: 600px;
+    }
+
+    .project-sidebar-ad-third {
+        position: absolute;
+        top: calc(100% + 10rem);
+        left: 0;
+        right: 0;
+    }
+
+    .project-sidebar-ad-fourth {
+        position: absolute;
+        top: calc(100% + 20rem + 600px);
+        left: 0;
+        right: 0;
     }
 
     .project-media-wrap {
