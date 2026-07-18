@@ -893,7 +893,21 @@ public class LinqCourse
                                     },
                                     new Paragraph
                                     {
-                                        Body = "After completing the exercises, compare your solutions with the pattern from this lesson: collection, <code class='inline-code'>Where</code>, predicate. If that pattern is clear, you're ready to start chaining LINQ methods together."
+                                        Body = "After completing the exercises, compare your solutions with the pattern from this lesson: collection, <code class='inline-code'>Where</code>, predicate. If that pattern is clear, you're ready to start chaining LINQ methods together. When you are ready to check your work, press the <b>View Source Code</b> button below to see example answers."
+                                    }
+                                }
+                            },
+                            new Block
+                            {
+                                IsCourseCodePage = true,
+                                Title = "Where Exercise Answers",
+                                Paragraphs = new List<Paragraph>
+                                {
+                                    new Paragraph { Body = "These are example solutions. Try each exercise yourself before comparing your queries with these answers." },
+                                    new Paragraph
+                                    {
+                                        IsCode = true,
+                                        Body = "// 1. Technology stocks\r\nvar technologyStocks = stocks\r\n    .Where(stock => stock.Sector == \"Technology\")\r\n    .ToList();\r\n\r\n// 2. MSFT trades\r\nvar msftTrades = trades\r\n    .Where(trade => trade.Symbol == \"MSFT\")\r\n    .ToList();\r\n\r\n// 3. Buy trades\r\nvar buyTrades = trades\r\n    .Where(trade => trade.Type == TradeType.Buy)\r\n    .ToList();\r\n\r\n// 4. Quantity of at least 500\r\nvar largeTrades = trades\r\n    .Where(trade => trade.Quantity >= 500)\r\n    .ToList();\r\n\r\n// 5. Price greater than 200\r\nvar expensiveTrades = trades\r\n    .Where(trade => trade.Price > 200)\r\n    .ToList();\r\n\r\n// 6. TSLA sell trades\r\nvar tslaSellTrades = trades\r\n    .Where(trade => trade.Symbol == \"TSLA\"\r\n        && trade.Type == TradeType.Sell)\r\n    .ToList();\r\n\r\n// 7. Trades from the last 30 days\r\nDateTime cutoffDate = DateTime.Today.AddDays(-30);\r\nvar recentTrades = trades\r\n    .Where(trade => trade.Date >= cutoffDate)\r\n    .ToList();\r\n\r\n// 8. Three combined conditions\r\nvar filteredTrades = trades\r\n    .Where(trade => trade.Symbol == \"AAPL\"\r\n        && trade.Type == TradeType.Buy\r\n        && trade.Quantity >= 500)\r\n    .ToList();"
                                     }
                                 }
                             }
@@ -1259,7 +1273,26 @@ public class LinqCourse
                                     },
                                     new Paragraph
                                     {
-                                        Body = "After each exercise, say what changed: did you filter items, transform items, or both? That habit will help you choose the right LINQ method faster."
+                                        Body = "After each exercise, say what changed: did you filter items, transform items, or both? That habit will help you choose the right LINQ method faster. Press the <b>View Source Code</b> button below when you are ready to compare your work with example answers."
+                                    }
+                                }
+                            },
+                            new Block
+                            {
+                                IsCourseCodePage = true,
+                                Title = "Select Exercise Answers",
+                                Paragraphs = new List<Paragraph>
+                                {
+                                    new Paragraph { Body = "Your variable names may differ. Focus on whether each selector produces the requested result shape." },
+                                    new Paragraph
+                                    {
+                                        IsCode = true,
+                                        Body = "// 1-5. Select individual properties\r\nvar stockSymbols = stocks.Select(stock => stock.Symbol).ToList();\r\nvar companyNames = stocks.Select(stock => stock.CompanyName).ToList();\r\nvar stockSectors = stocks.Select(stock => stock.Sector).ToList();\r\nvar tradeSymbols = trades.Select(trade => trade.Symbol).ToList();\r\nvar tradeQuantities = trades.Select(trade => trade.Quantity).ToList();\r\n\r\n// 6. Value of every trade\r\nvar tradeValues = trades\r\n    .Select(trade => trade.Price * trade.Quantity)\r\n    .ToList();\r\n\r\n// 7. Symbols of buy trades\r\nvar buyTradeSymbols = trades\r\n    .Where(trade => trade.Type == TradeType.Buy)\r\n    .Select(trade => trade.Symbol)\r\n    .ToList();\r\n\r\n// 8. Values of trades with quantity >= 500\r\nvar largeTradeValues = trades\r\n    .Where(trade => trade.Quantity >= 500)\r\n    .Select(trade => trade.Price * trade.Quantity)\r\n    .ToList();\r\n\r\n// 9. Anonymous summary\r\nvar anonymousSummaries = trades\r\n    .Select(trade => new\r\n    {\r\n        trade.Symbol,\r\n        trade.Type,\r\n        trade.Quantity,\r\n        TotalValue = trade.Price * trade.Quantity\r\n    })\r\n    .ToList();\r\n\r\n// 10. Custom summary type\r\nvar summaries = trades\r\n    .Select(trade => new TradeSummary\r\n    {\r\n        Symbol = trade.Symbol,\r\n        Type = trade.Type,\r\n        Quantity = trade.Quantity,\r\n        TotalValue = trade.Price * trade.Quantity\r\n    })\r\n    .ToList();"
+                                    },
+                                    new Paragraph
+                                    {
+                                        IsCode = true,
+                                        Body = "public class TradeSummary\r\n{\r\n    public string Symbol { get; set; } = string.Empty;\r\n    public TradeType Type { get; set; }\r\n    public int Quantity { get; set; }\r\n    public decimal TotalValue { get; set; }\r\n}"
                                     }
                                 }
                             }
@@ -1545,7 +1578,20 @@ public class LinqCourse
                                     },
                                     new Paragraph
                                     {
-                                        Body = "When you're done, read each line out loud as a question. If the method name matches the question naturally, you probably chose the right LINQ method."
+                                        Body = "When you're done, read each line out loud as a question. If the method name matches the question naturally, you probably chose the right LINQ method. Press the <b>View Source Code</b> button below to see example answers after making your own attempt."
+                                    }
+                                }
+                            },
+                            new Block
+                            {
+                                IsCourseCodePage = true,
+                                Title = "Any, All, and Contains Exercise Answers",
+                                Paragraphs = new List<Paragraph>
+                                {
+                                    new Paragraph
+                                    {
+                                        IsCode = true,
+                                        Body = "// 1-3. Any\r\nbool hasTslaTrades = trades.Any(trade => trade.Symbol == \"TSLA\");\r\nbool hasPriceOver500 = trades.Any(trade => trade.Price > 500);\r\nbool hasSellTrades = trades.Any(trade => trade.Type == TradeType.Sell);\r\n\r\n// 4-6. All\r\nbool allQuantitiesArePositive = trades.All(trade => trade.Quantity > 0);\r\nbool allSymbolsExist = stocks.All(stock => !string.IsNullOrWhiteSpace(stock.Symbol));\r\nbool allPricesArePositive = trades.All(trade => trade.Price > 0);\r\n\r\n// 7-8. Contains\r\nvar stockSymbols = stocks.Select(stock => stock.Symbol).ToList();\r\nbool containsAapl = stockSymbols.Contains(\"AAPL\");\r\n\r\nvar sectors = stocks.Select(stock => stock.Sector).ToList();\r\nbool containsHealthcare = sectors.Contains(\"Healthcare\");\r\n\r\n// 9. Example questions of your own\r\nbool hasTechnologyStock = stocks.Any(stock => stock.Sector == \"Technology\");\r\nbool allCompanyNamesExist = stocks.All(stock => !string.IsNullOrWhiteSpace(stock.CompanyName));\r\nbool containsMsft = stockSymbols.Contains(\"MSFT\");\r\n\r\nConsole.WriteLine(hasTslaTrades);\r\nConsole.WriteLine(hasPriceOver500);\r\nConsole.WriteLine(hasSellTrades);\r\nConsole.WriteLine(allQuantitiesArePositive);\r\nConsole.WriteLine(allSymbolsExist);\r\nConsole.WriteLine(allPricesArePositive);\r\nConsole.WriteLine(containsAapl);\r\nConsole.WriteLine(containsHealthcare);"
                                     }
                                 }
                             }
@@ -1867,7 +1913,21 @@ public class LinqCourse
                                     },
                                     new Paragraph
                                     {
-                                        Body = "After each exercise, ask yourself whether the result is still nested or flat. That question is the heart of this lesson."
+                                        Body = "After each exercise, ask yourself whether the result is still nested or flat. That question is the heart of this lesson. Press the <b>View Source Code</b> button below when you are ready to check the example answers."
+                                    }
+                                }
+                            },
+                            new Block
+                            {
+                                IsCourseCodePage = true,
+                                Title = "Nested Collections Exercise Answers",
+                                Paragraphs = new List<Paragraph>
+                                {
+                                    new Paragraph { Body = "The first exercise is completed with the debugger: pause after <code class='inline-code'>stocks</code> is created, expand one stock, and inspect its <code class='inline-code'>Trades</code> property." },
+                                    new Paragraph
+                                    {
+                                        IsCode = true,
+                                        Body = "// 2. A nested sequence of trade lists\r\nvar tradeLists = stocks\r\n    .Select(stock => stock.Trades)\r\n    .ToList();\r\n\r\n// 3. One flat trade list\r\nvar allNestedTrades = stocks\r\n    .SelectMany(stock => stock.Trades)\r\n    .ToList();\r\n\r\n// 4. Large nested trades\r\nvar largeNestedTrades = stocks\r\n    .SelectMany(stock => stock.Trades)\r\n    .Where(trade => trade.Quantity >= 500)\r\n    .ToList();\r\n\r\n// 5. Symbol and nested buy trades\r\nvar stocksWithBuyTrades = stocks\r\n    .Select(stock => new\r\n    {\r\n        stock.Symbol,\r\n        BuyTrades = stock.Trades\r\n            .Where(trade => trade.Type == TradeType.Buy)\r\n            .ToList()\r\n    })\r\n    .ToList();\r\n\r\n// 6. Trade count for every stock\r\nforeach (Stock stock in stocks)\r\n{\r\n    Console.WriteLine($\"{stock.Symbol}: {stock.Trades.Count}\");\r\n}\r\n\r\n// 7. Sell trade count for every stock\r\nforeach (Stock stock in stocks)\r\n{\r\n    int sellCount = stock.Trades.Count(trade => trade.Type == TradeType.Sell);\r\n    Console.WriteLine($\"{stock.Symbol}: {sellCount}\");\r\n}\r\n\r\n// 8. Flat sequence of trade values\r\nvar nestedTradeValues = stocks\r\n    .SelectMany(stock => stock.Trades)\r\n    .Select(trade => trade.Price * trade.Quantity)\r\n    .ToList();"
                                     }
                                 }
                             }
@@ -2040,6 +2100,23 @@ public class LinqCourse
                                             "Sort trades by <code class='inline-code'>Date</code> from oldest to newest.",
                                             "Sort trades by <code class='inline-code'>Date</code> from newest to oldest.",
                                             "Flatten all nested stock trades with <code class='inline-code'>SelectMany</code>, then sort them by quantity descending.")
+                                    },
+                                    new Paragraph
+                                    {
+                                        Body = "After attempting every query, press the <b>View Source Code</b> button below to compare your work with example answers."
+                                    }
+                                }
+                            },
+                            new Block
+                            {
+                                IsCourseCodePage = true,
+                                Title = "OrderBy Exercise Answers",
+                                Paragraphs = new List<Paragraph>
+                                {
+                                    new Paragraph
+                                    {
+                                        IsCode = true,
+                                        Body = "var stocksBySymbol = stocks\r\n    .OrderBy(stock => stock.Symbol)\r\n    .ToList();\r\n\r\nvar stocksByCompany = stocks\r\n    .OrderBy(stock => stock.CompanyName)\r\n    .ToList();\r\n\r\nvar tradesByLowestPrice = trades\r\n    .OrderBy(trade => trade.Price)\r\n    .ToList();\r\n\r\nvar tradesByHighestPrice = trades\r\n    .OrderByDescending(trade => trade.Price)\r\n    .ToList();\r\n\r\nvar tradesByOldestDate = trades\r\n    .OrderBy(trade => trade.Date)\r\n    .ToList();\r\n\r\nvar tradesByNewestDate = trades\r\n    .OrderByDescending(trade => trade.Date)\r\n    .ToList();\r\n\r\nvar nestedTradesByQuantity = stocks\r\n    .SelectMany(stock => stock.Trades)\r\n    .OrderByDescending(trade => trade.Quantity)\r\n    .ToList();"
                                     }
                                 }
                             }
@@ -2178,6 +2255,23 @@ public class LinqCourse
                                             "Sort trades by <code class='inline-code'>Symbol</code>, then by <code class='inline-code'>Quantity</code> descending.",
                                             "Flatten nested stock trades with <code class='inline-code'>SelectMany</code>, then sort by symbol and newest date first.",
                                             "Create one query with <code class='inline-code'>OrderBy</code>, <code class='inline-code'>ThenBy</code>, and <code class='inline-code'>ThenByDescending</code>.")
+                                    },
+                                    new Paragraph
+                                    {
+                                        Body = "Press the <b>View Source Code</b> button below after completing the exercises to see one valid answer for each sort order."
+                                    }
+                                }
+                            },
+                            new Block
+                            {
+                                IsCourseCodePage = true,
+                                Title = "ThenBy Exercise Answers",
+                                Paragraphs = new List<Paragraph>
+                                {
+                                    new Paragraph
+                                    {
+                                        IsCode = true,
+                                        Body = "var stocksBySectorAndSymbol = stocks\r\n    .OrderBy(stock => stock.Sector)\r\n    .ThenBy(stock => stock.Symbol)\r\n    .ToList();\r\n\r\nvar stocksBySectorAndCompany = stocks\r\n    .OrderBy(stock => stock.Sector)\r\n    .ThenBy(stock => stock.CompanyName)\r\n    .ToList();\r\n\r\nvar tradesBySymbolAndDate = trades\r\n    .OrderBy(trade => trade.Symbol)\r\n    .ThenBy(trade => trade.Date)\r\n    .ToList();\r\n\r\nvar tradesByTypeAndPrice = trades\r\n    .OrderBy(trade => trade.Type)\r\n    .ThenByDescending(trade => trade.Price)\r\n    .ToList();\r\n\r\nvar tradesBySymbolAndQuantity = trades\r\n    .OrderBy(trade => trade.Symbol)\r\n    .ThenByDescending(trade => trade.Quantity)\r\n    .ToList();\r\n\r\nvar nestedTradesBySymbolAndNewestDate = stocks\r\n    .SelectMany(stock => stock.Trades)\r\n    .OrderBy(trade => trade.Symbol)\r\n    .ThenByDescending(trade => trade.Date)\r\n    .ToList();\r\n\r\n// One possible three-level ordering\r\nvar threeLevelSort = trades\r\n    .OrderBy(trade => trade.Symbol)\r\n    .ThenBy(trade => trade.Type)\r\n    .ThenByDescending(trade => trade.Quantity)\r\n    .ToList();"
                                     }
                                 }
                             }
@@ -2391,6 +2485,23 @@ public class LinqCourse
                                             "Use <code class='inline-code'>SelectMany</code> to count all nested trades across all stocks.",
                                             "Rewrite one <code class='inline-code'>Where(...).Count()</code> query as a <code class='inline-code'>Count(...)</code> query.",
                                             "Create one <code class='inline-code'>LongCount()</code> query and print the result.")
+                                    },
+                                    new Paragraph
+                                    {
+                                        Body = "Press the <b>View Source Code</b> button below when you are ready to check the counting answers."
+                                    }
+                                }
+                            },
+                            new Block
+                            {
+                                IsCourseCodePage = true,
+                                Title = "Count Exercise Answers",
+                                Paragraphs = new List<Paragraph>
+                                {
+                                    new Paragraph
+                                    {
+                                        IsCode = true,
+                                        Body = "int stockCount = stocks.Count();\r\nint tradeCount = trades.Count();\r\nint technologyStockCount = stocks.Count(stock => stock.Sector == \"Technology\");\r\nint aaplTradeCount = trades.Count(trade => trade.Symbol == \"AAPL\");\r\nint quantityOver100Count = trades.Count(trade => trade.Quantity > 100);\r\nint buyTradeCount = trades.Count(trade => trade.Type == TradeType.Buy);\r\n\r\nint nestedTradeCount = stocks\r\n    .SelectMany(stock => stock.Trades)\r\n    .Count();\r\n\r\n// Before: trades.Where(trade => trade.Quantity > 100).Count();\r\nint directConditionalCount = trades.Count(trade => trade.Quantity > 100);\r\n\r\nlong longTradeCount = trades.LongCount();\r\nConsole.WriteLine(longTradeCount);"
                                     }
                                 }
                             }
@@ -2623,6 +2734,23 @@ public class LinqCourse
                                             "Use <code class='inline-code'>SelectMany</code> to calculate the total value of all nested trades across all stocks.",
                                             "Choose a stock symbol, filter to that symbol, check whether any trades exist, then calculate the average price.",
                                             "Create one query that uses <code class='inline-code'>Where</code>, <code class='inline-code'>SelectMany</code>, and <code class='inline-code'>Sum</code> together.")
+                                    },
+                                    new Paragraph
+                                    {
+                                        Body = "After calculating the results yourself, press the <b>View Source Code</b> button below to see example solutions."
+                                    }
+                                }
+                            },
+                            new Block
+                            {
+                                IsCourseCodePage = true,
+                                Title = "Sum and Average Exercise Answers",
+                                Paragraphs = new List<Paragraph>
+                                {
+                                    new Paragraph
+                                    {
+                                        IsCode = true,
+                                        Body = "int totalQuantity = trades.Sum(trade => trade.Quantity);\r\ndouble averageQuantity = trades.Average(trade => trade.Quantity);\r\ndecimal totalTradeValue = trades.Sum(trade => trade.Price * trade.Quantity);\r\ndecimal averageTradePrice = trades.Average(trade => trade.Price);\r\n\r\ndecimal aaplTotalValue = trades\r\n    .Where(trade => trade.Symbol == \"AAPL\")\r\n    .Sum(trade => trade.Price * trade.Quantity);\r\n\r\nint totalBuyQuantity = trades\r\n    .Where(trade => trade.Type == TradeType.Buy)\r\n    .Sum(trade => trade.Quantity);\r\n\r\ndecimal nestedTotalValue = stocks\r\n    .SelectMany(stock => stock.Trades)\r\n    .Sum(trade => trade.Price * trade.Quantity);\r\n\r\nstring selectedSymbol = \"MSFT\";\r\nvar selectedTrades = trades\r\n    .Where(trade => trade.Symbol == selectedSymbol)\r\n    .ToList();\r\n\r\nif (selectedTrades.Any())\r\n{\r\n    decimal selectedAveragePrice = selectedTrades.Average(trade => trade.Price);\r\n    Console.WriteLine(selectedAveragePrice);\r\n}\r\n\r\n// Where, SelectMany, and Sum together\r\ndecimal technologyTradeValue = stocks\r\n    .Where(stock => stock.Sector == \"Technology\")\r\n    .SelectMany(stock => stock.Trades)\r\n    .Sum(trade => trade.Price * trade.Quantity);"
                                     }
                                 }
                             }
@@ -2815,6 +2943,23 @@ public class LinqCourse
                                             "Find the most recent trade date.",
                                             "Filter trades to <code class='inline-code'>AAPL</code>, check that any exist, then find the highest price.",
                                             "Use <code class='inline-code'>SelectMany</code> to find the newest nested trade date across all stocks.")
+                                    },
+                                    new Paragraph
+                                    {
+                                        Body = "Press the <b>View Source Code</b> button below after attempting the exercises to compare your Min and Max queries."
+                                    }
+                                }
+                            },
+                            new Block
+                            {
+                                IsCourseCodePage = true,
+                                Title = "Min and Max Exercise Answers",
+                                Paragraphs = new List<Paragraph>
+                                {
+                                    new Paragraph
+                                    {
+                                        IsCode = true,
+                                        Body = "decimal lowestPrice = trades.Min(trade => trade.Price);\r\ndecimal highestPrice = trades.Max(trade => trade.Price);\r\nint smallestQuantity = trades.Min(trade => trade.Quantity);\r\nint largestQuantity = trades.Max(trade => trade.Quantity);\r\nDateTime earliestDate = trades.Min(trade => trade.Date);\r\nDateTime mostRecentDate = trades.Max(trade => trade.Date);\r\n\r\nvar aaplTrades = trades\r\n    .Where(trade => trade.Symbol == \"AAPL\")\r\n    .ToList();\r\n\r\nif (aaplTrades.Any())\r\n{\r\n    decimal highestAaplPrice = aaplTrades.Max(trade => trade.Price);\r\n    Console.WriteLine(highestAaplPrice);\r\n}\r\n\r\nDateTime newestNestedTradeDate = stocks\r\n    .SelectMany(stock => stock.Trades)\r\n    .Max(trade => trade.Date);"
                                     }
                                 }
                             }
@@ -2969,6 +3114,23 @@ public class LinqCourse
                                             "Sort stocks by company name, then get the first stock.",
                                             "Use <code class='inline-code'>SelectMany</code> to get the first nested trade across all stocks.",
                                             "Write one example where <code class='inline-code'>FirstOrDefault</code> needs a null check.")
+                                    },
+                                    new Paragraph
+                                    {
+                                        Body = "When your queries are complete, press the <b>View Source Code</b> button below to see the example answers."
+                                    }
+                                }
+                            },
+                            new Block
+                            {
+                                IsCourseCodePage = true,
+                                Title = "First and FirstOrDefault Exercise Answers",
+                                Paragraphs = new List<Paragraph>
+                                {
+                                    new Paragraph
+                                    {
+                                        IsCode = true,
+                                        Body = "Stock firstStock = stocks.First();\r\nTrade firstTrade = trades.First();\r\nTrade firstAaplTrade = trades.First(trade => trade.Symbol == \"AAPL\");\r\n\r\nStock? missingStock = stocks\r\n    .FirstOrDefault(stock => stock.Symbol == \"NOT-REAL\");\r\n\r\nTrade newestTrade = trades\r\n    .OrderByDescending(trade => trade.Date)\r\n    .First();\r\n\r\nStock firstCompanyAlphabetically = stocks\r\n    .OrderBy(stock => stock.CompanyName)\r\n    .First();\r\n\r\nTrade firstNestedTrade = stocks\r\n    .SelectMany(stock => stock.Trades)\r\n    .First();\r\n\r\nStock? userSelectedStock = stocks\r\n    .FirstOrDefault(stock => stock.Symbol == \"UNKNOWN\");\r\n\r\nif (userSelectedStock is null)\r\n{\r\n    Console.WriteLine(\"No matching stock was found.\");\r\n}\r\nelse\r\n{\r\n    Console.WriteLine(userSelectedStock.CompanyName);\r\n}"
                                     }
                                 }
                             }
@@ -3117,6 +3279,23 @@ public class LinqCourse
                                             "Try using <code class='inline-code'>Single</code> on trades with symbol <code class='inline-code'>AAPL</code> and observe why it is the wrong method.",
                                             "Write a short comment explaining when you would choose <code class='inline-code'>First</code> instead of <code class='inline-code'>Single</code>.",
                                             "Write a short comment explaining when you would choose <code class='inline-code'>SingleOrDefault</code> instead of <code class='inline-code'>FirstOrDefault</code>.")
+                                    },
+                                    new Paragraph
+                                    {
+                                        Body = "Press the <b>View Source Code</b> button below after completing the exercises to compare your answers."
+                                    }
+                                }
+                            },
+                            new Block
+                            {
+                                IsCourseCodePage = true,
+                                Title = "Single and SingleOrDefault Exercise Answers",
+                                Paragraphs = new List<Paragraph>
+                                {
+                                    new Paragraph
+                                    {
+                                        IsCode = true,
+                                        Body = "Stock aaplStock = stocks.Single(stock => stock.Symbol == \"AAPL\");\r\nStock msftStock = stocks.Single(stock => stock.Symbol == \"MSFT\");\r\n\r\nStock? possibleStock = stocks\r\n    .SingleOrDefault(stock => stock.Symbol == \"NOT-REAL\");\r\n\r\nif (possibleStock is null)\r\n{\r\n    Console.WriteLine(\"No matching stock was found.\");\r\n}\r\nelse\r\n{\r\n    Console.WriteLine(possibleStock.CompanyName);\r\n}\r\n\r\n// This throws when AAPL has more than one trade because Single\r\n// requires exactly one matching element.\r\nTrade wrongChoice = trades.Single(trade => trade.Symbol == \"AAPL\");\r\n\r\n// Choose First when multiple matches are valid and you only need one.\r\n// Choose Single when the data must contain exactly one match.\r\n\r\n// Choose SingleOrDefault when zero or one match is valid, but duplicates\r\n// indicate bad data. Choose FirstOrDefault when multiple matches are valid."
                                     }
                                 }
                             }
@@ -3276,6 +3455,23 @@ public class LinqCourse
                                             "Use <code class='inline-code'>SelectMany</code> to create a unique list of nested trade symbols.",
                                             "Sort one distinct result alphabetically.",
                                             "Print every value from one distinct result using a <code class='inline-code'>foreach</code> loop.")
+                                    },
+                                    new Paragraph
+                                    {
+                                        Body = "After making your own attempt, press the <b>View Source Code</b> button below to see the Distinct exercise answers."
+                                    }
+                                }
+                            },
+                            new Block
+                            {
+                                IsCourseCodePage = true,
+                                Title = "Distinct Exercise Answers",
+                                Paragraphs = new List<Paragraph>
+                                {
+                                    new Paragraph
+                                    {
+                                        IsCode = true,
+                                        Body = "var uniqueSectors = stocks\r\n    .Select(stock => stock.Sector)\r\n    .Distinct()\r\n    .ToList();\r\n\r\nvar uniqueStockSymbols = stocks\r\n    .Select(stock => stock.Symbol)\r\n    .Distinct()\r\n    .ToList();\r\n\r\nvar uniqueTradeSymbols = trades\r\n    .Select(trade => trade.Symbol)\r\n    .Distinct()\r\n    .ToList();\r\n\r\nvar uniqueTradeTypes = trades\r\n    .Select(trade => trade.Type)\r\n    .Distinct()\r\n    .ToList();\r\n\r\nvar symbolsWithLargeTrades = trades\r\n    .Where(trade => trade.Quantity > 100)\r\n    .Select(trade => trade.Symbol)\r\n    .Distinct()\r\n    .ToList();\r\n\r\nvar uniqueNestedTradeSymbols = stocks\r\n    .SelectMany(stock => stock.Trades)\r\n    .Select(trade => trade.Symbol)\r\n    .Distinct()\r\n    .ToList();\r\n\r\nvar sortedUniqueSectors = stocks\r\n    .Select(stock => stock.Sector)\r\n    .Distinct()\r\n    .OrderBy(sector => sector)\r\n    .ToList();\r\n\r\nforeach (string sector in sortedUniqueSectors)\r\n{\r\n    Console.WriteLine(sector);\r\n}"
                                     }
                                 }
                             }

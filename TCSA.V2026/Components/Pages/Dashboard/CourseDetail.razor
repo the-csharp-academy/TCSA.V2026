@@ -82,6 +82,12 @@
                     <div class="course-sidebar-ad">
                         <AdSenseAd Slot="1788109407" />
                     </div>
+                    @if (ShowThirdAd)
+                    {
+                        <div class="course-sidebar-ad">
+                            <AdSenseAd Slot="3309220423" />
+                        </div>
+                    }
                 </aside>
             </MudItem>
 
@@ -513,6 +519,8 @@
     private bool IsLoading = true;
     private bool IsCompleted = false;
     private bool IsSubmitting = false;
+    private bool ShowThirdAd = false;
+    private bool _thirdAdMeasured = false;
     private string UserId = string.Empty;
     private string _lastRenderedCode = string.Empty;
 
@@ -601,6 +609,8 @@
 
     protected async override Task OnParametersSetAsync()
     {
+        ShowThirdAd = false;
+        _thirdAdMeasured = false;
         IsLoggedIn = false;
         IsCompleted = false;
         CompletedProjects.Clear();
@@ -635,6 +645,17 @@
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await JSRuntime.InvokeVoidAsync("highlightCode");
+
+        if (!IsLoading && !_thirdAdMeasured)
+        {
+            _thirdAdMeasured = true;
+            ShowThirdAd = await JSRuntime.InvokeAsync<bool>("canShowThirdCourseAd");
+
+            if (ShowThirdAd)
+            {
+                await InvokeAsync(StateHasChanged);
+            }
+        }
     }
 
     private void NavigateToArticle(int articleDisplayId, int articleId, bool isCode)

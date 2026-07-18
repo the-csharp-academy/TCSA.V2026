@@ -14,7 +14,8 @@ public class CourseHelper
             WpfCourse.GetWpfCourse(),
             DiCourse.GetDiCourse(),
             //ReactCourse.GetReactCourse(),
-            LinqCourse.GetLinqCourse()
+            LinqCourse.GetLinqCourse(),
+            //DataStructuresCourse.GetDataStructuresCourse()
         };
     }
 }
