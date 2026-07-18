@@ -327,6 +327,9 @@
                     <div class="project-sidebar-ad">
                         <AdSenseAd Slot="5997983008" />
                     </div>
+                    <div class="project-sidebar-ad">
+                        <AdSenseAd Slot="5606980623" />
+                    </div>
                 </aside>
             </MudItem>
         </MudGrid>
@@ -555,8 +558,10 @@
     }
 
     .project-ad-rail {
-        position: sticky;
-        top: 86px;
+        display: flex;
+        flex-direction: column;
+        gap: 10rem;
+        padding: 2rem 0;
     }
 
     .project-sidebar-ad {
@@ -600,8 +605,9 @@
 
     @@media (max-width: 960px) {
         .project-ad-rail {
-            position: static;
+            gap: 3rem;
             margin-top: 1rem;
+            padding: 1rem 0;
         }
 
         .project-sidebar-ad {

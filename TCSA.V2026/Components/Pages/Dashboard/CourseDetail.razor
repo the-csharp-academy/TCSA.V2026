@@ -72,9 +72,14 @@
                     </MudList>
                 </MudPaper>
 
-                <div class="course-sidebar-ad">
-                    <AdSenseAd Slot="1533509954" />
-                </div>
+                <aside class="course-ad-rail" aria-label="Advertisement">
+                    <div class="course-sidebar-ad">
+                        <AdSenseAd Slot="1533509954" />
+                    </div>
+                    <div class="course-sidebar-ad">
+                        <AdSenseAd Slot="1788109407" />
+                    </div>
+                </aside>
             </MudItem>
 
             <MudItem xs="12" md="8" lg="9">
@@ -267,10 +272,16 @@
         overflow: hidden;
     }
 
+    .course-ad-rail {
+        display: flex;
+        flex-direction: column;
+        gap: 10rem;
+        padding: 2rem 0;
+    }
+
     .course-sidebar-ad {
         width: 100%;
         min-height: 600px;
-        margin-top: 24px;
     }
 
     .course-sidebar-header {
@@ -429,6 +440,15 @@
     }
 
     @@media (max-width: 960px) {
+        .course-ad-rail {
+            gap: 3rem;
+            padding: 1rem 0;
+        }
+
+        .course-sidebar-ad {
+            min-height: 250px;
+        }
+
         .course-hero {
             grid-template-columns: 1fr;
         }

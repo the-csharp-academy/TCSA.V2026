@@ -100,6 +100,9 @@
                 <div class="article-sidebar-ad">
                     <AdSenseAd Slot="1156719860" />
                 </div>
+                <div class="article-sidebar-ad">
+                    <AdSenseAd Slot="5655082087" />
+                </div>
             </aside>
         </MudItem>
     </MudGrid>
@@ -304,8 +307,10 @@
     }
 
     .article-ad-rail {
-        position: sticky;
-        top: 86px;
+        display: flex;
+        flex-direction: column;
+        gap: 10rem;
+        padding: 2rem 0;
     }
 
     .article-sidebar-ad {
@@ -365,8 +370,13 @@
 
     @@media (max-width: 960px) {
         .article-ad-rail {
-            position: static;
+            gap: 3rem;
             margin-top: 1rem;
+            padding: 1rem 0;
+        }
+
+        .article-sidebar-ad {
+            min-height: 250px;
         }
 
         .article-hero {
