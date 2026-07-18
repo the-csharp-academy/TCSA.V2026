@@ -17,7 +17,7 @@
     }
     else
     {
-        <MudPaper Class="course-hero" Elevation="4">
+        <MudPaper Class="@(IsLoggedIn ? "course-hero" : "course-hero course-hero-public")" Elevation="4">
             <div class="course-hero-main">
                 <div class="course-hero-icon">
                     <MudImage Src="@CourseIconSrc" Alt="@Course.Title" Width="56" />
@@ -28,12 +28,15 @@
                     <MudText Typo="Typo.body1" Class="course-description">@Course.Description</MudText>
                 </div>
             </div>
-            <div class="course-progress-card">
-                <MudText Typo="Typo.caption" Class="course-progress-label">Your progress</MudText>
-                <MudText Typo="Typo.h4" Class="course-progress-number">@CompletedProjects.Count / @Course.Articles.Count</MudText>
-                <MudProgressLinear Value="@CourseProgress" Color="Color.Success" Rounded="true" Class="my-3" />
-                <MudText Typo="Typo.body2" Class="course-progress-copy">@CourseProgressText</MudText>
-            </div>
+            @if (IsLoggedIn)
+            {
+                <div class="course-progress-card">
+                    <MudText Typo="Typo.caption" Class="course-progress-label">Your progress</MudText>
+                    <MudText Typo="Typo.h4" Class="course-progress-number">@CompletedProjects.Count / @Course.Articles.Count</MudText>
+                    <MudProgressLinear Value="@CourseProgress" Color="Color.Success" Rounded="true" Class="my-3" />
+                    <MudText Typo="Typo.body2" Class="course-progress-copy">@CourseProgressText</MudText>
+                </div>
+            }
         </MudPaper>
 
         <MudGrid Spacing="4" Class="course-layout">
@@ -51,7 +54,7 @@
                             var article = Course.Articles[i];
                             var lessonNumber = i + 1;
                             var isCurrent = article.Id == ArticleId;
-                            var isDone = CompletedProjects.Contains(article.Id);
+                            var isDone = IsLoggedIn && CompletedProjects.Contains(article.Id);
 
                             <MudListItem Class="@GetNavItemClass(article.Id)"
                                          OnClick="@(() => NavigateToArticle(article.CourseDisplayId.Value, article.Id, false))">
@@ -201,6 +204,10 @@
         background: linear-gradient(135deg, var(--mud-palette-primary) 0%, #2d356f 64%, #832a77 100%) !important;
         color: white;
         overflow: hidden;
+    }
+
+    .course-hero-public {
+        grid-template-columns: minmax(0, 1fr);
     }
 
     .course-hero-main {
@@ -506,7 +513,7 @@
     private bool IsLoading = true;
     private bool IsCompleted = false;
     private bool IsSubmitting = false;
-    private string UserId;
+    private string UserId = string.Empty;
     private string _lastRenderedCode = string.Empty;
 
     private string CourseIconSrc => $"img/icons/{Course.ImgUrl}";
@@ -555,6 +562,11 @@
     }
     private async Task MarkAsRead()
     {
+        if (!IsLoggedIn)
+        {
+            return;
+        }
+
         IsSubmitting = true;
 
         var response = await ProjectService.PostArticle(ArticleId, UserId, string.Empty, true, false);
@@ -589,6 +601,10 @@
 
     protected async override Task OnParametersSetAsync()
     {
+        IsLoggedIn = false;
+        IsCompleted = false;
+        CompletedProjects.Clear();
+
         Course = CourseHelper.GetCourses().FirstOrDefault(x => x.Id == CourseId);
 
         if (Course != null)
@@ -602,18 +618,17 @@
 
         var AuthSate = await AuthenticationState.GetAuthenticationStateAsync();
 
-        if (AuthSate.User.Identity.IsAuthenticated)
+        if (AuthSate.User.Identity?.IsAuthenticated == true)
         {
             IsLoggedIn = true;
             var claims = AuthSate.User;
-            UserId = claims.FindFirstValue(ClaimTypes.NameIdentifier);
+            UserId = claims.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
+
+            var projects = await ProjectService.GetCompletedProjectsById(UserId);
+            var courseIds = Course.Articles.Select(x => x.Id);
+            CompletedProjects = projects.Where(x => courseIds.Contains(x)).ToList();
+            IsCompleted = await ProjectService.IsProjectCompleted(UserId, ArticleId);
         }
-
-        var projects = await ProjectService.GetCompletedProjectsById(UserId);
-        var courseIds = Course.Articles.Select(x => x.Id);
-        CompletedProjects = projects.Where(x => courseIds.Contains(x)).ToList();
-
-        IsCompleted = await ProjectService.IsProjectCompleted(UserId, ArticleId);
         IsLoading = false;
     }
 

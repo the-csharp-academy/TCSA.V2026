@@ -9,6 +9,7 @@ public class DiCourse
         return new Course
         {
             Id = 6,
+            Level = CourseLevel.Intermediate,
             Title = "Dependency Injection Fundamentals",
             Description = "Master the backbone of maintainable software design!",
             ImgUrl = "icons8-dependency-injection-64.png",

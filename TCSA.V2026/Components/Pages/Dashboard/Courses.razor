@@ -6,7 +6,6 @@
 @using TCSA.V2026.Data.DTOs
 @using TCSA.V2026.Data.Models
 @using TCSA.V2026.Services
-@attribute [Authorize]
 
 <PageTitle>Courses</PageTitle>
 
@@ -25,37 +24,43 @@
     }
     else
     {
-        <section class="courses-hero">
+        <section class="@(IsLoggedIn ? "courses-hero" : "courses-hero courses-hero-public")">
             <div>
                 <MudText Typo="Typo.overline" Class="courses-eyebrow">Learning Path</MudText>
                 <MudText Typo="Typo.h3" Class="courses-heading">Courses</MudText>
                 <MudText Typo="Typo.body1" Class="courses-copy">
-                    Keep moving through focused C# Academy courses and track your progress chapter by chapter.
+                    Explore focused C# Academy courses and learn chapter by chapter at your own pace.
                 </MudText>
             </div>
-            <div class="courses-summary">
-                <div>
-                    <span class="summary-value">@CompletedChapters</span>
-                    <span class="summary-label">chapters completed</span>
+            @if (IsLoggedIn)
+            {
+                <div class="courses-summary">
+                    <div>
+                        <span class="summary-value">@CompletedChapters</span>
+                        <span class="summary-label">chapters completed</span>
+                    </div>
+                    <div>
+                        <span class="summary-value">@CoursesInProgress</span>
+                        <span class="summary-label">in progress</span>
+                    </div>
+                    <div>
+                        <span class="summary-value">@CompletedCourses</span>
+                        <span class="summary-label">courses finished</span>
+                    </div>
                 </div>
-                <div>
-                    <span class="summary-value">@CoursesInProgress</span>
-                    <span class="summary-label">in progress</span>
-                </div>
-                <div>
-                    <span class="summary-value">@CompletedCourses</span>
-                    <span class="summary-label">courses finished</span>
-                </div>
-            </div>
+            }
         </section>
 
-        <div class="overall-progress">
-            <div>
-                <MudText Typo="Typo.subtitle2">Overall progress</MudText>
-                <MudText Typo="Typo.caption">@CompletedChapters of @TotalChapters chapters completed</MudText>
+        @if (IsLoggedIn)
+        {
+            <div class="overall-progress">
+                <div>
+                    <MudText Typo="Typo.subtitle2">Overall progress</MudText>
+                    <MudText Typo="Typo.caption">@CompletedChapters of @TotalChapters chapters completed</MudText>
+                </div>
+                <MudProgressLinear Value="@OverallProgress" Color="Color.Primary" Rounded="true" Class="overall-progress-bar" />
             </div>
-            <MudProgressLinear Value="@OverallProgress" Color="Color.Primary" Rounded="true" Class="overall-progress-bar" />
-        </div>
+        }
 
         <MudGrid Spacing="3" Class="courses-grid">
             @foreach (var course in DashboardCourses)
@@ -66,12 +71,23 @@
                             <div class="course-icon-shell">
                                 <MudImage Width="38" Height="38" Src="@($"img/icons/{course.ImgUrl}")" Alt="@course.Title" />
                             </div>
-                            <MudChip T="string"
-                                     Size="Size.Small"
-                                     Variant="Variant.Filled"
-                                     Color="@GetStatusColor(course.Status)">
-                                @GetStatusLabel(course.Status)
-                            </MudChip>
+                            <div class="course-card-chips">
+                                <MudChip T="string"
+                                         Size="Size.Small"
+                                         Variant="Variant.Filled"
+                                         Color="@GetLevelColor(course.Level)">
+                                    @GetLevelLabel(course.Level)
+                                </MudChip>
+                                @if (IsLoggedIn)
+                                {
+                                    <MudChip T="string"
+                                             Size="Size.Small"
+                                             Variant="Variant.Filled"
+                                             Color="@GetStatusColor(course.Status)">
+                                        @GetStatusLabel(course.Status)
+                                    </MudChip>
+                                }
+                            </div>
                         </div>
 
                         <div class="course-card-body">
@@ -79,14 +95,17 @@
                             <MudText Typo="Typo.body2" Class="course-card-description">@course.Description</MudText>
                         </div>
 
-                        <div class="course-progress-row">
-                            <MudText Typo="Typo.caption">@course.CompletedChapters / @course.TotalChapters @course.ChapterLabel</MudText>
-                            <MudText Typo="Typo.caption">@course.ProgressPercent%</MudText>
-                        </div>
-                        <MudProgressLinear Value="@course.ProgressPercent"
-                                           Color="@GetStatusColor(course.Status)"
-                                           Rounded="true"
-                                           Class="course-progress-bar" />
+                        @if (IsLoggedIn)
+                        {
+                            <div class="course-progress-row">
+                                <MudText Typo="Typo.caption">@course.CompletedChapters / @course.TotalChapters @course.ChapterLabel</MudText>
+                                <MudText Typo="Typo.caption">@course.ProgressPercent%</MudText>
+                            </div>
+                            <MudProgressLinear Value="@course.ProgressPercent"
+                                               Color="@GetStatusColor(course.Status)"
+                                               Rounded="true"
+                                               Class="course-progress-bar" />
+                        }
 
                         <MudButton FullWidth="true"
                                    Variant="Variant.Filled"
@@ -94,7 +113,7 @@
                                    StartIcon="@Icons.Material.Filled.PlayArrow"
                                    OnClick="@(() => NavigateToCourse(course.Id))"
                                    Class="course-action">
-                            @GetActionLabel(course.Status)
+                            @(IsLoggedIn ? GetActionLabel(course.Status) : "View Course")
                         </MudButton>
                     </article>
                 </MudItem>
@@ -126,6 +145,10 @@
         border: 1px solid var(--mud-palette-lines-default);
         border-radius: 8px;
         background: linear-gradient(135deg, rgba(25, 118, 210, 0.12), rgba(76, 175, 80, 0.08));
+    }
+
+    .courses-hero-public {
+        grid-template-columns: minmax(0, 1fr);
     }
 
     .courses-eyebrow {
@@ -191,6 +214,7 @@
 
     .courses-grid {
         align-items: stretch;
+        margin-top: 20px;
     }
 
     .course-card {
@@ -244,6 +268,13 @@
         align-items: center;
         justify-content: space-between;
         gap: 12px;
+    }
+
+    .course-card-chips {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 8px;
     }
 
     .course-icon-shell {
@@ -309,6 +340,7 @@
     private List<CourseCardInfo> DashboardCourses { get; set; } = new();
 
     private bool IsLoading = true;
+    private bool IsLoggedIn;
     private string UserId = string.Empty;
 
     private int CompletedChapters => DashboardCourses.Sum(course => course.CompletedChapters);
@@ -321,14 +353,13 @@
     {
         var authState = await AuthenticationState.GetAuthenticationStateAsync();
 
-        if (authState.User.Identity?.IsAuthenticated != true)
-        {
-            Navigation.NavigateTo("Account/Login");
-            return;
-        }
+        IsLoggedIn = authState.User.Identity?.IsAuthenticated == true;
 
-        UserId = authState.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
-        User = await UserService.GetUserById(UserId);
+        if (IsLoggedIn)
+        {
+            UserId = authState.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
+            User = await UserService.GetUserById(UserId);
+        }
 
         GetCourseInfo();
 
@@ -337,19 +368,15 @@
 
     private void GetCourseInfo()
     {
-        if (User is null)
-        {
-            DashboardCourses = new();
-            return;
-        }
-
         DashboardCourses = CourseList
             .Where(course => course.Articles.Count > 0)
             .Select(course =>
             {
                 var articleIds = course.Articles.Select(article => article.Id).ToList();
-                var completedCount = articleIds.Count(id =>
-                    User.DashboardProjects.Any(project => project.IsCompleted && project.ProjectId == id));
+                var completedCount = User is null
+                    ? 0
+                    : articleIds.Count(id =>
+                        User.DashboardProjects.Any(project => project.IsCompleted && project.ProjectId == id));
 
                 return new CourseCardInfo
                 {
@@ -357,6 +384,7 @@
                     Title = course.Title,
                     Description = course.Description,
                     ImgUrl = course.ImgUrl,
+                    Level = course.Level,
                     CompletedChapters = completedCount,
                     TotalChapters = articleIds.Count,
                     Status = GetCourseStatus(completedCount, articleIds.Count)
@@ -411,6 +439,30 @@
         return status == DashBoardCourseStatus.NotStarted ? "Start Course" : "Continue Course";
     }
 
+    private static string GetLevelLabel(CourseLevel level)
+    {
+        return level switch
+        {
+            CourseLevel.Beginner => "Beginner",
+            CourseLevel.Intermediate => "Intermediate",
+            CourseLevel.Advanced => "Advanced",
+            CourseLevel.Expert => "Expert",
+            _ => level.ToString()
+        };
+    }
+
+    private static Color GetLevelColor(CourseLevel level)
+    {
+        return level switch
+        {
+            CourseLevel.Beginner => Color.Success,
+            CourseLevel.Intermediate => Color.Info,
+            CourseLevel.Advanced => Color.Warning,
+            CourseLevel.Expert => Color.Error,
+            _ => Color.Default
+        };
+    }
+
     private static string GetCourseCardClass(DashBoardCourseStatus status)
     {
         return status switch
@@ -427,6 +479,7 @@
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public string ImgUrl { get; set; } = string.Empty;
+        public CourseLevel Level { get; set; }
         public int CompletedChapters { get; set; }
         public int TotalChapters { get; set; }
         public DashBoardCourseStatus Status { get; set; }
