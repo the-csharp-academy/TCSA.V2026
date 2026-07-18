@@ -43,24 +43,25 @@
 
         <MudGrid Class="mt-4">
             <MudItem xs="12" md="9">
-                <MudPaper Class="d-flex flex-column mud-width-full py-1 pb-10 px-4 px-md-10 section-panel section-panel-soft project-content">
+                <MudPaper Class="d-flex flex-column mud-width-full section-panel section-panel-soft project-content">
                     @if (Project.Introduction != null)
                     {
                         for (var paragraphIndex = 0; paragraphIndex < Project.Introduction.Count; paragraphIndex++)
                         {
                                 var paragraph = Project.Introduction[paragraphIndex];
                                 var capturedParagraphIndex = paragraphIndex;
-                                <MudText Class="mt-2" UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ProjectIntroductionParagraphId(capturedParagraphIndex) })">
+                                <MudText Class="project-paragraph" UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ProjectIntroductionParagraphId(capturedParagraphIndex) })">
                                     @((MarkupString)(paragraph.Body))
                                 </MudText>
                         }
                     }
                     @if (Project.Id != 86)
                     {
-                        <h2 class="mud-typography-h6 mt-10 mb-2">@Project.LanguageHeadings.Requirements</h2>
+                        <section class="project-feature-panel project-requirements-panel">
+                        <h2 class="project-section-title">@Project.LanguageHeadings.Requirements</h2>
                         @if (!string.IsNullOrEmpty(Project.RequirementsIntro))
                         {
-                            <MudText Class="mt-2" UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ProjectRequirementsIntroId })">@((MarkupString)(Project.RequirementsIntro))</MudText>
+                            <MudText Class="project-paragraph" UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ProjectRequirementsIntroId })">@((MarkupString)(Project.RequirementsIntro))</MudText>
                         }
                         @if (Project.Requirements != null)
                         {
@@ -70,8 +71,8 @@
                                         var req = Project.Requirements[reqIndex];
                                         var capturedReqIndex = reqIndex;
                                     <MudListItem>
-                                        <div style="display: flex;">
-                                            <MudIcon Icon="@Icons.Material.Filled.CheckBox" Color="Color.Success" Class="mr-2" />
+                                        <div class="project-list-row">
+                                            <span class="project-list-dot" aria-hidden="true"></span>
                                             <MudText UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ProjectRequirementId(capturedReqIndex) })">@((MarkupString)(req))</MudText>
                                         </div>
                                     </MudListItem>
@@ -80,12 +81,13 @@
                         }
                         @if (!string.IsNullOrEmpty(Project.RequirementsConclusion))
                         {
-                            <MudText Class="mt-2" UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ProjectRequirementsConclusionId })">@((MarkupString)(Project.RequirementsConclusion))</MudText>
+                            <MudText Class="project-paragraph" UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ProjectRequirementsConclusionId })">@((MarkupString)(Project.RequirementsConclusion))</MudText>
                         }
+                        </section>
                     }
                     @if (Project.LearningItems != null)
                     {
-                        <h2 class="mud-typography-h6 mt-10 mb-2">@Project.LanguageHeadings.Learn</h2>
+                        <h2 class="project-section-title">@Project.LanguageHeadings.Learn</h2>
                         @if (!string.IsNullOrEmpty(Project.LearningIntro))
                         {
                             <MudText Class="mt-2 mb-2" UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ProjectLearningIntroId })">@((MarkupString)(Project.LearningIntro))</MudText>
@@ -103,7 +105,7 @@
                     }
                     @if (Project.Resources != null)
                     {
-                        <h2 class="mud-typography-h6 mt-10 mb-2">@Project.LanguageHeadings.Resources</h2>
+                        <h2 class="project-section-title">@Project.LanguageHeadings.Resources</h2>
                         @if (!string.IsNullOrEmpty(Project.ResourcesIntro))
                         {
                             <MudText Class="mt-2 mb-2" UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ProjectResourcesIntroId })">@((MarkupString)(Project.ResourcesIntro))</MudText>
@@ -128,38 +130,42 @@
                     }
                     @if (Project.Tips != null)
                     {
-                        <h2 class="mud-typography-h6 mt-10 mb-2">@Project.LanguageHeadings.Tips</h2>
+                        <section class="project-feature-panel project-tips-panel">
+                        <h2 class="project-section-title">@Project.LanguageHeadings.Tips</h2>
                         <MudList T="MarkupString" Color="Color.Default">
                             @for (var tipIndex = 0; tipIndex < Project.Tips.Count; tipIndex++)
                             {
                                 var tip = Project.Tips[tipIndex];
                                 var capturedTipIndex = tipIndex;
                                 <MudListItem>
-                                    <div style="display: flex;">
-                                        <MudIcon Icon="@Icons.Material.Filled.CheckBox" Size="Size.Medium" Color="Color.Warning" Class="mr-2" />
+                                    <div class="project-list-row">
+                                        <span class="project-list-dot" aria-hidden="true"></span>
                                         <MudText UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ProjectTipId(capturedTipIndex) })">@((MarkupString)(tip))</MudText>
                                     </div>
                                 </MudListItem>
                             }
                         </MudList>
+                        </section>
                     }
 
                     @if (Project.Challenges != null)
                     {
-                        <h2 class="mud-typography-h6 mt-10 mb-2">@Project.LanguageHeadings.Challenges</h2>
+                        <section class="project-feature-panel project-challenges-panel">
+                        <h2 class="project-section-title">@Project.LanguageHeadings.Challenges</h2>
                         <MudList T="MarkupString" Color="Color.Default">
                             @for (var challengeIndex = 0; challengeIndex < Project.Challenges.Count; challengeIndex++)
                             {
                                 var challenge = Project.Challenges[challengeIndex];
                                 var capturedChallengeIndex = challengeIndex;
                                 <MudListItem>
-                                    <div style="display: flex;">
-                                        <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Size="Size.Medium" Color="Color.Error" Class="mr-2" />
+                                    <div class="project-list-row">
+                                        <span class="project-list-dot" aria-hidden="true"></span>
                                         <MudText UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ProjectChallengeId(capturedChallengeIndex) })">@((MarkupString)(challenge))</MudText>
                                     </div>
                                 </MudListItem>
                             }
                         </MudList>
+                        </section>
                     }
                     @if (Project.Blocks != null)
                     {
@@ -169,7 +175,7 @@
                             var capturedBlockIndex = blockIndex;
                             @if (!string.IsNullOrWhiteSpace(block.Title))
                             {
-                                <h2 class="mud-typography-h6 mt-10 mb-2" id="@ContentAnchors.ArticleBlockTitleId(capturedBlockIndex)">@block.Title</h2>
+                                <h2 class="project-section-title" id="@ContentAnchors.ArticleBlockTitleId(capturedBlockIndex)">@block.Title</h2>
                             }
 
                             @for (var paragraphIndex = 0; paragraphIndex < block.Paragraphs.Count; paragraphIndex++)
@@ -178,21 +184,21 @@
                                 var capturedParagraphIndex = paragraphIndex;
                                 if (paragraph.IsPicture)
                                 {
-                                    <MudPaper Class="d-flex justify-center mx-20 mt-10 project-media-wrap" Elevation="0">
+                                    <MudPaper Class="d-flex justify-center project-media-wrap" Elevation="0">
                                         <MudImage Src="@GetImage(paragraph)" Alt="Image paragraph" Fluid="true" Class="rounded-lg" />
                                     </MudPaper>
                                 }
 
                                 else if (paragraph.IsVideo)
                                 {
-                                    <div class="video-wrapper mt-5 mb-4">
+                                    <div class="video-wrapper project-video-wrap">
                                         <iframe class="video-iframe" src="@paragraph.VideoUrl" allowfullscreen></iframe>
                                     </div>
                                 }
 
                                 else if (paragraph.IsCode)
                                 {
-                                    <pre class="line-numbers"><code class="language-csharp">@((MarkupString)paragraph.Body)</code></pre>
+                                    <pre class="line-numbers project-code-block"><code class="language-csharp">@((MarkupString)paragraph.Body)</code></pre>
                                 }
 
                                 else if (!string.IsNullOrEmpty(paragraph.Body))
@@ -201,13 +207,13 @@
                                     {
                                         var bgStyle = $"background-color: {paragraph.BackgroundColor}; padding: 1rem;";
                                         var textStyle = $"color: {paragraph.FontColor};";
-                                        <MudText Class="mb-1" Style="@textStyle" Typo="Typo.body1" UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ArticleBlockParagraphId(capturedBlockIndex, capturedParagraphIndex) })">
+                                        <MudText Class="project-paragraph" Style="@textStyle" Typo="Typo.body1" UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ArticleBlockParagraphId(capturedBlockIndex, capturedParagraphIndex) })">
                                             @((MarkupString)paragraph.Body)
                                         </MudText>
                                     }
                                     else
                                     {
-                                        <MudText Class="mt-2" Typo="Typo.body1" UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ArticleBlockParagraphId(capturedBlockIndex, capturedParagraphIndex) })">
+                                        <MudText Class="project-paragraph" Typo="Typo.body1" UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ArticleBlockParagraphId(capturedBlockIndex, capturedParagraphIndex) })">
                                             @((MarkupString)paragraph.Body)
                                         </MudText>
                                     }
@@ -218,7 +224,7 @@
 
                     @if (Project.Screenshots != null)
                     {
-                        <h2 class="mud-typography-h6 mt-10 mb-2">Example Screenshots</h2>
+                        <h2 class="project-section-title">Example Screenshots</h2>
                         @if (Project.Screenshots.Count == 1)
                         {
                             <MudPaper Class="d-flex justify-center mx-20 project-media-wrap" Elevation="0">
@@ -257,7 +263,7 @@
                     {
                         @if (CodeWarsNotFoundShowing)
                         {
-                            <h2 class="mud-typography-h6 mt-10 mb-2">You haven't integrated Codewars yet.</h2>
+                            <h2 class="project-section-title">You haven't integrated Codewars yet.</h2>
                             <MudText Class="mt-10 mb-2" Typo="Typo.body1">
                                 In The C# Academy's Dashboard, you'll see a button where you can insert your Codewars user name. Your input has to match Code War's username exactly, including case sensitivity, or we won't be able to track your results.
 
@@ -266,7 +272,7 @@
                         }
                         else
                         {
-                            <h2 class="mud-typography-h6 mt-10 mb-2">Your Progress</h2>
+                            <h2 class="project-section-title">Your Progress</h2>
                             <MudList T="MarkupString" Color="Color.Default">
                                 @foreach (var challenge in Project.CodeWarsChallenges)
                                 {
@@ -539,6 +545,7 @@
 
     .project-title {
         line-height: 1.2;
+        font-weight: 800;
         text-shadow: 0 6px 20px rgba(0,0,0,0.35);
     }
 
@@ -554,7 +561,81 @@
     }
 
     .project-content {
-        margin-top: 0.4rem;
+        margin-top: 0.25rem;
+        padding: 1.25rem 2.5rem 2.75rem;
+    }
+
+    .project-section-title {
+        color: #C9436E;
+        font-size: 1.4rem;
+        font-weight: 800;
+        line-height: 1.3;
+        margin: 1.5rem 0 0.85rem;
+        padding-left: 0.9rem;
+        border-left: 4px solid #C9436E;
+    }
+
+    .mud-theme-dark .project-section-title,
+    .mud-application.mud-theme-dark .project-section-title {
+        color: var(--mud-palette-text-primary);
+        border-left-color: var(--mud-palette-primary);
+    }
+
+    .project-paragraph {
+        color: var(--mud-palette-text-primary);
+        line-height: 1.8;
+        margin: 0.35rem 0 0.9rem;
+    }
+
+    .project-feature-panel {
+        --panel-accent: var(--mud-palette-primary);
+        margin: 1.75rem 0;
+        padding: 1.25rem 1.4rem 1rem;
+        border: 1px solid color-mix(in srgb, var(--panel-accent) 28%, var(--mud-palette-lines-default));
+        border-left: 6px solid var(--panel-accent);
+        border-radius: 14px;
+        background: linear-gradient(135deg, color-mix(in srgb, var(--panel-accent) 13%, var(--mud-palette-surface)) 0%, var(--mud-palette-surface) 74%);
+        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.08);
+    }
+
+    .project-requirements-panel {
+        --panel-accent: #3f8f65;
+    }
+
+    .project-tips-panel {
+        --panel-accent: #d49a13;
+    }
+
+    .project-challenges-panel {
+        --panel-accent: #c84d4d;
+    }
+
+    .project-feature-panel .project-section-title {
+        color: color-mix(in srgb, var(--panel-accent) 82%, var(--mud-palette-text-primary));
+        margin-top: 0;
+        border-left-color: var(--panel-accent);
+    }
+
+    .project-feature-panel .mud-list {
+        padding: 0;
+        background: transparent;
+    }
+
+    .project-list-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        width: 100%;
+    }
+
+    .project-list-dot {
+        width: 11px;
+        height: 11px;
+        margin-top: 0.38rem;
+        border-radius: 50%;
+        background: var(--panel-accent);
+        box-shadow: 0 0 0 4px color-mix(in srgb, var(--panel-accent) 18%, transparent);
+        flex: 0 0 auto;
     }
 
     .project-ad-rail {
@@ -571,7 +652,24 @@
     }
 
     .project-media-wrap {
+        margin: 2rem 0;
+        padding: 1.5rem;
         border-radius: 16px;
+        background: var(--mud-palette-background-grey) !important;
+        border: 1px solid var(--mud-palette-lines-default);
+        overflow: hidden;
+    }
+
+    .project-video-wrap {
+        margin: 2rem 0;
+    }
+
+    .project-code-block {
+        margin: 1.75rem 0 !important;
+        padding: 1.25rem !important;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        overflow: auto;
     }
 
     .repository-panel {
@@ -620,7 +718,23 @@
 
         .section-panel {
             border-radius: 18px;
-            padding: 0.6rem 0.35rem;
+        }
+
+        .project-content {
+            padding: 1rem 1.5rem 2rem;
+        }
+
+        .project-section-title {
+            font-size: 1.25rem;
+            margin-top: 1.25rem;
+        }
+
+        .project-feature-panel {
+            padding: 1.1rem 1rem 0.8rem;
+        }
+
+        .project-media-wrap {
+            padding: 0.75rem;
         }
 
         .project-theme::before,
@@ -628,6 +742,12 @@
             width: 320px;
             height: 320px;
             filter: blur(65px);
+        }
+    }
+
+    @@media (max-width: 600px) {
+        .project-content {
+            padding: 0.75rem 1.1rem 1.75rem;
         }
     }
 </style>
