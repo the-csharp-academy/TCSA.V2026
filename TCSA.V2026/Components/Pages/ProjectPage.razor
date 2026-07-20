@@ -92,7 +92,7 @@
                         {
                             <MudText Class="mt-2 mb-2" UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ProjectLearningIntroId })">@((MarkupString)(Project.LearningIntro))</MudText>
                         }
-                        <MudList Class="mt-2" T="MarkupString" Color="Color.Default">
+                        <MudList ReadOnly="true" Class="mt-2" T="MarkupString" Color="Color.Default">
                             @for (var itemIndex = 0; itemIndex < Project.LearningItems.Count; itemIndex++)
                             {
                                 var item = Project.LearningItems[itemIndex];
@@ -110,7 +110,7 @@
                         {
                             <MudText Class="mt-2 mb-2" UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ProjectResourcesIntroId })">@((MarkupString)(Project.ResourcesIntro))</MudText>
                         }
-                        <MudList T="MarkupString" Color="Color.Default">
+                        <MudList ReadOnly="true" T="MarkupString" Color="Color.Default">
                             @for (var itemIndex = 0; itemIndex < Project.Resources.Count; itemIndex++)
                             {
                                 var item = Project.Resources[itemIndex];
@@ -132,7 +132,7 @@
                     {
                         <section class="project-feature-panel project-tips-panel">
                         <h2 class="project-section-title">@Project.LanguageHeadings.Tips</h2>
-                        <MudList T="MarkupString" Color="Color.Default">
+                        <MudList ReadOnly="true" T="MarkupString" Color="Color.Default">
                             @for (var tipIndex = 0; tipIndex < Project.Tips.Count; tipIndex++)
                             {
                                 var tip = Project.Tips[tipIndex];
@@ -152,7 +152,7 @@
                     {
                         <section class="project-feature-panel project-challenges-panel">
                         <h2 class="project-section-title">@Project.LanguageHeadings.Challenges</h2>
-                        <MudList T="MarkupString" Color="Color.Default">
+                        <MudList ReadOnly="true" T="MarkupString" Color="Color.Default">
                             @for (var challengeIndex = 0; challengeIndex < Project.Challenges.Count; challengeIndex++)
                             {
                                 var challenge = Project.Challenges[challengeIndex];
