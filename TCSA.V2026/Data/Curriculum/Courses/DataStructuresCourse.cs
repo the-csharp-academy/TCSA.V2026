@@ -2790,19 +2790,6 @@ public class DataStructuresCourse
                         },
                         new Block
                         {
-                            Title = "Inspect the Queue in the Debugger",
-                            Paragraphs = new List<Paragraph>
-                            {
-                                new Paragraph
-                                {
-                                    BackgroundColor = "#1C236D",
-                                    FontColor = "#FFF",
-                                    Body = "<b>Debugger section placeholder</b><br><br>Add the Queue debugger screenshot here. The completed section should ask learners to place a breakpoint after <code class='inline-code'>PendingOrders.Enqueue(order)</code>, create several Orders, expand the queue, identify the front and back, and verify that <code class='inline-code'>Dequeue</code> removes the oldest Order rather than the newest."
-                                }
-                            }
-                        },
-                        new Block
-                        {
                             Title = "Exercises",
                             CssClass = ExerciseBlockClass,
                             Paragraphs = new List<Paragraph>

@@ -6,7 +6,7 @@
 @using TCSA.V2026.Services
 @inject IJSRuntime JSRuntime
 
-<PageTitle>Courses</PageTitle>
+<PageTitle>@(Article is null || Course is null ? "Courses" : $"{Article.Title} | {Course.Title}")</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.False" Class="course-detail-shell">
     @if (IsLoading)

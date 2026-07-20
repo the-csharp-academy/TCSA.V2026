@@ -1,20 +1,26 @@
 <!DOCTYPE html>
+@using TCSA.V2026.Data.Curriculum
+@using TCSA.V2026.Data.Models
+
 <html lang="en">
 
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta property="og:title" content="The C# Academy" />
-    <meta property="og:description" content="Learn .NET/C# With Real Projects" />
-    <meta property="og:url" content="https://thecsharpacademy.com/" />
-    <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://thecsharpacademy.com/img/logo.png" />
+    <meta name="description" content="@MetaDescription" />
+    <meta property="og:site_name" content="The C# Academy" />
+    <meta property="og:title" content="@MetaTitle" />
+    <meta property="og:description" content="@MetaDescription" />
+    <meta property="og:url" content="@CanonicalUrl" />
+    <meta property="og:type" content="@OpenGraphType" />
+    <meta property="og:image" content="@MetaImageUrl" />
+    <meta property="og:image:alt" content="@MetaTitle" />
 
     <!-- Optional: Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="The C# Academy" />
-    <meta name="twitter:description" content="Learn .NET/C# With Projects" />
-    <meta name="twitter:image" content="https://thecsharpacademy.com/img/logo.png" />
+    <meta name="twitter:title" content="@MetaTitle" />
+    <meta name="twitter:description" content="@MetaDescription" />
+    <meta name="twitter:image" content="@MetaImageUrl" />
 
     <!-- Google AdSense Verification -->
     @if (!IsAuthPage)
@@ -26,7 +32,7 @@
 
    
     <!-- Canonical URL -->
-    <link rel="canonical" href="https://thecsharpacademy.com/" />
+    <link rel="canonical" href="@CanonicalUrl" />
 
     <base href="/" />
     <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
@@ -98,6 +104,12 @@
     private HttpContext HttpContext { get; set; } = default!;
 
     private bool IsAuthPage;
+    private const string SiteUrl = "https://thecsharpacademy.com";
+    private string MetaTitle = "The C# Academy";
+    private string MetaDescription = "Learn .NET/C# With Real Projects";
+    private string MetaImageUrl = $"{SiteUrl}/img/logo.png";
+    private string CanonicalUrl = $"{SiteUrl}/";
+    private string OpenGraphType = "website";
 
     protected override void OnInitialized()
     {
@@ -105,15 +117,88 @@
         if (HttpContext is not null)
         {
             var path = HttpContext.Request.Path;
-            
+            CanonicalUrl = $"{SiteUrl}{path.Value}";
+             
             IsAuthPage = path.StartsWithSegments("/Account/Login", StringComparison.InvariantCultureIgnoreCase) ||
                           path.StartsWithSegments("/Account/Register", StringComparison.InvariantCultureIgnoreCase) ||
                           path.StartsWithSegments("/Account/LoginWith2fa", StringComparison.InvariantCultureIgnoreCase) ||
                           path.StartsWithSegments("/Account/LoginWithRecoveryCode", StringComparison.InvariantCultureIgnoreCase) ||
                           path.StartsWithSegments("/Account/ExternalLogin", StringComparison.InvariantCultureIgnoreCase) ||
                           path.StartsWithSegments("/Account/SignOut", StringComparison.InvariantCultureIgnoreCase);
+
+            SetPageMetadata(path.Value ?? "/");
         }
     }
+
+    private void SetPageMetadata(string path)
+    {
+        string[] segments = path.Trim('/').Split('/', StringSplitOptions.RemoveEmptyEntries);
+
+        if (segments.Length >= 6 &&
+            segments[0].Equals("course", StringComparison.OrdinalIgnoreCase) &&
+            segments[2].Equals("article", StringComparison.OrdinalIgnoreCase) &&
+            int.TryParse(segments[1], out int courseId) &&
+            int.TryParse(segments[4], out int articleId))
+        {
+            Course? course = CourseHelper.GetCourses().FirstOrDefault(course => course.Id == courseId);
+            Article? article = course?.Articles.FirstOrDefault(article => article.Id == articleId);
+
+            if (course is not null && article is not null)
+            {
+                bool isCodePage = bool.TryParse(segments[5], out bool isCode) && isCode;
+                MetaTitle = isCodePage
+                    ? $"{article.Title} - Source Code | {course.Title}"
+                    : $"{article.Title} | {course.Title}";
+                MetaDescription = isCodePage
+                    ? $"View the example source code for {article.Title} in {course.Title}."
+                    : FirstNonEmpty(article.Description, course.Description, MetaDescription);
+                MetaImageUrl = $"{SiteUrl}/img/icons/{course.ImgUrl}";
+                OpenGraphType = "article";
+                return;
+            }
+        }
+
+        if (segments.Length >= 2 &&
+            segments[0].Equals("project", StringComparison.OrdinalIgnoreCase) &&
+            int.TryParse(segments[1], out int projectId))
+        {
+            Project? project = ProjectHelper.GetProjects().FirstOrDefault(project => project.Id == projectId);
+
+            if (project is not null)
+            {
+                MetaTitle = $"{project.Title} | The C# Academy";
+                MetaDescription = FirstNonEmpty(project.Description, MetaDescription);
+                MetaImageUrl = $"{SiteUrl}/img/banners/{FirstNonEmpty(project.BannerUrl, "article-banner.jpg")}";
+                OpenGraphType = "article";
+                return;
+            }
+        }
+
+        if (segments.Length >= 2 &&
+            segments[0].Equals("article", StringComparison.OrdinalIgnoreCase) &&
+            int.TryParse(segments[1], out int standaloneArticleId))
+        {
+            Article? article = ArticleHelper.GetArticles().FirstOrDefault(article => article.Id == standaloneArticleId);
+
+            if (article is not null)
+            {
+                MetaTitle = $"{article.Title} | The C# Academy";
+                MetaDescription = FirstNonEmpty(article.Description, MetaDescription);
+                MetaImageUrl = $"{SiteUrl}/img/banners/{FirstNonEmpty(article.BannerUrl, "article-banner.jpg")}";
+                OpenGraphType = "article";
+                return;
+            }
+        }
+
+        if (path.Equals("/dashboard/courses", StringComparison.OrdinalIgnoreCase))
+        {
+            MetaTitle = "C# Courses | The C# Academy";
+            MetaDescription = "Learn C# through guided courses, practical explanations, exercises, and real applications.";
+        }
+    }
+
+    private static string FirstNonEmpty(params string?[] values) =>
+        values.First(value => !string.IsNullOrWhiteSpace(value))!;
 
     // Now this property safely reads a stable boolean variable and won't crash your live SignalR circuits
     private IComponentRenderMode? RenderModeForPage => IsAuthPage
