@@ -38,7 +38,7 @@
             bool isInProgress = !area.IsCompleted && area.Tasks.Where(t => t.Status == Data.DTOs.TaskStatus.Completed).Any();
 
             <MudHidden Breakpoint="Breakpoint.MdAndDown">
-                <MudCard Class="mt-1" Style="@(area.IsCompleted ? "border: 2px solid green;" : isInProgress ? $"border: 2px solid #42a5f5" : null)">
+                <MudCard Class="@GetDashboardCardClass(area.IsCompleted, isInProgress)" Elevation="0">
                     <MudCardHeader Class="d-flex align-items-center">
                         <CardHeaderAvatar>
                             <MudImage Width="40" Src="@($"img/icons/{area.ImgUrl}")" />
@@ -82,7 +82,7 @@
             </MudHidden>
 
             <MudHidden Breakpoint="Breakpoint.LgAndUp">
-                <MudCard Class="mt-1" Style="@(area.IsCompleted ? "border: 2px solid green;" : isInProgress ? $"border: 2px solid #42a5f5" : null)">
+                <MudCard Class="@GetDashboardCardClass(area.IsCompleted, isInProgress)" Elevation="0">
                     <MudCardHeader Class="d-flex align-items-center flex-wrap justify-space-between ">
                         <CardHeaderAvatar>
                             <MudImage Width="40" Src="@($"img/icons/{area.ImgUrl}")" />
@@ -150,6 +150,13 @@
     private bool IsFccCompleted = false;
     private bool IsFccPending = false;
     private string UserId;
+
+    private static string GetDashboardCardClass(bool isCompleted, bool isInProgress)
+    {
+        if (isCompleted) return "mt-1 dashboard-area-card dashboard-area-card-completed";
+        if (isInProgress) return "mt-1 dashboard-area-card dashboard-area-card-progress";
+        return "mt-1 dashboard-area-card";
+    }
 
     private async Task OpenAreaDialog(IEnumerable<DashboardTaskDisplay> tasks)
     {
@@ -224,3 +231,42 @@
 
     }
 }
+
+<style>
+    .dashboard-area-card {
+        --area-accent: var(--mud-palette-primary);
+        overflow: hidden;
+        border: 1px solid color-mix(in srgb, var(--area-accent) 28%, var(--mud-palette-lines-default));
+        border-left: 5px solid var(--area-accent);
+        border-radius: 14px;
+        background: linear-gradient(110deg, color-mix(in srgb, var(--area-accent) 7%, var(--mud-palette-surface)), var(--mud-palette-surface) 44%);
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+        transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+    }
+
+    .dashboard-area-card:hover {
+        transform: translateY(-1px);
+        border-color: color-mix(in srgb, var(--area-accent) 45%, var(--mud-palette-lines-default));
+        border-left-color: var(--area-accent);
+        box-shadow: 0 10px 28px rgba(15, 23, 42, 0.1);
+    }
+
+    .dashboard-area-card-progress {
+        --area-accent: var(--mud-palette-info);
+    }
+
+    .dashboard-area-card-completed {
+        --area-accent: var(--mud-palette-success);
+    }
+
+    .dashboard-area-card .mud-card-header {
+        min-height: 78px;
+        padding: 1rem 1.15rem;
+    }
+
+    @@media (max-width: 960px) {
+        .dashboard-area-card {
+            border-radius: 12px;
+        }
+    }
+</style>
