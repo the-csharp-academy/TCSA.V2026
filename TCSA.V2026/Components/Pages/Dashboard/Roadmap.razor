@@ -20,23 +20,6 @@
 
     <MudGrid Spacing="4" Class="roadmap-layout">
         <MudItem xs="12" md="9">
-            <div class="roadmap-heading">
-        <div>
-            <MudText Typo="Typo.overline" Class="roadmap-kicker">Your progression</MudText>
-            <MudText Typo="Typo.h3" Class="roadmap-title">Learning roadmap</MudText>
-            <MudText Typo="Typo.body1" Class="roadmap-subtitle">
-                Complete projects, articles, reviews, and community contributions to progress through the belts.
-            </MudText>
-        </div>
-        @if (!IsLoading)
-        {
-            <div class="roadmap-summary-pill">
-                <MudIcon Icon="@Icons.Material.Filled.Route" Color="Color.Primary" />
-                <span>@RoadmapResult.Stages.Sum(stage => stage.Tasks.Count(task => task.IsCompleted)) completed tasks</span>
-            </div>
-        }
-            </div>
-
             @if (IsLoading)
             {
                 <div class="roadmap-loading">
@@ -48,53 +31,52 @@
             {
                 if (RoadmapResult.MissingTasksForNextBelt.Count > 0)
                 {
-            <MudCard Class="next-belt-card" Elevation="0">
-                <MudCardContent Class="next-belt-content">
-                    <div class="next-belt-header">
-                        <div>
-                            <MudText Typo="Typo.overline" Class="roadmap-kicker">Next milestone</MudText>
-                            <MudText Typo="Typo.h5" Class="next-belt-title">Your path to @GetNextBeltName()</MudText>
-                            <MudText Typo="Typo.body2" Class="roadmap-subtitle">
-                                @RoadmapResult.MissingTasksForNextBelt.Count remaining @(RoadmapResult.MissingTasksForNextBelt.Count == 1 ? "task" : "tasks")
-                            </MudText>
-                        </div>
-                        <MudIcon Icon="@Icons.Material.Filled.EmojiEvents" Class="next-belt-trophy" />
-                    </div>
-                    <div class="next-belt-tasks">
-                        @foreach (var task in RoadmapResult.MissingTasksForNextBelt)
-                        {
-                            <MudTooltip Text="@task.Tooltip">
-                                <div class="next-belt-task">
-                                    <MudImage Src="@($"/img/icons/{task.IconUrl}")" Alt="@task.Name" />
-                                    <MudText Typo="Typo.caption">@task.Name</MudText>
+                    <MudCard Class="next-belt-card" Elevation="0">
+                        <MudCardContent Class="next-belt-content">
+                            <div class="next-belt-header">
+                                <div>
+                                    <MudText Typo="Typo.overline" Class="roadmap-kicker">Next milestone</MudText>
+                                    <MudText Typo="Typo.h5" Class="next-belt-title">Your path to @GetNextBeltName()</MudText>
+                                    <MudText Typo="Typo.body2" Class="roadmap-subtitle">
+                                        @RoadmapResult.MissingTasksForNextBelt.Count remaining @(RoadmapResult.MissingTasksForNextBelt.Count == 1 ? "task" : "tasks")
+                                    </MudText>
                                 </div>
-                            </MudTooltip>
-                        }
-                    </div>
-                </MudCardContent>
-            </MudCard>
+                                <MudIcon Icon="@Icons.Material.Filled.EmojiEvents" Class="next-belt-trophy" />
+                            </div>
+                            <div class="next-belt-tasks">
+                                @foreach (var task in RoadmapResult.MissingTasksForNextBelt)
+                                {
+                                    <MudTooltip Text="@task.Tooltip">
+                                        <div class="next-belt-task">
+                                            <MudImage Src="@($"/img/icons/{task.IconUrl}")" Alt="@task.Name" />
+                                        </div>
+                                    </MudTooltip>
+                                }
+                            </div>
+                        </MudCardContent>
+                    </MudCard>
                 }
                 if (RoadmapResult.Stages.Count > 0)
                 {
-            <MudTimeline TimelinePosition="TimelinePosition.Start" Class="belt-timeline">
-                @for (int stageIndex = 0; stageIndex < RoadmapResult.Stages.Count; stageIndex++)
-                {
-                    var stage = RoadmapResult.Stages[stageIndex];
-                    <MudTimelineItem Size="Size.Large"
-                                     Class="@($"{stage.Class}")"
-                                     Variant="Variant.Outlined"
-                                     Elevation="1">
-                        <TCSARoadmapCard Tasks="stage.Tasks"
-                                         StageName="@GetStageName(stage.Class)"
-                                         StageClass="@stage.Class" />
-                    </MudTimelineItem>
-                }
-            </MudTimeline>
+                    <MudTimeline TimelinePosition="TimelinePosition.Start" Class="belt-timeline">
+                        @for (int stageIndex = 0; stageIndex < RoadmapResult.Stages.Count; stageIndex++)
+                        {
+                            var stage = RoadmapResult.Stages[stageIndex];
+                            <MudTimelineItem Size="Size.Large"
+                                             Class="@($"{stage.Class}")"
+                                             Variant="Variant.Outlined"
+                                             Elevation="1">
+                                <TCSARoadmapCard Tasks="stage.Tasks"
+                                                 StageName="@GetStageName(stage.Class)"
+                                                 StageClass="@stage.Class" />
+                            </MudTimelineItem>
+                        }
+                    </MudTimeline>
                 }
             }
         </MudItem>
 
-        <MudItem xs="12" md="3">
+        <MudItem xs="12" md="3" Class="roadmap-ad-column">
             <aside class="roadmap-ad-rail" aria-label="Advertisement">
                 <div class="roadmap-sidebar-ad">
                     <AdSenseAd Slot="3513304362" />
@@ -181,8 +163,13 @@
     }
 
     .roadmap-layout {
-        align-items: flex-start;
+        align-items: stretch;
         margin-top: 0;
+    }
+
+    .roadmap-ad-column {
+        align-self: stretch;
+        position: relative;
     }
 
     .roadmap-ad-rail {
@@ -193,9 +180,20 @@
 
     .roadmap-sidebar-ad {
         width: 100%;
+        max-width: 300px;
         min-width: 0;
         min-height: 600px;
+        margin-left: auto;
         overflow: hidden;
+    }
+
+    /* AdSense permits vertical sticky units on desktop when they remain within
+       their content rail, never overlap the page, and are no wider than 300px. */
+    @@media (min-width: 1200px) and (min-height: 720px) {
+        .roadmap-ad-rail {
+            position: sticky;
+            top: 92px;
+        }
     }
 
     .roadmap-heading {
@@ -255,7 +253,7 @@
     }
 
     .next-belt-content {
-        padding: 1.4rem 1.5rem !important;
+        padding: 1.15rem 1.3rem !important;
     }
 
     .next-belt-header {
@@ -274,28 +272,34 @@
     .next-belt-tasks {
         display: flex;
         flex-wrap: wrap;
-        gap: 0.75rem;
-        margin-top: 1.15rem;
-        padding-top: 1.15rem;
+        gap: 0.65rem;
+        margin-top: 0.9rem;
+        padding-top: 0.9rem;
         border-top: 1px solid var(--mud-palette-lines-default);
     }
 
     .next-belt-task {
-        width: 96px;
+        width: 78px;
+        height: 78px;
         display: flex;
         align-items: center;
-        flex-direction: column;
-        gap: 0.45rem;
+        justify-content: center;
         padding: 0.65rem;
         border: 1px solid var(--mud-palette-lines-default);
-        border-radius: 12px;
+        border-radius: 50%;
         background: var(--mud-palette-surface);
-        text-align: center;
+        transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+    }
+
+    .next-belt-task:hover {
+        transform: translateY(-2px);
+        border-color: rgba(var(--mud-palette-primary-rgb), 0.45);
+        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.1);
     }
 
     .next-belt-task img {
-        width: 48px;
-        height: 48px;
+        width: 46px;
+        height: 46px;
         object-fit: contain;
     }
 
@@ -303,10 +307,10 @@
         margin-top: 0.5rem;
     }
 
-    .belt-timeline .mud-timeline-item-content {
-        width: 100%;
-        padding-bottom: 1.35rem;
-    }
+        .belt-timeline .mud-timeline-item-content {
+            width: 100%;
+            padding-bottom: 1.35rem;
+        }
 
     .custom-color-green .mud-timeline-item-dot .mud-timeline-item-dot-inner {
         background-color: #15803d !important;
@@ -388,7 +392,8 @@
         }
 
         .next-belt-task {
-            width: calc(50% - 0.4rem);
+            width: 70px;
+            height: 70px;
         }
     }
 </style>

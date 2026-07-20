@@ -16,7 +16,6 @@
                       Src="@FlagHelper.GetFlag(User.Country)"
                       Alt="@($"{User.Country} flag")" />
             <div class="user-copy">
-                <MudText Typo="Typo.overline" Class="user-eyebrow">Your learning roadmap</MudText>
                 <MudText Typo="Typo.h5" Class="user-name">
                     @UserDisplayNameHelper.GetDisplayName(User.DisplayName, User.UserName)
                 </MudText>
@@ -29,7 +28,6 @@
                           Alt="@($"{FormatLevel((Level)User.Level)} belt")"
                           Class="user-stat-icon" />
                 <div>
-                    <MudText Typo="Typo.caption" Class="user-stat-label">Current belt</MudText>
                     <MudText Typo="Typo.subtitle1" Class="user-stat-value">@FormatLevel((Level)User.Level)</MudText>
                 </div>
             </div>
@@ -37,7 +35,6 @@
             <div class="user-stat">
                 <MudImage Src="img/experience.png" Alt="Experience points" Class="user-stat-icon" />
                 <div>
-                    <MudText Typo="Typo.caption" Class="user-stat-label">Experience</MudText>
                     <MudText Typo="Typo.subtitle1"
                              Class="user-stat-value"
                              UserAttributes="@(new() { { "data-testid", "user-xp" } })">

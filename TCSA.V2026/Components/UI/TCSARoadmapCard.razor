@@ -28,7 +28,6 @@
                                     </span>
                                 }
                             </div>
-                            <MudText Typo="Typo.caption" Class="roadmap-task-name">@task.Name</MudText>
                         </div>
                     </MudLink>
                 </MudTooltip>
@@ -66,7 +65,7 @@
     }
 
     .roadmap-stage-content {
-        padding: 1.2rem 1.35rem !important;
+        padding: 1rem 1.15rem !important;
     }
 
     .roadmap-stage-header {
@@ -74,8 +73,8 @@
         align-items: flex-end;
         justify-content: space-between;
         gap: 1rem;
-        padding-bottom: 1rem;
-        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+        margin-bottom: 0.85rem;
         border-bottom: 1px solid var(--mud-palette-lines-default);
     }
 
@@ -94,27 +93,26 @@
     }
 
     .roadmap-task-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
-        gap: 0.75rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.65rem;
     }
 
     .roadmap-task-link {
         display: block;
+        flex: 0 0 78px;
         color: inherit !important;
     }
 
     .roadmap-task {
-        height: 100%;
-        min-height: 112px;
+        width: 78px;
+        height: 78px;
         display: flex;
-        flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 0.55rem;
-        padding: 0.7rem 0.55rem;
+        padding: 0.65rem;
         border: 1px solid var(--mud-palette-lines-default);
-        border-radius: 12px;
+        border-radius: 50%;
         background: var(--mud-palette-surface);
         transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
     }
@@ -131,24 +129,24 @@
 
     .roadmap-task-icon-wrap {
         position: relative;
-        width: 58px;
-        height: 58px;
+        width: 48px;
+        height: 48px;
         display: grid;
         place-items: center;
     }
 
     .roadmap-task-icon {
-        width: 56px;
-        height: 56px;
+        width: 46px;
+        height: 46px;
         object-fit: contain;
     }
 
     .roadmap-task-check {
         position: absolute;
-        right: -6px;
-        bottom: -4px;
-        width: 24px;
-        height: 24px;
+        right: -5px;
+        bottom: -3px;
+        width: 21px;
+        height: 21px;
         display: grid;
         place-items: center;
         color: white;
@@ -190,8 +188,13 @@
             text-align: left;
         }
 
-        .roadmap-task-grid {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
+        .roadmap-task-link {
+            flex-basis: 70px;
+        }
+
+        .roadmap-task {
+            width: 70px;
+            height: 70px;
         }
     }
 </style>
