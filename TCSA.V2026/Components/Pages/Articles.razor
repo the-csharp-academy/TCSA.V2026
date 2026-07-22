@@ -1,29 +1,68 @@
 @page "/articles/{articleType?}"
+@using System.Security.Claims
 @using TCSA.V2026.Data.Curriculum
 @using TCSA.V2026.Data.Models
+@using TCSA.V2026.Services
 
-<PageTitle>Articles</PageTitle>
+<PageTitle>@(IsBlog ? "Blog" : "Articles")</PageTitle>
 
-<MudContainer>
-    <h1 class="visually-hidden">Articles</h1>
+<MudContainer MaxWidth="MaxWidth.Large" Class="articles-page py-8">
+    <header class="articles-header">
+        <MudText Typo="Typo.overline" Color="Color.Primary">@(IsBlog ? "The C# Academy Blog" : "The C# Academy Library")</MudText>
+        <MudText Typo="Typo.h2" HtmlTag="h1" Class="articles-title">
+            @(IsBlog ? "Ideas, lessons and stories from the journey" : "Articles")
+        </MudText>
+        @if (IsBlog)
+        {
+            <MudText Typo="Typo.subtitle1" Class="articles-intro">
+                Honest reflections on software development, learning, discipline and building The C# Academy.
+            </MudText>
+        }
+        <div class="articles-progress" aria-label="Reading progress">
+            <MudIcon Icon="@Icons.Material.Filled.AutoStories" Size="Size.Small" />
+            <span><strong>@ReadCount out of @ArticlesList.Count</strong> read</span>
+        </div>
+    </header>
+
     @if (IsLoading)
     {
         <MudProgressCircular Color="Color.Default" Indeterminate="true" />
     }
     else
     {
-        <MudGrid Class="mt-5">
+        <MudGrid Spacing="4" Class="mt-2">
             @foreach (var article in ArticlesList)
             {
-                <MudItem xs="12" sm="6" md="3">
-                    <MudLink OnClick="@(() => NavigateToArticle(article))" Underline="Underline.None">
-                        <MudCard Style="height:100%" Elevation="3">
-                            <MudCardMedia Image="@($"img/cardimages/{article.CardImgUrl}")" Height="200" />
-                            <MudCardContent>
-                                <h2 class="mud-typography-h6 mud-primary-text" style="margin-bottom: 5px">
-                                    @article.Title
-                                </h2>
-                                <MudText Typo="Typo.body2">@article.Description</MudText>
+                var isRead = IsLoggedIn && CompletedArticleIds.Contains(article.Id);
+                <MudItem xs="12" sm="6" md="4">
+                    <MudLink Class="article-card-link" OnClick="@(() => NavigateToArticle(article))" Underline="Underline.None">
+                        <MudCard Class="@GetCardClass(isRead)" Elevation="0">
+                            <div class="article-card-image-wrap">
+                                <MudCardMedia Class="article-card-image" Image="@($"img/cardimages/{article.CardImgUrl}")" Height="220" />
+                                @if (isRead)
+                                {
+                                    <span class="article-card-read-label">
+                                        <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Size="Size.Small" />
+                                        Read
+                                    </span>
+                                }
+                            </div>
+                            <MudCardContent Class="article-card-content">
+                                @if (article.ReleaseDate != default)
+                                {
+                                    <div class="article-card-date">
+                                        <MudIcon Icon="@Icons.Material.Filled.CalendarToday" Size="Size.Small" />
+                                        <time datetime="@article.ReleaseDate.ToString("yyyy-MM-dd")">
+                                            @article.ReleaseDate.ToString("dd MMMM yyyy")
+                                        </time>
+                                    </div>
+                                }
+                                <h2 class="mud-typography-h5 article-card-title">@article.Title</h2>
+                                <MudText Typo="Typo.body2" Class="article-card-description">@article.Description</MudText>
+                                <span class="article-card-action">
+                                    Read article
+                                    <MudIcon Icon="@Icons.Material.Filled.ArrowForward" Size="Size.Small" />
+                                </span>
                             </MudCardContent>
                         </MudCard>
                     </MudLink>
@@ -33,39 +72,95 @@
     }
 </MudContainer>
 
+<style>
+    .articles-page { width: 100%; }
+    .articles-header { max-width: 760px; margin-bottom: 2rem; }
+    .articles-title { margin: .3rem 0 .75rem; font-weight: 750; line-height: 1.12; letter-spacing: -.035em; }
+    .articles-intro { color: var(--mud-palette-text-secondary); line-height: 1.65; }
+    .articles-progress { display: inline-flex; align-items: center; gap: .5rem; margin-top: 1.25rem; padding: .55rem .85rem; border: 1px solid var(--mud-palette-lines-default); border-radius: 999px; color: var(--mud-palette-text-secondary); background: var(--mud-palette-surface); font-size: .85rem; }
+    .articles-progress .mud-icon-root { color: #C9436E; }
+    .article-card-link { display: block; height: 100%; color: inherit; }
+    .article-card { height: 100%; overflow: hidden; border: 1px solid var(--mud-palette-lines-default); border-radius: 16px; background: var(--mud-palette-surface); transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
+    .article-card-link:hover .article-card { transform: translateY(-4px); border-color: var(--mud-palette-primary); box-shadow: 0 16px 36px rgba(20, 24, 40, .12); }
+    .article-card-read { border-color: var(--mud-palette-success); background: linear-gradient(145deg, var(--mud-palette-surface) 72%, rgba(var(--mud-palette-success-rgb), .08)); }
+    .article-card-link:hover .article-card-read { border-color: var(--mud-palette-success); box-shadow: 0 16px 36px rgba(var(--mud-palette-success-rgb), .16); }
+    .article-card-image-wrap { position: relative; overflow: hidden; background: var(--mud-palette-background-grey); }
+    .article-card-image { transition: transform .35s ease; }
+    .article-card-link:hover .article-card-image { transform: scale(1.025); }
+    .article-card-read-label { position: absolute; top: 1rem; right: 1rem; display: flex; align-items: center; gap: .3rem; padding: .35rem .7rem; border-radius: 999px; color: white; background: var(--mud-palette-success); box-shadow: 0 4px 12px rgba(0, 0, 0, .18); font-size: .75rem; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; }
+    .article-card-content { display: flex; min-height: 250px; flex-direction: column; padding: 1.5rem; }
+    .article-card-date { display: flex; align-items: center; gap: .45rem; margin-bottom: .85rem; color: #C9436E; font-size: .8rem; font-weight: 600; }
+    .article-card-date .mud-icon-root { font-size: 1rem; }
+    .article-card-title { margin: 0 0 .75rem; color: var(--mud-palette-primary); font-weight: 700; line-height: 1.3; }
+    .article-card-description { color: var(--mud-palette-text-secondary); line-height: 1.6; }
+    .article-card-action { display: flex; align-items: center; gap: .35rem; margin-top: auto; padding-top: 1.25rem; color: var(--mud-palette-primary); font-weight: 700; }
+    .article-card-action .mud-icon-root { transition: transform .2s ease; }
+    .article-card-link:hover .article-card-action .mud-icon-root { transform: translateX(3px); }
+
+    @@media (max-width: 600px) {
+        .articles-title { font-size: 2.25rem; }
+    }
+</style>
 
 @code {
     [Inject] private NavigationManager Navigation { get; set; }
+    [Inject] private AuthenticationStateProvider AuthenticationState { get; set; }
+    [Inject] private IProjectService ProjectService { get; set; }
 
     [Parameter] public string articleType { get; set; }
 
     private List<Article> ArticlesList { get; set; } = new();
     private List<int> NoDisplayIds { get; set; } = new() { 1, 2, 3, 4, 51, 100, 30010 };
-
+    private HashSet<int> CompletedArticleIds { get; set; } = new();
     private bool IsLoading = true;
+    private bool IsLoggedIn;
+    private bool IsBlog => string.Equals(articleType, "blog", StringComparison.OrdinalIgnoreCase);
+    private int ReadCount => ArticlesList.Count(article => CompletedArticleIds.Contains(article.Id));
 
-    protected async override Task OnParametersSetAsync()
+    protected override async Task OnParametersSetAsync()
     {
         ArticlesList = ArticleHelper.GetArticles()
-        .Where(x => !NoDisplayIds.Contains(x.Id))
-        .ToList();
+            .Where(x => !NoDisplayIds.Contains(x.Id))
+            .ToList();
 
-        @if (articleType == "blog")
+        if (IsBlog)
         {
-            ArticlesList = ArticlesList.Where(x => x.Area == Area.Blog).ToList();
-        } else
+            ArticlesList = ArticlesList
+                .Where(x => x.Area == Area.Blog)
+                .OrderByDescending(x => x.ReleaseDate)
+                .ThenByDescending(x => x.Id)
+                .ToList();
+        }
+        else
         {
             ArticlesList = ArticlesList.Where(x => x.Area != Area.Blog).ToList();
         }
 
+        var authState = await AuthenticationState.GetAuthenticationStateAsync();
+        IsLoggedIn = authState.User.Identity?.IsAuthenticated == true;
+
+        if (IsLoggedIn)
+        {
+            var userId = authState.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!string.IsNullOrWhiteSpace(userId))
+            {
+                CompletedArticleIds = (await ProjectService.GetCompletedProjectsById(userId) ?? new List<int>())
+                    .ToHashSet();
+            }
+        }
+        else
+        {
+            CompletedArticleIds.Clear();
+        }
+
         IsLoading = false;
     }
+
+    private static string GetCardClass(bool isRead) => isRead ? "article-card article-card-read" : "article-card";
 
     private Task NavigateToArticle(Article article)
     {
         Navigation.NavigateTo($"/article/{article.Id}/{article.Slug}");
         return Task.CompletedTask;
     }
-
-
 }

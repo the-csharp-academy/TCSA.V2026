@@ -2024,8 +2024,9 @@ git push</code>"
                 IconUrl = "",
                 Slug = "five-years-as-a-professional-software-engineer",
                 BannerUrl = "",
-                CardImgUrl = "blog6.png",
+                CardImgUrl = "blog6.jpg",
                 Description = "Reflections on five years working professionally as a software engineer, the people who made the journey possible, and what comes next.",
+                ReleaseDate = new DateTime(2026, 7, 22),
                 Area = Area.Blog,
                 Blocks = new List<Block>
                 {
@@ -2111,7 +2112,8 @@ git push</code>"
                 Slug = "legacy-a-little-bit-about-me",
                 BannerUrl = "",
                 CardImgUrl = "blog1.png",
-                Description = "",
+                Description = "The personal story behind a late-career leap into programming, the habits that needed to change, and the ambition that started the journey.",
+                ReleaseDate = new DateTime(2019, 10, 1),
                 Area = Area.Blog,
                 Blocks = new List<Block>
                 {
@@ -2252,7 +2254,8 @@ git push</code>"
                 Slug = "why-the-hell-am-i-creating-a-blog",
                 BannerUrl = "",
                 CardImgUrl = "blog2.png",
-                Description = "",
+                Description = "Why writing still matters, what this new blog will explore, and the case for sharing an honest journey through software development and life.",
+                ReleaseDate = new DateTime(2024, 7, 15),
                 Area = Area.Blog,
                 Blocks = new List<Block>
                 {
@@ -2306,7 +2309,8 @@ git push</code>"
                 Slug = "how-can-i-possibly-do-all-of-these-things",
                 BannerUrl = "",
                 CardImgUrl = "blog3.png",
-                Description = "",
+                Description = "A candid look at juggling software development, university, The C# Academy, fitness and family without losing sight of what matters most.",
+                ReleaseDate = new DateTime(2024, 7, 22),
                 Area = Area.Blog,
                 Blocks = new List<Block>
                 {
@@ -2400,7 +2404,8 @@ git push</code>"
                 Slug = "legacy-a-little-bit-about-me",
                 BannerUrl = "",
                 CardImgUrl = "blog4.png",
-                Description = "",
+                Description = "A review of 365 Days With Self-Discipline and the practical lessons it offers for reshaping habits, building resilience and resisting self-sabotage.",
+                ReleaseDate = new DateTime(2024, 7, 29),
                 Area = Area.Blog,
                 Blocks = new List<Block>
                 {
@@ -2499,7 +2504,8 @@ git push</code>"
                 Slug = "three-years-as-a-software-engineer-part1",
                 BannerUrl = "",
                 CardImgUrl = "blog5.png",
-                Description = "",
+                Description = "Reflections on the luck, timing, people and persistence that made the first three years of a professional software engineering career possible.",
+                ReleaseDate = new DateTime(2024, 8, 5),
                 Area = Area.Blog,
                 Blocks = new List<Block>
                 {
