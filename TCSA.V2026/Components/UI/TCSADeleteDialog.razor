@@ -1,6 +1,6 @@
 <MudDialog>
     <TitleContent>
-        <MudText Typo="Typo.h6">Delete Confirmation</MudText>
+        <MudText Typo="Typo.h6">@Title</MudText>
     </TitleContent>
     <DialogContent>
         <MudText Typo="Typo.body1">
@@ -9,13 +9,15 @@
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>
-        <MudButton Color="Color.Error" OnClick="Confirm">Delete</MudButton>
+        <MudButton Color="Color.Error" Variant="Variant.Filled" OnClick="Confirm">@ConfirmLabel</MudButton>
     </DialogActions>
 </MudDialog>
 
 @code {
     [CascadingParameter] private IMudDialogInstance MudDialog { get; set; }
     [Parameter] public string Message { get; set; } = "Are you sure you want to delete this item?";
+    [Parameter] public string Title { get; set; } = "Delete Confirmation";
+    [Parameter] public string ConfirmLabel { get; set; } = "Delete";
 
     private void Confirm() => MudDialog.Close(DialogResult.Ok(true));
     private void Cancel() => MudDialog.Cancel();

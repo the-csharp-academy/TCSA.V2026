@@ -17,11 +17,64 @@ public interface IProjectService
     Task<BaseResponse> Archive(int dashboardProjectId);
     Task<BaseResponse> AcknowledgeNotifications(string userId);
     Task<int> GetCompletionCount(int projectId, bool isArticle);
+    Task<BaseResponse> ResetCourse(string userId, Course course);
 
 }
 
 public class ProjectService(IDbContextFactory<ApplicationDbContext> _factory) : IProjectService
 {
+    public async Task<BaseResponse> ResetCourse(string userId, Course course)
+    {
+        if (string.IsNullOrWhiteSpace(userId) || course?.Articles is null)
+        {
+            return new BaseResponse { Status = ResponseStatus.Fail, Message = "A user and course are required." };
+        }
+
+        try
+        {
+            await using var context = _factory.CreateDbContext();
+            var user = await context.Users.FirstOrDefaultAsync(x => x.Id == userId);
+
+            if (user is null)
+            {
+                return new BaseResponse { Status = ResponseStatus.Fail, Message = "User not found." };
+            }
+
+            var chapterIds = course.Articles.Select(article => article.Id).ToHashSet();
+            var dashboardProjects = await context.DashboardProjects
+                .Where(project => project.AppUserId == userId && chapterIds.Contains(project.ProjectId))
+                .ToListAsync();
+            var activities = await context.UserActivity
+                .Where(activity => activity.AppUserId == userId && chapterIds.Contains(activity.ProjectId))
+                .ToListAsync();
+
+            var completedChapterIds = dashboardProjects
+                .Where(project => project.IsCompleted)
+                .Select(project => project.ProjectId)
+                .ToHashSet();
+            var xpToRemove = course.Articles
+                .Where(article => completedChapterIds.Contains(article.Id))
+                .Sum(article => article.ExperiencePoints);
+
+            context.UserActivity.RemoveRange(activities);
+            context.DashboardProjects.RemoveRange(dashboardProjects);
+            user.ExperiencePoints = Math.Max(0, user.ExperiencePoints - xpToRemove);
+
+            await context.SaveChangesAsync();
+
+            return new BaseResponse
+            {
+                Status = ResponseStatus.Success,
+                Message = "Course progress reset.",
+                Data = new { ChaptersReset = dashboardProjects.Count, ExperiencePointsRemoved = xpToRemove }
+            };
+        }
+        catch (Exception ex)
+        {
+            return new BaseResponse { Status = ResponseStatus.Fail, Message = ex.Message };
+        }
+    }
+
     public async Task<BaseResponse> AcknowledgeNotifications(string userId)
     {
         try

@@ -38,7 +38,7 @@
                     <MudLink Class="article-card-link" OnClick="@(() => NavigateToArticle(article))" Underline="Underline.None">
                         <MudCard Class="@GetCardClass(isRead)" Elevation="0">
                             <div class="article-card-image-wrap">
-                                <MudCardMedia Class="article-card-image" Image="@($"img/cardimages/{article.CardImgUrl}")" Height="220" />
+                                <MudCardMedia Class="article-card-image" Image="@($"img/CardImages/{article.CardImgUrl}")" Height="220" />
                                 @if (isRead)
                                 {
                                     <span class="article-card-read-label">

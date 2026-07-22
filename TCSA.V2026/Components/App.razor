@@ -184,10 +184,28 @@
             {
                 MetaTitle = $"{article.Title} | The C# Academy";
                 MetaDescription = FirstNonEmpty(article.Description, MetaDescription);
-                MetaImageUrl = $"{SiteUrl}/img/banners/{FirstNonEmpty(article.BannerUrl, "article-banner.jpg")}";
+                MetaImageUrl = article.Area == Area.Blog && !string.IsNullOrWhiteSpace(article.CardImgUrl)
+                    ? $"{SiteUrl}/img/CardImages/{article.CardImgUrl}"
+                    : $"{SiteUrl}/img/banners/{FirstNonEmpty(article.BannerUrl, "article-banner.jpg")}";
                 OpenGraphType = "article";
                 return;
             }
+        }
+
+        if (segments.Length >= 2 &&
+            segments[0].Equals("articles", StringComparison.OrdinalIgnoreCase) &&
+            segments[1].Equals("blog", StringComparison.OrdinalIgnoreCase))
+        {
+            Article? latestPost = BlogHelper.GetArticles()
+                .OrderByDescending(article => article.ReleaseDate)
+                .FirstOrDefault();
+
+            MetaTitle = "The C# Academy Blog";
+            MetaDescription = "Honest reflections on software development, learning, discipline, and building The C# Academy.";
+            MetaImageUrl = latestPost is not null && !string.IsNullOrWhiteSpace(latestPost.CardImgUrl)
+                ? $"{SiteUrl}/img/CardImages/{latestPost.CardImgUrl}"
+                : $"{SiteUrl}/img/logo.png";
+            return;
         }
 
         if (path.Equals("/dashboard/courses", StringComparison.OrdinalIgnoreCase))

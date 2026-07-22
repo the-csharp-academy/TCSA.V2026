@@ -115,6 +115,18 @@
                                    Class="course-action">
                             @(IsLoggedIn ? GetActionLabel(course.Status) : "View Course")
                         </MudButton>
+                        @if (IsLoggedIn && course.CompletedChapters > 0)
+                        {
+                            <MudButton FullWidth="true"
+                                       Variant="Variant.Text"
+                                       Color="Color.Error"
+                                       StartIcon="@Icons.Material.Filled.RestartAlt"
+                                       OnClick="@(() => ConfirmResetCourse(course.Id))"
+                                       Disabled="@IsResettingCourse"
+                                       Class="course-reset-action">
+                                Reset course
+                            </MudButton>
+                        }
                     </article>
                 </MudItem>
             }
@@ -305,6 +317,10 @@
         margin-top: auto;
     }
 
+    .course-reset-action {
+        margin-top: -8px;
+    }
+
     @@media (max-width: 900px) {
         .courses-hero {
             grid-template-columns: 1fr;
@@ -334,6 +350,9 @@
     [Inject] private NavigationManager Navigation { get; set; } = default!;
     [Inject] private AuthenticationStateProvider AuthenticationState { get; set; } = default!;
     [Inject] private IUserService UserService { get; set; } = default!;
+    [Inject] private IProjectService ProjectService { get; set; } = default!;
+    [Inject] private IDialogService DialogService { get; set; } = default!;
+    [Inject] private ISnackbar Snackbar { get; set; } = default!;
 
     private ApplicationUser? User { get; set; }
     private List<Course> CourseList { get; } = CourseHelper.GetCourses();
@@ -341,6 +360,7 @@
 
     private bool IsLoading = true;
     private bool IsLoggedIn;
+    private bool IsResettingCourse;
     private string UserId = string.Empty;
 
     private int CompletedChapters => DashboardCourses.Sum(course => course.CompletedChapters);
@@ -400,6 +420,41 @@
         const bool isCode = false;
 
         Navigation.NavigateTo($"/course/{courseId}/article/{firstArticle.CourseDisplayId}/{firstArticle.Id}/{isCode}");
+    }
+
+    private async Task ConfirmResetCourse(int courseId)
+    {
+        var course = CourseList.Single(course => course.Id == courseId);
+        var parameters = new DialogParameters
+        {
+            [nameof(TCSADeleteDialog.Title)] = "Reset course progress?",
+            [nameof(TCSADeleteDialog.Message)] = $"Are you sure you want to reset {course.Title}? This will delete all chapter progress and remove the XP earned from this course. This can't be reversed.",
+            [nameof(TCSADeleteDialog.ConfirmLabel)] = "Reset course"
+        };
+        var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small };
+        var dialog = await DialogService.ShowAsync<TCSADeleteDialog>("Reset course", parameters, options);
+        var result = await dialog.Result;
+
+        if (result is null || result.Canceled)
+        {
+            return;
+        }
+
+        IsResettingCourse = true;
+        var response = await ProjectService.ResetCourse(UserId, course);
+
+        if (response.Status == Data.Models.Responses.ResponseStatus.Success)
+        {
+            User = await UserService.GetUserById(UserId);
+            GetCourseInfo();
+            Snackbar.Add("Course progress reset successfully.", Severity.Success);
+        }
+        else
+        {
+            Snackbar.Add(response.Message ?? "The course could not be reset.", Severity.Error);
+        }
+
+        IsResettingCourse = false;
     }
 
     private static DashBoardCourseStatus GetCourseStatus(int completedCount, int totalCount)
