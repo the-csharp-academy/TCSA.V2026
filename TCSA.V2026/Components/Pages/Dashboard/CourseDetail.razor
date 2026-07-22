@@ -1,6 +1,7 @@
 @page "/course/{courseId:int}/article/{articleDisplayId:int}/{articleId:int}/{isCode:bool}"
 @using System.Security.Claims
 @using TCSA.V2026.Components.Ads
+@using TCSA.V2026.Components.UI
 @using TCSA.V2026.Data.Curriculum
 @using TCSA.V2026.Data.Models
 @using TCSA.V2026.Services
@@ -193,6 +194,8 @@
                         </div>
                     }
                 </MudPaper>
+
+                <ArticleComments ArticleId="@ArticleId" IsLoggedIn="@IsLoggedIn" AppUserId="@UserId" />
             </MudItem>
         </MudGrid>
     }

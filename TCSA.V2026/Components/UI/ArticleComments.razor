@@ -1,0 +1,275 @@
+@using TCSA.V2026.Data.Models
+@using TCSA.V2026.Helpers
+@using TCSA.V2026.Services
+@inject ICommentsService CommentsService
+@inject ISnackbar Snackbar
+@inject AuthenticationStateProvider AuthenticationState
+
+<MudPaper Class="article-comments-panel mt-8" Elevation="1">
+    <div class="article-comments-heading">
+        <div>
+            <MudText Typo="Typo.h5">Comments</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary">
+                @CurrentComments.Count @(CurrentComments.Count == 1 ? "comment" : "comments")
+            </MudText>
+        </div>
+        <MudIcon Icon="@Icons.Material.Filled.Forum" Color="Color.Primary" />
+    </div>
+
+    @if (CurrentComments.Count == 0)
+    {
+        <MudText Class="article-comments-empty" Typo="Typo.body1">
+            No comments yet. Start the conversation.
+        </MudText>
+    }
+    else
+    {
+        <MudList T="Comments" ReadOnly="true" Class="article-comments-list">
+            @foreach (var comment in CurrentComments)
+            {
+                <MudListItem T="Comments" Value="comment" Class="article-comment-item">
+                    <div class="article-comment-content">
+                        <div class="article-comment-meta">
+                            <MudText Typo="Typo.subtitle2">
+                                @UserDisplayNameHelper.GetDisplayName(comment.AppUser?.DisplayName, comment.AppUser?.UserName)
+                                @if (!comment.IsReviewed)
+                                {
+                                    <MudChip T="string" Size="Size.Small" Color="Color.Warning" Variant="Variant.Outlined" Class="ml-2">
+                                        Pending approval
+                                    </MudChip>
+                                }
+                            </MudText>
+                            <MudText Typo="Typo.caption">
+                                @comment.Date.ToLocalTime().ToString("dd MMM yyyy, h:mm tt")
+                            </MudText>
+                        </div>
+                        @if (EditingCommentId == comment.Id)
+                        {
+                            <MudTextField T="string"
+                                          @bind-Value="EditedComment"
+                                          Variant="Variant.Outlined"
+                                          Lines="3"
+                                          MaxLength="2000"
+                                          Counter="2000"
+                                          Class="mt-2" />
+                            <MudStack Row="true" Spacing="1" Class="mt-2">
+                                <MudButton Size="Size.Small" Color="Color.Primary" Variant="Variant.Filled" OnClick="SaveEdit">
+                                    Save
+                                </MudButton>
+                                <MudButton Size="Size.Small" Variant="Variant.Text" OnClick="CancelEdit">
+                                    Cancel
+                                </MudButton>
+                            </MudStack>
+                        }
+                        else
+                        {
+                            <MudText Typo="Typo.body1" Class="article-comment-body">@comment.Comment</MudText>
+                            @if (CanManage(comment))
+                            {
+                                <MudStack Row="true" Spacing="1" Class="mt-2">
+                                    <MudButton Size="Size.Small"
+                                               Variant="Variant.Text"
+                                               StartIcon="@Icons.Material.Filled.Edit"
+                                               OnClick="@(() => BeginEdit(comment))">
+                                        Edit
+                                    </MudButton>
+                                    <MudButton Size="Size.Small"
+                                               Color="Color.Error"
+                                               Variant="Variant.Text"
+                                               StartIcon="@Icons.Material.Filled.Delete"
+                                               OnClick="@(() => DeleteComment(comment.Id))">
+                                        Delete
+                                    </MudButton>
+                                </MudStack>
+                            }
+                        }
+                    </div>
+                </MudListItem>
+            }
+        </MudList>
+    }
+
+    @if (IsLoggedIn)
+    {
+        <div class="article-comment-editor">
+            <MudTextField T="string"
+                          @bind-Value="NewComment"
+                          Label="Add a comment"
+                          Placeholder="Share your thoughts about this article..."
+                          Variant="Variant.Outlined"
+                          Lines="4"
+                          MaxLength="2000"
+                          Counter="2000"
+                          Immediate="true" />
+            <MudButton Class="mt-3"
+                       Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.Send"
+                       Disabled="@(IsSubmitting || string.IsNullOrWhiteSpace(NewComment))"
+                       OnClick="AddComment">
+                Post comment
+            </MudButton>
+        </div>
+    }
+    else
+    {
+        <MudAlert Class="mt-5" Severity="Severity.Info" Variant="Variant.Outlined">
+            Sign in to add a comment.
+        </MudAlert>
+    }
+</MudPaper>
+
+@code {
+    [Parameter, EditorRequired] public int ArticleId { get; set; }
+    [Parameter] public bool IsLoggedIn { get; set; }
+    [Parameter] public string AppUserId { get; set; } = string.Empty;
+
+    private string NewComment { get; set; } = string.Empty;
+    private List<Comments> CurrentComments { get; set; } = new();
+    private bool IsSubmitting { get; set; }
+    private bool IsAdmin { get; set; }
+    private int? EditingCommentId { get; set; }
+    private string EditedComment { get; set; } = string.Empty;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        var authenticationState = await AuthenticationState.GetAuthenticationStateAsync();
+        IsAdmin = authenticationState.User.IsInRole("Admin");
+        CurrentComments = await CommentsService.GetCommentsAsync(ArticleId, AppUserId);
+    }
+
+    private async Task AddComment()
+    {
+        var commentText = NewComment.Trim();
+
+        if (!IsLoggedIn || string.IsNullOrWhiteSpace(AppUserId) || string.IsNullOrWhiteSpace(commentText))
+        {
+            return;
+        }
+
+        IsSubmitting = true;
+        var response = await CommentsService.AddCommentAsync(ArticleId, AppUserId, commentText);
+        IsSubmitting = false;
+
+        if (!response.IsSuccessful)
+        {
+            Snackbar.Add(response.Message, Severity.Error);
+            return;
+        }
+
+        NewComment = string.Empty;
+        CurrentComments = await CommentsService.GetCommentsAsync(ArticleId, AppUserId);
+        Snackbar.Add("Comment posted successfully.", Severity.Success);
+    }
+
+    private bool CanManage(Comments comment)
+    {
+        return IsLoggedIn && (IsAdmin || comment.AppUserId == AppUserId);
+    }
+
+    private void BeginEdit(Comments comment)
+    {
+        EditingCommentId = comment.Id;
+        EditedComment = comment.Comment;
+    }
+
+    private void CancelEdit()
+    {
+        EditingCommentId = null;
+        EditedComment = string.Empty;
+    }
+
+    private async Task SaveEdit()
+    {
+        if (EditingCommentId is null || string.IsNullOrWhiteSpace(EditedComment))
+        {
+            return;
+        }
+
+        var response = await CommentsService.UpdateCommentAsync(EditingCommentId.Value, AppUserId, EditedComment);
+        if (!response.IsSuccessful)
+        {
+            Snackbar.Add(response.Message, Severity.Error);
+            return;
+        }
+
+        CancelEdit();
+        CurrentComments = await CommentsService.GetCommentsAsync(ArticleId, AppUserId);
+        Snackbar.Add("Comment updated.", Severity.Success);
+    }
+
+    private async Task DeleteComment(int commentId)
+    {
+        var response = await CommentsService.DeleteCommentAsync(commentId, AppUserId);
+        if (!response.IsSuccessful)
+        {
+            Snackbar.Add(response.Message, Severity.Error);
+            return;
+        }
+
+        if (EditingCommentId == commentId)
+        {
+            CancelEdit();
+        }
+
+        CurrentComments = await CommentsService.GetCommentsAsync(ArticleId, AppUserId);
+        Snackbar.Add("Comment deleted.", Severity.Success);
+    }
+}
+
+<style>
+    .article-comments-panel {
+        padding: 1.5rem 2rem;
+        border: 1px solid rgba(var(--mud-palette-primary-rgb), 0.18);
+        border-radius: 18px;
+        background: var(--mud-palette-surface);
+    }
+
+    .article-comments-heading,
+    .article-comment-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+    .article-comments-empty {
+        margin: 1.5rem 0;
+        padding: 1.5rem;
+        text-align: center;
+        color: var(--mud-palette-text-secondary);
+        border: 1px dashed var(--mud-palette-lines-default);
+        border-radius: 12px;
+    }
+
+    .article-comments-list {
+        margin-top: 1rem;
+    }
+
+    .article-comment-item {
+        border-bottom: 1px solid var(--mud-palette-lines-default);
+    }
+
+    .article-comment-content {
+        width: 100%;
+        padding: 0.75rem 0;
+    }
+
+    .article-comment-body {
+        margin-top: 0.35rem;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+    }
+
+    .article-comment-editor {
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--mud-palette-lines-default);
+    }
+
+    @@media (max-width: 600px) {
+        .article-comments-panel {
+            padding: 1.25rem 1rem;
+        }
+    }
+</style>

@@ -10,7 +10,7 @@ public class WebApiCourse
         {
             Id = 3,
             Title = "Introduction to ASP.NET Core Web APIs",
-            Description = "Master speech capabilities in Azure AI for dynamic, voice-driven applications!",
+            Description = "Learn to build robust ASP.NET Core Web APIs using HTTP, controllers, routing, validation, and practical projects.",
             ImgUrl = "icons8-internet-64.png",
             Articles = new List<Article>
                 {

@@ -53,6 +53,7 @@ builder.Services.AddSingleton<IStripeClient>(sp =>
 builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IProjectService, ProjectService>();
+builder.Services.AddScoped<ICommentsService, CommentsService>();
 builder.Services.AddScoped<ILeaderboardService, LeaderboardService>();
 builder.Services.AddScoped<IPeerReviewService, PeerReviewService>();
 builder.Services.AddScoped<ICommunityService, CommunityService>();

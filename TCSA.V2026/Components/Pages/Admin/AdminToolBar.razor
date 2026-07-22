@@ -3,6 +3,7 @@
         <MudIconButton Icon="@Icons.Material.Outlined.List" OnClick="NavigateToMain"/>
         <MudIconButton Icon="@Icons.Material.Outlined.Search" OnClick="NavigateToSearch" />
         <MudIconButton Icon="@Icons.Material.Outlined.PendingActions" OnClick="NavigateToPending" />
+        <MudIconButton Icon="@Icons.Material.Outlined.Comment" OnClick="NavigateToComments" />
         <MudIcon Icon="@Icons.Material.Outlined.Numbers" /> 
         <MudText Style="font-weight: 600; font-size:large">@Count</MudText>
     </MudToolBar>
@@ -26,5 +27,10 @@
     private void NavigateToPending()
     {
         Navigation.NavigateTo("/adminpending");
+    }
+
+    private void NavigateToComments()
+    {
+        Navigation.NavigateTo("/admin/comments");
     }
 }

@@ -2019,6 +2019,92 @@ git push</code>"
             },
             new Article
             {
+                Id = 30011,
+                Title = "Five Years as a Professional Software Engineer",
+                IconUrl = "",
+                Slug = "five-years-as-a-professional-software-engineer",
+                BannerUrl = "",
+                CardImgUrl = "blog6.png",
+                Description = "Reflections on five years working professionally as a software engineer, the people who made the journey possible, and what comes next.",
+                Area = Area.Blog,
+                Blocks = new List<Block>
+                {
+                    new Block
+                    {
+                        Paragraphs = new List<Paragraph>
+                        {
+                            new Paragraph
+                            {
+                                Body = "Five years as a professional software engineer. I have reasons to celebrate. During this time probably as a defense mechanism I’ve always had in the back of my mind that I could be fired at any minute. And this sensation that has obviously been intensified in the last couple of years while observing the advancements of AI."
+                            },
+                            new Paragraph
+                            {
+                                Body = "But I got there. No matter what happens from now I’ve worked for five years professionally as a dev and nobody can take that away from me or from my resume. It’s still scary to see how far AI got and it still makes me think its future advancements can render us all useless, but that’s a subject for another post."
+                            }
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "Reflection",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            new Paragraph
+                            {
+                                Body = "There’s a lot I can say about these years, but I’m going to keep it simple. There’s no point trying to remember everything and cram into this post. It wouldn’t make justice to the experience. Hopefully I’ll be able to share some experiences in later posts."
+                            },
+                            new Paragraph
+                            {
+                                Body = "The most important thing to acknowledge is how lucky I have been. I’ve worked with fantastic people. I’ve had two technical managers and they’re both fantastic in many ways. Extremely knowledgeable, humble, and fair. I never felt micro-managed. I always felt supported. They were stern when needed to but never ever rude, even when I made mistakes. Top-shelf leaders and mentors. Just great people all-around."
+                            },
+                            new Paragraph
+                            {
+                                Body = "I’ve also been lucky to work under very intelligent and competent senior devs. I owe everything I know in coding to these guys. They’ve closed witnessed my incompetence by reviewing my code and were very patient with me. A good chunk of my pull-requests in these four years came back with comments for improvements. They were always graceful about it even when my PRs were subpar. Oh, and always approachable and open to questions - and I did ask a lot of stupid ones. From them I’ve not only learned professionalism but how to treat people, especially juniors."
+                            },
+                            new Paragraph
+                            {
+                                Body = "Lastly I’ve been lucky to be able to work remotely for four of these five years. While it did present a challenge to my will power and discipline (it’s too easy to go grab another biscuit or make another trip to the kettle), it’s undeniable that I lived a very comfortable life during this time."
+                            },
+                            new Paragraph
+                            {
+                                Body = "I absolutely don’t take these things for granted. Particularly after having commuted for three hours daily from Brisbane to the Sunshine Coast in my first year as a dev, and having worked as a cleaner, dance teacher and uber driver for my first six years in Australia."
+                            },
+                            new Paragraph
+                            {
+                                Body = "I also hear all the time stories of people working under incompetent or rude bosses or unscrupulous colleagues, or being given impossible deadlines and put under too much pressure, not to mention being underpaid, treated unfairly, commuting daily, the list goes on. I’m aware all of those things could happen to me literally tomorrow."
+                            },
+                            new Paragraph
+                            {
+                                Body = "Although I’m ambitious and want to further progress in my career, every day I start my workday thinking to myself how happy I am to be able to do what I do and how I’ll still be happy if I’m doing the exact same thing and working with the same people at 10 YOE."
+                            },
+                            new Paragraph
+                            {
+                                Body = "Let’s see what the next five years have in store for me and for The C# Academy!"
+                            }
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "Blogging again?",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            new Paragraph
+                            {
+                                Body = "If you’ve followed the academy from the beginning you’ve seen a few failed attempts to get back to blogging. Every time I started writing I thought it was a self-indulgent exercise. Why on earth would anyone want to read about me and my thoughts? I’ve also thought my time would be better spent doing something else: Enhancing the website, reviewing code, learning more stuff to advance in my career, and so on and so forth."
+                            },
+                            new Paragraph
+                            {
+                                Body = "This time I think it’s different. After these years working in enterprise development and mentoring people I genuinely think I have something to say. To some extent I regret not having written more. It would have been great to store those memories when they were fresh. And I think now I’m better equipped and have better systems in place to write regularly again. I missed it a lot."
+                            },
+                            new Paragraph
+                            {
+                                Body = "PS: I’m not going to use AI to write or proofread any of these. I want to keep this 100% human. If see any butchering of the English language please let me know."
+                            }
+                        }
+                    }
+                }
+            },
+            new Article
+            {
                 Id = 30000,
                 Title = "Legacy: A Little Bit about Me",
                 IconUrl = "",

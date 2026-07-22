@@ -10,7 +10,7 @@ public class SqlCourse
         {
             Id = 4,
             Title = "Introduction to SQL",
-            Description = "Master speech capabilities in Azure AI for dynamic, voice-driven applications!",
+            Description = "Learn SQL fundamentals through practical queries, relational database concepts, and an e-commerce scenario.",
             ImgUrl = "icons8-sql-database-administrators-96.png",
             Articles = new List<Article>
                 {
@@ -114,7 +114,7 @@ public class SqlCourse
                                 Paragraphs = new List<Paragraph>
                                 {
                                     new Paragraph {
-                                       Body = "Setting up Sqlite is very easy. <a href='https://sqlitebrowser.org/' target='_blank'><b><u>All you need to do is download DB Browser</u><b></a>, a popular cross-platform graphical interface tool that provides a user-friendly way to create and manage your databases. When installing, <b>choose the option to create shortcuts</b> to save you some time. You'll be using the application frequently."
+                                       Body = "Setting up Sqlite is very easy. <a href='https://sqlitebrowser.org/' target='_blank'><b><u>All you need to do is download DB Browser</u></b></a>, a popular cross-platform graphical interface tool that provides a user-friendly way to create and manage your databases. When installing, <b>choose the option to create shortcuts</b> to save you some time. You'll be using the application frequently."
                                     },
                                      new Paragraph {
                                        Body = "Once you click on the shorcut, if the installation was successful, you'll see the following interface:" },

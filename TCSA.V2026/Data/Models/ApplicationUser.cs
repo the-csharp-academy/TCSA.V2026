@@ -33,4 +33,5 @@ public class ApplicationUser : IdentityUser
     public List<CommunityIssue> Issues { get; set; } = new();
     public virtual ICollection<UserChallenge> UserChallenges { get; set; } = new List<UserChallenge>();
     public virtual ICollection<ShowcaseItem> ShowcaseItems { get; set; } = new List<ShowcaseItem>();
+    public virtual ICollection<Comments> Comments { get; set; } = new List<Comments>();
 }

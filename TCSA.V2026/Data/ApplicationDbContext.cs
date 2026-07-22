@@ -20,6 +20,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public virtual DbSet<UserAccountabilityProject> UserAccountabilityProjects { get; set; }
     public virtual DbSet<UserDonation> UserDonations { get; set; }
     public virtual DbSet<WebhookDebugLog> WebhookDebugLog { get; set; }
+    public virtual DbSet<Comments> Comments { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -96,5 +97,14 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             .WithOne()
             .HasForeignKey<ShowcaseItem>(si => si.DashboardProjectId)
             .OnDelete(DeleteBehavior.NoAction);
+
+        modelBuilder.Entity<Comments>()
+            .HasOne(c => c.AppUser)
+            .WithMany(u => u.Comments)
+            .HasForeignKey(c => c.AppUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Comments>()
+            .HasIndex(c => new { c.ArticleId, c.IsReviewed, c.Date });
     }
 }
