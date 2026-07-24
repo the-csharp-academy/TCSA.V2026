@@ -24,22 +24,17 @@ public class CommentsService(
     {
         await using var context = await factory.CreateDbContextAsync();
 
-        var canSeePendingComments = false;
-        if (!string.IsNullOrWhiteSpace(viewerAppUserId))
-        {
-            canSeePendingComments = await context.AspNetUsers
-                .AnyAsync(user => user.Id == viewerAppUserId && user.Level >= Level.Green)
-                || await IsAdminAsync(context, viewerAppUserId);
-        }
+        var isAdmin = !string.IsNullOrWhiteSpace(viewerAppUserId)
+            && await IsAdminAsync(context, viewerAppUserId);
 
         var query = context.Comments
             .AsNoTracking()
             .Include(c => c.AppUser)
             .Where(c => c.ArticleId == articleId);
 
-        if (!canSeePendingComments)
+        if (!isAdmin)
         {
-            query = query.Where(c => c.IsReviewed);
+            query = query.Where(c => c.IsReviewed || c.AppUserId == viewerAppUserId);
         }
 
         return await query
@@ -85,7 +80,10 @@ public class CommentsService(
         {
             await using var context = await factory.CreateDbContextAsync();
 
-            if (!await context.AspNetUsers.AnyAsync(user => user.Id == appUserId))
+            var user = await context.AspNetUsers
+                .SingleOrDefaultAsync(user => user.Id == appUserId);
+
+            if (user is null)
             {
                 return new ServiceResponse
                 {
@@ -100,7 +98,7 @@ public class CommentsService(
                 AppUserId = appUserId,
                 Comment = commentText,
                 Date = DateTimeOffset.UtcNow,
-                IsReviewed = false
+                IsReviewed = user.Level >= Level.Green || await IsAdminAsync(context, appUserId)
             });
 
             await context.SaveChangesAsync();

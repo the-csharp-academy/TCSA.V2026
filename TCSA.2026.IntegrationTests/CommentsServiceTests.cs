@@ -41,14 +41,50 @@ public class CommentsServiceTests : IntegrationTestsBase
     }
 
     [Test]
+    public async Task AddCommentAsync_ShouldAutoReviewCommentsFromGreenBeltAndAbove()
+    {
+        var response = await _service.AddCommentAsync(53, "orangeuser", "No moderation needed");
+
+        using var context = DbContextFactory.CreateDbContext();
+        var savedComment = context.Comments.Single();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(response.IsSuccessful, Is.True);
+            Assert.That(savedComment.IsReviewed, Is.True);
+        });
+    }
+
+    [Test]
+    public async Task AddCommentAsync_ShouldAutoReviewCommentsFromAdminsBelowGreenBelt()
+    {
+        await MakeUserAdmin("user1");
+
+        var response = await _service.AddCommentAsync(53, "user1", "Admin comment");
+
+        using var context = DbContextFactory.CreateDbContext();
+        var savedComment = context.Comments.Single();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(response.IsSuccessful, Is.True);
+            Assert.That(savedComment.IsReviewed, Is.True);
+        });
+    }
+
+    [Test]
     public async Task GetCommentsAsync_ShouldReturnOnlyRequestedArticleNewestFirstWithUsers()
     {
         using (var context = DbContextFactory.CreateDbContext())
         {
-            context.Comments.AddRange(
-                CreateComment(12, "user1", "Older", DateTimeOffset.UtcNow.AddHours(-2)),
-                CreateComment(12, "user2", "Newer", DateTimeOffset.UtcNow.AddHours(-1)),
-                CreateComment(13, "user1", "Different article", DateTimeOffset.UtcNow));
+            var older = CreateComment(12, "user1", "Older", DateTimeOffset.UtcNow.AddHours(-2));
+            var newer = CreateComment(12, "user2", "Newer", DateTimeOffset.UtcNow.AddHours(-1));
+            var differentArticle = CreateComment(13, "user1", "Different article", DateTimeOffset.UtcNow);
+            older.IsReviewed = true;
+            newer.IsReviewed = true;
+            differentArticle.IsReviewed = true;
+
+            context.Comments.AddRange(older, newer, differentArticle);
 
             await context.SaveChangesAsync();
         }
@@ -106,7 +142,7 @@ public class CommentsServiceTests : IntegrationTestsBase
             "user1",
             "Comment on a course article");
 
-        var comments = await _service.GetCommentsAsync(courseArticle.Id, "orangeuser");
+        var comments = await _service.GetCommentsAsync(courseArticle.Id, "user1");
 
         Assert.Multiple(() =>
         {
@@ -142,7 +178,7 @@ public class CommentsServiceTests : IntegrationTestsBase
     }
 
     [Test]
-    public async Task GetCommentsAsync_ShouldShowPendingCommentsToGreenBeltAndAbove()
+    public async Task GetCommentsAsync_ShouldOnlyShowPendingCommentToItsAuthor()
     {
         using (var context = DbContextFactory.CreateDbContext())
         {
@@ -150,9 +186,14 @@ public class CommentsServiceTests : IntegrationTestsBase
             await context.SaveChangesAsync();
         }
 
-        var comments = await _service.GetCommentsAsync(12, "orangeuser");
+        var authorComments = await _service.GetCommentsAsync(12, "user1");
+        var otherUserComments = await _service.GetCommentsAsync(12, "orangeuser");
 
-        Assert.That(comments.Select(c => c.Comment), Is.EqualTo(new[] { "Pending" }));
+        Assert.Multiple(() =>
+        {
+            Assert.That(authorComments.Select(c => c.Comment), Is.EqualTo(new[] { "Pending" }));
+            Assert.That(otherUserComments, Is.Empty);
+        });
     }
 
     [Test]

@@ -1,4 +1,6 @@
-using Microsoft.Extensions.DependencyInjection;
+using Moq;
+using System.Net;
+using System.Text;
 using TCSA.V2026.Data.DTOs;
 using TCSA.V2026.Data.DTOs.Challenges;
 using TCSA.V2026.Data.Enums;
@@ -11,24 +13,17 @@ namespace TCSA.V2026.IntegrationTests;
 public class LeetCodeServiceTests : IntegrationTestsBase
 {
     private LeetCodeService _service;
-    private IHttpClientFactory _httpClientFactory;
 
     [SetUp]
     public void Setup()
     {
-        BaseSetup();
-        var services = new ServiceCollection();
-        services.AddHttpClient();
-        var serviceProvider = services.BuildServiceProvider();
-        _httpClientFactory = serviceProvider.GetRequiredService<IHttpClientFactory>();
-
-        _service = new LeetCodeService(DbContextFactory, _httpClientFactory);
-    }
-
-    [TearDown]
-    public void TearDown()
-    {
-        BaseTearDown();
+        _service = CreateService(HttpStatusCode.OK, """
+            {
+              "data": {
+                "recentAcSubmissionList": []
+              }
+            }
+            """);
     }
 
     [Test]
@@ -82,7 +77,19 @@ public class LeetCodeServiceTests : IntegrationTestsBase
     [Test]
     public async Task SyncChallengeWithValidUsernameAndCompletedChallenge()
     {
-        string realLeetCodeUsername = "Dejmenek";
+        _service = CreateService(HttpStatusCode.OK, """
+            {
+              "data": {
+                "recentAcSubmissionList": [
+                  {
+                    "title": "Two Sum",
+                    "titleSlug": "two-sum",
+                    "statusDisplay": "Accepted"
+                  }
+                ]
+              }
+            }
+            """);
 
         using (var seedContext = DbContextFactory.CreateDbContext())
         {
@@ -103,7 +110,7 @@ public class LeetCodeServiceTests : IntegrationTestsBase
         // Act
         var response = await _service.SyncChallenge(new SyncChallengeRequest
         (
-            new UserPlatformCredentials(null, realLeetCodeUsername),
+            new UserPlatformCredentials(null, "test-user"),
             1,
             "two-sum",
             "user1"
@@ -120,8 +127,6 @@ public class LeetCodeServiceTests : IntegrationTestsBase
     [Test]
     public async Task SyncChallengeWithNotCompletedChallengeShouldReturnFailResponse()
     {
-        string leetCodeUsername = "leetcode";
-
         using (var seedContext = DbContextFactory.CreateDbContext())
         {
             seedContext.Challenges.Add(new Challenge
@@ -141,7 +146,7 @@ public class LeetCodeServiceTests : IntegrationTestsBase
         // Act
         var response = await _service.SyncChallenge(new SyncChallengeRequest
         (
-            new UserPlatformCredentials(null, leetCodeUsername),
+            new UserPlatformCredentials(null, "test-user"),
             1,
             "some-very-obscure-challenge-12345",
             "user1"
@@ -150,5 +155,94 @@ public class LeetCodeServiceTests : IntegrationTestsBase
         // Assert
         Assert.That(response.Status, Is.EqualTo(ResponseStatus.Fail));
         Assert.That(response.Message, Is.EqualTo("You haven't completed this challenge yet or it is not within the recent 20 submissions."));
+    }
+
+    [Test]
+    public async Task SyncChallengeWhenLeetCodeIsUnavailableShouldReturnFailResponse()
+    {
+        _service = CreateService(HttpStatusCode.ServiceUnavailable, "");
+
+        var response = await _service.SyncChallenge(new SyncChallengeRequest
+        (
+            new UserPlatformCredentials(null, "test-user"),
+            1,
+            "two-sum",
+            "user1"
+        ));
+
+        Assert.That(response.Status, Is.EqualTo(ResponseStatus.Fail));
+        Assert.That(response.Message, Is.EqualTo("Failed to connect to LeetCode API. Please try again later."));
+    }
+
+    [Test]
+    public async Task SyncChallengeWithGraphQlErrorsShouldReturnFailResponse()
+    {
+        _service = CreateService(HttpStatusCode.OK, """
+            {
+              "errors": [
+                {
+                  "message": "User not found"
+                }
+              ]
+            }
+            """);
+
+        var response = await _service.SyncChallenge(new SyncChallengeRequest
+        (
+            new UserPlatformCredentials(null, "missing-user"),
+            1,
+            "two-sum",
+            "user1"
+        ));
+
+        Assert.That(response.Status, Is.EqualTo(ResponseStatus.Fail));
+        Assert.That(response.Message, Is.EqualTo("Failed to retrieve your recent submissions from LeetCode. Contact support if the issue persists."));
+    }
+
+    [Test]
+    [Category("ExternalApi")]
+    public async Task LeetCodeApiShouldReturnRecentSubmissions()
+    {
+        using var httpClient = new HttpClient();
+        var httpClientFactory = new Mock<IHttpClientFactory>();
+        httpClientFactory
+            .Setup(factory => factory.CreateClient(It.IsAny<string>()))
+            .Returns(httpClient);
+        var service = new LeetCodeService(DbContextFactory, httpClientFactory.Object);
+
+        var response = await service.SyncChallenge(new SyncChallengeRequest
+        (
+            new UserPlatformCredentials(null, "leetcode"),
+            1,
+            "not-a-real-leetcode-challenge",
+            "user1"
+        ));
+
+        Assert.That(response.Status, Is.EqualTo(ResponseStatus.Fail));
+        Assert.That(response.Message, Is.EqualTo("You haven't completed this challenge yet or it is not within the recent 20 submissions."));
+    }
+
+    private LeetCodeService CreateService(HttpStatusCode statusCode, string responseBody)
+    {
+        var handler = new StubHttpMessageHandler(new HttpResponseMessage(statusCode)
+        {
+            Content = new StringContent(responseBody, Encoding.UTF8, "application/json")
+        });
+        var httpClientFactory = new Mock<IHttpClientFactory>();
+        httpClientFactory
+            .Setup(factory => factory.CreateClient(It.IsAny<string>()))
+            .Returns(new HttpClient(handler));
+
+        return new LeetCodeService(DbContextFactory, httpClientFactory.Object);
+    }
+
+    private sealed class StubHttpMessageHandler(HttpResponseMessage response) : HttpMessageHandler
+    {
+        protected override Task<HttpResponseMessage> SendAsync(
+            HttpRequestMessage request,
+            CancellationToken cancellationToken)
+        {
+            return Task.FromResult(response);
+        }
     }
 }

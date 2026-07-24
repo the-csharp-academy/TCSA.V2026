@@ -19,5 +19,8 @@ jobs:
       - name: Build
         run: dotnet build --no-restore -c Release
 
-      - name: Test
-        run: dotnet test --no-build -c Release --verbosity normal
+      - name: Test unit tests
+        run: dotnet test TCSA.V2026.UnitTests/TCSA.V2026.UnitTests.csproj --no-build -c Release --verbosity normal
+
+      - name: Test integration tests
+        run: dotnet test TCSA.2026.IntegrationTests/TCSA.V2026.IntegrationTests.csproj --no-build -c Release --verbosity normal --filter "TestCategory!=ExternalApi"
