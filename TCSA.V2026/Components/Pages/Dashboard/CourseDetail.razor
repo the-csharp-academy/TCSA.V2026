@@ -143,6 +143,12 @@
                                             <MudImage Src="@imageSrc" Alt="Course image" Fluid="true" />
                                         </MudPaper>
                                     }
+                                    else if (paragraph.IsVideo)
+                                    {
+                                        <ArticleVideo Src="@paragraph.VideoUrl"
+                                                      Title="@($"{Article.Title} video")"
+                                                      Caption="@paragraph.Body" />
+                                    }
                                     else
                                     {
                                         if (!string.IsNullOrWhiteSpace(paragraph.BackgroundColor))

@@ -61,9 +61,9 @@
 
                             else if (paragraph.IsVideo)
                             {
-                                <div class="video-wrapper article-video-wrap">
-                                    <iframe class="video-iframe" src="@paragraph.VideoUrl" allowfullscreen></iframe>
-                                </div>
+                                <ArticleVideo Src="@paragraph.VideoUrl"
+                                              Title="@($"{Article.Title} video")"
+                                              Caption="@paragraph.Body" />
                             }
 
                             else if (paragraph.IsCode)
