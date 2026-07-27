@@ -64,7 +64,7 @@ public class ReactCourse
                                 Paragraphs = new List<Paragraph>
                                 {
                                     new Paragraph {
-                                       Body = "Let's create a <b>model class</b> for our recipes. If you don't know what model classes are, this course might be slightly too advanced for you. We recommend you do the first three or four projects in our roadmap, or check out our <a href='http://course/1/article/0/500025/false' target='_blank'>Object-oriented Programming Crash-Course</b>. In a new file, create a Recipe class:"
+                                       Body = "Let's create a <b>model class</b> for our recipes. If you don't know what model classes are, this course might be slightly too advanced for you. We recommend you do the first three or four projects in our roadmap, or check out our <a href='http://course/1/article/1/500025/false' target='_blank'>Object-oriented Programming Crash-Course</b>. In a new file, create a Recipe class:"
                                     },
                                     new Paragraph {
                                        IsCode = true,

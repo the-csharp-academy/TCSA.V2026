@@ -85,6 +85,10 @@ html, body {
     color: white !important;
 }
 
+.appbar-search {
+    max-width: 320px;
+}
+
 .appbar-search .mud-input-slot {
     color: white !important;
 }
@@ -139,6 +143,16 @@ html, body {
     border: 0;
 }
 
+@keyframes search-highlight-fade {
+    0%   { background-color: rgba(255, 220, 0, 0.6); }
+    100% { background-color: transparent; }
+}
+
+.search-highlight {
+    animation: search-highlight-fade 2s ease-out forwards;
+    border-radius: 3px;
+}
+
 /* Remove the focus outline for elements focused programmatically by Blazor */
 [tabindex="-1"]:focus {
     outline: none !important;
@@ -160,3 +174,28 @@ deep .external-email-wrap .form-floating > .form-control {
             width: 100% !important;
             min-width: 100% !important;
         }
+
+@media (max-width: 600px) {
+    .shepherd-element {
+        max-width: calc(100vw - 140px) !important;
+    }
+}
+
+/* Mentorship Page Responsive Styles */
+@media (max-width: 960px) {
+    .mentorship-title {
+        font-size: 1.75rem !important;
+    }
+
+    .mentorship-hero-visual {
+        min-height: 200px;
+    }
+
+    .hero-icon-container {
+        font-size: 100px;
+    }
+
+    .pricing-card-featured {
+        transform: scale(1);
+    }
+}

@@ -36,7 +36,7 @@ public class TimeSpanFormatterTests
     private static IEnumerable<TestCaseData> FormatReviewTimeTestCases()
     {
         yield return new TestCaseData(TimeSpan.Zero, "N/A");
-        yield return new TestCaseData(TimeSpan.FromSeconds(30), "30 seconds");
+        yield return new TestCaseData(TimeSpan.FromSeconds(30), "just now");
         yield return new TestCaseData(TimeSpan.FromSeconds(90), "1 minute");
         yield return new TestCaseData(TimeSpan.FromMinutes(5), "5 minutes");
         yield return new TestCaseData(TimeSpan.FromHours(2), "2 hours");

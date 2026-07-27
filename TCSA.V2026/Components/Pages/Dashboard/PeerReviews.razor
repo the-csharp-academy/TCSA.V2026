@@ -4,12 +4,14 @@
 @using TCSA.V2026.Data.Curriculum
 @using TCSA.V2026.Data.DTOs
 @using TCSA.V2026.Data.Enums
+@using TCSA.V2026.Data.Events
 @using TCSA.V2026.Data.Models
 @using TCSA.V2026.Data.Models.Responses
 @using TCSA.V2026.Components.UI
 @using TCSA.V2026.Helpers
 @using TCSA.V2026.Services
 @attribute [Authorize]
+@implements IDisposable
 
 <PageTitle>Peer Reviews</PageTitle>
 
@@ -121,6 +123,7 @@
     [Inject] private IProjectService ProjectService { get; set; }
     [Inject] private IUserService UserService { get; set; }
     [Inject] private IPeerReviewService PeerReviewService { get; set; }
+    [Inject] private IPeerReviewPublisher Publisher { get; set; }
     [Inject] private ISnackbar Snackbar { get; set; }
     [Inject] private IJSRuntime JS { get; set; }
 
@@ -130,6 +133,7 @@
 
     private bool IsLoading = true;
     private string UserId = string.Empty;
+    private Guid _subscriptionId;
     private TimeSpan LoadTime;
     private HashSet<int> _processingIds = new();
 
@@ -151,6 +155,30 @@
         LoadTime = DateTime.UtcNow - startTime;
 
         IsLoading = false;
+
+        _subscriptionId = Publisher.Subscribe(OnReviewCompletedAsync);
+    }
+
+    private async Task OnReviewCompletedAsync(ReviewCompletedEvent @event)
+    {
+        if (@event.ReviewerId != UserId) return;
+
+        await InvokeAsync(async () =>
+        {
+            IsLoading = true;
+            StateHasChanged();
+
+            AvailableProjects = await PeerReviewService.GetProjectsForPeerReview(UserId);
+            User = await UserService.GetUserById(UserId);
+
+            IsLoading = false;
+            StateHasChanged();
+        });
+    }
+
+    public void Dispose()
+    {
+        Publisher.Unsubscribe(_subscriptionId);
     }
 
     private async Task AssignMyself(int dashboardProjectId)

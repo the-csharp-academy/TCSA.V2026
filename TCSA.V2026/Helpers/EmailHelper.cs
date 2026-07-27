@@ -19,9 +19,9 @@ Don't forget that marking our articles as read also gives you experience points!
     {
         var icon = level switch
         {
-            Level.Green => "📗💚🟩",  
-            Level.OliveGreen => "🫒🫒🫒",  
-            Level.Yellow => "💛⭐🟡",    
+            Level.Green => "📗💚🟩",
+            Level.OliveGreen => "🫒🫒🫒",
+            Level.Yellow => "💛⭐🟡",
             Level.Orange => "📙🍊🧡",
             Level.Red => "🔴❤️🍎",
             Level.Purple => "💜🟣🟪",

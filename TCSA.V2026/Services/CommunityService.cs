@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using TCSA.V2026.Data;
+using TCSA.V2026.Data.Enums;
 using TCSA.V2026.Data.Models;
 using TCSA.V2026.Data.Models.Responses;
+using TCSA.V2026.Helpers;
 
 namespace TCSA.V2026.Services;
 
@@ -11,12 +13,12 @@ public interface ICommunityService
     Task<List<CommunityIssue>> GetAvailableIssuesForCommunityPage(string appUserId);
     Task<BaseResponse> AssignUserToIssue(string appUserId, CommunityIssue issue);
     Task<BaseResponse> SubmitIssueToReview(int issueId, string githubUrl);
-    Task<BaseResponse> CreateIssue(IssueType type, string issueUrl, string Title, string userId);
+    Task<BaseResponse> CreateIssue(IssueType type, string issueUrl, string Title, CommunityProject communityProject);
 }
 
-public class CommunityService(IDbContextFactory<ApplicationDbContext> _factory): ICommunityService
+public class CommunityService(IDbContextFactory<ApplicationDbContext> _factory) : ICommunityService
 {
-    public async Task<BaseResponse> CreateIssue(IssueType type, string issueUrl, string title, string userId)
+    public async Task<BaseResponse> CreateIssue(IssueType type, string issueUrl, string title, CommunityProject communityProject)
     {
         string iconUrl = type switch
         {
@@ -26,15 +28,24 @@ public class CommunityService(IDbContextFactory<ApplicationDbContext> _factory):
             IssueType.Infrastructure => "icons8-infrastructure-55.png"
         };
 
+        if (!UrlHelper.IsValidCommunityProjectIssueUrl(issueUrl, communityProject))
+        {
+            return new BaseResponse
+            {
+                Status = ResponseStatus.Fail,
+                Message = "Invalid issue URL for the selected community project."
+            };
+        }
+
         var result = new BaseResponse();
         try
         {
             using (var context = _factory.CreateDbContext())
             {
-                var lastIssue = await context.Issues.OrderBy(x => x.ProjectId).LastOrDefaultAsync();
-                int nextProjectId = lastIssue != null ? lastIssue.ProjectId + 1 : 1;
+                var lastIssue = await context.Issues.OrderByDescending(x => x.ProjectId).Select(x => x.ProjectId).FirstOrDefaultAsync();
+                int nextProjectId = lastIssue != 0 ? lastIssue + 1 : 1;
 
-                var existingIssue = await context.Issues.FirstOrDefaultAsync(i => i.GithubUrl == issueUrl);
+                var existingIssue = await context.Issues.FirstOrDefaultAsync(i => i.GithubUrl == issueUrl && i.CommunityProjectId == (int)communityProject);
 
                 if (existingIssue != null)
                 {
@@ -49,7 +60,7 @@ public class CommunityService(IDbContextFactory<ApplicationDbContext> _factory):
                     Title = title,
                     Type = type,
                     IsClosed = false,
-                    CommunityProjectId = 207,
+                    CommunityProjectId = (int)communityProject,
                     ExperiencePoints = 20,
                     IconUrl = iconUrl,
                     ProjectId = nextProjectId
@@ -106,7 +117,7 @@ public class CommunityService(IDbContextFactory<ApplicationDbContext> _factory):
         {
             using (var context = _factory.CreateDbContext())
             {
-                var project = context.DashboardProjects.FirstOrDefault(context => context.ProjectId == issueId);
+                var project = await context.DashboardProjects.FirstOrDefaultAsync(context => context.ProjectId == issueId);
 
                 project.GithubUrl = githubUrl;
                 project.IsPendingReview = true;

@@ -9,6 +9,7 @@
 
 @inject NavigationManager NavigationManager
 @inject IDialogService DialogService
+@inject OnboardingStateService OnboardingState
 
 @attribute [Authorize]
 
@@ -47,13 +48,18 @@
 
         <MudPaper Class="pa-4 mt-5" Elevation="4">
             <h2 class="visually-hidden">Account Actions</h2>
+            <MudButton Variant="Variant.Filled" Color="Color.Info" Disabled="@_isProcessing" OnClick="RestartOnboarding" Class="mt-4">Restart Onboarding</MudButton>
+            @if (ShowResumeChecklist)
+            {
+                <MudButton Variant="Variant.Filled" Color="Color.Secondary" Disabled="@_isProcessing" OnClick="ResumeChecklist" Class="mt-4">Resume Checklist</MudButton>
+            }
             <MudButton Variant="Variant.Filled" Color="Color.Dark" Disabled="@_isProcessing" OnClick="Reset" Class="mt-4">Reset Account</MudButton>
             <MudButton Variant="Variant.Filled" Color="Color.Error" Disabled="@_isProcessing" OnClick="Delete" Class="mt-4">Delete Account</MudButton>
         </MudPaper>
     }
 </MudContainer>
 
-@code {
+    @code {
     [Inject] public HttpClient HttpClient { get; set; } = default!;
     [Inject] private AuthenticationStateProvider AuthenticationState { get; set; }
     [Inject] private IUserService UserService { get; set; }
@@ -67,6 +73,12 @@
     private bool IsLoggedIn = false;
     private bool _isProcessing = false;
     private string UserId;
+
+    private bool ShowResumeChecklist =>
+        User != null &&
+        User.OnboardingStartedDate != null &&
+        User.HasDismissedChecklist &&
+        ChecklistHelper.BuildProfileTasks(User).Any(t => !t.IsCompleted);
 
     protected override async Task OnInitializedAsync()
     {
@@ -99,7 +111,8 @@
             if (result.Status == ResponseStatus.Success)
             {
                 SnackbarService.Add("Profile Updated Successfully", Severity.Success);
-                User = await UserService.GetUserById(UserId);
+                User = await UserService.GetUserProfileById(UserId);
+                await OnboardingState.NotifyChangedAsync();
             }
             else
             {
@@ -171,6 +184,54 @@
                 {
                     SnackbarService.Add($"Error: {apiResult.Message}", Severity.Error);
                 }
+            }
+        }
+        finally
+        {
+            _isProcessing = false;
+        }
+    }
+
+    private async Task RestartOnboarding()
+    {
+        _isProcessing = true;
+
+        try
+        {
+            var result = await UserService.RestartOnboarding(UserId);
+
+            if (result.Status == ResponseStatus.Success)
+            {
+                User = await UserService.GetUserById(UserId);
+                await OnboardingState.NotifyChangedAsync();
+            }
+            else
+            {
+                SnackbarService.Add($"Error: {result.Message}", Severity.Error);
+            }
+        }
+        finally
+        {
+            _isProcessing = false;
+        }
+    }
+
+    private async Task ResumeChecklist()
+    {
+        _isProcessing = true;
+
+        try
+        {
+            var result = await UserService.ResumeChecklist(UserId);
+
+            if (result.Status == ResponseStatus.Success)
+            {
+                User = await UserService.GetUserById(UserId);
+                await OnboardingState.NotifyChangedAsync();
+            }
+            else
+            {
+                SnackbarService.Add($"Error: {result.Message}", Severity.Error);
             }
         }
         finally

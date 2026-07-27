@@ -118,7 +118,6 @@ public class CommunityTests : BunitContext
         _dialogServiceMock
             .Setup(s => s.ShowAsync<TCSASubmitIssueDialog>(
                 It.IsAny<string>(),
-                It.IsAny<DialogParameters<TCSASubmitIssueDialog>>(),
                 It.IsAny<DialogOptions>()))
             .Returns(tcs.Task);
 
@@ -146,7 +145,6 @@ public class CommunityTests : BunitContext
         _dialogServiceMock.Verify(
             s => s.ShowAsync<TCSASubmitIssueDialog>(
                 It.IsAny<string>(),
-                It.IsAny<DialogParameters<TCSASubmitIssueDialog>>(),
                 It.IsAny<DialogOptions>()),
             Times.Once);
     }
@@ -160,7 +158,6 @@ public class CommunityTests : BunitContext
         dialogServiceMock
             .Setup(s => s.ShowAsync<TCSASubmitIssueDialog>(
                 It.IsAny<string>(),
-                It.IsAny<DialogParameters<TCSASubmitIssueDialog>>(),
                 It.IsAny<DialogOptions>()))
             .Returns(tcs.Task);
 
@@ -194,9 +191,9 @@ public class CommunityTests : BunitContext
         var tcs = new TaskCompletionSource<IDialogReference>();
         var dialogServiceMock = new Mock<IDialogService>();
         dialogServiceMock
-            .Setup(s => s.ShowAsync<TCSASubmitProjectDialog>(
+            .Setup(s => s.ShowAsync<TCSASubmitIssueToReviewDialog>(
                 It.IsAny<string>(),
-                It.IsAny<DialogParameters<TCSASubmitProjectDialog>>(),
+                It.IsAny<DialogParameters<TCSASubmitIssueToReviewDialog>>(),
                 It.IsAny<DialogOptions>()))
             .Returns(tcs.Task);
 
@@ -224,9 +221,9 @@ public class CommunityTests : BunitContext
 
         // Assert
         dialogServiceMock.Verify(
-            s => s.ShowAsync<TCSASubmitProjectDialog>(
+            s => s.ShowAsync<TCSASubmitIssueToReviewDialog>(
                 It.IsAny<string>(),
-                It.IsAny<DialogParameters<TCSASubmitProjectDialog>>(),
+                It.IsAny<DialogParameters<TCSASubmitIssueToReviewDialog>>(),
                 It.IsAny<DialogOptions>()),
             Times.Once);
     }
@@ -238,9 +235,9 @@ public class CommunityTests : BunitContext
         var tcs = new TaskCompletionSource<IDialogReference>();
         var dialogServiceMock = new Mock<IDialogService>();
         dialogServiceMock
-            .Setup(s => s.ShowAsync<TCSASubmitProjectDialog>(
+            .Setup(s => s.ShowAsync<TCSASubmitIssueToReviewDialog>(
                 It.IsAny<string>(),
-                It.IsAny<DialogParameters<TCSASubmitProjectDialog>>(),
+                It.IsAny<DialogParameters<TCSASubmitIssueToReviewDialog>>(),
                 It.IsAny<DialogOptions>()))
             .Returns(tcs.Task);
 

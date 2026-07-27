@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.Options;
 using MudBlazor;
 using MudBlazor.Services;
@@ -13,6 +14,7 @@ using TCSA.V2026.Data;
 using TCSA.V2026.Data.Helpers;
 using TCSA.V2026.Data.Models;
 using TCSA.V2026.Data.Models.Options;
+using TCSA.V2026.Data.Curriculum;
 using TCSA.V2026.Services;
 using TCSA.V2026.Services.Challenges;
 
@@ -39,6 +41,7 @@ builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityUserAccessor>();
 builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
+builder.Services.AddHybridCache();
 
 builder.Services.AddSingleton<IStripeClient>(sp =>
 {
@@ -50,6 +53,7 @@ builder.Services.AddSingleton<IStripeClient>(sp =>
 builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IProjectService, ProjectService>();
+builder.Services.AddScoped<ICommentsService, CommentsService>();
 builder.Services.AddScoped<ILeaderboardService, LeaderboardService>();
 builder.Services.AddScoped<IPeerReviewService, PeerReviewService>();
 builder.Services.AddScoped<ICommunityService, CommunityService>();
@@ -63,20 +67,30 @@ builder.Services.AddScoped<IDailyChallengeFetchService, LeetCodeDailyChallengeSe
 builder.Services.AddHostedService<DailyChallengeJob>();
 builder.Services.AddScoped<IDiscordService, DiscordService>();
 builder.Services.AddScoped<IActivityService, ActivityService>();
-builder.Services.AddScoped<IGithubService, GithubService>();
 builder.Services.AddScoped<IGalleryService, GalleryService>();
-builder.Services.AddScoped<IStatisticsService, StatisticsService>();
+builder.Services.AddScoped<StatisticsService>();
+builder.Services.AddScoped<IStatisticsService>(sp =>
+{
+    return new CachingStatisticsService(
+        sp.GetRequiredService<StatisticsService>(),
+        sp.GetRequiredService<HybridCache>()
+    );
+});
 builder.Services.AddScoped<IFeedService, FeedService>();
 builder.Services.AddScoped<IAccountabilityBuddyService, AccountabilityBuddyService>();
 builder.Services.AddScoped<IDonateService, DonateService>();
+builder.Services.AddSingleton<ISearchService>(_ =>
+    new SearchService([..ArticleHelper.GetArticles(), ..ProjectHelper.GetProjects()]));
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<ICustomEmailSender, EmailSender>();
+builder.Services.AddSingleton<IPeerReviewPublisher, PeerReviewPublisher>();
 
 builder.Services.AddControllers();
 
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ThemeService>();
+builder.Services.AddScoped<OnboardingStateService>();
 
 builder.Services.AddDiscordGateway(options =>
 {

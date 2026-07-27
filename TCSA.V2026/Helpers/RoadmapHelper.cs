@@ -89,6 +89,7 @@ public static class RoadmapHelper
         (int) ArticleName.Auth,
         (int) ArticleName.ProductManagement,
         (int) ArticleName.ExternalAuth,
+        (int) ArticleName.Auth0
     };
 
     public static readonly int[] SqlRequirements = {
@@ -755,9 +756,511 @@ public static class RoadmapHelper
         if (mvcProjects.All(x => completedProjects.Contains(x))) fullStackAreas.Add(Area.MVC);
         if (reactProjects.All(x => completedProjects.Contains(x))) fullStackAreas.Add(Area.React);
         if (angularProjects.All(x => completedProjects.Contains(x))) fullStackAreas.Add(Area.Angular);
-        if (blazorProjects.All(x => completedProjects.Contains(x))) fullStackAreas.Add(Area.Blazor);    
+        if (blazorProjects.All(x => completedProjects.Contains(x))) fullStackAreas.Add(Area.Blazor);
         if (mauiProjects.All(x => completedProjects.Contains(x))) fullStackAreas.Add(Area.MAUI);
 
         return fullStackAreas;
+    }
+
+    public static List<RoadmapGridCell> GetCellsForPublicRoadmap(Area area1, Area area2)
+    {
+        var cells = new List<RoadmapGridCell>();
+        var defaultCells = new List<RoadmapGridCell>
+        {
+            new RoadmapGridCell
+            {
+                Row = 0,
+                Column = 0,
+                Title = "White Belt",
+                Icon = "white-belt.png",
+                Content = "This is the starting point of your roadmap.",
+                ConnectRight = true
+            },
+            new RoadmapGridCell
+            {
+                Row = 0,
+                Column = 1,
+                Title = "Start Here",
+                Icon = "icons8-door-80.png",
+                Content = "A quick read with an introduction to the C# Academy.",
+                ConnectRight = true,
+                ConnectLeft = true
+            },
+            new RoadmapGridCell
+            {
+                Row = 0,
+                Column = 2,
+                Title = "Getting Help",
+                Icon = "icons8-helping-96.png",
+                Content = "Find out how to get unstuck when learning.",
+                ConnectRight = true,
+                ConnectLeft = true
+            },
+            new RoadmapGridCell
+            {
+                Row = 0,
+                Column = 3,
+                Title = "Setting Up",
+                Icon = "icons8-project-setup-96-1.png",
+                Content = "Learn how to set up your dev environment.",
+                ConnectRight = true,
+                ConnectLeft = true
+            },
+            new RoadmapGridCell
+            {
+                Row = 0,
+                Column = 4,
+                Title = "Foundations",
+                Icon = "icons8-sharp-94.png",
+                Content = "Time to start learning.",
+                ConnectLeft = true,
+                ConnectBottom = true,
+            },
+            new RoadmapGridCell
+            {
+                Row = 1,
+                Column = 4,
+                Title = "Freecodecamp",
+                Icon = "freecodecamp.jpg",
+                Content = "Dive into the code.",
+                ConnectTop = true,
+                ConnectLeft = true,
+            },
+            new RoadmapGridCell
+            {
+                Row = 1,
+                Column = 3,
+                Title = "Math Game",
+                Icon = "icons8-maths-376.png",
+                Content = "Your first project.",
+                ConnectRight = true,
+                ConnectLeft = true,
+            },
+            new RoadmapGridCell
+            {
+                Row = 1,
+                Column = 2,
+                Title = "Green Belt",
+                Icon = "green-belt.png",
+                Content = "You've earned your first belt",
+                ConnectRight = true,
+                ConnectLeft = true,
+            },
+            new RoadmapGridCell
+            {
+                Row = 1,
+                Column = 1,
+                Title = "Calculator",
+                Icon = "icons8-calculator-512.png",
+                Content = "This is the starting point of your roadmap.",
+                ConnectRight = true,
+                ConnectLeft = true
+            },
+            new RoadmapGridCell
+            {
+                Row = 1,
+                Column = 0,
+                Title = "Habit Logger",
+                Icon = "icons8-calendar-plus-96.png",
+                Content = "A quick read with an introduction to the C# Academy.",
+                ConnectRight = true,
+                ConnectBottom = true
+            },
+            new RoadmapGridCell
+            {
+                Row = 2,
+                Column = 0,
+                Title = "Coding Tracker",
+                Icon = "icons8-smart-watch-96.png",
+                Content = "Find out how to get unstuck when learning.",
+                ConnectRight = true,
+                ConnectTop = true
+            },
+            new RoadmapGridCell
+            {
+                Row = 2,
+                Column = 1,
+                Title = "Olive Green Belt",
+                Icon = "olivegreen-belt.png",
+                Content = "You've earned your first belt",
+                ConnectRight = true,
+                ConnectLeft = true,
+            },
+            new RoadmapGridCell
+            {
+                Row = 2,
+                Column = 2,
+                Title = "Flashcards",
+                Icon = "icons8-quizlet-96.png",
+                Content = "Learn how to set up your dev environment.",
+                ConnectRight = true,
+                ConnectLeft = true
+            },
+            new RoadmapGridCell
+            {
+                Row = 2,
+                Column = 3,
+                Title = "Cocktail App",
+                Icon = "drinks.png",
+                Content = "Time to start learning.",
+                ConnectLeft = true,
+                ConnectRight = true,
+            },
+            new RoadmapGridCell
+            {
+                Row = 2,
+                Column = 4,
+                Title = "Phone Book",
+                Icon = "icons8-contact-book-512-150x150.png",
+                Content = "Dive into the code.",
+                ConnectBottom = true,
+                ConnectLeft = true,
+            },
+            new RoadmapGridCell
+            {
+                Row = 3,
+                Column = 4,
+                Title = "Shifts Logger",
+                Icon = "icons8-nurse-256.png",
+                Content = "Your first project.",
+                ConnectTop = true,
+                ConnectLeft = true,
+            },
+            new RoadmapGridCell
+            {
+                Row = 3,
+                Column = 3,
+                Title = "Yellow Belt",
+                Icon = "yellow-belt.png",
+                Content = "Your first project.",
+                ConnectRight = true,
+                ConnectLeft = true,
+            },
+            new RoadmapGridCell
+            {
+                Row = 3,
+                Column = 2,
+                Title = "Ecommerce API",
+                Icon = "icons8-shop-94.png",
+                Content = "Your first project.",
+                ConnectRight = true,
+                ConnectLeft = true,
+            },
+            new RoadmapGridCell
+            {
+                Row = 3,
+                Column = 1,
+                Title = "Sports Results",
+                Icon = "icons8-sports-96.png",
+                Content = "Your first project.",
+                ConnectRight = true,
+                ConnectLeft = true,
+            },
+            new RoadmapGridCell
+            {
+                Row = 3,
+                Column = 0,
+                Title = "Document Processor",
+                Icon = "excel.png",
+                Content = "Your first project.",
+                ConnectRight = true,
+                ConnectBottom = true,
+            },
+            new RoadmapGridCell
+            {
+                Row = 4,
+                Column = 0,
+                Title = "Unit Testing",
+                Icon = "icons8-test-tube-100.png",
+                Content = "Your first project.",
+                ConnectRight = true,
+                ConnectTop = true,
+            },
+            new RoadmapGridCell
+            {
+                Row = 4,
+                Column = 1,
+                Title = "Orange Belt",
+                Icon = "orange-belt.png",
+                Content = "Your first project.",
+                ConnectRight = true,
+                ConnectTop = true,
+            },
+            new RoadmapGridCell
+            {
+                Row = 4,
+                Column = 2,
+                Title = "Portfolio",
+                Icon = "icons8-portfolio-512.png",
+                Content = "Your first project.",
+                ConnectRight = true,
+                ConnectLeft = true,
+            },
+            new RoadmapGridCell
+            {
+                Row = 4,
+                Column = 3,
+                Title = "Resume",
+                Icon = "icons8-resume-512.png",
+                Content = "Your first project.",
+                ConnectRight = true,
+                ConnectLeft = true,
+            },
+            new RoadmapGridCell
+            {
+                Row = 4,
+                Column = 4,
+                Title = "Red Belt",
+                Icon = "red-belt.png",
+                Content = "Your first project.",
+                ConnectBottom = true,
+                ConnectLeft = true,
+            },
+            new RoadmapGridCell
+            {
+                Row = 4,
+                Column = 4,
+                Title = "Red Belt",
+                Icon = "red-belt.png",
+                Content = "Your first project.",
+                ConnectBottom = true,
+                ConnectLeft = true,
+            },
+            new RoadmapGridCell
+            {
+                Row = 5,
+                Column = 0,
+                Title = "Purple Belt",
+                Icon = "purple-belt.png",
+                Content = "Your first project.",
+                ConnectBottom = true,
+                ConnectRight = true,
+            },
+        };
+
+        var area1Cells = GetAreaCells(area1);
+        //var area2Cells = GetAreaCells(area2);
+
+        cells.AddRange(defaultCells);
+        cells.AddRange(area1Cells);
+        //cells.AddRange(area2Cells);
+
+        return cells;
+    }
+
+    public static List<RoadmapGridCell> GetAreaCells(Area area1)
+    {
+        var blazorCells = new List<RoadmapGridCell>
+        {
+            new RoadmapGridCell
+            {
+                Row = 5,
+                Column = 4,
+                Title = "Wardrobe Inventory",
+                Icon = "icons8-wardrobe-392.png",
+                Content = "This is the starting point of your roadmap.",
+                ConnectRight = true
+            },
+            new RoadmapGridCell
+            {
+                Row = 5,
+                Column = 3,
+                Title = "Memory Game",
+                Icon = "icons8-memory-512.png",
+                Content = "A quick read with an introduction to the C# Academy.",
+                ConnectRight = true,
+                ConnectLeft = true
+            },
+            new RoadmapGridCell
+            {
+                Row = 5,
+                Column = 2,
+                Title = "Food Journal",
+                Icon = "icons8-helping-96.png",
+                Content = "Find out how to get unstuck when learning.",
+                ConnectRight = true,
+                ConnectLeft = true
+            },
+            new RoadmapGridCell
+            {
+                Row = 5,
+                Column = 1,
+                Title = "Sports Statistics",
+                Icon = "icons8-football-team-470.png",
+                Content = "Learn how to set up your dev environment.",
+                ConnectRight = true,
+                ConnectLeft = true
+            }
+        };
+        var reactCells = new List<RoadmapGridCell>
+        {
+            new RoadmapGridCell
+            {
+                Row = 0,
+                Column = 0,
+                Title = "White Belt",
+                Icon = "white-belt.png",
+                Content = "This is the starting point of your roadmap.",
+                ConnectRight = true
+            },
+            new RoadmapGridCell
+            {
+                Row = 0,
+                Column = 1,
+                Title = "Start Here",
+                Icon = "icons8-door-80.png",
+                Content = "A quick read with an introduction to the C# Academy.",
+                ConnectRight = true,
+                ConnectLeft = true
+            },
+            new RoadmapGridCell
+            {
+                Row = 0,
+                Column = 2,
+                Title = "Getting Help",
+                Icon = "icons8-helping-96.png",
+                Content = "Find out how to get unstuck when learning.",
+                ConnectRight = true,
+                ConnectLeft = true
+            },
+            new RoadmapGridCell
+            {
+                Row = 0,
+                Column = 3,
+                Title = "Setting Up",
+                Icon = "icons8-project-setup-96-1.png",
+                Content = "Learn how to set up your dev environment.",
+                ConnectRight = true,
+                ConnectLeft = true
+            }
+        };
+        var angularCells = new List<RoadmapGridCell>
+        {
+            new RoadmapGridCell
+            {
+                Row = 0,
+                Column = 0,
+                Title = "White Belt",
+                Icon = "white-belt.png",
+                Content = "This is the starting point of your roadmap.",
+                ConnectRight = true
+            },
+            new RoadmapGridCell
+            {
+                Row = 0,
+                Column = 1,
+                Title = "Start Here",
+                Icon = "icons8-door-80.png",
+                Content = "A quick read with an introduction to the C# Academy.",
+                ConnectRight = true,
+                ConnectLeft = true
+            },
+            new RoadmapGridCell
+            {
+                Row = 0,
+                Column = 2,
+                Title = "Getting Help",
+                Icon = "icons8-helping-96.png",
+                Content = "Find out how to get unstuck when learning.",
+                ConnectRight = true,
+                ConnectLeft = true
+            },
+            new RoadmapGridCell
+            {
+                Row = 0,
+                Column = 3,
+                Title = "Setting Up",
+                Icon = "icons8-project-setup-96-1.png",
+                Content = "Learn how to set up your dev environment.",
+                ConnectRight = true,
+                ConnectLeft = true
+            }
+        };
+        var mvcCells = new List<RoadmapGridCell>
+        {
+            new RoadmapGridCell
+            {
+                Row = 0,
+                Column = 0,
+                Title = "White Belt",
+                Icon = "white-belt.png",
+                Content = "This is the starting point of your roadmap.",
+                ConnectRight = true
+            },
+            new RoadmapGridCell
+            {
+                Row = 0,
+                Column = 1,
+                Title = "Start Here",
+                Icon = "icons8-door-80.png",
+                Content = "A quick read with an introduction to the C# Academy.",
+                ConnectRight = true,
+                ConnectLeft = true
+            },
+            new RoadmapGridCell
+            {
+                Row = 0,
+                Column = 2,
+                Title = "Getting Help",
+                Icon = "icons8-helping-96.png",
+                Content = "Find out how to get unstuck when learning.",
+                ConnectRight = true,
+                ConnectLeft = true
+            },
+            new RoadmapGridCell
+            {
+                Row = 0,
+                Column = 3,
+                Title = "Setting Up",
+                Icon = "icons8-project-setup-96-1.png",
+                Content = "Learn how to set up your dev environment.",
+                ConnectRight = true,
+                ConnectLeft = true
+            }
+        };
+        var mauiCells = new List<RoadmapGridCell>
+        {
+            new RoadmapGridCell
+            {
+                Row = 0,
+                Column = 0,
+                Title = "White Belt",
+                Icon = "white-belt.png",
+                Content = "This is the starting point of your roadmap.",
+                ConnectRight = true
+            },
+            new RoadmapGridCell
+            {
+                Row = 0,
+                Column = 1,
+                Title = "Start Here",
+                Icon = "icons8-door-80.png",
+                Content = "A quick read with an introduction to the C# Academy.",
+                ConnectRight = true,
+                ConnectLeft = true
+            },
+            new RoadmapGridCell
+            {
+                Row = 0,
+                Column = 2,
+                Title = "Getting Help",
+                Icon = "icons8-helping-96.png",
+                Content = "Find out how to get unstuck when learning.",
+                ConnectRight = true,
+                ConnectLeft = true
+            },
+            new RoadmapGridCell
+            {
+                Row = 0,
+                Column = 3,
+                Title = "Setting Up",
+                Icon = "icons8-project-setup-96-1.png",
+                Content = "Learn how to set up your dev environment.",
+                ConnectRight = true,
+                ConnectLeft = true
+            }
+        };
+
+        return blazorCells;
     }
 }

@@ -1,4 +1,4 @@
-﻿﻿namespace TCSA.V2026.Data.Models.Responses;
+﻿namespace TCSA.V2026.Data.Models.Responses;
 
 // TODO Consolidate this with Base Response
 public class ServiceResponse

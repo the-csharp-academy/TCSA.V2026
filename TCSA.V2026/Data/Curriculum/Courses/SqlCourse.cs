@@ -10,7 +10,7 @@ public class SqlCourse
         {
             Id = 4,
             Title = "Introduction to SQL",
-            Description = "Master speech capabilities in Azure AI for dynamic, voice-driven applications!",
+            Description = "Learn SQL fundamentals through practical queries, relational database concepts, and an e-commerce scenario.",
             ImgUrl = "icons8-sql-database-administrators-96.png",
             Articles = new List<Article>
                 {
@@ -114,7 +114,7 @@ public class SqlCourse
                                 Paragraphs = new List<Paragraph>
                                 {
                                     new Paragraph {
-                                       Body = "Setting up Sqlite is very easy. <a href='https://sqlitebrowser.org/' target='_blank'><b><u>All you need to do is download DB Browser</u><b></a>, a popular cross-platform graphical interface tool that provides a user-friendly way to create and manage your databases. When installing, <b>choose the option to create shortcuts</b> to save you some time. You'll be using the application frequently."
+                                       Body = "Setting up Sqlite is very easy. <a href='https://sqlitebrowser.org/' target='_blank'><b><u>All you need to do is download DB Browser</u></b></a>, a popular cross-platform graphical interface tool that provides a user-friendly way to create and manage your databases. When installing, <b>choose the option to create shortcuts</b> to save you some time. You'll be using the application frequently."
                                     },
                                      new Paragraph {
                                        Body = "Once you click on the shorcut, if the installation was successful, you'll see the following interface:" },
@@ -150,8 +150,8 @@ public class SqlCourse
                             {
                                 Paragraphs = new List<Paragraph>
                                 {
-                                    new Paragraph { 
-                                        Body = "Data types <b>define the kind of data that can be stored in database table</b>, such as text, numbers, or dates. They play a critical role in ensuring data consistency and optimizing database performance. While SQL as a language supports a wide variety of data types, each database system implements them differently. SQLite uses a more flexible and <b>simplified approach</b> to data types, while SQL Server adheres to strict typing with an extensive set of predefined types.\r\n" 
+                                    new Paragraph {
+                                        Body = "Data types <b>define the kind of data that can be stored in database table</b>, such as text, numbers, or dates. They play a critical role in ensuring data consistency and optimizing database performance. While SQL as a language supports a wide variety of data types, each database system implements them differently. SQLite uses a more flexible and <b>simplified approach</b> to data types, while SQL Server adheres to strict typing with an extensive set of predefined types.\r\n"
                                     }
                                 }
                             },
@@ -160,7 +160,7 @@ public class SqlCourse
                                 Title = "Data Types in SQLite",
                                 Paragraphs = new List<Paragraph>
                                 {
-                                    new Paragraph { 
+                                    new Paragraph {
                                         Body = "SQLite employs dynamic typing, meaning it doesn’t strictly enforce column data types. Instead, it uses type affinities, which are broad categories for data: <b>TEXT, INTEGER, REAL, BLOB, and NULL</b>. For example, a column defined as TEXT can store numbers, text, or even date strings, though SQLite will attempt to interpret and store values in the most appropriate format. This flexibility can simplify development but requires careful handling to avoid inconsistent data."
                                     }
                                 }
@@ -170,8 +170,8 @@ public class SqlCourse
                                 Title = "Data Types in SQL Server",
                                 Paragraphs = new List<Paragraph>
                                 {
-                                      new Paragraph { 
-                                          Body = "The widely used SQL Server, in contrast, enforces strict data typing. Columns are explicitly defined with specific types like <b>INT, VARCHAR, DECIMAL, or DATETIME</b>, and only data matching the defined type can be stored. This ensures data integrity and allows for advanced optimizations, especially in large-scale applications. SQL Server also offers a much larger variety of types, including specialized ones like <b>UNIQUEIDENTIFIER</b> for globally unique identifiers or XML for storing structured data." 
+                                      new Paragraph {
+                                          Body = "The widely used SQL Server, in contrast, enforces strict data typing. Columns are explicitly defined with specific types like <b>INT, VARCHAR, DECIMAL, or DATETIME</b>, and only data matching the defined type can be stored. This ensures data integrity and allows for advanced optimizations, especially in large-scale applications. SQL Server also offers a much larger variety of types, including specialized ones like <b>UNIQUEIDENTIFIER</b> for globally unique identifiers or XML for storing structured data."
                                       }
                                 }
                             },
@@ -215,8 +215,8 @@ public class SqlCourse
                             {
                                 Paragraphs = new List<Paragraph>
                                 {
-                                    new Paragraph { 
-                                        Body = "It's time to start writing SQL! In this chapter, we will focus on creating a table for managing products in an e-commerce store. This is one of the core aspects of building a database, as tables store the data for the system. We will explore how to define the table structure, choose appropriate data types for each column, and understand the relationships between the fields." 
+                                    new Paragraph {
+                                        Body = "It's time to start writing SQL! In this chapter, we will focus on creating a table for managing products in an e-commerce store. This is one of the core aspects of building a database, as tables store the data for the system. We will explore how to define the table structure, choose appropriate data types for each column, and understand the relationships between the fields."
                                     },
                                      new Paragraph {
                                         IsPicture = true,
@@ -561,7 +561,7 @@ public class SqlCourse
                                 Title = "Exercises",
                                 Paragraphs = new List<Paragraph>
                                 {
-                                    new Paragraph { Body = 
+                                    new Paragraph { Body =
                                     "<p>✔️ Write a query to find all products with a <b>Price</b> greater than 20.</p>\r\n  " +
                                     "<p>✔️ Write a query to retrieve products that have a <b>StockQuantity</b> between 50 and 200.</p>\r\n  " +
                                     "<p>✔️ Write a query to list all distinct <b>StockQuantity</b> values in the <b>Products</b> table.</p>\r\n  " +
@@ -571,7 +571,7 @@ public class SqlCourse
                                     "<p>✔️ Write a query to count the number of products with <b>StockQuantity</b> equal to 100 and a <b>Price</b> greater than 50.</p>\r\n  " +
                                     "<p>✔️ Write a query to list all products with <b>StockQuantity</b> greater than 200 and <b>Price</b> between 20 and 80, sorted by <b>Price</b> in ascending order.</p>\r\n  " +
                                     "<p>✔️ Write a query to find all products with <b>StockQuantity</b> less than 150 or a <b>Price</b> greater than 500, and that were added to the database before the the 30th of September, 2024.</p>\r\n  " +
-                                    "<p>✔️ Combine the use of <b>WHERE</b>, <b>ORDER BY</b>, and <b>LIMIT</b> to find the top 5 cheapest products that have more than 50 units in stock, were added to the database after the the 1st of June, 2024, and have a <b>Price</b> less than 100.</p>\r\n" 
+                                    "<p>✔️ Combine the use of <b>WHERE</b>, <b>ORDER BY</b>, and <b>LIMIT</b> to find the top 5 cheapest products that have more than 50 units in stock, were added to the database after the the 1st of June, 2024, and have a <b>Price</b> less than 100.</p>\r\n"
                                     }
                                 }
                             },
@@ -887,7 +887,7 @@ public class SqlCourse
                                     new Paragraph {
                                        BackgroundColor="#1C236D",
                                        FontColor="#FFF",
-                                       Body = "With the schema defined above, a product cannot exist without a category. If you try to delete a record in the Categories table, and there's a product associated with it, you'll get an error. The same is true for deleting products that have reviews associated with them." },
+                                       Body = "With the schema defined above, a product cannot exist without a valid category, and a review cannot exist without a valid product. Because the foreign keys use <b>ON DELETE CASCADE</b>, deleting a category also deletes its products, and deleting a product also deletes its reviews. Cascading deletes are convenient, but use them carefully because one deletion can remove several related rows." },
                                      new Paragraph { Body = "Click in <b>View Source Code</b> below to see a script to populate the tables with 5 categories, 100 products and 20 reviews."}
                                 }
                             },
@@ -933,18 +933,18 @@ public class SqlCourse
                                 Title = "Inner Join",
                                 Paragraphs = new List<Paragraph>
                                 {
-                                    new Paragraph { Body = "An <b>inner join</b> retrieves only the rows where there is a match in both tables. If a record in the first table has no corresponding record in the second table, it is excluded from the results. The is the default if no join type is specified."},
+                                    new Paragraph { Body = "An <b>inner join</b> retrieves only the rows where there is a match in both tables. If a row in either table has no matching row in the other table, it is excluded from the results. <b>INNER JOIN</b> and <b>JOIN</b> mean the same thing."},
                                     new Paragraph {
                                         IsCode = true,
-                                        Body = "SELECT * FROM Products\r\nINNER JOIN Reviews\r\nON Products.CategoryID = Reviews.ProductId;"},
-                                    new Paragraph { Body = "In our case running this query will return all products, since the CategoryId foreign key is <NOT NULL</b>"},
-                                    new Paragraph { Body = "🔹<b>SELECT</b>: In the SELECT part when using JOIN, since we have multiple tables, we have to specify which table the column belongs to."},
-                                    new Paragraph { Body = "🔹<b>INNER JOIN Categories</b>: This part tells SQL to join the Products table with the Categories table."},
-                                    new Paragraph { Body = "🔹<b>ON Products.CategoryID = Categories.CategoryID🔹</b>: This is the condition that defines how the tables should be joined. The query will match rows in Products where the <b>CategoryID</b> field matches the <b>CategoryID</b> in the Categories table." },
+                                        Body = "SELECT Products.ProductName, Reviews.ReviewText, Reviews.Rating\r\nFROM Products\r\nINNER JOIN Reviews\r\nON Products.ProductID = Reviews.ProductId;"},
+                                    new Paragraph { Body = "Read this query in three steps: start with <b>Products</b>, match each product to rows in <b>Reviews</b>, and keep only the matches. Products without reviews are not returned."},
+                                    new Paragraph { Body = "🔹<b>SELECT</b>: Because the query uses multiple tables, qualify columns with their table names so it is clear where each value comes from."},
+                                    new Paragraph { Body = "🔹<b>INNER JOIN Reviews</b>: This tells SQL to combine Products with matching Reviews rows."},
+                                    new Paragraph { Body = "🔹<b>ON Products.ProductID = Reviews.ProductId</b>: This is the matching condition. It connects each review's foreign key to the product's primary key." },
                                     new Paragraph {
                                         IsPicture = true,
                                         PictureUrl = "c4-ch14-sql-inner-join.png"},
-                                    new Paragraph { Body = "Notice only 20 rows were returned. All with products that contained a review. If a product contains more than one review, it will be repeated." },
+                                    new Paragraph { Body = "The seed data contains 20 reviews, so this query returns 20 rows. A product appears once for each matching review; products with no reviews do not appear." },
                                 },
                             },
                             new Block
@@ -955,9 +955,9 @@ public class SqlCourse
                                     new Paragraph { Body = "A left join (or <b>left outer join</b>) retrieves all rows from the <b>left table</b> (the table listed first in the query) and the matching rows from the <b>right table</b> (the table listed second). If there is no match, the result will still include all rows from the left table, but with NULL values for columns from the right table."},
                                     new Paragraph {
                                         IsCode = true,
-                                        Body = "SELECT * FROM Products \r\nLEFT JOIN Reviews\r\nOn Products.ProductID = Reviews.ProductId"},
-                                    new Paragraph { Body = "<b>LEFT JOIN Products</b>: This means that all records from the Categories table will be returned, even if they don’t have a matching Product. If there’s no matching ProductId, the ProductName will be NULL."},
-                                    new Paragraph { Body = "Before running the query above, create an insert statement for a new category. Supposing you have added a Books category, the result of the the left join will show this: "},
+                                        Body = "SELECT Products.ProductName, Reviews.ReviewText, Reviews.Rating\r\nFROM Products\r\nLEFT JOIN Reviews\r\nON Products.ProductID = Reviews.ProductId;"},
+                                    new Paragraph { Body = "Products is the left table, so <b>every product</b> is returned. When a product has no matching review, ReviewText and Rating are NULL. When it has multiple reviews, it appears in multiple rows."},
+                                    new Paragraph { Body = "Compare this result with the INNER JOIN above. Both return matching product-review pairs, but only the LEFT JOIN also keeps products that have no reviews."},
                                     new Paragraph {
                                         IsPicture = true,
                                         PictureUrl = "c4-ch14-sql-left-join.png"}
@@ -973,7 +973,7 @@ public class SqlCourse
                                         IsCode = true,
                                         Body = "SELECT \r\n    Products.ProductName,\r\n    Reviews.ReviewText\r\nFROM \r\n    Reviews\r\nRIGHT JOIN \r\n    Products\r\nON \r\n    Reviews.ProductId = Products.ProductId;"},
                                     new Paragraph {
-                                        Body = "Here we're joining reviews with products and selecting all reviews. It will show the twenty reviews plus the 80 products without reviews."},
+                                        Body = "Products is the right table, so every product is returned. This produces the same result as the previous LEFT JOIN with the table order reversed. Products with no review have NULL in ReviewText."},
                                      new Paragraph {
                                         IsPicture = true,
                                         PictureUrl = "c4-ch14-sql-right-join.png"}
@@ -1003,6 +1003,15 @@ public class SqlCourse
                                     new Paragraph {
                                         IsPicture = true,
                                         PictureUrl = "c4-ch14-sql-join-summary.png"}
+                                }
+                            },
+                            new Block
+                            {
+                                Title = "Practice",
+                                Paragraphs = new List<Paragraph>
+                                {
+                                    new Paragraph { Body = "Before moving on, predict which rows each query will keep, then run it and compare the result with your prediction:"},
+                                    new Paragraph { Body = "🔹 Use an INNER JOIN to list only products that have reviews.<br>🔹 Use a LEFT JOIN to list every product and any reviews it has.<br>🔹 Add <code class='inline-code'>WHERE Reviews.ProductId IS NULL</code> to the LEFT JOIN to find products with no reviews.<br>🔹 Select only ProductName, ReviewText, and Rating so you can clearly see which values came from each table."},
                                 }
                             },
                             new Block
@@ -1135,7 +1144,7 @@ public class SqlCourse
                                 Title = "Syntax of Group By",
                                 Paragraphs = new List<Paragraph>
                                 {
-                                    new Paragraph { Body = "To find all the products ordered in a particular order we use this structure:"},
+                                    new Paragraph { Body = "GROUP BY collects rows that share the same value into groups. The SELECT list normally contains the column being grouped and an aggregate function that calculates one result for each group:"},
                                     new Paragraph {
                                         IsCode = true,
                                         Body = "SELECT column_name, aggregate_function(column_name)\r\nFROM table_name\r\nGROUP BY column_name;\r\n"}
@@ -1172,7 +1181,7 @@ public class SqlCourse
                                 Title = "Example 3: Calculating the Total Quantity Ordered for Each Product Name",
                                 Paragraphs = new List<Paragraph>
                                 {
-                                    new Paragraph { Body = "In this slightly more advanced query we first join the tables before grouping the products by their names."},
+                                    new Paragraph { Body = "This query first joins each order item to its product. It then groups those joined rows by product name and adds the quantities within each group."},
                                     new Paragraph {
                                         IsCode = true,
                                         Body = "SELECT Products.ProductName AS Name, SUM(op.Quantity) AS TotalQuantity\r\nFROM OrderProducts op\r\nJOIN Products ON op.ProductID = Products.ProductID\r\nGROUP BY Products.ProductName;"}
@@ -1180,7 +1189,7 @@ public class SqlCourse
                             },
                             new Block
                             {
-                                Title = "Example 4: Count of Total Money Spent Per Category",
+                                Title = "Example 4: Total Sales Value Per Category",
                                 Paragraphs = new List<Paragraph>
                                 {
                                     new Paragraph { Body = "Here we are joining both the Products and Categories to OrderProducts and displaying the Category name along with the Sum of all product prices multiplied by quantity sold. We're also using aliases (OP, C, P) to save some typing"},
@@ -1194,10 +1203,19 @@ public class SqlCourse
                                 Title = "Example 5: Grouping by Price Range",
                                 Paragraphs = new List<Paragraph>
                                 {
-                                    new Paragraph { Body = "Here it gets even more interesting. We're creating custom rows conditionally. Depending on the price, we count a product as a part of a custom row with the help of the <b>CASE</b> keyword."},
+                                    new Paragraph { Body = "Here, CASE assigns each product to a price-range label. GROUP BY collects products with the same label, and COUNT returns the number of products in each price range."},
                                     new Paragraph {
                                         IsCode = true,
-                                        Body = "SELECT \r\n    CASE \r\n        WHEN P.Price < 25 THEN 'Under $25'\r\n        WHEN P.Price BETWEEN 10 AND 50 THEN '$25–$50'\r\n        ELSE 'Over $50'\r\n    END AS PriceRange,\r\n    COUNT(*) AS ProductCount\r\nFROM Products P\r\nGROUP BY PriceRange;"}
+                                        Body = "SELECT \r\n    CASE \r\n        WHEN P.Price < 25 THEN 'Under $25'\r\n        WHEN P.Price BETWEEN 25 AND 50 THEN '$25–$50'\r\n        ELSE 'Over $50'\r\n    END AS PriceRange,\r\n    COUNT(*) AS ProductCount\r\nFROM Products P\r\nGROUP BY PriceRange;"}
+                                }
+                            },
+                            new Block
+                            {
+                                Title = "Practice",
+                                Paragraphs = new List<Paragraph>
+                                {
+                                    new Paragraph { Body = "Build these queries one step at a time. First inspect the ungrouped rows, then add GROUP BY and the aggregate:"},
+                                    new Paragraph { Body = "🔹 Count the number of reviews for each ProductId.<br>🔹 Find the average review rating for each ProductId.<br>🔹 Join Products to Reviews and show ProductName with its average rating.<br>🔹 Use HAVING to return only products with more than one review."},
                                 }
                             },
                         }
@@ -1276,7 +1294,7 @@ public class SqlCourse
                                     new Paragraph { Body = "🏫 <b>Build a Student Enrollment System</b>. Design tables for Students, Courses, and Enrollments. Include fields like enrollment date and grade."},
                                     new Paragraph { Body = "🏢<b>Create a Real Estate Schema. Model Homes, Customers, and Sales and Rentals</b>. Include rental dates and return status. Think about how to track overdue rentals."},
                                     new Paragraph { Body = "🍽️<b>Design a Restaurant Ordering System</b>. Create tables for MenuItems, Orders, and OrderItems. Use a join table to link orders to multiple menu items."},
-                                    new Paragraph { Body = "🗨️<b>Model a Chat App Database</b>. Design tables for Users, Workouts, and Exercises. Each workout can include multiple exercises, and each user can log multiple workouts."},
+                                    new Paragraph { Body = "🏋️ <b>Model a Workout Tracker Database</b>. Design tables for Users, Workouts, and Exercises. Each user can log multiple workouts, and each workout can include multiple exercises. Consider whether a workout exercise needs additional fields such as sets, repetitions, weight, or duration."},
                                     new Paragraph { Body = "📉Choose one or more of the systems above and draw a <a href='https://www.youtube.com/watch?v=JYZPdU5F2iM' target='_blank'> <b><u>Entity Relationship Diagram</u></b></a>"},
                                 }
                             },

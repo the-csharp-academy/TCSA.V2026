@@ -18,7 +18,7 @@ namespace TCSA.V2026.Services
 
 public class CourseData
 {
-    public int CourseName { get; set; }   
+    public int CourseName { get; set; }
 
     public int ArticlesRead { get; set; }
 }

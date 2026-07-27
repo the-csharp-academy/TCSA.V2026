@@ -1,0 +1,917 @@
+@page "/mentorship"
+@using Microsoft.Extensions.Options
+@using TCSA.V2026.Data.Models
+@using TCSA.V2026.Data.Models.Options
+@rendermode RenderMode.InteractiveServer
+@inject IOptions<LinksOptions> LinkOptions
+<PageTitle>1-on-1 Mentorship - The C# Academy</PageTitle>
+
+<div class="mentorship-page">
+    <!-- Hero Section -->
+    <MudContainer MaxWidth="MaxWidth.Large" Class="mt-10 mb-10">
+        <MudPaper Class="pa-10 mentorship-hero" Elevation="8">
+            <MudGrid Spacing="3">
+                <MudItem xs="12" md="6" Class="d-flex flex-column justify-center">
+                    <MudChip T="string" Color="Color.Success" Variant="Variant.Outlined" Class="mb-4 mentorship-chip">Personalized Learning</MudChip>
+                    <h1 class="mentorship-title mud-typography-h2">
+                        Level Up Your Skills With Personalized 1-on-1 Mentorship
+                    </h1>
+                    <MudText Class="mt-4 mentorship-subtitle mud-typography-body1" Style="opacity: 0.95;">
+                        Get expert guidance tailored to your goals. Whether you're starting your C# journey or mastering advanced concepts, we're here to accelerate your growth.
+                    </MudText>
+
+                    <MudStack Row="true" Spacing="3" Class="mt-8">
+                        <MudButton Variant="Variant.Filled"
+                                   Color="Color.Success"
+                                   Size="Size.Large"
+                                   StartIcon="@Icons.Material.Filled.Edit"
+                                   Class="mentorship-subscribe-btn"
+                                   OnClick="@ScrollToSubscribe">
+                            Subscribe Now
+                        </MudButton>
+                    </MudStack>
+                </MudItem>
+
+                <MudItem xs="12" md="6" Class="d-flex justify-center align-center">
+                    <MudPaper Class="mentorship-hero-visual" Elevation="0">
+                        <div class="hero-icon-container">
+                            <MudIcon Icon="@Icons.Material.Filled.School" Class="mentorship-hero-icon"></MudIcon>
+                        </div>
+                    </MudPaper>
+                </MudItem>
+            </MudGrid>
+        </MudPaper>
+    </MudContainer>
+
+    <!-- Cards Section -->
+    <MudContainer MaxWidth="MaxWidth.Large" Class="mt-15 mb-10">
+        <div class="cards-section">
+            <MudText Typo="Typo.h4" Class="mb-8 text-center fw-bold">
+                Learn More About Our Mentorship
+            </MudText>
+
+            <MudGrid Spacing="3">
+                <MudItem xs="12" md="4">
+                    <MudPaper Class="mentorship-card" Elevation="6">
+                        <MudCardContent>
+                            <div class="card-icon-wrapper bg-info">
+                                <MudIcon Icon="@Icons.Material.Filled.Person" Class="card-icon"></MudIcon>
+                            </div>
+                            <MudText Typo="Typo.h6" Class="mt-4 mb-3">Meet Your Mentor</MudText>
+                            <MudText Typo="Typo.body2" Class="mentor-muted-text">
+                                Get to know the mentor who will guide your learning, review your code, and help you stay focused on the next right step.
+                            </MudText>
+                            <MudButton Variant="Variant.Text" Color="Color.Info" Class="mt-4 px-0" Href="/mentorship#meet-your-mentor">
+                                Learn More <MudIcon Icon="@Icons.Material.Filled.ArrowForward" Size="Size.Small" Class="ms-2"></MudIcon>
+                            </MudButton>
+                        </MudCardContent>
+                    </MudPaper>
+                </MudItem>
+                <MudItem xs="12" md="4">
+                    <MudPaper Class="mentorship-card" Elevation="6">
+                        <MudCardContent>
+                            <div class="card-icon-wrapper bg-primary">
+                                <MudIcon Icon="@Icons.Material.Filled.Timeline" Class="card-icon"></MudIcon>
+                            </div>
+                            <MudText Typo="Typo.h6" Class="mt-4 mb-3">How It Works</MudText>
+                            <MudText Typo="Typo.body2" Class="mentor-muted-text">
+                                Discover our structured mentorship approach: one-on-one sessions, goal-setting, progress tracking, and continuous support tailored to your learning pace.
+                            </MudText>
+                            <MudButton Variant="Variant.Text" Color="Color.Primary" Class="mt-4 px-0" Href="/mentorship#how-it-works">
+                                Learn More <MudIcon Icon="@Icons.Material.Filled.ArrowForward" Size="Size.Small" Class="ms-2"></MudIcon>
+                            </MudButton>
+                        </MudCardContent>
+                    </MudPaper>
+                </MudItem>
+                <MudItem xs="12" md="4">
+                    <MudPaper Class="mentorship-card" Elevation="6">
+                        <MudCardContent>
+                            <div class="card-icon-wrapper bg-success">
+                                <MudIcon Icon="@Icons.Material.Filled.Groups" Class="card-icon"></MudIcon>
+                            </div>
+                            <MudText Typo="Typo.h6" Class="mt-4 mb-3">Who Is It For</MudText>
+                            <MudText Typo="Typo.body2" Class="mentor-muted-text">
+                                Perfect for beginners starting their C# journey, career-changers, professionals aiming to advance their skills, and anyone seeking personalized guidance.
+                            </MudText>
+                            <MudButton Variant="Variant.Text" Color="Color.Success" Class="mt-4 px-0" Href="/mentorship#audience-tracks">
+                                See If It Fits <MudIcon Icon="@Icons.Material.Filled.ArrowForward" Size="Size.Small" Class="ms-2"></MudIcon>
+                            </MudButton>
+                        </MudCardContent>
+                    </MudPaper>
+                </MudItem>
+              
+            </MudGrid>
+        </div>
+    </MudContainer>
+
+    <!-- Mentor Section -->
+    <MudContainer MaxWidth="MaxWidth.Large" Class="mt-15 mb-10">
+        <MudPaper id="meet-your-mentor" Class="mentor-profile-section pa-8 pa-md-12" Elevation="8">
+            <MudGrid Spacing="4" Class="mentor-profile-grid">
+                <MudItem xs="12" md="7">
+                    <MudChip T="string" Class="mentor-chip mb-4" Variant="Variant.Filled">
+                        Meet your mentor
+                    </MudChip>
+                    <MudText Typo="Typo.h2" Class="mentor-title mb-4">
+                        Hi, I'm Pablo.
+                    </MudText>
+                    <MudText Typo="Typo.h6" Class="mentor-subtitle mb-6">
+                        I'm a software developer and former Microsoft MVP based in Brisbane, Australia, with 7 years of coding behind me and 5 years of professional experience building real systems for real teams. Coming from a teaching background, and having had the help of so many people in my own journey, I've started mentoring students right in my first year working professionally as a developer, gaining valuable experience on different learning styles and tailoring programs to suit each mentee. I appreciate how tough it is out there to get into the market and strive to provide the human touch that's missing in a world dominated by AI. 
+                    </MudText>
+                    <MudStack Row="true" Spacing="2" Class="mentor-actions" AlignItems="AlignItems.Center">
+                        <MudButton Variant="Variant.Filled"
+                                   Class="linkedin-button"
+                                   StartIcon="@Icons.Custom.Brands.LinkedIn"
+                                   Href="@LinkedinUrl"
+                                   Target="_blank"
+                                   Disabled="@string.IsNullOrWhiteSpace(LinkedinUrl)">
+                            LinkedIn
+                        </MudButton>
+                    </MudStack>
+                </MudItem>
+                <MudItem xs="12" md="5">
+                    <div class="mentor-card">
+                        <div class="mentor-avatar">
+                            <img src="/img/pablo.png" alt="Pablo" class="mentor-avatar-image" />
+                        </div>
+                    </div>
+                </MudItem>
+            </MudGrid>
+        </MudPaper>
+
+        <MudPaper Class="mentor-guarantee-panel pa-6 mt-8" Elevation="6">
+            <div class="mentor-guarantee-icon-wrap">
+                <img src="/img/Icons/icons8-piggy-bank-with-coin-94.png" alt="" class="mentor-guarantee-icon" />
+            </div>
+            <div>
+                <MudText Typo="Typo.h4" Class="mentor-guarantee-title mb-2">
+                    Money Back Guarantee
+                </MudText>
+                <MudText Typo="Typo.body1" Class="mentor-guarantee-copy">
+                    If you do not see results in your first two weeks, you get your money back. The goal is simple: visible progress, better code, and a clearer path forward.
+                </MudText>
+            </div>
+        </MudPaper>
+    </MudContainer>
+
+    <!-- How It Works Section -->
+    <MudContainer MaxWidth="MaxWidth.Large" Class="mt-15 mb-10">
+        <MudPaper id="how-it-works" Class="mentor-how-panel pa-8" Elevation="6">
+            <MudGrid Spacing="4" Class="mentor-how-grid">
+                <MudItem xs="12" md="7">
+                    <MudChip T="string" Class="mentor-how-chip mb-4" Variant="Variant.Filled">
+                        How it works
+                    </MudChip>
+                    <MudText Typo="Typo.h3" Class="mentor-how-title mb-4">
+                        Clear goals, close feedback, real software work.
+                    </MudText>
+                    <MudText Typo="Typo.body1" Class="mentor-how-copy">
+                        The program adapts to your level. Beginners close knowledge gaps and follow the roadmap with regular code reviews. Experienced developers build a professional project and contribute to The C# Academy like a junior dev on a production team.
+                    </MudText>
+                </MudItem>
+                <MudItem xs="12" md="5">
+                    <div class="mentor-how-summary">
+                        <div class="mentor-how-summary-row">
+                            <MudIcon Icon="@Icons.Material.Filled.Map"></MudIcon>
+                            <span>Personal roadmap</span>
+                        </div>
+                        <div class="mentor-how-summary-row">
+                            <MudIcon Icon="@Icons.Material.Filled.RateReview"></MudIcon>
+                            <span>Close code reviews</span>
+                        </div>
+                        <div class="mentor-how-summary-row">
+                            <MudIcon Icon="@Icons.Material.Filled.RocketLaunch"></MudIcon>
+                            <span>Professional project delivery</span>
+                        </div>
+                        <div class="mentor-how-summary-row">
+                            <MudIcon Icon="@Icons.Material.Filled.AssignmentTurnedIn"></MudIcon>
+                            <span>Production tickets in The C# Academy</span>
+                        </div>
+                    </div>
+                </MudItem>
+            </MudGrid>
+        </MudPaper>
+
+        <MudPaper Class="production-panel pa-6 mt-8" Elevation="5">
+            <MudText Typo="Typo.h4" Class="mentor-section-title mb-4">
+                Work Like a Junior Developer
+            </MudText>
+            <MudText Typo="Typo.body1" Class="production-copy mb-5">
+                To make the most of your mentorhsip, beyond your own project, you'll work under my guidance on tickets in The C# Academy. We will simulate an enterprise environment, where you'll be onboarded onto our codebase and start working on easy maintenance tasks. As you get more experience and learn the technologies required to work on The C# Academy website you'll be given more complex tasks, such as fixing complicated bugs, writing unit tests and even creating new features. You'll be working on a real production website, that will directly impact the users of the academy. While not the same as working in a company, I strive to simulate that environment as close as possible. This will help bridge the gap between working in your own projects and the real world of enterprise software development, where professional standards are required.
+            </MudText>
+            <MudGrid Spacing="2">
+                <MudItem xs="12" sm="6">
+                    <div class="practice-item">
+                        <MudIcon Icon="@Icons.Material.Filled.BugReport"></MudIcon>
+                        <span>Investigate real issues</span>
+                    </div>
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <div class="practice-item">
+                        <MudIcon Icon="@Icons.Material.Filled.AccountTree"></MudIcon>
+                        <span>Work from tickets</span>
+                    </div>
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <div class="practice-item">
+                        <MudIcon Icon="@Icons.Material.Filled.Code"></MudIcon>
+                        <span>Ship production changes</span>
+                    </div>
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <div class="practice-item">
+                        <MudIcon Icon="@Icons.Material.Filled.FactCheck"></MudIcon>
+                        <span>Learn review standards</span>
+                    </div>
+                </MudItem>
+            </MudGrid>
+        </MudPaper>
+
+        <MudGrid Spacing="4" Class="mt-8">
+            <MudItem xs="12" md="6">
+                <MudPaper Class="track-card beginner-track pa-6" Elevation="5">
+                    <div class="track-icon">
+                        <MudIcon Icon="@Icons.Material.Filled.School"></MudIcon>
+                    </div>
+                    <MudText Typo="Typo.h4" Class="track-title mb-3">For Beginners</MudText>
+                    <MudText Typo="Typo.body1" Class="track-copy mb-5">
+                        We'll identify what is missing, close the gaps, and follow The C# Academy roadmap at a pace that keeps you moving without leaving shaky foundations behind.
+                    </MudText>
+                    <div class="track-list">
+                        <div>
+                            <MudIcon Icon="@Icons.Material.Filled.CheckCircle"></MudIcon>
+                            <span>Find and fix knowledge gaps</span>
+                        </div>
+                        <div>
+                            <MudIcon Icon="@Icons.Material.Filled.CheckCircle"></MudIcon>
+                            <span>Follow a structured C# roadmap</span>
+                        </div>
+                        <div>
+                            <MudIcon Icon="@Icons.Material.Filled.CheckCircle"></MudIcon>
+                            <span>Get close reviews on your code</span>
+                        </div>
+                    </div>
+                </MudPaper>
+            </MudItem>
+
+            <MudItem xs="12" md="6">
+                <MudPaper Class="track-card experienced-track pa-6" Elevation="5">
+                    <div class="track-icon">
+                        <MudIcon Icon="@Icons.Material.Filled.Engineering"></MudIcon>
+                    </div>
+                    <MudText Typo="Typo.h4" Class="track-title mb-3">For Developers With Experience</MudText>
+                    <MudText Typo="Typo.body1" Class="track-copy mb-5">
+                        We'll build a professional project end to end, covering the parts that separate hobby code from production-ready software.
+                    </MudText>
+                    <div class="track-list">
+                        <div>
+                            <MudIcon Icon="@Icons.Material.Filled.CheckCircle"></MudIcon>
+                            <span>Design and architecture decisions</span>
+                        </div>
+                        <div>
+                            <MudIcon Icon="@Icons.Material.Filled.CheckCircle"></MudIcon>
+                            <span>Development to professional standards</span>
+                        </div>
+                        <div>
+                            <MudIcon Icon="@Icons.Material.Filled.CheckCircle"></MudIcon>
+                            <span>Deployment, CI/CD, and release workflow</span>
+                        </div>
+                    </div>
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+    </MudContainer>
+
+    <!-- Pricing/Subscription Section -->
+    <MudContainer MaxWidth="MaxWidth.Large" Class="mt-15 mb-10">
+        <MudPaper Class="subscription-section pa-10" Elevation="6">
+            <MudText Typo="Typo.h4" Class="mb-2 text-center fw-bold">Ready to Start Your Journey?</MudText>
+            <MudText Typo="Typo.body1" Class="mb-8 text-center mentor-muted-text">
+                Join our mentorship program and transform your learning experience
+            </MudText>
+
+            <MudGrid Spacing="3" Class="mt-4">
+                <MudItem xs="12" md="4" Class="d-flex justify-center">
+                    <MudPaper Class="pricing-card" Elevation="4">
+                        <MudCardContent>
+                            <MudText Typo="Typo.h6" Class="text-center mb-2">Starter</MudText>
+                            <MudText Typo="Typo.h4" Class="text-center pricing-price mud-primary-text fw-bold">$29.99</MudText>
+                            <MudText Typo="Typo.body2" Class="text-center mentor-muted-text mb-4">per month</MudText>
+                            <MudText Typo="Typo.h5" Class="text-center mud-primary-text fw-bold mb-4">2 Session/Month</MudText>
+                            <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" Class="mt-6">
+                                Get Started
+                            </MudButton>
+                        </MudCardContent>
+                    </MudPaper>
+                </MudItem>
+
+                <MudItem xs="12" md="4" Class="d-flex justify-center">
+                    <MudPaper Class="pricing-card pricing-card-featured" Elevation="8">
+                        <div class="featured-badge">Popular</div>
+                        <MudCardContent>
+                            <MudText Typo="Typo.h6" Class="text-center mb-2">Professional</MudText>
+                            <MudText Typo="Typo.h4" Class="text-center pricing-price fw-bold">$39.99</MudText>
+                            <MudText Typo="Typo.body2" Class="text-center mb-4">per month</MudText>
+                            <MudText Typo="Typo.h5" Class="text-center mud-success-text fw-bold mb-4">4 Sessions/Month</MudText>
+                            <MudButton Variant="Variant.Filled" Color="Color.Success" FullWidth="true" Class="mt-6">
+                                Get Started
+                            </MudButton>
+                        </MudCardContent>
+                    </MudPaper>
+                </MudItem>
+
+                <MudItem xs="12" md="4" Class="d-flex justify-center">
+                    <MudPaper Class="pricing-card" Elevation="4">
+                        <MudCardContent>
+                            <MudText Typo="Typo.h6" Class="text-center mb-2">Elite</MudText>
+                            <MudText Typo="Typo.h4" Class="text-center pricing-price mud-primary-text fw-bold">$109.99</MudText>
+                            <MudText Typo="Typo.body2" Class="text-center mentor-muted-text mb-4">per month</MudText>
+                            <MudText Typo="Typo.h5" Class="text-center mud-primary-text fw-bold mb-4">Unlimited</MudText>
+  
+                            <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" Class="mt-6">
+                                Get Started
+                            </MudButton>
+                        </MudCardContent>
+                    </MudPaper>
+                </MudItem>
+            </MudGrid>
+        </MudPaper>
+    </MudContainer>
+
+    <!-- CTA Section -->
+    <MudContainer MaxWidth="MaxWidth.Large" Class="mt-15 mb-15">
+        <MudPaper Class="cta-section pa-10 text-center" Elevation="8">
+            <MudText Typo="Typo.h4" Class="mb-4 fw-bold">Have Questions?</MudText>
+            <MudText Typo="Typo.body1" Class="mb-6" Style="opacity: 0.95;">
+                Schedule a free consultation call to discuss your goals and see if our mentorship is right for you.
+            </MudText>
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       Size="Size.Large"
+                       StartIcon="@Icons.Material.Filled.Phone"
+                       Href="https://calendly.com/pablo-queensland/30min" Target="_blank">
+                Schedule Free Consultation
+            </MudButton>
+        </MudPaper>
+    </MudContainer>
+</div>
+
+<style>
+    .mentorship-page {
+        --mentor-page-bg: var(--mud-palette-background, #f6f7fb);
+        --mentor-surface: var(--mud-palette-surface, #ffffff);
+        --mentor-surface-muted: var(--mud-palette-background-grey, #f4f6fb);
+        --mentor-text: var(--mud-palette-text-primary, #273043);
+        --mentor-muted: var(--mud-palette-text-secondary, #5b6475);
+        --mentor-border: var(--mud-palette-lines-default, rgba(28, 35, 109, 0.14));
+        --mentor-soft-border: color-mix(in srgb, var(--mentor-border) 70%, transparent);
+        --mentor-primary: var(--mud-palette-primary, #1c236d);
+        --mentor-primary-text: var(--mud-palette-primary, #1c236d);
+        background: var(--mentor-page-bg);
+        min-height: 100vh;
+        padding: 20px 0;
+        color: var(--mentor-text);
+    }
+
+    .mud-theme-dark .mentorship-page,
+    .mud-application.mud-theme-dark .mentorship-page {
+        --mentor-surface-muted: #20242d;
+        --mentor-soft-border: rgba(255, 255, 255, 0.16);
+    }
+
+    .mentorship-hero {
+        background: linear-gradient(135deg, #1c236d 0%, #2d356f 68%, #832a77 100%) !important;
+        color: white;
+        border-radius: 12px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .mentorship-hero::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 600px;
+        height: 600px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+    }
+
+    .mentorship-title {
+        font-weight: 700 !important;
+        font-size: 2.5rem !important;
+        line-height: 1.2;
+        color: white;
+    }
+
+    .mentorship-hero .mud-typography-body1 {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        color: white;
+    }
+
+    .mentorship-chip {
+        width: fit-content;
+    }
+
+    .mentorship-subscribe-btn {
+        font-weight: 600;
+        padding: 12px 32px !important;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .mentorship-hero-visual {
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 300px;
+        backdrop-filter: blur(10px);
+    }
+
+    .hero-icon-container {
+        font-size: 150px;
+        color: rgba(255, 255, 255, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .mentorship-hero-icon {
+        font-size: inherit;
+    }
+
+    .cards-section {
+        width: 100%;
+    }
+
+    .mentorship-card {
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        background: var(--mentor-surface) !important;
+        border: 1px solid var(--mentor-soft-border);
+    }
+
+    .mentorship-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15) !important;
+    }
+
+    .card-icon-wrapper {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+    }
+
+    .card-icon {
+        font-size: 36px;
+        color: white;
+    }
+
+    .bg-primary {
+        background: #1c236d;
+    }
+
+    .bg-success {
+        background: #2f6f73;
+    }
+
+    .bg-info {
+        background: #c9436e;
+    }
+
+    .features-section {
+        background: var(--mentor-surface-muted) !important;
+        border-radius: 12px;
+    }
+
+    .subscription-section {
+        background: var(--mentor-surface-muted) !important;
+        border-radius: 12px;
+    }
+
+    .mentor-muted-text {
+        color: var(--mentor-muted) !important;
+    }
+
+    .pricing-card {
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        position: relative;
+        max-width: 320px;
+        width: 100%;
+    }
+
+    .pricing-price {
+        line-height: 1;
+        margin-bottom: 4px !important;
+    }
+
+    .pricing-card-featured {
+        transform: scale(1.05);
+        background: linear-gradient(135deg, #1c236d 0%, #832a77 100%) !important;
+        color: white;
+    }
+
+    .pricing-card-featured .mud-typography {
+        color: white;
+    }
+
+    .pricing-card:hover {
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15) !important;
+    }
+
+    .featured-badge {
+        position: absolute;
+        top: -12px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #c9436e;
+        color: white;
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.875rem;
+    }
+
+    .cta-section {
+        background: linear-gradient(135deg, #1c236d 0%, #832a77 100%) !important;
+        color: white;
+        border-radius: 12px;
+    }
+
+    .cta-section .mud-typography {
+        color: white;
+    }
+
+    .mud-primary-text {
+        color: var(--mentor-primary-text) !important;
+    }
+
+    .mud-success-text {
+        color: #2f6f73 !important;
+    }
+
+    .fw-bold {
+        font-weight: 600 !important;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    .mentor-profile-section {
+        border-radius: 12px;
+        color: white;
+        background: linear-gradient(135deg, #1c236d 0%, #2d356f 62%, #c9436e 100%) !important;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .mentor-profile-section::after,
+    .mentor-how-panel::after {
+        content: "";
+        position: absolute;
+        width: 320px;
+        height: 320px;
+        right: -90px;
+        top: -120px;
+        border-radius: 50%;
+        border: 48px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .mentor-profile-grid,
+    .mentor-how-grid {
+        align-items: center;
+        position: relative;
+        z-index: 1;
+    }
+
+    .mentor-chip,
+    .mentor-how-chip {
+        width: fit-content;
+        background: rgba(255, 255, 255, 0.14) !important;
+        color: white !important;
+        font-weight: 700;
+    }
+
+    .mentor-title,
+    .mentor-how-title {
+        color: white;
+        font-weight: 800 !important;
+        line-height: 1.08;
+    }
+
+    .mentor-subtitle,
+    .mentor-how-copy {
+        color: white;
+        line-height: 1.6;
+        max-width: 760px;
+    }
+
+    .mentor-actions {
+        flex-wrap: wrap;
+    }
+
+    .linkedin-button {
+        background: #0a66c2 !important;
+        color: white !important;
+        font-weight: 700;
+    }
+
+    .mentor-outline-button {
+        color: white !important;
+        border-color: rgba(255, 255, 255, 0.75) !important;
+    }
+
+    .mentor-card {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 360px;
+    }
+
+    .mentor-avatar {
+        width: min(320px, 78vw);
+        height: min(320px, 78vw);
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .mentor-avatar-image {
+        width: 100%;
+        height: 100%;
+        display: block;
+        object-fit: cover;
+        border-radius: 50%;
+    }
+
+    .mentor-guarantee-panel {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 20px;
+        align-items: center;
+        border-radius: 12px;
+        background: var(--mentor-surface) !important;
+        border: 1px solid var(--mentor-soft-border);
+        border-left: 6px solid #2f6f73;
+    }
+
+    .mentor-guarantee-icon-wrap {
+        width: 76px;
+        height: 76px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #2f6f73;
+        box-shadow: 0 12px 24px rgba(47, 111, 115, 0.24);
+    }
+
+    .mentor-guarantee-icon {
+        width: 52px;
+        height: 52px;
+        display: block;
+        object-fit: contain;
+    }
+
+    .mentor-guarantee-title,
+    .mentor-section-title,
+    .track-title {
+        color: var(--mentor-primary-text);
+        font-weight: 800 !important;
+    }
+
+    .mentor-guarantee-copy,
+    .track-copy,
+    .production-copy {
+        color: var(--mentor-muted);
+        line-height: 1.65;
+    }
+
+    .mentor-stat {
+        min-height: 178px;
+        border-radius: 12px;
+        color: white;
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .stat-coral {
+        background: #c9436e !important;
+    }
+
+    .stat-blue {
+        background: #1c236d !important;
+    }
+
+    .stat-green {
+        background: #2f6f73 !important;
+    }
+
+    .stat-gold {
+        background: #6b5f7a !important;
+    }
+
+    .stat-icon {
+        font-size: 34px;
+        color: white;
+    }
+
+    .stat-number {
+        color: white;
+        font-weight: 900 !important;
+        line-height: 1;
+    }
+
+    .mentor-stat .mud-typography-body2 {
+        color: rgba(255, 255, 255, 0.92);
+        font-weight: 700;
+    }
+
+    .mentor-panel,
+    .track-card,
+    .production-panel {
+        height: 100%;
+        border-radius: 12px;
+        background: var(--mentor-surface) !important;
+        border: 1px solid var(--mentor-soft-border);
+    }
+
+    .timeline {
+        display: grid;
+        gap: 22px;
+    }
+
+    .timeline-item {
+        display: grid;
+        grid-template-columns: 22px 1fr;
+        gap: 14px;
+        align-items: start;
+    }
+
+    .timeline-dot {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        margin-top: 6px;
+        box-shadow: 0 0 0 6px rgba(28, 35, 109, 0.08);
+    }
+
+    .dot-green {
+        background: #11998e;
+    }
+
+    .dot-blue {
+        background: #2f80ed;
+    }
+
+    .timeline-item .mud-typography-h6 {
+        color: var(--mentor-text);
+        font-weight: 800;
+    }
+
+    .timeline-item .mud-typography-body2,
+    .mentor-style-panel .mud-typography-body1 {
+        color: var(--mentor-muted);
+        line-height: 1.6;
+    }
+
+    .mentor-principle,
+    .track-list div,
+    .practice-item {
+        min-height: 58px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border-radius: 10px;
+        background: var(--mentor-surface-muted);
+        border: 1px solid var(--mentor-soft-border);
+        padding: 12px;
+        color: var(--mentor-primary-text);
+        font-weight: 700;
+    }
+
+    .mentor-principle .mud-icon-root,
+    .practice-item .mud-icon-root {
+        color: #c9436e;
+        flex: 0 0 auto;
+    }
+
+    .mentor-how-panel {
+        border-radius: 12px;
+        color: white;
+        background: linear-gradient(135deg, #1c236d 0%, #2d356f 66%, #2f6f73 100%) !important;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .mentor-how-summary {
+        display: grid;
+        gap: 14px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.10);
+        border: 1px solid rgba(255, 255, 255, 0.20);
+        backdrop-filter: blur(12px);
+        padding: 26px;
+    }
+
+    .mentor-how-summary-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-height: 54px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.10);
+        color: white;
+        font-weight: 800;
+        padding: 12px 14px;
+    }
+
+    .mentor-how-summary-row .mud-icon-root {
+        color: #d9e2f1;
+        flex: 0 0 auto;
+    }
+
+    .beginner-track {
+        border-top: 6px solid #2f6f73;
+    }
+
+    .experienced-track {
+        border-top: 6px solid #1c236d;
+    }
+
+    .track-icon {
+        width: 68px;
+        height: 68px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 18px;
+        background: var(--mentor-surface-muted);
+    }
+
+    .track-icon .mud-icon-root {
+        color: var(--mentor-primary-text);
+        font-size: 38px;
+    }
+
+    .track-list {
+        display: grid;
+        gap: 12px;
+    }
+
+    .track-list .mud-icon-root {
+        color: #11998e;
+        flex: 0 0 auto;
+    }
+
+    @@media (max-width: 600px) {
+        .mentor-title {
+            font-size: 2.4rem !important;
+        }
+
+        .mentor-profile-section,
+        .mentor-how-panel {
+            padding: 32px 24px !important;
+        }
+
+        .mentor-card {
+            padding: 24px;
+        }
+
+        .mentor-guarantee-panel {
+            grid-template-columns: 1fr;
+        }
+
+        .mentor-how-title {
+            font-size: 2rem !important;
+        }
+    }
+</style>
+
+@code {
+    private string LinkedinUrl => LinkOptions.Value.MentorLinkedin;
+
+    private async Task ScrollToSubscribe()
+    {
+        await JS.InvokeVoidAsync("mentorshipScroll.scrollToSubscribe");
+    }
+
+    [Inject]
+    private IJSRuntime JS { get; set; }
+}

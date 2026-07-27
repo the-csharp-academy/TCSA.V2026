@@ -1,21 +1,23 @@
 @page "/article/{ArticleId:int}/{ArticleSlug}"
 @using System.Security.Claims
+@using TCSA.V2026.Components.Ads
+@using TCSA.V2026.Components.UI
 @using TCSA.V2026.Data.Curriculum
 @using TCSA.V2026.Data.Models
+@using TCSA.V2026.Helpers.Constants
 @using TCSA.V2026.Services
 
 @rendermode @(new InteractiveServerRenderMode(prerender: false))
-
-@{
-    int blockIndex = 0;
-}
 
 <PageTitle>@Article.Title</PageTitle>
 
 <div class="article-theme">
 <MudContainer MaxWidth="MaxWidth.Large" Class="article-container">
     <MudPaper Class="jumbotron d-flex align-center justify-center mt-3 article-hero" Style=@GetBanner()>
-        <h1 class="mud-typography-h3 text-white mud-typography-align-center py-4 px-4 px-md-10 article-title">@Article.Title</h1>
+        <div class="article-hero-content">
+            <span class="article-eyebrow">Academy article</span>
+            <h1 class="mud-typography-h3 text-white mud-typography-align-center article-title" id="@ContentAnchors.ArticleTitleId">@Article.Title</h1>
+        </div>
     </MudPaper>
         <div class="completion-strip">
             <MudIcon Icon="@Icons.Material.Filled.People" Size="Size.Small" />
@@ -34,74 +36,113 @@
     }
 
     <MudGrid Class="mt-4">
-        <MudItem xs="12">
-            <MudPaper Class="d-flex flex-column mud-width-full py-1 pb-10 px-4 px-md-10 section-panel section-panel-soft article-content">
-                @foreach (var block in Article.Blocks)
+            <MudItem xs="12" md="9">
+            <MudPaper Class="d-flex flex-column mud-width-full section-panel section-panel-soft article-content">
+                @for (var blockIndex = 0; blockIndex < Article.Blocks.Count; blockIndex++)
                 {
-                    if (!string.IsNullOrWhiteSpace(block.Title))
-                    {
-                        <h2 class="mud-typography-h6 mt-10 mb-2">@block.Title</h2>
-                    }
-
-                    @foreach (var paragraph in block.Paragraphs)
-                    {
-                        if (paragraph.IsPicture)
+                    var block = Article.Blocks[blockIndex];
+                    var capturedBlockIndex = blockIndex;
+                    <div class="@GetBlockClass(block)" style="@GetBlockStyle(block)">
+                        @if (!string.IsNullOrWhiteSpace(block.Title))
                         {
-                            <MudPaper Class="d-flex justify-center mx-20 mt-10 article-media-wrap" Elevation="0">
-                                <MudImage Src="@GetImage(paragraph)" Alt="Image paragraph" Fluid="true" Class="rounded-lg" />
-                            </MudPaper>
+                            <h2 class="article-section-title" id="@ContentAnchors.ArticleBlockTitleId(capturedBlockIndex)">@block.Title</h2>
                         }
 
-                        else if (paragraph.IsVideo)
+                        @for (var paragraphIndex = 0; paragraphIndex < block.Paragraphs.Count; paragraphIndex++)
                         {
-                            <div class="video-wrapper mt-3 mb-4">
-                                <iframe class="video-iframe" src="@paragraph.VideoUrl" allowfullscreen></iframe>
-                            </div>
-                        }
-
-                        else if (paragraph.IsCode)
-                        {
-                            <pre class="line-numbers"><code class="language-csharp">@((MarkupString)paragraph.Body)</code></pre>
-                        }
-
-                        else if (!string.IsNullOrEmpty(paragraph.Body))
-                        {
-                            if (!string.IsNullOrWhiteSpace(paragraph.BackgroundColor))
+                            var paragraph = block.Paragraphs[paragraphIndex];
+                            var capturedParagraphIndex = paragraphIndex;
+                            if (paragraph.IsPicture)
                             {
-                                var bgStyle = $"background-color: {paragraph.BackgroundColor}; padding: 1rem;";
-                                var textStyle = $"color: {paragraph.FontColor};";
-
-                                <MudPaper Style="@bgStyle" Elevation="1" Class="my-2">
-                                    <MudText Style="@textStyle" Typo="Typo.body1">
-                                        @((MarkupString)paragraph.Body)
-                                    </MudText>
+                                <MudPaper Class="d-flex justify-center article-media-wrap" Elevation="0">
+                                    <MudImage Src="@GetImage(paragraph)" Alt="Image paragraph" Fluid="true" Class="rounded-lg" />
                                 </MudPaper>
                             }
-                            else
+
+                            else if (paragraph.IsVideo)
                             {
-                                <MudText Class="mt-2 mb-5" Typo="Typo.body1">
-                                    @((MarkupString)paragraph.Body)
-                                </MudText>
+                                <ArticleVideo Src="@paragraph.VideoUrl"
+                                              Title="@($"{Article.Title} video")"
+                                              Caption="@paragraph.Body" />
+                            }
+
+                            else if (paragraph.IsCode)
+                            {
+                                <pre class="line-numbers article-code-block"><code class="language-csharp">@((MarkupString)paragraph.Body)</code></pre>
+                            }
+
+                            else if (!string.IsNullOrEmpty(paragraph.Body))
+                            {
+                                if (!string.IsNullOrWhiteSpace(paragraph.BackgroundColor))
+                                {
+                                    var bgStyle = $"background-color: {paragraph.BackgroundColor}; padding: 1rem;";
+                                    var textStyle = $"color: {paragraph.FontColor};";
+
+                                    <MudPaper Style="@bgStyle" Elevation="1" Class="article-callout">
+                                        <MudText Style="@textStyle" Typo="Typo.body1" Class="article-paragraph"
+                                                UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ArticleBlockParagraphId(capturedBlockIndex, capturedParagraphIndex) })">
+                                            @((MarkupString)paragraph.Body)
+                                        </MudText>
+                                    </MudPaper>
+                                }
+                                else
+                                {
+                                    <MudText Class="article-paragraph" Typo="Typo.body1"
+                                             UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ArticleBlockParagraphId(capturedBlockIndex, capturedParagraphIndex) })">
+                                        @((MarkupString)paragraph.Body)
+                                    </MudText>
+                                }
                             }
                         }
-                    }
+                    </div>
                 }
             </MudPaper>
+
+            @if (IsLoggedIn && !IsCompleted)
+            {
+                <div class="d-flex justify-center my-5 article-action-wrap">
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               OnClick="MarkAsRead"
+                               Disabled="IsSubmitting"
+                               Loading="IsSubmitting">
+                        Mark as Read
+                    </MudButton>
+                </div>
+            }
+
+            <ArticleComments ArticleId="@ArticleId" IsLoggedIn="@IsLoggedIn" AppUserId="@UserId" />
+        </MudItem>
+
+        <MudItem xs="12" md="3">
+            <aside class="article-ad-rail" aria-label="Advertisement">
+                <div class="article-sidebar-ad">
+                    <AdSenseAd Slot="1156719860" />
+                </div>
+                <div class="article-sidebar-ad">
+                    <AdSenseAd Slot="5655082087" />
+                </div>
+                @if (ShowThirdAd)
+                {
+                    <div class="article-sidebar-ad article-sidebar-ad-third">
+                        <AdSenseAd Slot="4211806779" />
+                    </div>
+                }
+                @if (ShowFourthAd)
+                {
+                    <div class="article-sidebar-ad article-sidebar-ad-fourth">
+                        <AdSenseAd Slot="8638136949" />
+                    </div>
+                }
+                @if (ShowFifthAd)
+                {
+                    <div class="article-sidebar-ad article-sidebar-ad-fifth">
+                        <AdSenseAd Slot="1394191889" />
+                    </div>
+                }
+            </aside>
         </MudItem>
     </MudGrid>
-
-    @if (IsLoggedIn && !IsCompleted)
-    {
-        <div class="d-flex justify-center my-5 article-action-wrap">
-            <MudButton Variant="Variant.Filled"
-                       Color="Color.Primary"
-                       OnClick="MarkAsRead"
-                       Disabled="IsSubmitting"
-                       Loading="IsSubmitting">
-                Mark as Read
-            </MudButton>
-        </div>
-    }
 
 </MudContainer>
 </div>
@@ -122,6 +163,10 @@
     private bool IsCompleted = false;
     private bool IsLoading = true;
     private bool IsSubmitting = false;
+    private bool ShowThirdAd = false;
+    private bool ShowFourthAd = false;
+    private bool ShowFifthAd = false;
+    private bool _thirdAdMeasured = false;
     private string UserId = string.Empty;
     private string BackgroundImage;
     private int CompletionCount = 0;
@@ -135,10 +180,39 @@
     private string GetBanner()
     {
         var banner = string.IsNullOrEmpty(Article.BannerUrl) ? "article-banner.jpg" : Article.BannerUrl;
-        return $"min-height: 250px; background-image: url('/img/banners/{banner}'); background-size: cover; background-position: center;";
+        return $"background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/img/banners/{banner}'); background-size: cover; background-position: center;";
     }
 
     private string GetImage(Paragraph paragraph) => $"img/{paragraph.PictureUrl}";
+
+    private static string GetBlockClass(Data.Models.Block block)
+    {
+        return string.IsNullOrWhiteSpace(block.CssClass)
+            ? "article-content-block"
+            : $"article-content-block {block.CssClass}";
+    }
+
+    private static string? GetBlockStyle(Data.Models.Block block)
+    {
+        if (string.IsNullOrWhiteSpace(block.BackgroundColor) && string.IsNullOrWhiteSpace(block.FontColor))
+        {
+            return null;
+        }
+
+        var styles = new List<string>();
+
+        if (!string.IsNullOrWhiteSpace(block.BackgroundColor))
+        {
+            styles.Add($"background-color: {block.BackgroundColor}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(block.FontColor))
+        {
+            styles.Add($"color: {block.FontColor}");
+        }
+
+        return string.Join("; ", styles);
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -147,11 +221,28 @@
             await JS.InvokeVoidAsync("highlightCode");
         }
 
+        if (!IsLoading && !_thirdAdMeasured)
+        {
+            _thirdAdMeasured = true;
+            ShowThirdAd = await JS.InvokeAsync<bool>("canShowThirdArticleAd");
+            ShowFourthAd = await JS.InvokeAsync<bool>("canShowFourthArticleAd");
+            ShowFifthAd = await JS.InvokeAsync<bool>("canShowFifthArticleAd");
+
+            if (ShowThirdAd || ShowFourthAd || ShowFifthAd)
+            {
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+
         var AuthSate = await AuthenticationState.GetAuthenticationStateAsync();
     }
 
     protected async override Task OnParametersSetAsync()
     {
+        ShowThirdAd = false;
+        ShowFourthAd = false;
+        ShowFifthAd = false;
+        _thirdAdMeasured = false;
         Article = ArticleHelper.GetArticles().Single(x => x.Id == ArticleId);
 
         var AuthSate = await AuthenticationState.GetAuthenticationStateAsync();
@@ -234,14 +325,33 @@
     }
 
     .article-hero {
+        min-height: 270px;
         border-radius: 24px;
         overflow: hidden;
         border: 1px solid rgba(var(--mud-palette-primary-rgb), 0.24);
         box-shadow: 0 18px 38px rgba(0,0,0,0.2) !important;
     }
 
+    .article-hero-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+        max-width: 850px;
+        padding: 2.5rem 2rem;
+    }
+
+    .article-eyebrow {
+        color: rgba(255, 255, 255, 0.82);
+        font-size: 0.75rem;
+        font-weight: 800;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+    }
+
     .article-title {
         line-height: 1.2;
+        font-weight: 800;
         text-shadow: 0 6px 20px rgba(0,0,0,0.35);
     }
 
@@ -257,11 +367,161 @@
     }
 
     .article-content {
-        margin-top: 0.4rem;
+        margin-top: 0.25rem;
+        padding: 1.25rem 2.5rem 2.75rem;
+    }
+
+    .article-ad-rail {
+        display: flex;
+        flex-direction: column;
+        gap: 10rem;
+        padding: 2rem 0;
+        position: relative;
+    }
+
+    .article-sidebar-ad-third {
+        position: absolute;
+        top: calc(100% + 10rem);
+        left: 0;
+        right: 0;
+    }
+
+    .article-sidebar-ad-fourth {
+        position: absolute;
+        top: calc(100% + 20rem + 600px);
+        left: 0;
+        right: 0;
+    }
+
+    .article-sidebar-ad-fifth {
+        position: absolute;
+        top: calc(100% + 30rem + 1200px);
+        left: 0;
+        right: 0;
+    }
+
+    .article-sidebar-ad {
+        width: 100%;
+        min-width: 0;
+        min-height: 600px;
+    }
+
+    .article-content-block {
+        border-radius: 14px;
+        margin: 0.35rem 0;
+    }
+
+    .article-content-block[style*="background-color"] {
+        padding: 1.25rem 1.4rem;
+    }
+
+    .article-section-title {
+        color: #C9436E;
+        font-size: 1.4rem;
+        font-weight: 800;
+        line-height: 1.3;
+        margin: 1.5rem 0 0.85rem;
+        padding-left: 0.9rem;
+        border-left: 4px solid #C9436E;
+    }
+
+    .mud-theme-dark .article-section-title,
+    .mud-application.mud-theme-dark .article-section-title {
+        color: var(--mud-palette-text-primary);
+        border-left-color: var(--mud-palette-primary);
+    }
+
+    .article-paragraph {
+        color: var(--mud-palette-text-primary);
+        line-height: 1.8;
+        margin: 0.35rem 0 0.9rem;
+    }
+
+    .article-paragraph p {
+        margin: 0 0 0.9rem;
+    }
+
+    .article-paragraph p:last-child {
+        margin-bottom: 0;
+    }
+
+    .article-paragraph img {
+        display: block;
+        max-width: 100%;
+        height: auto;
+        margin: 1.25rem auto;
+        border-radius: 10px;
+    }
+
+    .article-paragraph figure {
+        max-width: 100%;
+        margin: 1.5rem auto;
+    }
+
+    .article-paragraph figcaption {
+        margin-top: -.75rem;
+        color: var(--mud-palette-text-secondary);
+        font-size: .85rem;
+        text-align: center;
+    }
+
+    .article-callout {
+        margin: 1.5rem 0;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .article-callout .article-paragraph {
+        margin: 0;
+    }
+
+    .course-exercise-block {
+        padding: 1.4rem 1.5rem 0.5rem;
+        border: 1px solid color-mix(in srgb, var(--mud-palette-success) 28%, var(--mud-palette-lines-default));
+        border-left: 6px solid color-mix(in srgb, var(--mud-palette-success) 76%, #2f6f62);
+        background: linear-gradient(135deg, color-mix(in srgb, var(--mud-palette-success) 13%, var(--mud-palette-surface)) 0%, var(--mud-palette-surface) 72%);
+        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.08);
+    }
+
+    .course-exercise-block h2 {
+        margin-top: 0 !important;
+        color: color-mix(in srgb, var(--mud-palette-success) 72%, var(--mud-palette-text-primary));
+        border-left-color: color-mix(in srgb, var(--mud-palette-success) 76%, #2f6f62);
+    }
+
+    .article-ads-help-block {
+        padding: 1.4rem 1.5rem 0.5rem;
+        border: 1px solid color-mix(in srgb, #1976d2 34%, var(--mud-palette-lines-default));
+        border-left: 6px solid #1976d2;
+        background: linear-gradient(135deg, color-mix(in srgb, #42a5f5 18%, var(--mud-palette-surface)) 0%, var(--mud-palette-surface) 74%);
+        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.08);
+    }
+
+    .article-ads-help-block h2 {
+        margin-top: 0 !important;
+        color: color-mix(in srgb, #1976d2 82%, var(--mud-palette-text-primary));
+        border-left-color: #1976d2;
     }
 
     .article-media-wrap {
+        margin: 2rem 0;
+        padding: 1.5rem;
         border-radius: 16px;
+        background: var(--mud-palette-background-grey) !important;
+        border: 1px solid var(--mud-palette-lines-default);
+        overflow: hidden;
+    }
+
+    .article-video-wrap {
+        margin: 2rem 0;
+    }
+
+    .article-code-block {
+        margin: 1.75rem 0 !important;
+        padding: 1.25rem !important;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        overflow: auto;
     }
 
     .article-action-wrap {
@@ -288,13 +548,35 @@
     }
 
     @@media (max-width: 960px) {
+        .article-ad-rail {
+            gap: 3rem;
+            margin-top: 1rem;
+            padding: 1rem 0;
+        }
+
+        .article-sidebar-ad {
+            min-height: 250px;
+        }
+
         .article-hero {
             border-radius: 20px;
         }
 
         .section-panel {
             border-radius: 18px;
-            padding: 0.6rem 0.35rem;
+        }
+
+        .article-content {
+            padding: 1rem 1.5rem 2rem;
+        }
+
+        .article-section-title {
+            font-size: 1.25rem;
+            margin-top: 1.25rem;
+        }
+
+        .article-media-wrap {
+            padding: 0.75rem;
         }
 
         .article-theme::before,
@@ -302,6 +584,20 @@
             width: 320px;
             height: 320px;
             filter: blur(65px);
+        }
+    }
+
+    @@media (max-width: 600px) {
+        .article-hero-content {
+            padding: 2rem 1.25rem;
+        }
+
+        .article-title {
+            font-size: 2rem;
+        }
+
+        .article-content {
+            padding: 0.75rem 1.1rem 1.75rem;
         }
     }
 </style>

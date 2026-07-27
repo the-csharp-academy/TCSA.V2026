@@ -1,0 +1,93 @@
+@using TCSA.V2026.Data.Enums
+@using TCSA.V2026.Data.Models
+@using TCSA.V2026.Data.Models.Responses
+@using TCSA.V2026.Helpers
+@using TCSA.V2026.Services
+<MudDialog Style="min-width: 400px;">
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.Send" Class="mr-3 mb-n1" />
+            @MudDialog.Title
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudTextField
+        @bind-Value="GithubUrl"
+        Error="@HasError"
+        ErrorText="@ErrorText"
+        Immediate="true"
+        OnBlur="ValidateUrl"
+        Label="GitHub PR URL" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Disabled="@(HasError || _isSubmitting)" Color="Color.Error" OnClick="Submit">Submit</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [Inject] protected ICommunityService CommunityService { get; set; }
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; }
+    [Parameter] public int ProjectId { get; set; }
+    [Parameter] public CommunityProject CommunityProject { get; set; }
+    [Parameter] public string CurrentGithubUrl { get; set; } = string.Empty;
+
+    private string GithubUrl = string.Empty;
+    private string ErrorText = string.Empty;
+    private bool HasError;
+    private bool _isSubmitting = false;
+
+    protected override void OnInitialized()
+    {
+        GithubUrl = CurrentGithubUrl;
+    }
+
+    private void ValidateUrl()
+    {
+        if (string.IsNullOrWhiteSpace(GithubUrl))
+        {
+            HasError = true;
+            ErrorText = "URL is required.";
+            return;
+        }
+
+        if (Enum.IsDefined(typeof(CommunityProject), CommunityProject))
+        {
+            if (!UrlHelper.IsValidCommunityProjectPrUrl(GithubUrl, CommunityProject))
+            {
+                HasError = true;
+                ErrorText = "URL must be a valid pull request URL for this project.";
+                return;
+            }
+        } else
+        {
+            HasError = true;
+            ErrorText = "Invalid project.";
+            return;
+        }
+
+        HasError = false;
+        ErrorText = string.Empty;
+    }
+
+    private async Task Submit()
+    {
+        ValidateUrl();
+        if (HasError)
+            return;
+
+        _isSubmitting = true;
+
+        try
+        {
+            var result = await CommunityService.SubmitIssueToReview(ProjectId, GithubUrl);
+            MudDialog.Close(DialogResult.Ok(result.Status));
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+}

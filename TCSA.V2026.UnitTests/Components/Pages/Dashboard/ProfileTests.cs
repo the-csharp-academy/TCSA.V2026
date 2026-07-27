@@ -30,6 +30,15 @@ public class ProfileTests : BunitContext
         Country = "Ireland"
     };
 
+    private readonly ApplicationUser _onboardingUser = new()
+    {
+        Id = TestUserId,
+        DisplayName = "Test User",
+        Country = "Ireland",
+        OnboardingStartedDate = DateTimeOffset.UtcNow,
+        HasDismissedChecklist = true,
+    };
+
     [SetUp]
     public void SetUp()
     {
@@ -45,6 +54,7 @@ public class ProfileTests : BunitContext
         Services.AddSingleton(_projectServiceMock.Object);
         Services.AddSingleton(_userServiceMock.Object);
         Services.AddSingleton(new HttpClient());
+        Services.AddScoped<OnboardingStateService>();
         Services.AddMudServices();
     }
 
@@ -60,6 +70,15 @@ public class ProfileTests : BunitContext
         _userServiceMock
             .Setup(s => s.GetUserProfileById(TestUserId))
             .ReturnsAsync(_testUser);
+
+        return Render<Profile>();
+    }
+
+    private IRenderedComponent<Profile> RenderProfileWithOnboardingUser()
+    {
+        _userServiceMock
+            .Setup(s => s.GetUserProfileById(TestUserId))
+            .ReturnsAsync(_onboardingUser);
 
         return Render<Profile>();
     }
@@ -215,5 +234,127 @@ public class ProfileTests : BunitContext
         // Assert
         var deleteButton = cut.FindAll("button").Single(b => b.TextContent.Contains("Delete Account"));
         Assert.That(deleteButton.HasAttribute("disabled"), Is.True);
+    }
+
+    [Test]
+    public async Task RestartOnboardingButton_WhenClickedTwiceWhileProcessing_CallsRestartOnboardingOnce()
+    {
+        // Arrange
+        var tcs = new TaskCompletionSource<BaseResponse>();
+
+        _userServiceMock
+            .Setup(s => s.RestartOnboarding(TestUserId))
+            .Returns(tcs.Task);
+
+        AuthorizeAs(TestUserId);
+        Render<MudPopoverProvider>();
+        var cut = RenderProfile();
+
+        // Act
+        cut.FindAll("button").Single(b => b.TextContent.Contains("Restart Onboarding")).Click();
+        cut.FindAll("button").Single(b => b.TextContent.Contains("Restart Onboarding")).Click();
+
+        tcs.SetResult(new BaseResponse { Status = ResponseStatus.Success });
+        await cut.InvokeAsync(() => { });
+
+        // Assert
+        _userServiceMock.Verify(s => s.RestartOnboarding(TestUserId), Times.Once);
+    }
+
+    [Test]
+    public void RestartOnboardingButton_WhileProcessing_IsDisabled()
+    {
+        // Arrange
+        var tcs = new TaskCompletionSource<BaseResponse>();
+
+        _userServiceMock
+            .Setup(s => s.RestartOnboarding(TestUserId))
+            .Returns(tcs.Task);
+
+        AuthorizeAs(TestUserId);
+        Render<MudPopoverProvider>();
+        var cut = RenderProfile();
+
+        // Act
+        cut.FindAll("button").Single(b => b.TextContent.Contains("Restart Onboarding")).Click();
+
+        // Assert
+        var button = cut.FindAll("button").Single(b => b.TextContent.Contains("Restart Onboarding"));
+        Assert.That(button.HasAttribute("disabled"), Is.True);
+    }
+
+    [Test]
+    public void ResumeChecklistButton_IsNotVisible_WhenConditionsNotMet()
+    {
+        // Arrange
+        AuthorizeAs(TestUserId);
+        Render<MudPopoverProvider>();
+        var cut = RenderProfile();
+
+        // Assert
+        Assert.That(
+            cut.FindAll("button").Any(b => b.TextContent.Contains("Resume Checklist")),
+            Is.False);
+    }
+
+    [Test]
+    public void ResumeChecklistButton_IsVisible_WhenConditionsMet()
+    {
+        // Arrange
+        AuthorizeAs(TestUserId);
+        Render<MudPopoverProvider>();
+        var cut = RenderProfileWithOnboardingUser();
+
+        // Assert
+        Assert.That(
+            cut.FindAll("button").Any(b => b.TextContent.Contains("Resume Checklist")),
+            Is.True);
+    }
+
+    [Test]
+    public async Task ResumeChecklistButton_WhenClickedTwiceWhileProcessing_CallsResumeChecklistOnce()
+    {
+        // Arrange
+        var tcs = new TaskCompletionSource<BaseResponse>();
+
+        _userServiceMock
+            .Setup(s => s.ResumeChecklist(TestUserId))
+            .Returns(tcs.Task);
+
+        AuthorizeAs(TestUserId);
+        Render<MudPopoverProvider>();
+        var cut = RenderProfileWithOnboardingUser();
+
+        // Act
+        cut.FindAll("button").Single(b => b.TextContent.Contains("Resume Checklist")).Click();
+        cut.FindAll("button").Single(b => b.TextContent.Contains("Resume Checklist")).Click();
+
+        tcs.SetResult(new BaseResponse { Status = ResponseStatus.Success });
+        await cut.InvokeAsync(() => { });
+
+        // Assert
+        _userServiceMock.Verify(s => s.ResumeChecklist(TestUserId), Times.Once);
+    }
+
+    [Test]
+    public void ResumeChecklistButton_WhileProcessing_IsDisabled()
+    {
+        // Arrange
+        var tcs = new TaskCompletionSource<BaseResponse>();
+
+        _userServiceMock
+            .Setup(s => s.ResumeChecklist(TestUserId))
+            .Returns(tcs.Task);
+
+        AuthorizeAs(TestUserId);
+        Render<MudPopoverProvider>();
+        var cut = RenderProfileWithOnboardingUser();
+
+        // Act
+        cut.FindAll("button").Single(b => b.TextContent.Contains("Resume Checklist")).Click();
+
+        // Assert
+        var button = cut.FindAll("button").Single(b => b.TextContent.Contains("Resume Checklist"));
+        Assert.That(button.HasAttribute("disabled"), Is.True);
     }
 }

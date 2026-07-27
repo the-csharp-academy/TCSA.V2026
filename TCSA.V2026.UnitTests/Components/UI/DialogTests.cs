@@ -7,6 +7,7 @@ using MudBlazor;
 using MudBlazor.Services;
 using TCSA.V2026.Components.UI;
 using TCSA.V2026.Data.DTOs;
+using TCSA.V2026.Data.Enums;
 using TCSA.V2026.Data.Helpers;
 using TCSA.V2026.Data.Models;
 using TCSA.V2026.Data.Models.Responses;
@@ -72,11 +73,10 @@ public class DialogTests : BunitContext
         var tcs = new TaskCompletionSource<BaseResponse>();
 
         _communityServiceMock
-            .Setup(s => s.CreateIssue(It.IsAny<IssueType>(), It.IsAny<string>(), It.IsAny<string>(), TestUserId))
+            .Setup(s => s.CreateIssue(It.IsAny<IssueType>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CommunityProject>()))
             .Returns(tcs.Task);
 
         var parameters = new DialogParameters<TCSASubmitIssueDialog>();
-        parameters.Add(x => x.UserId, TestUserId);
         var providerCut = await ShowDialog(parameters);
 
         // Act
@@ -88,7 +88,7 @@ public class DialogTests : BunitContext
 
         // Assert
         _communityServiceMock.Verify(
-            s => s.CreateIssue(It.IsAny<IssueType>(), It.IsAny<string>(), It.IsAny<string>(), TestUserId),
+            s => s.CreateIssue(It.IsAny<IssueType>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CommunityProject>()),
             Times.Once);
     }
 
@@ -99,11 +99,10 @@ public class DialogTests : BunitContext
         var tcs = new TaskCompletionSource<BaseResponse>();
 
         _communityServiceMock
-            .Setup(s => s.CreateIssue(It.IsAny<IssueType>(), It.IsAny<string>(), It.IsAny<string>(), TestUserId))
+            .Setup(s => s.CreateIssue(It.IsAny<IssueType>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CommunityProject>()))
             .Returns(tcs.Task);
 
         var parameters = new DialogParameters<TCSASubmitIssueDialog>();
-        parameters.Add(x => x.UserId, TestUserId);
         var providerCut = await ShowDialog(parameters);
 
         // Act
@@ -115,7 +114,7 @@ public class DialogTests : BunitContext
     }
 
     [Test]
-    public async Task SubmitProjectDialog_SubmitButton_WhenClickedTwiceWhileProcessing_CallsSubmitIssueToReviewOnce()
+    public async Task SubmitIssueToReviewDialog_SubmitButton_WhenClickedTwiceWhileProcessing_CallsSubmitIssueToReviewOnce()
     {
         // Arrange
         var tcs = new TaskCompletionSource<BaseResponse>();
@@ -124,10 +123,10 @@ public class DialogTests : BunitContext
             .Setup(s => s.SubmitIssueToReview(TestProjectId, It.IsAny<string>()))
             .Returns(tcs.Task);
 
-        var parameters = new DialogParameters<TCSASubmitProjectDialog>();
+        var parameters = new DialogParameters<TCSASubmitIssueToReviewDialog>();
         parameters.Add(x => x.ProjectId, TestProjectId);
-        parameters.Add(x => x.IsIssue, true);
-        parameters.Add(x => x.User, _testUser);
+        parameters.Add(x => x.CommunityProject, CommunityProject.TCSA);
+        parameters.Add(x => x.CurrentGithubUrl, "https://github.com/the-csharp-academy/TCSA.V2026/pull/1");
         var providerCut = await ShowDialog(parameters);
 
         // Act
@@ -144,7 +143,7 @@ public class DialogTests : BunitContext
     }
 
     [Test]
-    public async Task SubmitProjectDialog_SubmitButton_WhileProcessing_IsDisabled()
+    public async Task SubmitIssueToReviewDialog_SubmitButton_WhileProcessing_IsDisabled()
     {
         // Arrange
         var tcs = new TaskCompletionSource<BaseResponse>();
@@ -153,10 +152,10 @@ public class DialogTests : BunitContext
             .Setup(s => s.SubmitIssueToReview(TestProjectId, It.IsAny<string>()))
             .Returns(tcs.Task);
 
-        var parameters = new DialogParameters<TCSASubmitProjectDialog>();
+        var parameters = new DialogParameters<TCSASubmitIssueToReviewDialog>();
         parameters.Add(x => x.ProjectId, TestProjectId);
-        parameters.Add(x => x.IsIssue, true);
-        parameters.Add(x => x.User, _testUser);
+        parameters.Add(x => x.CommunityProject, CommunityProject.TCSA);
+        parameters.Add(x => x.CurrentGithubUrl, "https://github.com/the-csharp-academy/TCSA.V2026/pull/1");
         var providerCut = await ShowDialog(parameters);
 
         // Act

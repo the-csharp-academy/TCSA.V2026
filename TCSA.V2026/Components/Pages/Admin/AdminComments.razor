@@ -1,0 +1,104 @@
+@page "/admin/comments"
+
+@using Microsoft.AspNetCore.Authorization
+@using TCSA.V2026.Data.Models
+@using TCSA.V2026.Helpers
+@using TCSA.V2026.Services
+
+@attribute [Authorize(Roles = "Admin")]
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+
+<PageTitle>Pending Comments</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="py-6">
+    <AdminToolBar Count="PendingComments.Count" />
+
+    <MudPaper Class="pa-6 mt-3" Elevation="4">
+        <MudText Typo="Typo.h4">Pending Comments</MudText>
+        <MudText Typo="Typo.body1" Color="Color.Secondary">
+            Review comments before they become visible to users below Green belt.
+        </MudText>
+    </MudPaper>
+
+    @if (IsLoading)
+    {
+        <div class="d-flex justify-center pa-8">
+            <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+        </div>
+    }
+    else if (PendingComments.Count == 0)
+    {
+        <MudAlert Class="mt-4" Severity="Severity.Success" Variant="Variant.Outlined">
+            There are no comments waiting for approval.
+        </MudAlert>
+    }
+    else
+    {
+        <MudPaper Class="pa-2 mt-4" Elevation="3">
+            <MudDataGrid T="Comments" Items="PendingComments" Dense="true" Hover="true" Striped="true">
+                <Columns>
+                    <TemplateColumn Title="Submitted">
+                        <CellTemplate>
+                            @context.Item.Date.ToLocalTime().ToString("dd MMM yyyy, h:mm tt")
+                        </CellTemplate>
+                    </TemplateColumn>
+                    <PropertyColumn Property="comment => comment.ArticleId" Title="Article ID" />
+                    <TemplateColumn Title="User">
+                        <CellTemplate>
+                            @UserDisplayNameHelper.GetDisplayName(context.Item.AppUser?.DisplayName, context.Item.AppUser?.UserName)
+                        </CellTemplate>
+                    </TemplateColumn>
+                    <PropertyColumn Property="comment => comment.Comment" Title="Comment" />
+                    <TemplateColumn Title="Actions" CellClass="d-flex justify-end">
+                        <CellTemplate>
+                            <MudButton Size="Size.Small"
+                                       Color="Color.Success"
+                                       Variant="Variant.Filled"
+                                       StartIcon="@Icons.Material.Filled.Check"
+                                       Disabled="@(ApprovingCommentId == context.Item.Id)"
+                                       OnClick="@(() => ApproveComment(context.Item.Id))">
+                                Approve
+                            </MudButton>
+                        </CellTemplate>
+                    </TemplateColumn>
+                </Columns>
+            </MudDataGrid>
+        </MudPaper>
+    }
+</MudContainer>
+
+@code {
+    [Inject] private ICommentsService CommentsService { get; set; } = null!;
+    [Inject] private ISnackbar Snackbar { get; set; } = null!;
+
+    private List<Comments> PendingComments { get; set; } = new();
+    private bool IsLoading { get; set; } = true;
+    private int? ApprovingCommentId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPendingComments();
+        IsLoading = false;
+    }
+
+    private async Task ApproveComment(int commentId)
+    {
+        ApprovingCommentId = commentId;
+        var response = await CommentsService.ApproveCommentAsync(commentId);
+        ApprovingCommentId = null;
+
+        if (!response.IsSuccessful)
+        {
+            Snackbar.Add(response.Message, Severity.Error);
+            return;
+        }
+
+        await LoadPendingComments();
+        Snackbar.Add("Comment approved.", Severity.Success);
+    }
+
+    private async Task LoadPendingComments()
+    {
+        PendingComments = await CommentsService.GetPendingCommentsAsync();
+    }
+}

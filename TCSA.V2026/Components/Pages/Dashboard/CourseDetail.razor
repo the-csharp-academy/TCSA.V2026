@@ -1,119 +1,571 @@
 @page "/course/{courseId:int}/article/{articleDisplayId:int}/{articleId:int}/{isCode:bool}"
 @using System.Security.Claims
+@using TCSA.V2026.Components.Ads
+@using TCSA.V2026.Components.UI
 @using TCSA.V2026.Data.Curriculum
 @using TCSA.V2026.Data.Models
 @using TCSA.V2026.Services
 @inject IJSRuntime JSRuntime
 
-<PageTitle>Courses</PageTitle>
+<PageTitle>@(Article is null || Course is null ? "Courses" : $"{Article.Title} | {Course.Title}")</PageTitle>
 
-<MudGrid>
+<MudContainer MaxWidth="MaxWidth.False" Class="course-detail-shell">
     @if (IsLoading)
     {
-        <MudProgressCircular Color="Color.Default" Indeterminate="true" />
+        <div class="course-loading">
+            <MudProgressCircular Color="Color.Primary" Indeterminate="true" Size="Size.Large" />
+        </div>
     }
-    else
+    else if (Course is not null && Article is not null)
     {
-        <MudItem xs="12" md="3">
-            <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
-                <MudList T="string" Dense="true">
-                    @for (int i = 0; i < Course.Articles.Count; i++)
-                    {
-                        var article = Course.Articles[i];
-                        <MudListItem Text=@($"{i + 1}. {article.Title}")
-                        Style=@(GetNavItemStyle(article.Id))
-                        OnClick="@(() => NavigateToArticle(article.CourseDisplayId.Value, article.Id, false))" />
-                    }
-                </MudList>
-            </MudPaper>
-        </MudItem>
-        <MudItem xs="12" md="9">
-            <MudPaper Class="d-flex flex-column mud-width-full mt-3 pt-5 pb-5 px-5">
-                @if (IsLoggedIn && IsCompleted)
-                {
-                    <MudAlert Class="mt-3 mb-3" Severity="Severity.Success" Elevation="2">You have completed this roadmap step.</MudAlert>
-                }
+        <MudPaper Class="@(IsLoggedIn ? "course-hero" : "course-hero course-hero-public")" Elevation="4">
+            <div class="course-hero-main">
+                <div class="course-hero-icon">
+                    <MudImage Src="@CourseIconSrc" Alt="@Course.Title" Width="56" />
+                </div>
+                <div>
+                    <MudText Typo="Typo.overline" Class="course-eyebrow">Course</MudText>
+                    <MudText Typo="Typo.h3" Class="course-title">@Course.Title</MudText>
+                    <MudText Typo="Typo.body1" Class="course-description">@Course.Description</MudText>
+                </div>
+            </div>
+            @if (IsLoggedIn)
+            {
+                <div class="course-progress-card">
+                    <MudText Typo="Typo.caption" Class="course-progress-label">Your progress</MudText>
+                    <MudText Typo="Typo.h4" Class="course-progress-number">@CompletedProjects.Count / @Course.Articles.Count</MudText>
+                    <MudProgressLinear Value="@CourseProgress" Color="Color.Success" Rounded="true" Class="my-3" />
+                    <MudText Typo="Typo.body2" Class="course-progress-copy">@CourseProgressText</MudText>
+                </div>
+            }
+        </MudPaper>
 
-                <h1 class="mud-typography-h4 mud-primary-text mb-2 mt-8">@Article.Title</h1>
-
-                @foreach (var block in BlocksToShow)
-                {
-                    if (!string.IsNullOrEmpty(block.Title))
-                    {
-                        <h2 class="mud-typography-h6 mud-primary-text mb-2 mt-8">@block.Title</h2>
-                    }
-
-                    @foreach (var paragraph in block.Paragraphs)
-                    {
-                        if (paragraph.IsCode)
+        <MudGrid Spacing="4" Class="course-layout">
+            <MudItem xs="12" md="4" lg="3">
+                <MudPaper Class="course-sidebar" Elevation="3">
+                    <div class="course-sidebar-header">
+                        <MudText Typo="Typo.h6">Lessons</MudText>
+                        <MudChip T="string" Size="Size.Small" Color="Color.Primary" Variant="Variant.Outlined">
+                            @Course.Articles.Count total
+                        </MudChip>
+                    </div>
+                    <MudList T="string" Dense="true" Class="course-lesson-list">
+                        @for (int i = 0; i < Course.Articles.Count; i++)
                         {
-                            <MudPaper Class="p-4 my-4 overflow-auto line-numbers">
-                                <pre class="line-numbers"><code class="language-csharp">@((MarkupString)paragraph.Body)</code></pre>
-                            </MudPaper>
+                            var article = Course.Articles[i];
+                            var lessonNumber = i + 1;
+                            var isCurrent = article.Id == ArticleId;
+                            var isDone = IsLoggedIn && CompletedProjects.Contains(article.Id);
+
+                            <MudListItem Class="@GetNavItemClass(article.Id)"
+                                         OnClick="@(() => NavigateToArticle(article.CourseDisplayId.Value, article.Id, false))">
+                                <div class="course-nav-item">
+                                    <span class="course-nav-index">@($"{lessonNumber:00}")</span>
+                                    <span class="course-nav-title">@article.Title</span>
+                                    @if (isDone)
+                                    {
+                                        <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Color="Color.Success" Size="Size.Small" />
+                                    }
+                                    else if (isCurrent)
+                                    {
+                                        <MudIcon Icon="@Icons.Material.Filled.PlayCircle" Color="Color.Primary" Size="Size.Small" />
+                                    }
+                                </div>
+                            </MudListItem>
                         }
-                        else if (paragraph.IsPicture)
+                    </MudList>
+                </MudPaper>
+
+                <aside class="course-ad-rail" aria-label="Advertisement">
+                    <div class="course-sidebar-ad">
+                        <AdSenseAd Slot="1533509954" />
+                    </div>
+                    <div class="course-sidebar-ad">
+                        <AdSenseAd Slot="1788109407" />
+                    </div>
+                    @if (ShowThirdAd)
+                    {
+                        <div class="course-sidebar-ad course-sidebar-ad-third">
+                            <AdSenseAd Slot="3309220423" />
+                        </div>
+                    }
+                    @if (ShowFourthAd)
+                    {
+                        <div class="course-sidebar-ad course-sidebar-ad-fourth">
+                            <AdSenseAd Slot="8230942835" />
+                        </div>
+                    }
+                    @if (ShowFifthAd)
+                    {
+                        <div class="course-sidebar-ad course-sidebar-ad-fifth">
+                            <AdSenseAd Slot="4207937346" />
+                        </div>
+                    }
+                </aside>
+            </MudItem>
+
+            <MudItem xs="12" md="8" lg="9">
+                <MudPaper Class="course-article-card" Elevation="3">
+                    <div class="course-article-header">
+                        <div>
+                            <MudText Typo="Typo.overline" Class="course-eyebrow">@LessonLabel</MudText>
+                            <MudText Typo="Typo.h3" Class="course-article-title">@Article.Title</MudText>
+                        </div>
+                        @if (IsLoggedIn && IsCompleted)
                         {
-                            var imageSrc = $"img/courseimages/{paragraph.PictureUrl}";
-                            <MudPaper Class="d-flex justify-center photo-paragraph mb-2 mt-5 py-10 px-5 px-sm-20" Elevation="4">
-                                <MudImage Src="@imageSrc" Alt="Course image" Fluid="true" />
-                            </MudPaper>
+                            <MudChip T="string" Color="Color.Success" Variant="Variant.Filled" Icon="@Icons.Material.Filled.CheckCircle">
+                                Completed
+                            </MudChip>
                         }
-                        else
+                    </div>
+
+                    <div class="course-content">
+                        @foreach (var block in BlocksToShow)
                         {
-                            if (!string.IsNullOrWhiteSpace(paragraph.BackgroundColor))
+                            <div class="@GetBlockClass(block)" style="@GetBlockStyle(block)">
+                                @if (!string.IsNullOrEmpty(block.Title))
+                                {
+                                    <h2 class="course-block-title">@block.Title</h2>
+                                }
+
+                                @foreach (var paragraph in block.Paragraphs)
+                                {
+                                    if (paragraph.IsCode)
+                                    {
+                                        <MudPaper Class="course-code-block overflow-auto line-numbers" Elevation="0">
+                                            <pre class="line-numbers"><code class="language-csharp">@((MarkupString)paragraph.Body)</code></pre>
+                                        </MudPaper>
+                                    }
+                                    else if (paragraph.IsPicture)
+                                    {
+                                        var imageSrc = $"img/courseimages/{paragraph.PictureUrl}";
+                                        <MudPaper Class="course-image-panel" Elevation="1">
+                                            <MudImage Src="@imageSrc" Alt="Course image" Fluid="true" />
+                                        </MudPaper>
+                                    }
+                                    else if (paragraph.IsVideo)
+                                    {
+                                        <ArticleVideo Src="@paragraph.VideoUrl"
+                                                      Title="@($"{Article.Title} video")"
+                                                      Caption="@paragraph.Body" />
+                                    }
+                                    else
+                                    {
+                                        if (!string.IsNullOrWhiteSpace(paragraph.BackgroundColor))
+                                        {
+                                            var bgStyle = $"background-color: {paragraph.BackgroundColor}; padding: 1rem";
+                                            var textStyle = $"color: {paragraph.FontColor};";
+
+                                            <MudPaper Style="@bgStyle" Elevation="1" Class="course-callout">
+                                                <MudText Style="@textStyle" Typo="Typo.body1">
+                                                    @((MarkupString)paragraph.Body)
+                                                </MudText>
+                                            </MudPaper>
+                                        }
+                                        else
+                                        {
+                                            <MudText Class="course-paragraph" Typo="Typo.body1">
+                                                @((MarkupString)paragraph.Body)
+                                            </MudText>
+                                        }
+                                    }
+                                }
+                            </div>
+                        }
+                    </div>
+
+                    @if (ShowArticleActions)
+                    {
+                        <div class="course-actions">
+                            @if (!IsCode && IsLoggedIn && !IsCompleted)
                             {
-                                var bgStyle = $"background-color: {paragraph.BackgroundColor}; padding: 1rem";
-                                var textStyle = $"color: {paragraph.FontColor};";
-
-                                <MudPaper Style="@bgStyle" Elevation="1" Class="my-5">
-                                    <MudText Style="@textStyle" Typo="Typo.body1">
-                                        @((MarkupString)paragraph.Body)
-                                    </MudText>
-                                </MudPaper>
-                            }
-                            else
-                            {
-                                <MudText Class="mt-2 pb-5" Typo="Typo.body1">
-                                    @((MarkupString)paragraph.Body)
-                                </MudText>
-                            }
-                        }
-                    }
-                }
-                <MudGrid>
-                    @if (!IsCode && IsLoggedIn && !IsCompleted)
-                    {
-                        <MudItem xs="6">
-                            <div style="display: flex; flex-direction: column; justify-content: space-between;">
                                 <MudButton Variant="Variant.Filled"
-                                           class="mt-5"
-                                           Color="Color.Dark"
+                                           Color="Color.Primary"
+                                           StartIcon="@Icons.Material.Filled.CheckCircle"
                                            OnClick="MarkAsRead"
                                            Disabled="IsSubmitting">
                                     Mark as Completed
                                 </MudButton>
-                            </div>
-                        </MudItem>
-                    }
-                    @if (!IsCode && Article.Blocks.Any(x => x.IsCourseCodePage))
-                    {
-                        <MudItem xs="6">
-                            <div style="display: flex; flex-direction: column; justify-content: space-between;">
-                                <MudButton Variant="Variant.Filled"
-                                           Color="Color.Dark"
-                                           class="mt-5"
+                            }
+                            @if (!IsCode && Article.Blocks.Any(x => x.IsCourseCodePage))
+                            {
+                                <MudButton Variant="Variant.Outlined"
+                                           Color="Color.Primary"
+                                           StartIcon="@Icons.Material.Filled.Code"
                                            OnClick=@(() => NavigateToArticle(Article.CourseDisplayId.Value, Article.Id, true))
                                            Disabled="IsSubmitting">
                                     View Source Code
                                 </MudButton>
-                            </div>
-                        </MudItem>
+                            }
+                        </div>
                     }
-                </MudGrid>
-            </MudPaper>
-        </MudItem>
+                </MudPaper>
+
+                <ArticleComments ArticleId="@ArticleId" IsLoggedIn="@IsLoggedIn" AppUserId="@UserId" />
+            </MudItem>
+        </MudGrid>
     }
-</MudGrid>
+</MudContainer>
+
+<style>
+    .course-detail-shell {
+        padding: 28px 20px 48px;
+        background: var(--mud-palette-background);
+        min-height: calc(100vh - 64px);
+    }
+
+    .course-loading {
+        min-height: 420px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .course-hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 280px;
+        gap: 24px;
+        align-items: center;
+        padding: 28px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, var(--mud-palette-primary) 0%, #2d356f 64%, #832a77 100%) !important;
+        color: white;
+        overflow: hidden;
+    }
+
+    .course-hero-public {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .course-hero-main {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        min-width: 0;
+    }
+
+    .course-hero-icon {
+        width: 88px;
+        height: 88px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.14);
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        flex: 0 0 auto;
+    }
+
+    .course-eyebrow {
+        color: rgba(255, 255, 255, 0.78);
+        font-weight: 800 !important;
+    }
+
+    .course-title,
+    .course-article-title {
+        color: inherit;
+        font-weight: 800 !important;
+        line-height: 1.1;
+    }
+
+    .course-description {
+        color: rgba(255, 255, 255, 0.88);
+        max-width: 760px;
+        line-height: 1.65;
+        margin-top: 10px;
+    }
+
+    .course-progress-card {
+        border-radius: 12px;
+        padding: 20px;
+        background: rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.20);
+    }
+
+    .course-progress-label,
+    .course-progress-copy,
+    .course-progress-number {
+        color: white;
+    }
+
+    .course-layout {
+        margin-top: 24px;
+    }
+
+    .course-sidebar,
+    .course-article-card {
+        border-radius: 12px;
+        background: var(--mud-palette-surface) !important;
+        border: 1px solid var(--mud-palette-lines-default);
+    }
+
+    .course-sidebar {
+        position: sticky;
+        top: 86px;
+        max-height: calc(100vh - 112px);
+        overflow: hidden;
+    }
+
+    .course-ad-rail {
+        display: flex;
+        flex-direction: column;
+        gap: 10rem;
+        padding: 2rem 0;
+        position: relative;
+    }
+
+    .course-sidebar-ad-third {
+        position: absolute;
+        top: calc(100% + 10rem);
+        left: 0;
+        right: 0;
+    }
+
+    .course-sidebar-ad-fourth {
+        position: absolute;
+        top: calc(100% + 20rem + 600px);
+        left: 0;
+        right: 0;
+    }
+
+    .course-sidebar-ad-fifth {
+        position: absolute;
+        top: calc(100% + 30rem + 1200px);
+        left: 0;
+        right: 0;
+    }
+
+    .course-sidebar-ad {
+        width: 100%;
+        min-height: 600px;
+    }
+
+    .course-sidebar-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 18px 18px 12px;
+        border-bottom: 1px solid var(--mud-palette-lines-default);
+    }
+
+    .course-lesson-list {
+        max-height: calc(100vh - 188px);
+        overflow-y: auto;
+        padding: 8px !important;
+    }
+
+    .course-nav-item {
+        min-height: 44px;
+        display: grid;
+        grid-template-columns: 42px minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+    }
+
+    .course-nav-index {
+        color: var(--mud-palette-text-secondary);
+        font-weight: 800;
+        font-size: 0.82rem;
+    }
+
+    .course-nav-title {
+        color: var(--mud-palette-text-primary);
+        font-weight: 600;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .course-nav-current {
+        background: color-mix(in srgb, var(--mud-palette-primary) 14%, transparent) !important;
+        border-radius: 8px;
+    }
+
+    .course-nav-current .course-nav-title,
+    .course-nav-current .course-nav-index {
+        color: var(--mud-palette-primary);
+    }
+
+    .course-nav-complete {
+        background: color-mix(in srgb, var(--mud-palette-success) 10%, transparent) !important;
+        border-radius: 8px;
+    }
+
+    .course-article-card {
+        overflow: hidden;
+    }
+
+    .course-article-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 32px 36px 24px;
+        border-bottom: 1px solid var(--mud-palette-lines-default);
+    }
+
+    .course-article-header .course-eyebrow {
+        color: var(--mud-palette-text-secondary);
+    }
+
+    .course-article-title {
+        color: var(--mud-palette-text-primary);
+    }
+
+    .course-content {
+        padding: 8px 36px 32px;
+    }
+
+    .course-content-block {
+        border-radius: 12px;
+        margin: 20px 0;
+    }
+
+    .course-content-block[style*="background-color"] {
+        padding: 20px 22px;
+    }
+
+    .course-content a {
+        color: var(--mud-palette-primary);
+        font-weight: 700;
+        text-decoration: underline;
+        text-decoration-thickness: 2px;
+        text-underline-offset: 3px;
+    }
+
+    .course-content a:hover,
+    .course-content a:focus-visible {
+        color: var(--mud-palette-secondary);
+    }
+
+    .course-callout a,
+    .course-callout a:visited {
+        color: #fff;
+        text-decoration-color: rgba(255, 255, 255, 0.8);
+    }
+
+    .course-callout a:hover,
+    .course-callout a:focus-visible {
+        color: #fff;
+        text-decoration-color: #fff;
+    }
+
+    .course-exercise-block {
+        margin: 30px 0;
+        padding: 22px 24px 8px;
+        border: 1px solid color-mix(in srgb, var(--mud-palette-success) 28%, var(--mud-palette-lines-default));
+        border-left: 6px solid color-mix(in srgb, var(--mud-palette-success) 76%, #2f6f62);
+        background: linear-gradient(135deg, color-mix(in srgb, var(--mud-palette-success) 13%, var(--mud-palette-surface)) 0%, var(--mud-palette-surface) 72%);
+        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.08);
+    }
+
+    .course-exercise-block .course-block-title {
+        margin-top: 0;
+        color: color-mix(in srgb, var(--mud-palette-success) 72%, var(--mud-palette-text-primary));
+        border-left-color: color-mix(in srgb, var(--mud-palette-success) 76%, #2f6f62);
+    }
+
+    .course-block-title {
+        color: #a63a3a;
+        font-size: 1.35rem;
+        font-weight: 800;
+        line-height: 1.25;
+        margin: 34px 0 14px;
+        padding-left: 14px;
+        border-left: 4px solid #c85b5b;
+    }
+
+    .course-paragraph {
+        color: var(--mud-palette-text-primary);
+        line-height: 1.78;
+        margin-top: 10px;
+        padding-bottom: 18px;
+    }
+
+    .course-code-block {
+        margin: 24px 0;
+        padding: 18px;
+        border-radius: 10px;
+        background: #1f2430 !important;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .course-code-block pre {
+        margin: 0;
+    }
+
+    .course-image-panel {
+        display: flex;
+        justify-content: center;
+        margin: 28px 0;
+        padding: 28px;
+        border-radius: 12px;
+        background: var(--mud-palette-background-grey) !important;
+    }
+
+    .course-callout {
+        margin: 24px 0;
+        border-radius: 10px;
+    }
+
+    .course-actions {
+        display: flex;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        gap: 12px;
+        padding: 20px 36px;
+        border-top: 1px solid var(--mud-palette-lines-default);
+        background: var(--mud-palette-background-grey);
+    }
+
+    @@media (max-width: 960px) {
+        .course-ad-rail {
+            gap: 3rem;
+            padding: 1rem 0;
+        }
+
+        .course-sidebar-ad {
+            min-height: 250px;
+        }
+
+        .course-hero {
+            grid-template-columns: 1fr;
+        }
+
+        .course-sidebar {
+            position: static;
+            max-height: none;
+        }
+
+        .course-lesson-list {
+            max-height: 360px;
+        }
+    }
+
+    @@media (max-width: 600px) {
+        .course-detail-shell {
+            padding: 18px 12px 36px;
+        }
+
+        .course-hero {
+            padding: 22px;
+        }
+
+        .course-hero-main {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .course-article-header,
+        .course-content,
+        .course-actions {
+            padding-left: 22px;
+            padding-right: 22px;
+        }
+    }
+</style>
 
     @code {
     [Inject] NavigationManager NavigationManager { get; set; }
@@ -135,19 +587,64 @@
     private bool IsLoading = true;
     private bool IsCompleted = false;
     private bool IsSubmitting = false;
-    private string UserId;
+    private bool ShowThirdAd = false;
+    private bool ShowFourthAd = false;
+    private bool ShowFifthAd = false;
+    private bool _thirdAdMeasured = false;
+    private string UserId = string.Empty;
     private string _lastRenderedCode = string.Empty;
 
-    private string GetNavItemStyle(int articleId)
+    private string CourseIconSrc => $"img/icons/{Course.ImgUrl}";
+    private double CourseProgress => Course.Articles.Count == 0 ? 0 : Math.Round((double)CompletedProjects.Count / Course.Articles.Count * 100, 1);
+    private string CourseProgressText => $"{CourseProgress:0.#}% complete";
+    private string LessonLabel => IsCode ? $"Lesson {ArticleDisplayId} · source code" : $"Lesson {ArticleDisplayId}";
+    private bool ShowArticleActions => (!IsCode && IsLoggedIn && !IsCompleted) || (!IsCode && Article.Blocks.Any(x => x.IsCourseCodePage));
+
+    private static string GetBlockClass(Data.Models.Block block)
+    {
+        return string.IsNullOrWhiteSpace(block.CssClass)
+            ? "course-content-block"
+            : $"course-content-block {block.CssClass}";
+    }
+
+    private static string? GetBlockStyle(Data.Models.Block block)
+    {
+        if (string.IsNullOrWhiteSpace(block.BackgroundColor) && string.IsNullOrWhiteSpace(block.FontColor))
+        {
+            return null;
+        }
+
+        var styles = new List<string>();
+
+        if (!string.IsNullOrWhiteSpace(block.BackgroundColor))
+        {
+            styles.Add($"background-color: {block.BackgroundColor}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(block.FontColor))
+        {
+            styles.Add($"color: {block.FontColor}");
+        }
+
+        return string.Join("; ", styles);
+    }
+
+    private string GetNavItemClass(int articleId)
     {
         if (articleId == ArticleId)
         {
-            return "background-color: var(--mud-palette-primary-lighten); color: #fff;";
+            return "course-nav-current";
         }
-        return CompletedProjects.Contains(articleId) ? "background-color: var(--mud-palette-success-lighten);" : string.Empty;
+
+        return CompletedProjects.Contains(articleId) ? "course-nav-complete" : string.Empty;
     }
     private async Task MarkAsRead()
     {
+        if (!IsLoggedIn)
+        {
+            return;
+        }
+
         IsSubmitting = true;
 
         var response = await ProjectService.PostArticle(ArticleId, UserId, string.Empty, true, false);
@@ -182,37 +679,62 @@
 
     protected async override Task OnParametersSetAsync()
     {
+        ShowThirdAd = false;
+        ShowFourthAd = false;
+        ShowFifthAd = false;
+        _thirdAdMeasured = false;
+        IsLoggedIn = false;
+        IsCompleted = false;
+        CompletedProjects.Clear();
+
         Course = CourseHelper.GetCourses().FirstOrDefault(x => x.Id == CourseId);
 
-        if (Course != null)
-        {
-            Article = Course.Articles.FirstOrDefault(a => a.CourseDisplayId == ArticleDisplayId);
-        }
+        Article = Course?.Articles.FirstOrDefault(a => a.Id == ArticleId)
+            ?? Course?.Articles.FirstOrDefault(a => a.CourseDisplayId == ArticleDisplayId);
 
         BlocksToShow = IsCode
-      ? Article.Blocks.Where(x => x.IsCourseCodePage).ToList()
-      : Article.Blocks.Where(x => !x.IsCourseCodePage).ToList();
+            ? Article?.Blocks.Where(x => x.IsCourseCodePage).ToList() ?? []
+            : Article?.Blocks.Where(x => !x.IsCourseCodePage).ToList() ?? [];
+
+        if (Course is null || Article is null)
+        {
+            IsLoading = false;
+            NavigationManager.NavigateTo("/dashboard/Courses");
+            return;
+        }
 
         var AuthSate = await AuthenticationState.GetAuthenticationStateAsync();
 
-        if (AuthSate.User.Identity.IsAuthenticated)
+        if (AuthSate.User.Identity?.IsAuthenticated == true)
         {
             IsLoggedIn = true;
             var claims = AuthSate.User;
-            UserId = claims.FindFirstValue(ClaimTypes.NameIdentifier);
+            UserId = claims.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
+
+            var projects = await ProjectService.GetCompletedProjectsById(UserId);
+            var courseIds = Course.Articles.Select(x => x.Id);
+            CompletedProjects = projects.Where(x => courseIds.Contains(x)).ToList();
+            IsCompleted = await ProjectService.IsProjectCompleted(UserId, ArticleId);
         }
-
-        var projects = await ProjectService.GetCompletedProjectsById(UserId);
-        var courseIds = Course.Articles.Select(x => x.Id);
-        CompletedProjects = projects.Where(x => courseIds.Contains(x)).ToList();
-
-        IsCompleted = await ProjectService.IsProjectCompleted(UserId, ArticleId);
         IsLoading = false;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await JSRuntime.InvokeVoidAsync("highlightCode");
+
+        if (!IsLoading && !_thirdAdMeasured)
+        {
+            _thirdAdMeasured = true;
+            ShowThirdAd = await JSRuntime.InvokeAsync<bool>("canShowThirdCourseAd");
+            ShowFourthAd = await JSRuntime.InvokeAsync<bool>("canShowFourthCourseAd");
+            ShowFifthAd = await JSRuntime.InvokeAsync<bool>("canShowFifthCourseAd");
+
+            if (ShowThirdAd || ShowFourthAd || ShowFifthAd)
+            {
+                await InvokeAsync(StateHasChanged);
+            }
+        }
     }
 
     private void NavigateToArticle(int articleDisplayId, int articleId, bool isCode)

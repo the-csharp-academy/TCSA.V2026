@@ -1,4 +1,3 @@
-﻿using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using TCSA.V2026.Data;
 using TCSA.V2026.Data.Curriculum;
@@ -14,25 +13,78 @@ public interface IProjectService
     Task<bool> IsProjectCompleted(string userId, int projectId);
     Task<List<int>> GetCompletedProjectsById(string userId);
     Task<BaseResponse> PostArticle(int projectId, string userId, string url, bool isArticle, bool isUpdate);
-    Task<BaseResponse> DeleteProject(int dashboardProjectId, string userId);
+    Task<ServiceResponse> DeleteProject(int dashboardProjectId, string userId);
     Task<BaseResponse> Archive(int dashboardProjectId);
     Task<BaseResponse> AcknowledgeNotifications(string userId);
     Task<int> GetCompletionCount(int projectId, bool isArticle);
+    Task<BaseResponse> ResetCourse(string userId, Course course);
 
 }
 
 public class ProjectService(IDbContextFactory<ApplicationDbContext> _factory) : IProjectService
 {
+    public async Task<BaseResponse> ResetCourse(string userId, Course course)
+    {
+        if (string.IsNullOrWhiteSpace(userId) || course?.Articles is null)
+        {
+            return new BaseResponse { Status = ResponseStatus.Fail, Message = "A user and course are required." };
+        }
+
+        try
+        {
+            await using var context = _factory.CreateDbContext();
+            var user = await context.Users.FirstOrDefaultAsync(x => x.Id == userId);
+
+            if (user is null)
+            {
+                return new BaseResponse { Status = ResponseStatus.Fail, Message = "User not found." };
+            }
+
+            var chapterIds = course.Articles.Select(article => article.Id).ToHashSet();
+            var dashboardProjects = await context.DashboardProjects
+                .Where(project => project.AppUserId == userId && chapterIds.Contains(project.ProjectId))
+                .ToListAsync();
+            var activities = await context.UserActivity
+                .Where(activity => activity.AppUserId == userId && chapterIds.Contains(activity.ProjectId))
+                .ToListAsync();
+
+            var completedChapterIds = dashboardProjects
+                .Where(project => project.IsCompleted)
+                .Select(project => project.ProjectId)
+                .ToHashSet();
+            var xpToRemove = course.Articles
+                .Where(article => completedChapterIds.Contains(article.Id))
+                .Sum(article => article.ExperiencePoints);
+
+            context.UserActivity.RemoveRange(activities);
+            context.DashboardProjects.RemoveRange(dashboardProjects);
+            user.ExperiencePoints = Math.Max(0, user.ExperiencePoints - xpToRemove);
+
+            await context.SaveChangesAsync();
+
+            return new BaseResponse
+            {
+                Status = ResponseStatus.Success,
+                Message = "Course progress reset.",
+                Data = new { ChaptersReset = dashboardProjects.Count, ExperiencePointsRemoved = xpToRemove }
+            };
+        }
+        catch (Exception ex)
+        {
+            return new BaseResponse { Status = ResponseStatus.Fail, Message = ex.Message };
+        }
+    }
+
     public async Task<BaseResponse> AcknowledgeNotifications(string userId)
     {
         try
         {
             using (var context = _factory.CreateDbContext())
             {
-                var projects = context.DashboardProjects
+                var projects = await context.DashboardProjects
                     .Where(p => p.AppUserId == userId)
                     .Where(p => p.IsPendingNotification)
-                    .ToList();
+                    .ToListAsync();
 
                 foreach (var p in projects)
                 {
@@ -57,20 +109,19 @@ public class ProjectService(IDbContextFactory<ApplicationDbContext> _factory) : 
         }
     }
 
-    public async Task<BaseResponse> DeleteProject(int dashboardProjectId, string userId)
+    public async Task<ServiceResponse> DeleteProject(int dashboardProjectId, string userId)
     {
         try
         {
             using (var context = _factory.CreateDbContext())
             {
-                var project = context.DashboardProjects
-                    .FirstOrDefault(p => p.Id == dashboardProjectId);
+                var project = await context.DashboardProjects.FirstOrDefaultAsync(p => p.Id == dashboardProjectId);
 
                 if (project == null)
                 {
-                    return new BaseResponse
+                    return new ServiceResponse
                     {
-                        Status = ResponseStatus.Fail,
+                        IsSuccessful = false,
                         Message = "Project Not Found"
                     };
                 }
@@ -83,16 +134,16 @@ public class ProjectService(IDbContextFactory<ApplicationDbContext> _factory) : 
                 await context.SaveChangesAsync();
             }
 
-            return new BaseResponse
+            return new ServiceResponse
             {
-                Status = ResponseStatus.Success,
+                IsSuccessful = true
             };
         }
         catch (Exception ex)
         {
-            return new BaseResponse
+            return new ServiceResponse
             {
-                Status = ResponseStatus.Fail,
+                IsSuccessful = false,
                 Message = ex.Message
             };
         }
@@ -229,8 +280,10 @@ public class ProjectService(IDbContextFactory<ApplicationDbContext> _factory) : 
                     }
 
                     await context.SaveChangesAsync();
-                };
-            };
+                }
+                ;
+            }
+            ;
         }
         catch (Exception ex)
         {
@@ -270,9 +323,9 @@ public class ProjectService(IDbContextFactory<ApplicationDbContext> _factory) : 
         {
             using (var context = _factory.CreateDbContext())
             {
-                var project = context.DashboardProjects
+                var project = await context.DashboardProjects
                     .Include(dp => dp.AppUser)
-                    .FirstOrDefault(p => p.Id == projectId);
+                    .FirstOrDefaultAsync(p => p.Id == projectId);
 
                 if (project == null)
                 {
@@ -294,9 +347,9 @@ public class ProjectService(IDbContextFactory<ApplicationDbContext> _factory) : 
                 if (dashboardProject == null)
                 {
                     var issue = await context.Issues.FirstOrDefaultAsync(x => x.ProjectId == project.ProjectId);
-                    experiencePoints = issue.ExperiencePoints;   
+                    experiencePoints = issue.ExperiencePoints;
                     issue.IsClosed = true;
-                } 
+                }
                 else
                 {
                     experiencePoints = dashboardProject.ExperiencePoints;

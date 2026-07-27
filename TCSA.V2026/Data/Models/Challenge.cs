@@ -32,7 +32,7 @@ public class Challenge
     public ChallengeCategory Category { get; set; }
 
     [Required(ErrorMessage = "Level is required.")]
-    public Level Level { get; set; }    
+    public Level Level { get; set; }
 
     public virtual ICollection<UserChallenge> UserChallenges { get; set; }
 }

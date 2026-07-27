@@ -88,6 +88,7 @@ public class BeltTests
         (int) ArticleName.Auth,
         (int) ArticleName.ProductManagement,
         (int) ArticleName.ExternalAuth,
+        (int) ArticleName.Auth0
     };
 
     public static readonly int[] SqlRequirements = {

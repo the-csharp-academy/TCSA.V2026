@@ -1,0 +1,153 @@
+@page "/newroadmap"
+@using MudBlazor
+@using TCSA.V2026.Data.DTOs
+@using TCSA.V2026.Data.Models
+@using TCSA.V2026.Helpers
+
+<MudContainer>
+    <div class="roadmap-grid"
+         style="grid-template-columns: repeat(@ColumnCount, 140px); grid-template-rows: repeat(@RowCount, 140px);">
+
+        @foreach (var cell in Cells)
+        {
+            <div class="roadmap-cell"
+                 style="grid-row: @(cell.Row + 1); grid-column: @(cell.Column + 1);">
+
+                @if (cell.ConnectTop)
+                {
+                    <div class="connector connector-top"></div>
+                }
+
+                @if (cell.ConnectRight)
+                {
+                    <div class="connector connector-right"></div>
+                }
+
+                @if (cell.ConnectBottom)
+                {
+                    <div class="connector connector-bottom"></div>
+                }
+
+                @if (cell.ConnectLeft)
+                {
+                    <div class="connector connector-left"></div>
+                }
+
+                @if (!string.IsNullOrEmpty(cell.Title))
+                {
+                    <MudTooltip Text=@($"{cell.Content}")>
+                        <MudCard Class="roadmap-node">
+                            <MudCardContent Class="roadmap-node-content">
+                                <img src="@($"img/icons/{cell.Icon}")"
+                                     alt="@cell.Title"
+                                     class="roadmap-node-image" />
+                            </MudCardContent>
+                            <MudCardActions Class="roadmap-node-actions">
+                                <MudText Typo="Typo.subtitle2">@cell.Title</MudText>
+                            </MudCardActions>
+                        </MudCard>
+                    </MudTooltip>
+                }
+            </div>
+        }
+    </div>
+</MudContainer>
+
+@code {
+    List<RoadmapGridCell> Cells = new();
+
+    int RowCount => Cells.Max(c => c.Row) + 1;
+    int ColumnCount => Cells.Max(c => c.Column) + 1;
+
+    protected override void OnInitialized()
+    {
+        Cells = RoadmapHelper.GetCellsForPublicRoadmap(Area.Blazor, Area.React);
+    }
+}
+
+<style>
+    .roadmap-grid {
+        display: grid;
+        margin: 40px 0;
+    }
+
+    .roadmap-cell {
+        position: relative;
+        width: 140px;
+        height: 140px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .roadmap-node {
+        width: 100px;
+        height: 100px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        transition: box-shadow 0.3s ease, transform 0.3s ease;
+        z-index: 2;
+        background: white;
+        position: relative;
+    }
+
+    .roadmap-node-content {
+        padding: 8px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .roadmap-node-image {
+        width: 56px;
+        height: 56px;
+        object-fit: contain;
+    }
+
+    .roadmap-node-actions {
+        justify-content: center;
+        padding-top: 0;
+    }
+
+        .roadmap-node:hover {
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+            transform: translateY(-2px);
+        }
+
+    .connector {
+        position: absolute;
+        z-index: 1;
+        pointer-events: none;
+    }
+
+    .connector-right {
+        left: 50%;
+        top: 50%;
+        width: 50%;
+        border-top: 2px solid blue;
+    }
+
+    .connector-left {
+        right: 50%;
+        top: 50%;
+        width: 50%;
+        border-top: 2px solid blue;
+    }
+
+    .connector-bottom {
+        top: 50%;
+        left: 50%;
+        height: 50%;
+        border-left: 2px solid blue;
+    }
+
+    .connector-top {
+        bottom: 50%;
+        left: 50%;
+        height: 50%;
+        border-left: 2px solid blue;
+    }
+</style>
