@@ -1,5 +1,6 @@
 using TCSA.V2026.Data.Models;
 using static TCSA.V2026.Helpers.CourseContentHelper;
+using static TCSA.V2026.Data.Curriculum.ArticleHelper;
 
 namespace TCSA.V2026.Data.Curriculum;
 
@@ -26,7 +27,7 @@ public class UnityMovingObjectCourse
                         {
                             Text("Welcome to <b>Intro to Unity - Moving an object</b>. This short course introduces the basic concepts and tools behind Unity by guiding you through one complete result: a square that moves when you press W, A, S, and D."),
                             Text("You will become familiar with Unity Hub, the Unity editor, scenes, GameObjects, components, the Hierarchy, Scene and Game views, the Inspector, C# scripts, Transforms, and Unity's modern Input System. The objective is not to memorise the whole editor. It is to understand how these pieces cooperate to create interactive behaviour."),
-                            Text("By the end, you will have created a Unity 6 Universal 2D project named <code class='inline-code'>CollectorGame</code>, configured a Move action, generated its C# class, attached a PlayerController component, and changed a GameObject's position from code.")
+                            Text("By the end, you will have created a Unity 6 Universal 2D project named <code class='inline-code'>CollectorGame</code>, configured player movement, collected objects, displayed a score and victory panel, and connected a Restart button that reloads the game.")
                         }
                     },
                     new Block
@@ -44,7 +45,7 @@ public class UnityMovingObjectCourse
                         Title = "Course Scope",
                         Paragraphs = new List<Paragraph>
                         {
-                            Text("This course deliberately stops when the square moves. Collectibles, collisions, score UI, prefabs, random spawning, and winning conditions are useful next steps, but they are not part of what we are building here."),
+                            Text("This course builds the foundations of a small collector game: player movement, collectibles, 2D colliders, trigger detection, score UI, a winning condition, a victory panel, and scene restarting. Timers, prefabs, random spawning, and multiple levels are useful later steps, but they are not part of what we are building yet."),
                             Text("There are no exercises in this first draft. Follow each chapter in order and reproduce every action in your own Unity project.")
                         }
                     },
@@ -567,74 +568,484 @@ public class UnityMovingObjectCourse
                             Text("For now, this is the expected result. We will build on this scene by detecting the Collectible and making the Player collect it."),
                             Video("/vid/Unity.8.Collectible.mp4", "Adding a collectible and observing the Player move through it.")
                         }
-                    })
-            }
+                    }),
+                Step(
+                    7,
+                    "Detect the Collectible",
+                    "detect-the-collectible",
+                    "Configure 2D physics components and detect when the Player enters the Collectible's trigger.",
+                    new Block
+                    {
+                        Title = "Visual Shape and Physics Shape",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("The Player and Collectible already have visible shapes because their <b>Sprite Renderer</b> components draw sprites. A Sprite Renderer affects appearance only. The physics system does not use the visible pixels as a collision boundary."),
+                            Text("A <b>Collider 2D</b> gives a 2D GameObject an invisible physics shape. Unity uses that shape to determine whether it overlaps or touches another 2D collider. The shape is shown as an outline in the Scene view when the object is selected, but it is not drawn in the finished game."),
+                            Text("Unity provides several 2D collider shapes. A <b>Box Collider 2D</b> is efficient and suits rectangular objects such as the Player. A <b>Circle Collider 2D</b> suits the circular Collectible. Other options include Capsule, Polygon, Edge, and Tilemap colliders. Choose the simplest shape that reasonably fits the object."),
+                            Text("The words <b>2D</b> matter. Collider 2D and Rigidbody 2D belong to Unity's 2D physics system. The similarly named Collider and Rigidbody components belong to the separate 3D physics system. A 2D collider does not interact with a 3D collider.")
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "Add Colliders",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("Stop Play mode. Select Player, click <b>Add Component</b>, and add a <b>Box Collider 2D</b>. Select Collectible and add a <b>Circle Collider 2D</b>. Unity may already have added appropriate colliders when the sprites were created; if so, use the existing components instead of adding duplicates."),
+                            Text("Check each collider's green outline in the Scene view. Its <b>Size</b> or <b>Radius</b> determines the dimensions of the physics shape, while <b>Offset</b> moves that shape relative to the GameObject's Transform. For these simple sprites, the default fit should be suitable."),
+                            Text("With two ordinary colliders, Unity treats contact as a physical collision: the shapes are intended to block one another. A collectible needs different behaviour. The Player should be able to enter its area so the game can detect the overlap and collect it.")
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "Make the Collectible a Trigger",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("On the Collectible's Collider 2D component, enable <b>Is Trigger</b>. A trigger still detects overlaps, but it does not produce a physical collision response. In other words, Unity reports that something entered the area without using that collider to push or stop the object."),
+                            Text("This is ideal for collectibles, checkpoints, interaction zones, doors, and other invisible regions. A wall normally uses a non-trigger collider because it should block movement; a coin normally uses a trigger because the player should pass into it."),
+                            Text("Only the Collectible collider should be a trigger for this setup. The Player's collider defines its shape, while the Collectible's trigger defines the detection area.")
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "Add Rigidbody 2D to the Player",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("Select Player and add a <b>Rigidbody 2D</b>. A collider defines an object's shape, but a Rigidbody 2D registers the object as a body controlled or tracked by the 2D physics simulation. For trigger callbacks between two Collider 2D components, at least one of the participating GameObjects needs a Rigidbody 2D."),
+                            Text("A Rigidbody 2D stores physics properties such as body type, mass, velocity, linear damping, angular damping, gravity scale, and constraints. It also lets Unity track the moving Player and send physics messages such as <code class='inline-code'>OnTriggerEnter2D</code>."),
+                            Text("The three body types serve different purposes:<br>🔹 <b>Dynamic</b> bodies respond to forces, gravity, collisions, and velocity.<br>🔹 <b>Kinematic</b> bodies are moved deliberately by game code and do not respond to forces in the same way.<br>🔹 <b>Static</b> bodies are intended not to move, such as floors and walls."),
+                            Text("Keep the Player as <b>Dynamic</b> for this lesson and set <b>Gravity Scale</b> to <code class='inline-code'>0</code>. Unity's default 2D gravity pulls Dynamic bodies down along the Y axis. That is useful in a side-view platform game, but this is a top-down game: down on the screen is a movement direction, not falling toward the ground. A gravity scale of zero prevents the Player from drifting downward when no key is pressed."),
+                            Text("Gravity Scale multiplies the global 2D gravity for this one body. A value of 1 applies normal gravity, 2 applies twice as much, and 0 applies none. It does not disable collisions or trigger detection."),
+                            Text("PlayerController currently changes <code class='inline-code'>transform.position</code> in Update. That is enough for this first trigger test, as you have seen in the Console, but it moves the Transform directly instead of asking the Rigidbody 2D to move. Physics-heavy movement is normally performed through the Rigidbody 2D during <code class='inline-code'>FixedUpdate()</code>. We will keep the current movement focused and refactor it when the course introduces physics-driven movement."),
+                            Text("Under <b>Constraints</b>, freeze rotation on the Z axis if the Player turns after touching other colliders. In a simple top-down game, the square usually should remain upright.")
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "Detect the Trigger in PlayerController",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("Open <code class='inline-code'>PlayerController.cs</code> and add this method inside the PlayerController class, but outside its other methods:"),
+                            Code("private void OnTriggerEnter2D(Collider2D other)\r\n{\r\n    Debug.Log(\"Something entered the trigger!\");\r\n}"),
+                            Text("<code class='inline-code'>OnTriggerEnter2D</code> is another Unity message method. Unity calls it automatically on the frame when this object's Collider 2D first enters a trigger Collider 2D. You do not call it from <code class='inline-code'>Update()</code>."),
+                            Text("The method must have the recognised name and signature. <code class='inline-code'>private</code> means other classes do not call it directly. <code class='inline-code'>void</code> means it returns no value. The <code class='inline-code'>2D</code> suffix tells you that it belongs to the 2D physics system."),
+                            Text("Unity supplies the <code class='inline-code'>Collider2D other</code> parameter when it calls the method. <code class='inline-code'>other</code> refers to the other collider involved in the overlap—in this case, the Collectible's collider. Later, you can inspect <code class='inline-code'>other.gameObject</code>, compare its tag, read one of its components, or destroy that specific collectible."),
+                            Text("<code class='inline-code'>Debug.Log(...)</code> writes a message to Unity's Console. It is a temporary observation tool that proves the callback occurred; it does not collect or remove anything yet.")
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "Test the Trigger Message",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("Save the script and return to Unity. Wait for compilation to finish and confirm that the Console has no red errors. Enter Play mode and move the Player into the Collectible."),
+                            Text("The Console should print <code class='inline-code'>Something entered the trigger!</code> once when the colliders begin overlapping. Remaining inside does not repeatedly call OnTriggerEnter2D. Leaving and entering again creates a new entry and prints another message."),
+                            Text("Unity also provides <code class='inline-code'>OnTriggerStay2D</code>, which runs repeatedly while the overlap continues, and <code class='inline-code'>OnTriggerExit2D</code>, which runs when the colliders stop overlapping. Entry is the correct event for a collectible because collection should normally happen once."),
+                            Text("If nothing prints, confirm that both objects have Collider 2D components, Collectible has Is Trigger enabled, Player has a Rigidbody 2D, PlayerController is attached to Player, the script compiled, and you used the 2D versions of every component and callback."),
+                            Video("/vid/Unity.9.Colliders.mp4", "Adding 2D colliders and a Rigidbody 2D, then detecting the Collectible trigger.")
+                        }
+                    }),
+                Step(
+                    8,
+                    "Collect and Destroy Objects",
+                    "collect-and-destroy-objects",
+                    "Identify Collectibles with a tag and remove them when the Player enters their trigger.",
+                    new Block
+                    {
+                        Title = "Create and Assign the Collectible Tag",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("The callback currently responds to anything that enters the trigger. As the game grows, the Player might overlap enemies, doors, checkpoints, or other trigger zones. Before destroying an object, the script needs a reliable way to confirm that it really is a collectible."),
+                            Text("A <b>tag</b> is a short label assigned to a GameObject. Select Collectible in the Hierarchy. At the top of the Inspector, open the <b>Tag</b> menu, choose <b>Add Tag...</b>, add a tag named <code class='inline-code'>Collectible</code>, then return to the Collectible GameObject and assign that tag to it."),
+                            Text("Creating a tag does not automatically assign it. Confirm that the Collectible's Tag field now displays <b>Collectible</b>. Tag names are case-sensitive, so the Inspector and code must use exactly the same spelling and capitalisation."),
+                            Text("The GameObject's name and tag serve different purposes. Its name helps people identify it in the Hierarchy; its tag gives scripts a category they can check. Several differently named objects can share the Collectible tag.")
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "Destroy the Collectible",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("Replace the temporary logging callback with this version:"),
+                            Code("private void OnTriggerEnter2D(Collider2D other)\r\n{\r\n    if (other.CompareTag(\"Collectible\"))\r\n    {\r\n        Destroy(other.gameObject);\r\n    }\r\n}"),
+                            Text("<code class='inline-code'>other</code> is the Collider 2D that entered the Player's trigger interaction. Calling <code class='inline-code'>other.CompareTag(\"Collectible\")</code> asks whether the GameObject carrying that collider has the Collectible tag."),
+                            Text("<code class='inline-code'>CompareTag</code> is Unity's purpose-built tag check. It clearly expresses the intention and validates the tag name. If the other object has a different tag, the condition is false and the body of the <code class='inline-code'>if</code> statement is skipped."),
+                            Text("<code class='inline-code'>other.gameObject</code> retrieves the GameObject to which the other collider belongs. This is important: destroying <code class='inline-code'>gameObject</code> without <code class='inline-code'>other.</code> would refer to the PlayerController's own GameObject and destroy the Player instead."),
+                            Text("<code class='inline-code'>Destroy(other.gameObject)</code> tells Unity to remove that Collectible GameObject. Destroy is processed safely by Unity after the current event-processing step, rather than removing the object halfway through the callback."),
+                            Text("Because Destroy receives the complete GameObject, its Transform, Sprite Renderer, Collider 2D, and any other attached components are removed together. The scene asset itself is not deleted, and the Collectible returns when you stop and restart Play mode because Play mode changes are temporary.")
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "Test Collecting the Object",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("Save PlayerController, return to Unity, and wait for it to compile. Enter Play mode and move the Player into the Collectible. The Collectible should disappear as soon as the colliders overlap."),
+                            Text("If it does not disappear, confirm that the tag was both created and assigned, its spelling is exactly <code class='inline-code'>Collectible</code>, the Collectible owns the collider received as <code class='inline-code'>other</code>, and the earlier trigger test worked."),
+                            Text("This condition makes the callback safe around other triggers: only GameObjects tagged Collectible are destroyed. Other tagged or untagged trigger objects are ignored."),
+                            Video("/vid/Unity.10.Destroy.mp4", "Assigning the Collectible tag and destroying the collected GameObject.")
+                        }
+                    }),
+                Step(
+                    9,
+                    "Add Multiple Collectibles and a Score",
+                    "add-multiple-collectibles-and-a-score",
+                    "Duplicate Collectibles and keep track of how many the Player collects.",
+                    new Block
+                    {
+                        Title = "Create Multiple Collectibles",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("Stop Play mode. Select Collectible in the Hierarchy and duplicate it several times. You can use <b>Ctrl+D</b> on Windows and Linux or <b>Cmd+D</b> on macOS. Move each copy to a different position using its Transform."),
+                            Text("Duplicating the GameObject copies all of its components and settings. Each duplicate keeps its Sprite Renderer, Circle Collider 2D, Is Trigger setting, and Collectible tag. This is faster and less error-prone than rebuilding every collectible from scratch."),
+                            Text("Unity gives the copies names such as Collectible (1), Collectible (2), or similar. Their names do not affect the collection code because PlayerController checks their shared <b>Collectible tag</b>, not their individual names."),
+                            Text("Place the objects far enough apart that the Player can enter each trigger separately. The scene should now contain several independently collectable objects."),
+                            Picture("c9-c11-multiple-collectibles.png", "Several Collectible GameObjects placed around the Player.")
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "Store the Score",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("PlayerController needs a field that survives between trigger callbacks. Add this field inside the PlayerController class, near the existing <code class='inline-code'>inputActions</code> field:"),
+                            Code("private int score;"),
+                            Text("<code class='inline-code'>int</code> stores a whole number. <code class='inline-code'>score</code> is a field rather than a local variable, so the same value remains available for as long as this PlayerController instance exists."),
+                            Text("C# initializes an instance <code class='inline-code'>int</code> field to <code class='inline-code'>0</code> automatically. Writing <code class='inline-code'>private int score = 0;</code> would also be valid, but the explicit assignment is not required."),
+                            Text("The field is private because only PlayerController currently needs to change it. The score will reset to zero whenever Play mode starts again because Unity creates a fresh runtime instance of the component.")
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "Increase and Print the Score",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("Update <code class='inline-code'>OnTriggerEnter2D</code> so a successful collection increments the score before destroying the object:"),
+                            Code("private void OnTriggerEnter2D(Collider2D other)\r\n{\r\n    if (other.CompareTag(\"Collectible\"))\r\n    {\r\n        score++;\r\n        Debug.Log($\"Score: {score}\");\r\n        Destroy(other.gameObject);\r\n    }\r\n}"),
+                            Text("<code class='inline-code'>score++</code> is the increment operator. It adds one to the current value and stores the result back in the score field. The first collectible changes the score from 0 to 1, the second changes it from 1 to 2, and so on."),
+                            Text("<code class='inline-code'>$\"Score: {score}\"</code> is an interpolated string. The leading <code class='inline-code'>$</code> allows the value inside braces to be inserted into the text. If score is 2, the resulting Console message is <code class='inline-code'>Score: 2</code>."),
+                            Text("All three statements are inside the tag check, so unrelated trigger objects do not increase the score. The order is also intentional: increment the stored value, print the new value, and then destroy the collected GameObject.")
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "Collect and Verify",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("Save PlayerController and return to Unity. After compilation finishes, enter Play mode and collect the objects one at a time. Each object should disappear and the Console should display the next score."),
+                            Text("The screenshot shows <code class='inline-code'>Score: 1</code> followed by <code class='inline-code'>Score: 2</code>, confirming that the field retained its value between separate calls to OnTriggerEnter2D."),
+                            Picture("c9-c11-score.png", "The Console displaying the score after collecting two objects."),
+                            Text("If every message says Score: 1, make sure score is a field declared at class level. Declaring <code class='inline-code'>int score = 0;</code> inside OnTriggerEnter2D would create and reset a new local variable every time the callback runs."),
+                            Text("The score currently appears only in the developer Console. A later chapter can display it to the player with a user-interface text element.")
+                        }
+                    }),
+                Step(
+                    10,
+                    "Display the Score with TextMeshPro",
+                    "display-the-score-with-textmeshpro",
+                    "Create a Canvas and keep a TextMeshPro score display synchronized with PlayerController.",
+                    new Block
+                    {
+                        Title = "Create a Canvas",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("Stop Play mode. In the Hierarchy, create <b>UI &gt; Canvas</b>. A Canvas is the root container Unity uses to lay out and render user-interface elements such as text, images, buttons, health bars, and menus."),
+                            Text("World sprites use positions in the game scene. Canvas children use a <b>Rect Transform</b>, which adds width, height, anchors, and a pivot for UI layout. Anchors describe where a UI element should remain when the Game view changes size."),
+                            Text("For this simple score, keep the Canvas in its default <b>Screen Space - Overlay</b> render mode. Overlay UI is drawn over the game and does not need a camera reference. Unity may also create an EventSystem; that object handles input for interactive UI controls and can remain in the scene.")
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "Add TextMeshPro UI Text",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("Right-click the Canvas in the Hierarchy and create <b>UI &gt; Text - TextMeshPro</b>. If Unity asks you to import TMP Essentials, choose <b>Import TMP Essentials</b>. These resources contain the default font assets and settings TextMeshPro needs."),
+                            Text("TextMeshPro, usually shortened to <b>TMP</b>, is Unity's modern text-rendering system. <code class='inline-code'>TextMeshProUGUI</code> is the component used for text inside a Canvas; it is different from a world-space TextMeshPro component."),
+                            Text("Rename the new GameObject <code class='inline-code'>ScoreText</code>. In its TextMeshPro component, set the initial text to <code class='inline-code'>Score: 0</code>. Use its Rect Transform to position it somewhere easy to read, such as near the upper-left corner."),
+                            Text("The Inspector value gives you an immediate preview, but PlayerController will become the source of truth at runtime. This prevents the displayed text and the numeric score from drifting apart.")
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "Reference TextMeshPro from PlayerController",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("Add the TextMeshPro namespace at the top of <code class='inline-code'>PlayerController.cs</code>:"),
+                            Code("using TMPro;"),
+                            Text("A namespace groups related types. The using directive lets the script refer to <code class='inline-code'>TextMeshProUGUI</code> without writing its full namespace every time."),
+                            Text("Add this field inside PlayerController, near the score field:"),
+                            Code("[SerializeField]\r\nprivate TextMeshProUGUI scoreText;"),
+                            Text("<code class='inline-code'>TextMeshProUGUI</code> is the type of the component the script needs to update. The <code class='inline-code'>scoreText</code> field will hold a reference to the specific ScoreText component in this scene."),
+                            Text("The field remains <code class='inline-code'>private</code>, so other scripts cannot freely replace it. <code class='inline-code'>[SerializeField]</code> tells Unity to serialize the private field and show it in the Inspector. This combines encapsulation in C# with scene configuration in Unity.")
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "Assign the Inspector Reference",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("Save the script and return to Unity. After it compiles, select Player. The Player Controller component now contains a <b>Score Text</b> field."),
+                            Text("Drag the ScoreText GameObject from the Hierarchy into that field. Unity stores a reference to its TextMeshProUGUI component. You can also click the small object-picker circle and select ScoreText."),
+                            Text("Declaring a serialized field does not make Unity discover the correct text automatically. The assignment connects this particular PlayerController to this particular UI component. If the field displays <b>None (TextMeshProUGUI)</b>, the reference has not been assigned.")
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "Create UpdateScoreText",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("Add a method that converts the numeric score into the text the player sees:"),
+                            Code("private void UpdateScoreText()\r\n{\r\n    scoreText.text = $\"Score: {score}\";\r\n}"),
+                            Text("<code class='inline-code'>scoreText.text</code> is the TextMeshPro component's displayed string. Assigning a new value changes the UI. The interpolated string inserts the current score after the label."),
+                            Text("Keeping this operation in a named method avoids duplicating the formatting expression. Whenever the score needs to appear on screen, PlayerController can call <code class='inline-code'>UpdateScoreText()</code>.")
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "Initialize and Refresh the Display",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("Add <code class='inline-code'>Start()</code> and call the method once when the scene begins:"),
+                            Code("private void Start()\r\n{\r\n    UpdateScoreText();\r\n}"),
+                            Text("<code class='inline-code'>Awake()</code> runs first and creates the input-actions object. <code class='inline-code'>OnEnable()</code> then enables the component's actions. <code class='inline-code'>Start()</code> runs before the first Update, after the object has been enabled. It is a suitable place to display the initial score of zero."),
+                            Text("In <code class='inline-code'>OnTriggerEnter2D</code>, replace the Console log with a UI refresh immediately after incrementing the score:"),
+                            Code("private void OnTriggerEnter2D(Collider2D other)\r\n{\r\n    if (other.CompareTag(\"Collectible\"))\r\n    {\r\n        score++;\r\n        UpdateScoreText();\r\n        Destroy(other.gameObject);\r\n    }\r\n}"),
+                            Text("The order keeps the UI accurate: first change the number, then display the new number, and finally remove the collected object.")
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "Complete PlayerController",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("The complete script should now look like this:"),
+                            Code("using TMPro;\r\nusing UnityEngine;\r\n\r\npublic class PlayerController : MonoBehaviour\r\n{\r\n    private PlayerInputActions inputActions;\r\n    private int score;\r\n\r\n    [SerializeField]\r\n    private TextMeshProUGUI scoreText;\r\n\r\n    private void Start()\r\n    {\r\n        UpdateScoreText();\r\n    }\r\n\r\n    private void Update()\r\n    {\r\n        Vector2 movement = inputActions.Player.Move.ReadValue<Vector2>();\r\n\r\n        transform.position += new Vector3(movement.x, movement.y, 0) * 5f * Time.deltaTime;\r\n    }\r\n\r\n    private void Awake()\r\n    {\r\n        inputActions = new PlayerInputActions();\r\n    }\r\n\r\n    private void OnEnable()\r\n    {\r\n        inputActions.Enable();\r\n    }\r\n\r\n    private void OnDisable()\r\n    {\r\n        inputActions.Disable();\r\n    }\r\n\r\n    private void OnTriggerEnter2D(Collider2D other)\r\n    {\r\n        if (other.CompareTag(\"Collectible\"))\r\n        {\r\n            score++;\r\n            UpdateScoreText();\r\n            Destroy(other.gameObject);\r\n        }\r\n    }\r\n\r\n    private void UpdateScoreText()\r\n    {\r\n        scoreText.text = $\"Score: {score}\";\r\n    }\r\n}"),
+                            Text("Calling <code class='inline-code'>inputActions.Enable()</code> enables every action map in this input-actions asset. Earlier, the course enabled only <code class='inline-code'>inputActions.Player</code>. Both work in this project because it currently has only the Player map; enabling the individual map is more selective if additional maps are added later.")
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "Play and Troubleshoot",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("Enter Play mode. The Canvas should initially display <code class='inline-code'>Score: 0</code>. Each collected object should disappear and immediately increase the on-screen number."),
+                            Text("If Unity reports a <code class='inline-code'>NullReferenceException</code> on <code class='inline-code'>scoreText.text</code>, select Player and assign ScoreText to the serialized Score Text field. The script has a variable, but it cannot use a scene component until that reference points to an object."),
+                            Text("If the text exists but is not visible, check that ScoreText is a child of Canvas, the GameObject is active, its font size and colour are visible, its Rect Transform is on screen, and the Canvas is enabled."),
+                            Text("The Console is still useful for developers, but the Canvas turns the internal score into information the person playing the game can see."),
+                            Video("/vid/Unity.11.Score.mp4", "Creating a TextMeshPro score display and updating it when Collectibles are collected.")
+                        }
+                    }),
+                Step(
+                    11,
+                    "Display a Win Panel",
+                    "display-a-win-panel",
+                    "Create a victory panel and show it after the Player collects all five Collectibles.",
+                    new Block
+                    {
+                        Title = "Define the Win Condition",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("The game now has an activity—collecting objects—but it does not have an ending. A <b>win condition</b> is a rule that changes the game from its playing state to a won state."),
+                            Text("This scene contains five Collectibles, so the rule is straightforward: the player wins when score reaches 5. The score already records progress, which means the same field can determine when to reveal a victory message."),
+                            Text("Movement and input continue after winning for now. This chapter focuses only on recognising success and presenting immediate feedback.")
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "Create the Win Panel",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("Stop Play mode. Right-click Canvas in the Hierarchy and create <b>UI &gt; Panel</b>. Rename the new GameObject <code class='inline-code'>WinPanel</code>."),
+                            Text("A Panel is a UI GameObject with a Rect Transform and an Image component. It provides a background behind related controls and text. Keep it full-screen or resize it into a centred message box."),
+                            Text("Choose a background colour and alpha that make the message readable while still allowing some of the game to remain visible. Alpha controls transparency."),
+                            Text("Right-click WinPanel and create <b>UI &gt; Text - TextMeshPro</b>. Rename the child <code class='inline-code'>WinText</code>, set its text to <code class='inline-code'>You Win!</code>, increase its font size, and centre it inside the panel."),
+                            Text("The hierarchy should contain Canvas with ScoreText and WinPanel beneath it, and WinText beneath WinPanel.")
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "Hide the Panel at the Start",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("Select WinPanel and clear the active checkbox beside its name at the top of the Inspector. The panel and its WinText child should disappear from the Game view."),
+                            Text("A disabled GameObject remains part of the scene, but Unity does not render it or run its attached behaviours. Its children also become inactive through the hierarchy."),
+                            Text("Leave the panel disabled when you save the scene. The current Start method initializes the score text but does not hide WinPanel from code.")
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "Reference the Panel from PlayerController",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("Add this field inside PlayerController, beneath the existing scoreText field:"),
+                            Code("[SerializeField]\r\nprivate GameObject winPanel;"),
+                            Text("The field uses <code class='inline-code'>GameObject</code> because the script needs to activate the entire panel rather than change one text property. <code class='inline-code'>[SerializeField]</code> keeps it private while exposing an assignment slot in Unity's Inspector."),
+                            Text("Save the script and return to Unity. Select Player, then drag WinPanel from the Hierarchy into the <b>Win Panel</b> field on Player Controller."),
+                            Text("Assign the WinPanel parent, not only its WinText child. Activating the parent reveals the background and every UI element beneath it.")
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "Show the Panel After Five Collectibles",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("Extend OnTriggerEnter2D with a win check after destroying the collected object:"),
+                            Code("private void OnTriggerEnter2D(Collider2D other)\r\n{\r\n    if (other.CompareTag(\"Collectible\"))\r\n    {\r\n        score++;\r\n        UpdateScoreText();\r\n        Destroy(other.gameObject);\r\n\r\n        if (score >= 5)\r\n        {\r\n            winPanel.SetActive(true);\r\n        }\r\n    }\r\n}"),
+                            Text("The condition runs only after a correctly tagged Collectible increases the score. When the fifth Collectible is collected, score becomes 5 and SetActive activates the hidden WinPanel."),
+                            Text("Using <code class='inline-code'>&gt;=</code> instead of <code class='inline-code'>==</code> is defensive: the condition remains true if a later version awards multiple points at once.")
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "Complete PlayerController",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("The complete script should now match this version:"),
+                            Code("using TMPro;\r\nusing UnityEngine;\r\n\r\npublic class PlayerController : MonoBehaviour\r\n{\r\n    private PlayerInputActions inputActions;\r\n    private int score;\r\n\r\n    [SerializeField]\r\n    private TextMeshProUGUI scoreText;\r\n\r\n    [SerializeField]\r\n    private GameObject winPanel;\r\n\r\n    private void Start()\r\n    {\r\n        UpdateScoreText();\r\n    }\r\n\r\n    private void Update()\r\n    {\r\n        Vector2 movement = inputActions.Player.Move.ReadValue<Vector2>();\r\n\r\n        transform.position += new Vector3(movement.x, movement.y, 0) * 5f * Time.deltaTime;\r\n    }\r\n\r\n    private void Awake()\r\n    {\r\n        inputActions = new PlayerInputActions();\r\n    }\r\n\r\n    private void OnEnable()\r\n    {\r\n        inputActions.Enable();\r\n    }\r\n\r\n    private void OnDisable()\r\n    {\r\n        inputActions.Disable();\r\n    }\r\n\r\n    private void OnTriggerEnter2D(Collider2D other)\r\n    {\r\n        if (other.CompareTag(\"Collectible\"))\r\n        {\r\n            score++;\r\n            UpdateScoreText();\r\n            Destroy(other.gameObject);\r\n\r\n            if (score >= 5)\r\n            {\r\n                winPanel.SetActive(true);\r\n            }\r\n        }\r\n    }\r\n\r\n    private void UpdateScoreText()\r\n    {\r\n        scoreText.text = $\"Score: {score}\";\r\n    }\r\n}"),
+                            Text("This version deliberately has no timer, restart button, SceneManager import, gameWon field, or movement lock.")
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "Test the Win Panel",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("Enter Play mode. Score should begin at 0 and WinPanel should be hidden. Collect four objects and confirm the panel remains hidden while the score reaches 4."),
+                            Text("Collect the fifth object. The score should change to 5, the last Collectible should disappear, and WinPanel should become visible with the You Win message."),
+                            Text("If WinPanel appears immediately, stop Play mode and disable it in the Inspector before saving the scene. If it never appears, confirm that all five objects use the Collectible tag and WinPanel is assigned on PlayerController."),
+                            Text("If Unity reports a NullReferenceException on SetActive, drag the WinPanel GameObject—not only WinText—into the Player Inspector."),
+                            Text("Stopping movement, restarting, and timing attempts can be introduced in later chapters."),
+                            Video("/vid/Unity.12.WinPanel.mp4", "Displaying win panel")
+                        },
+                    }),
+                    Step(
+                    12,
+                    "Add and Connect a Restart Button",
+                    "add-and-connect-a-restart-button",
+                    "Create a TextMeshPro button, reload the active scene with SceneManager, and connect the click event.",
+                    new Block
+                    {
+                        Title = "Create the Button",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("Stop Play mode. In the Hierarchy, right-click <code class='inline-code'>WinPanel</code> and select <b>UI &gt; Button - TextMeshPro</b>. Unity creates a Button GameObject as a child of the panel and adds a TextMeshPro label beneath it."),
+                            Text("Rename the new Button GameObject <code class='inline-code'>RestartButton</code>. Clear names make the hierarchy easier to read and will help you find the correct object when the button's behaviour is configured later."),
+                            Text("Because RestartButton is a child of WinPanel, it follows the panel's active state. It is hidden while WinPanel is disabled and becomes visible automatically when the fifth Collectible activates the panel.")
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "Change the Button Label",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("Expand RestartButton in the Hierarchy. Select its child, normally named <code class='inline-code'>Text (TMP)</code> or <code class='inline-code'>Text</code>."),
+                            Text("In the child's TextMeshProUGUI component, change the displayed text to <code class='inline-code'>Restart</code>. The parent owns the clickable Button component; the child renders the label the player sees."),
+                            Text("You can adjust the font size, colour, and alignment, but keep the label centred and easy to read.")
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "Position the Button",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("Select RestartButton and use its Rect Transform to place it below the You Win message. Resize it if necessary so the label has comfortable spacing."),
+                            Text("The hierarchy should now look like this:<br><code class='inline-code'>Canvas</code><br>├── <code class='inline-code'>ScoreText</code><br>└── <code class='inline-code'>WinPanel</code><br>&nbsp;&nbsp;&nbsp;&nbsp;├── <code class='inline-code'>WinText</code><br>&nbsp;&nbsp;&nbsp;&nbsp;└── <code class='inline-code'>RestartButton</code><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── <code class='inline-code'>Text (TMP)</code>"),
+                            Text("The button is only visual at this point. Clicking it does nothing until the next section creates a restart method and connects the Button's On Click event.")
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "Check the Layout",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("Temporarily enable WinPanel in the Inspector to preview the complete message and button. Confirm that the objects do not overlap and both remain inside the panel."),
+                            Text("Disable WinPanel again before saving the scene. The next sections will make RestartButton reload the game.")
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "What Scene Management Does",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("A Unity <b>scene</b> contains the GameObjects and component state that make up a level or screen. Restarting this game means loading a fresh copy of the current scene."),
+                            Text("Unity's <code class='inline-code'>SceneManager</code> provides methods for loading scenes and inspecting the scene that is currently active. Reloading MainScene recreates the Player, Collectibles, score, and UI from their saved starting values.")
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "Import SceneManager",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("At the top of <code class='inline-code'>PlayerController.cs</code>, add the Scene Management namespace alongside the existing using directives:"),
+                            Code("using UnityEngine.SceneManagement;"),
+                            Text("SceneManager does not live directly in the UnityEngine namespace. Importing <code class='inline-code'>UnityEngine.SceneManagement</code> makes the SceneManager and Scene types available by their short names.")
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "Create RestartGame",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("Add this method inside PlayerController:"),
+                            Code("public void RestartGame()\r\n{\r\n    SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);\r\n}"),
+                            Text("<code class='inline-code'>SceneManager.GetActiveScene()</code> returns the scene that is currently running."),
+                            Text("<code class='inline-code'>.buildIndex</code> reads that scene's numeric position in the project's build scene list."),
+                            Text("<code class='inline-code'>SceneManager.LoadScene(...)</code> loads the scene at that index. Loading it again creates a fresh runtime copy, so the Player returns to its starting position, the Collectibles return, score becomes zero, and WinPanel is hidden again."),
+                            Text("The method is <code class='inline-code'>public</code> because Unity's Button Inspector must be able to list and invoke it. It returns <code class='inline-code'>void</code> because the click event does not need a result.")
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "Include MainScene in the Build Profile",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("Save MainScene. In Unity 6, open <b>File &gt; Build Profiles</b> and confirm MainScene is included in the active profile's Scene List. Depending on the editor layout, you may see an option such as <b>Add Open Scenes</b>."),
+                            Text("The build index comes from this ordered list. If the scene is not included, its build index is not available for reliable reloading and LoadScene can report an error.")
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "Add an On Click Event",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("Select RestartButton in the Hierarchy. In the Inspector, find its <b>Button</b> component and scroll to the <b>On Click ()</b> section."),
+                            Text("Click the <b>+</b> button. Unity adds an event entry containing an object field and a function menu. This entry describes which component should receive the click and which method it should run."),
+                            Text("Drag the Player GameObject from the Hierarchy into the empty object field. If drag-and-drop is unavailable, click the small object-picker circle and select Player.")
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "Choose RestartGame",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("Open the <b>No Function</b> dropdown in the event entry. Select <b>PlayerController &gt; RestartGame ()</b>."),
+                            Text("The Button now stores a reference to PlayerController and the selected public method. When the player clicks, Unity invokes RestartGame without requiring extra button-handling code."),
+                            Text("This is an example of a UnityEvent configured through the Inspector. It lets designers connect UI interactions to compatible public methods without hard-coding a reference to the Button inside PlayerController.")
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "Complete Script Addition",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("The only C# additions in this chapter are the namespace import and restart method:"),
+                            Code("using UnityEngine.SceneManagement;\r\n\r\n// Inside PlayerController:\r\npublic void RestartGame()\r\n{\r\n    SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);\r\n}"),
+                            Text("Keep <code class='inline-code'>using TMPro;</code> and <code class='inline-code'>using UnityEngine;</code> in the file as well. The rest of PlayerController remains unchanged from the win-panel chapter.")
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "Test the Complete Game",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("Press Play and collect all five Collectibles. WinPanel should appear with You Win and the Restart button."),
+                            Text("Click Restart. MainScene should reload: the Player returns to its original position, all Collectibles reappear, ScoreText returns to Score: 0, and WinPanel is hidden."),
+                            Text("If clicking does nothing, confirm that the On Click entry references Player—not RestartButton—and that PlayerController &gt; RestartGame is selected. If LoadScene reports an invalid build index, add MainScene to the active Build Profile."),
+                            Text("<b>Congratulations!</b> You have completed your first Unity game. It now has input, movement, collectibles, scoring, a win condition, player-facing UI, and a restartable game loop."),
+                            Video("/vid/Unity.13.Restart.mp4", "Creating the Restart button, reloading the active scene, and connecting the Button's On Click event.")
+                        }
+                    }),
+            }.OrderBy(article => article.CourseDisplayId).ToList()
         };
     }
 
-    private static Article Step(
-        int number,
-        string title,
-        string slug,
-        string description,
-        params Block[] blocks)
-    {
-        var courseNumber = number + 3;
-
-        return new Article
-        {
-            Id = 500399 + courseNumber,
-            CourseDisplayId = courseNumber,
-            Title = title,
-            Slug = slug,
-            Description = description,
-            Area = Area.Course,
-            ExperiencePoints = 1,
-            Blocks = blocks.ToList()
-        };
-    }
-
-    private static Article IntroChapter(
-        int number,
-        string title,
-        string slug,
-        string description,
-        params Block[] blocks)
-    {
-        return new Article
-        {
-            Id = 500399 + number,
-            CourseDisplayId = number,
-            Title = title,
-            Slug = slug,
-            Description = description,
-            Area = Area.Course,
-            ExperiencePoints = 1,
-            Blocks = blocks.ToList()
-        };
-    }
-
-    private static Paragraph Text(string body)
-    {
-        return new Paragraph { Body = body };
-    }
-
-    private static Paragraph Code(string body)
-    {
-        return new Paragraph
-        {
-            IsCode = true,
-            Body = body
-        };
-    }
-
-    private static Paragraph Video(string url, string? caption = null)
-    {
-        return new Paragraph
-        {
-            IsVideo = true,
-            VideoUrl = url,
-            Body = caption
-        };
-    }
 }

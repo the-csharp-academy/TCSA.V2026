@@ -2703,5 +2703,81 @@ git push</code>"
         return articles;
     }
 
+    public static Article Step(
+        int number,
+        string title,
+        string slug,
+        string description,
+        params Block[] blocks)
+    {
+        var courseNumber = number + 3;
+
+        return new Article
+        {
+            Id = 500399 + courseNumber,
+            CourseDisplayId = courseNumber,
+            Title = title,
+            Slug = slug,
+            Description = description,
+            Area = Area.Course,
+            ExperiencePoints = 1,
+            Blocks = blocks.ToList()
+        };
+    }
+
+    public static Article IntroChapter(
+        int number,
+        string title,
+        string slug,
+        string description,
+        params Block[] blocks)
+    {
+        return new Article
+        {
+            Id = 500399 + number,
+            CourseDisplayId = number,
+            Title = title,
+            Slug = slug,
+            Description = description,
+            Area = Area.Course,
+            ExperiencePoints = 1,
+            Blocks = blocks.ToList()
+        };
+    }
+
+    public static Paragraph Text(string body)
+    {
+        return new Paragraph { Body = body };
+    }
+
+    public static Paragraph Code(string body)
+    {
+        return new Paragraph
+        {
+            IsCode = true,
+            Body = body
+        };
+    }
+
+    public static Paragraph Video(string url, string? caption = null)
+    {
+        return new Paragraph
+        {
+            IsVideo = true,
+            VideoUrl = url,
+            Body = caption
+        };
+    }
+
+    public static Paragraph Picture(string url, string? caption = null)
+    {
+        return new Paragraph
+        {
+            IsPicture = true,
+            PictureUrl = url,
+            Body = caption
+        };
+    }
+
     public static List<Article> GetArticles() => _allArticles;
 }

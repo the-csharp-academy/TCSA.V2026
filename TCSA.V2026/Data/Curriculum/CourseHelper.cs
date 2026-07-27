@@ -16,7 +16,7 @@ public class CourseHelper
             //ReactCourse.GetReactCourse(),
             LinqCourse.GetLinqCourse(),
             DataStructuresCourse.GetDataStructuresCourse(),
-            //UnityMovingObjectCourse.GetUnityMovingObjectCourse()
+            UnityMovingObjectCourse.GetUnityMovingObjectCourse()
         };
     }
 }
