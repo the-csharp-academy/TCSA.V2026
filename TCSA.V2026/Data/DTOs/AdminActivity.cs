@@ -6,6 +6,10 @@ namespace TCSA.V2026.Data.DTOs;
 public class AdminActivity
 {
     public string Title { get; set; }
+    public string? CourseTitle { get; set; }
+    public string DisplayTitle => string.IsNullOrWhiteSpace(CourseTitle)
+        ? Title
+        : $"{Title} — {CourseTitle}";
     public string Date { get; set; }
     public ProjectType ProjectType { get; set; }
     public string AppUserId { get; set; }

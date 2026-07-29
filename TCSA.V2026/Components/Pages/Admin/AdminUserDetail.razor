@@ -176,7 +176,7 @@
                 <Columns>
                     <PropertyColumn Property="fa => fa.ProjectId" Title="Id" />
                     <PropertyColumn Property="fa => fa.DashboardProjectId" Title="Db Id" />
-                    <PropertyColumn Property="fa => fa.Title" Title="Name" />
+                    <PropertyColumn Property="fa => fa.DisplayTitle" Title="Name" />
                     <TemplateColumn Title="Status">
                         <CellTemplate>
                             <MudChip T="string" Size="Size.Small" Color="@(context.Item.IsCompleted ? Color.Success : Color.Warning)">
@@ -285,7 +285,8 @@
     {
         Projects = ProjectHelper.GetProjects();
         Articles = ArticleHelper.GetArticles().ToList();
-        var courseArticles = CourseHelper.GetCourses().SelectMany(x => x.Articles).ToList();
+        var courses = CourseHelper.GetCourses();
+        var courseArticles = courses.SelectMany(x => x.Articles).ToList();
         Articles.AddRange(courseArticles);
 
         var startTime = DateTime.UtcNow;
@@ -408,7 +409,15 @@
     {
         AllAdminActivity.Clear();
 
-        var courseArticles = CourseHelper.GetCourses().SelectMany(x => x.Articles).ToList();
+        var courses = CourseHelper.GetCourses();
+        var courseArticles = courses.SelectMany(x => x.Articles).ToList();
+        var courseTitleByArticleId = courses
+            .SelectMany(course => course.Articles.Select(article => new
+            {
+                ArticleId = article.Id,
+                CourseTitle = course.Title
+            }))
+            .ToDictionary(item => item.ArticleId, item => item.CourseTitle);
         var courseArticlesIds = courseArticles.Select(x => x.Id).ToList();
         var articlesIds = Articles.Select(x => x.Id).ToList();
         var issuesIds = User.Issues?.Select(i => i.ProjectId).ToList();
@@ -448,6 +457,7 @@
                     ProjectId = i.ProjectId,
                     ProjectType = ProjectType.CourseArticle,
                     Title = courseArticles.FirstOrDefault(x => x.Id == i.ProjectId).Title,
+                    CourseTitle = courseTitleByArticleId.GetValueOrDefault(i.ProjectId),
                     IsCompleted = i.IsCompleted,
                 })
             .ToList();

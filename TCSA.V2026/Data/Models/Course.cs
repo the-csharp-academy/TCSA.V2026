@@ -4,12 +4,19 @@ public class Course
 {
     public int Id { get; set; }
     public CourseLevel Level { get; set; } = CourseLevel.Beginner;
+    public CourseTheme Theme { get; set; } = CourseTheme.Default;
     public string Title { get; set; }
     public string Description { get; set; }
     public string CourseUrl { get; set; }
     public string ImgUrl { get; set; }
 
     public List<Article> Articles { get; set; }
+}
+
+public enum CourseTheme
+{
+    Default,
+    Unity
 }
 
 public enum CourseLevel

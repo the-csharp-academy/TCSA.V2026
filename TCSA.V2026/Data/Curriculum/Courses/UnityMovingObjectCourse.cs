@@ -11,23 +11,24 @@ public class UnityMovingObjectCourse
         return new Course
         {
             Id = 10,
-            Title = "Intro to Unity - Moving an object",
-            Description = "Create a Unity 6 project and move a 2D object with WASD using Unity's modern Input System.",
-            ImgUrl = "article-placeholder.png",
+            Theme = CourseTheme.Unity,
+            Title = "Build Your First 2D Unity Game",
+            Description = "Build a top-down collector game in Unity 6 with C#: movement, trigger collisions, scoring, win and restart UI, imported sprites, and reusable apple prefabs.",
+            ImgUrl = "icons8-board-game-64.png",
             Articles = new List<Article>
             {
                 IntroChapter(
                     1,
                     "About This Course",
-                    "about-intro-to-unity-moving-an-object",
+                    "about-build-your-first-2d-unity-game",
                     "Understand what this course covers, what you will build, and the recommended C# experience.",
                     new Block
                     {
                         Paragraphs = new List<Paragraph>
                         {
-                            Text("Welcome to <b>Intro to Unity - Moving an object</b>. This short course introduces the basic concepts and tools behind Unity by guiding you through one complete result: a square that moves when you press W, A, S, and D."),
-                            Text("You will become familiar with Unity Hub, the Unity editor, scenes, GameObjects, components, the Hierarchy, Scene and Game views, the Inspector, C# scripts, Transforms, and Unity's modern Input System. The objective is not to memorise the whole editor. It is to understand how these pieces cooperate to create interactive behaviour."),
-                            Text("By the end, you will have created a Unity 6 Universal 2D project named <code class='inline-code'>CollectorGame</code>, configured player movement, collected objects, displayed a score and victory panel, and connected a Restart button that reloads the game.")
+                            Text("Welcome to <b>Build Your First 2D Unity Game</b>. This beginner course introduces Unity by guiding you through a complete top-down collector game rather than an isolated movement demonstration."),
+                            Text("You will become familiar with Unity Hub, the Unity editor, scenes, GameObjects, components, the Hierarchy, Scene and Game views, the Inspector, C# scripts, Transforms, the modern Input System, 2D physics, UI, scene management, assets, and prefabs. The objective is not to memorise the whole editor. It is to understand how these pieces cooperate to create a small but complete game."),
+                            Text("By the end, you will have created a Unity 6 Universal 2D project named <code class='inline-code'>CollectorGame</code>. A farmer moves with W, A, S, and D, collects five apples, increases a visible score, displays a win panel, and can restart the scene. The game also uses imported grass and character artwork plus reusable Collectible prefabs.")
                         }
                     },
                     new Block
@@ -45,8 +46,8 @@ public class UnityMovingObjectCourse
                         Title = "Course Scope",
                         Paragraphs = new List<Paragraph>
                         {
-                            Text("This course builds the foundations of a small collector game: player movement, collectibles, 2D colliders, trigger detection, score UI, a winning condition, a victory panel, and scene restarting. Timers, prefabs, random spawning, and multiple levels are useful later steps, but they are not part of what we are building yet."),
-                            Text("There are no exercises in this first draft. Follow each chapter in order and reproduce every action in your own Unity project.")
+                            Text("This course builds the foundations of a small collector game: player movement, collectibles, 2D colliders, trigger detection, score UI, a winning condition, scene restarting, imported 2D assets, and reusable prefabs. Timers, animation, random spawning, and multiple levels are useful later steps, but they are not part of what we are building yet."),
+                            Text("Most chapters provide guided, step-by-step practice. The final chapter gives you five small challenges to complete independently so you can reinforce the concepts and begin making the game your own.")
                         }
                     },
                     new Block
@@ -77,10 +78,10 @@ public class UnityMovingObjectCourse
                         Title = "Why We Chose a Top-Down Game",
                         Paragraphs = new List<Paragraph>
                         {
-                            Text("The style you were remembering is <b>top-down</b>. Our eventual game takes inspiration from the movement and presentation of games such as <i>Stardew Valley</i>: the player looks down into a 2D world and can move horizontally and vertically across it."),
+                            Text("This course uses a <b>top-down</b> style inspired by the movement and presentation of games such as <i>Stardew Valley</i>: the player looks down into a 2D world and can move horizontally and vertically across it."),
                             Text("<i>Stardew Valley</i> is more specifically a country-life role-playing and farming simulation, but <b>2D top-down</b> is the useful technical description for the perspective and movement we are beginning with."),
                             Text("A top-down project is an excellent introduction for C# students because movement can be understood directly as changes to X and Y. We can learn GameObjects, components, input, collisions, collectibles, UI, and game state without first dealing with jumping, gravity, platforms, or a complicated 3D camera."),
-                            Text("It also gives us an immediately recognisable foundation. Even though the Player is only a square in this course, moving it in four directions is the first piece of the same interaction model used by a much richer top-down game.")
+                            Text("The Player begins as a square so movement and components are easy to inspect. Later in this same course, you replace that temporary shape with a farmer sprite and turn the simple movement prototype into a recognisable collector game.")
                         }
                     },
                     new Block
@@ -88,8 +89,8 @@ public class UnityMovingObjectCourse
                         Title = "One Game Across Several Courses",
                         Paragraphs = new List<Paragraph>
                         {
-                            Text("This is the first course in a sequence. Future Unity courses will build on the same ideas and gradually turn this small beginning into a finished game."),
-                            Text("Later courses can replace the square with artwork, create a world, add collisions and collectibles, introduce animation, build user interfaces and scoring, create reusable prefabs, manage scenes and game state, add sound, and prepare the game for release."),
+                            Text("This is the first course in a sequence. It delivers a complete small game while establishing the Unity and C# foundations that future tutorials will build upon."),
+                            Text("This course already covers artwork, a simple world, trigger collisions, collectibles, scoring UI, a win condition, scene restarting, and prefabs. Future Unity tutorials can continue with animation, sound, enemies, richer levels, improved game state, physics-driven movement, and preparing a game for release."),
                             Text("Each course will introduce a manageable set of Unity and C# concepts while producing a visible improvement to the game. By continuing from this foundation, you will learn how complete games emerge from many small, understandable systems rather than one enormous step.")
                         }
                     }),
@@ -357,7 +358,7 @@ public class UnityMovingObjectCourse
                             Text("Select Player and find its <b>Transform</b> component in the Inspector. Every GameObject has a Transform describing its position, rotation, and scale."),
                             Text("In this 2D project, X controls left and right, Y controls up and down, and Z can remain zero. Set Position X and Y to different values and see the position of the <b>Player</b> sprite change in the scene. Similarly, change the Scale properties and observe the modifications in the size of the sprite "),
                             Text("The movement script will change <code class='inline-code'>transform.position</code>. This is how the keyboard input will eventually move the square."),
-                            Video("/vid/Unity.4.TryInspector.mp4", "Trying the Inspector")
+                            Video("/vid/Unity.4.Tryinspector.mp4", "Using the Inspector to change the Player's Transform.")
                         }
                     },
                     new Block
@@ -388,7 +389,7 @@ public class UnityMovingObjectCourse
                             Text("Return to Unity and wait for the script to compile. Drag <code class='inline-code'>PlayerController</code> from the Project window onto Player in the Hierarchy."),
                             Text("Alternatively, select Player, click <b>Add Component</b> in the Inspector, and search for PlayerController."),
                             Text("Confirm that <b>Player Controller (Script)</b> appears in the Player's Inspector. Code in a MonoBehaviour does not control a GameObject until the component is attached."),
-                            Video("/vid/Unity.5.PlayerController.mp4", "Creating Playercontroller script.")
+                            Video("/vid/Unity.5.Playercontroller.mp4", "Creating the PlayerController script.")
                         }
                     }),
                 Step(
@@ -403,7 +404,7 @@ public class UnityMovingObjectCourse
                         {
                             Text("Unity's modern Input System stores controls in an Input Actions asset. In the Project window, select the root <b>Assets</b> folder and create a new folder named <code class='inline-code'>Input Actions</code>. Open the new folder, create an <b>Input Actions</b> asset inside it, and name the asset <code class='inline-code'>PlayerInputActions</code>."),
                             Text("This asset will define what Move means without making PlayerController check W, A, S, and D separately."),
-                             Video("/vid/Unity.6.Inputactions.mp4", "Creating PlayerinputActions asset.")
+                             Video("/vid/Unity.6.Inputactions.mp4", "Creating the PlayerInputActions asset.")
                         }
                     },
                     new Block
@@ -667,7 +668,7 @@ public class UnityMovingObjectCourse
                         {
                             Text("Replace the temporary logging callback with this version:"),
                             Code("private void OnTriggerEnter2D(Collider2D other)\r\n{\r\n    if (other.CompareTag(\"Collectible\"))\r\n    {\r\n        Destroy(other.gameObject);\r\n    }\r\n}"),
-                            Text("<code class='inline-code'>other</code> is the Collider 2D that entered the Player's trigger interaction. Calling <code class='inline-code'>other.CompareTag(\"Collectible\")</code> asks whether the GameObject carrying that collider has the Collectible tag."),
+                            Text("<code class='inline-code'>other</code> is the Collider 2D on the object that entered the trigger overlap with the Player. Calling <code class='inline-code'>other.CompareTag(\"Collectible\")</code> asks whether the GameObject carrying that collider has the Collectible tag."),
                             Text("<code class='inline-code'>CompareTag</code> is Unity's purpose-built tag check. It clearly expresses the intention and validates the tag name. If the other object has a different tag, the condition is false and the body of the <code class='inline-code'>if</code> statement is skipped."),
                             Text("<code class='inline-code'>other.gameObject</code> retrieves the GameObject to which the other collider belongs. This is important: destroying <code class='inline-code'>gameObject</code> without <code class='inline-code'>other.</code> would refer to the PlayerController's own GameObject and destroy the Player instead."),
                             Text("<code class='inline-code'>Destroy(other.gameObject)</code> tells Unity to remove that Collectible GameObject. Destroy is processed safely by Unity after the current event-processing step, rather than removing the object halfway through the callback."),
@@ -913,11 +914,11 @@ public class UnityMovingObjectCourse
                             Text("Collect the fifth object. The score should change to 5, the last Collectible should disappear, and WinPanel should become visible with the You Win message."),
                             Text("If WinPanel appears immediately, stop Play mode and disable it in the Inspector before saving the scene. If it never appears, confirm that all five objects use the Collectible tag and WinPanel is assigned on PlayerController."),
                             Text("If Unity reports a NullReferenceException on SetActive, drag the WinPanel GameObject—not only WinText—into the Player Inspector."),
-                            Text("Stopping movement, restarting, and timing attempts can be introduced in later chapters."),
-                            Video("/vid/Unity.12.WinPanel.mp4", "Displaying win panel")
+                            Text("Restarting is introduced in the next chapter. Locking movement after winning and timing attempts are useful extensions for a future tutorial."),
+                            Video("/vid/Unity.12.WinPanel.mp4", "Creating and displaying the win panel.")
                         },
                     }),
-                    Step(
+                Step(
                     12,
                     "Add and Connect a Restart Button",
                     "add-and-connect-a-restart-button",
@@ -1044,7 +1045,202 @@ public class UnityMovingObjectCourse
                             Video("/vid/Unity.13.Restart.mp4", "Creating the Restart button, reloading the active scene, and connecting the Button's On Click event.")
                         }
                     }),
-            }.OrderBy(article => article.CourseDisplayId).ToList()
+                Step(
+                    13,
+                    "Import Grass and Farmer Assets",
+                    "import-grass-and-farmer-assets",
+                    "Import static 2D artwork, create a grass background, and replace the Player's square sprite with a farmer.",
+                    new Block
+                    {
+                        Title = "What an Asset Is",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("An <b>asset</b> is a file used to build the game. Sprites, textures, audio clips, fonts, materials, animation clips, scenes, and scripts are all assets. Unity displays project assets in the Project window and stores them inside the project's Assets folder."),
+                            Text("This chapter uses static 2D artwork only. Do not create animations or import 3D models. A grass image and one farmer sprite are enough to improve the scene while keeping the lesson focused on importing and arranging assets."),
+                            Text("Before using downloaded artwork, check its licence. Confirm that your intended use is allowed and preserve any attribution or licence file the artist requires. Do not assume that an image is free to redistribute simply because it can be downloaded.")
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "Organize the Assets Folder",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("Stop Play mode. In the Project window, create a folder named <code class='inline-code'>Art</code> inside Assets. Inside Art, create a folder named <code class='inline-code'>Sprites</code>."),
+                            Text("The resulting structure can look like:<br><code class='inline-code'>Assets</code><br>├── <code class='inline-code'>Art</code><br>│&nbsp;&nbsp;&nbsp;└── <code class='inline-code'>Sprites</code><br>├── <code class='inline-code'>Input Actions</code><br>└── <code class='inline-code'>Scripts</code>"),
+                            Text("Folders do not change how the game runs, but clear organisation becomes essential as the number of assets grows.")
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "Import the Grass and Farmer",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("Drag the grass image and farmer image into <code class='inline-code'>Assets/Art/Sprites</code> in the Project window. You can also copy the files into that folder outside Unity and return to the editor so Unity imports them."),
+                            Text("Select each imported image. In the Inspector, set <b>Texture Type</b> to <b>Sprite (2D and UI)</b> if Unity did not choose it automatically, then click <b>Apply</b>. This makes the image available to Sprite Renderer components."),
+                            Text("For pixel art, use <b>Filter Mode: Point (no filter)</b> to preserve sharp edges. For smooth painted artwork, the default bilinear filtering may be more appropriate. Pixels Per Unit controls how large the sprite appears in world units; keep related artwork consistent."),
+                            Text("If the source file is a sprite sheet containing multiple images, it would need Sprite Mode Multiple and slicing. That workflow belongs with animation and is intentionally outside this chapter. Use one already-separated sprite here.")
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "Create the Grass Background",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("Drag the grass sprite from the Project window into the Scene. Rename the new GameObject <code class='inline-code'>Grass</code> and position it at the centre of the play area."),
+                            Text("Scale the Grass object until it covers the camera's visible area. If the image is designed as a tile, duplicating adjacent grass objects is acceptable for this first scene; a Tilemap can be introduced in a later course."),
+                            Text("In Grass's Sprite Renderer, set <b>Order in Layer</b> to a value lower than the Player and Collectibles, such as <code class='inline-code'>-10</code>. Unity draws lower-order sprites behind higher-order sprites."),
+                            Text("Grass is visual scenery, so it does not need a Rigidbody 2D or Collider 2D in this project.")
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "Replace the Player Square",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("Select Player in the Hierarchy. In its Sprite Renderer component, drag the farmer sprite into the <b>Sprite</b> property."),
+                            Text("Changing the Sprite property replaces only the image. PlayerController, Rigidbody 2D, Box Collider 2D, input configuration, and UI references remain attached to the same Player GameObject."),
+                            Text("Adjust the Player's Transform scale until the farmer fits the scene. Inspect the Box Collider 2D outline and change its Size or Offset so it reasonably covers the farmer's body."),
+                            Text("Keep the farmer as one static pose. Sprite sheets, slicing, Animation Clips, Animator Controllers, and walking animations are intentionally deferred to a later course.")
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "Test the New Artwork",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("Save the scene and enter Play mode. Confirm that the farmer appears in front of the grass, responds to W, A, S, and D, and can still collect every placeholder Collectible."),
+                            Text("If the farmer appears behind the grass, give the Player's Sprite Renderer a higher Order in Layer or lower Grass's value. If collision detection behaves strangely, recheck the Player's collider after changing the sprite."),
+                            Text("The game now has a visual environment and character without introducing animation."),
+                            Video("/vid/Unity.14.GrassAndFarmer.mp4", "Importing static grass and farmer sprites, building the background, and replacing the Player square.")
+                        }
+                    }),
+                Step(
+                    14,
+                    "Create an Apple Collectible Prefab",
+                    "create-an-apple-collectible-prefab",
+                    "Import an apple sprite, update the Collectible, and create reusable prefab instances.",
+                    new Block
+                    {
+                        Title = "Import the Apple Sprite",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("Stop Play mode. Drag the apple image into <code class='inline-code'>Assets/Art/Sprites</code>. Select it and confirm <b>Texture Type: Sprite (2D and UI)</b>, then apply any changes."),
+                            Text("Use the same Pixels Per Unit and filtering approach as the farmer and grass where appropriate so the art feels visually consistent.")
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "Replace the Collectible Artwork",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("Select one existing Collectible in the Hierarchy. Drag the apple sprite into its Sprite Renderer's <b>Sprite</b> property."),
+                            Text("The GameObject keeps its Collectible tag, Circle Collider 2D, and Is Trigger setting. Only its rendered image changes."),
+                            Text("Adjust its Transform scale and inspect the Circle Collider 2D. Change the Radius or Offset if the trigger area no longer fits the apple."),
+                            Text("Enter Play mode briefly and verify that the apple still disappears and increases the score, then stop Play mode.")
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "Why Use a Prefab",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("The five Collectibles currently repeat the same setup. Rebuilding or independently editing each copy invites inconsistencies: one might lose its tag, use a different collider size, or have Is Trigger disabled."),
+                            Text("A <b>prefab</b> is a reusable GameObject template stored as an asset. It can contain a hierarchy of child objects, components, serialized values, tags, and other configuration. Scene objects created from it are called <b>prefab instances</b>."),
+                            Text("A prefab is not C# inheritance and it is not an animation. It is Unity's way to save a configured object and create consistent copies of it.")
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "Create the Collectible Prefab",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("Make sure the selected Collectible is fully configured before turning it into a prefab. Confirm that it has the desired sprite, the <b>Collectible</b> tag, a Collider 2D with <b>Is Trigger</b> enabled, and an appropriate scale."),
+                            Text("Drag the Collectible GameObject from the Hierarchy into the <code class='inline-code'>Assets/Prefabs</code> folder in the Project window. Rename the new asset <code class='inline-code'>Collectible</code> if necessary."),
+                            Text("Unity changes the scene object's icon and name colour to indicate that it is now linked to a prefab asset. The asset in the Project window is the reusable template; the object in the Hierarchy is one instance of that template."),
+                            Text("Do not drag only the sprite asset into Prefabs. Drag the configured GameObject from the Hierarchy so the prefab includes its Sprite Renderer, tag, collider, and trigger settings.")
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "Replace the Other Collectibles",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("Delete the other independently duplicated Collectible GameObjects from the scene, leaving the prefab-linked instance. Do not delete the Collectible prefab asset from the Project window."),
+                            Text("Drag the Collectible prefab from <code class='inline-code'>Assets/Prefabs</code> into the Scene or Hierarchy four times. Move the instances into the desired positions so the scene again contains five Collectibles."),
+                            Text("Each instance begins with the same sprite, tag, collider, and trigger configuration. Position is allowed to differ per instance because every Collectible needs its own location."),
+                            Text("Check the Hierarchy and count the instances. The win condition currently expects five collections, so accidentally placing four or six objects would make the hard-coded score threshold inconsistent with the scene.")
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "Prefab Overrides and Applying Changes",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("When you change a property on one prefab instance, Unity records that difference as an <b>override</b>. Different Transform positions are expected overrides in this scene."),
+                            Text("If a change should affect every Collectible—such as a better sprite, colour, or collider size—edit the prefab asset in Prefab Mode, or change an instance and use the Inspector's <b>Overrides</b> menu to apply the appropriate change to the prefab."),
+                            Text("Applying an override changes the shared prefab asset and can update every linked instance. Reverting an override restores the value from the prefab. Review overrides carefully so you do not accidentally apply a scene-specific position to every instance.")
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "Test the Prefab Instances",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("Save the scene and enter Play mode. Collect every prefab instance. Each should increase the score and disappear exactly as the earlier circle objects did."),
+                            Text("After the fifth instance is collected, WinPanel should appear. Use RestartButton and confirm that reloading the scene restores all five prefab instances."),
+                            Text("If one object cannot be collected, compare its tag and Collider 2D with the prefab. If all objects fail, inspect the prefab asset itself and confirm that Is Trigger and the Collectible tag are configured."),
+                            Text("The game now uses apple artwork and a reusable Collectible template while deliberately leaving animation for a later course."),
+                            Video("/vid/Unity.15.ApplePrefab.mp4", "Importing the apple sprite and creating reusable Collectible prefab instances.")
+                        }
+                    }),
+                Step(
+                    15,
+                    "Congratulations and Next Challenges",
+                    "congratulations-and-next-challenges",
+                    "Celebrate your first completed Unity game and practise your new skills with five independent challenges.",
+                    new Block
+                    {
+                        Title = "Congratulations!",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("<b>Congratulations—you have completed your first Unity game!</b> You created a scene, moved a player with input, detected trigger collisions, collected objects, displayed a score, recognised a win, restarted the game, imported artwork, and created a reusable prefab."),
+                            Text("That is a lot of ground to cover. More importantly, you now have a small working game that you can change and make your own. The best way to make these ideas stick is to experiment without following exact instructions.")
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "Five Challenges to Try by Yourself",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("Try the following challenges independently. Make a backup or commit your working project first, tackle one change at a time, and test after every small step. It is completely normal to search Unity's documentation, reread earlier chapters, and make mistakes."),
+                            Text("<b>1. Change the winning score.</b> Add more or fewer apple prefab instances and update the game so WinPanel appears only after every apple has been collected."),
+                            Text("<b>2. Customise the interface.</b> Change the fonts, colours, sizes, and positions of ScoreText, WinText, and RestartButton while keeping everything readable."),
+                            Text("<b>3. Create a second collectible.</b> Duplicate the apple prefab, give the new collectible different artwork or a different colour, and place a few instances around the scene. Make sure the Player can still collect them."),
+                            Text("<b>4. Change the player's speed.</b> Find the movement speed in PlayerController, try several values, and choose one that feels comfortable rather than simply making the player as fast as possible."),
+                            Text("<b>5. Design your own level.</b> Reposition the Player and collectibles, adjust the grass layout, and create a scene that feels different while preserving the complete collect-score-win-restart loop."),
+                            Text("These challenges intentionally do not include solutions. Work through each problem slowly, read Console errors carefully, and compare your changes with the last working version whenever something breaks.")
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "This Is Only the Beginning",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("We will add another Unity tutorial soon. This course is only the beginning of The C# Academy's Unity curriculum, and future tutorials will build on these foundations with more game-development concepts."),
+                            Text("In the meantime, keep experimenting with this project. Small changes are real practice, and every feature you add will make the next Unity project easier to understand.")
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "Help Us Improve",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("Please tell us what you thought of the course. Let us know what was clear, what was confusing, what felt too easy or too difficult, and what you would like to learn next in the <a href='https://discord.com/invite/aDMDET8ywB' target='_blank'>feedback channel on our Discord server</a>. Your feedback helps us improve this course and plan the next Unity tutorials."),
+                            Text("If you enjoyed the course and The C# Academy, please consider making a <a href='/contribute'>donation on our contribution page</a>. Your support helps us keep the Academy free and create more learning material."),
+                            Text("Thank you for completing the course. Keep building, keep experimenting, and we will see you in the next Unity tutorial!")
+                        }
+                    })
+            }
         };
     }
 
