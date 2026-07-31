@@ -30,9 +30,19 @@ The C# Academy website is more than just a learning platform - it's a living pro
 ### Installation Prerequisites
 
 - An IDE (code editor) like **Visual Studio** or **Visual Studio Code**.
-- The **.NET 9** SDK.
-- An **SQL Server** installation (Developer, Express, Docker Container)
+- The **.NET 10** SDK.
+- An **SQL Server** installation (Developer, Express, Docker Container. See note below if you don't have SQL Server installed).
 - A database management tool like **SQL Server Management Studio** or **DBeaver** (optional, only required if you need to run the `GetRanking` stored procedure).
+
+> [!TIP]
+> Don't have SQL Server installed, or on Linux/Mac where LocalDB isn't available? The easiest option is running SQL Server in a Docker container:
+> ```
+> docker run -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=AStrong!Passw0rd" -e "MSSQL_PID=Evaluation" -p 1433:1433 --name tcsa-sql -d mcr.microsoft.com/mssql/server:2025-latest
+> ```
+> Then use a connection string like this instead of the LocalDB one below:
+> ```
+> Server=localhost,1433;Database=TCSA_V2026;User Id=sa;Password=AStrong!Passw0rd;TrustServerCertificate=True;
+> ```
 
 ### Installation Steps
 
@@ -47,11 +57,12 @@ The C# Academy website is more than just a learning platform - it's a living pro
 
 2. Navigate to the application project directory:
 
-   - `cd TCSA.V2026\TCSA.V2026`
+   - `cd TCSA.V2026/TCSA.V2026`
 
-3. Create a `appsettings.json` file:
+3. Create an `appsettings.json` file:
 
-   - `notepad appsettings.json`
+   - Windows: `notepad appsettings.json`
+   - Linux/Mac: `touch appsettings.json && nano appsettings.json`
 
 4. Paste the following, adjust any values specific to your environment. Save and close.
 
@@ -72,7 +83,7 @@ The C# Academy website is more than just a learning platform - it's a living pro
         "GithubClientSecret": "abc123"
     },
     "Discord": {
-        "Token": "ODAzMzc3MjcwODc4MTA5NzI2.tHis.IS.not.A.ReAl.tOkeN"
+        "Token": "ODAzMzc3MjcwODc4MTA5NzI2.ThisIsNot.ARealDiscordToken"
   }
 }
 ```
@@ -83,6 +94,8 @@ The C# Academy website is more than just a learning platform - it's a living pro
 > If you want to login via GitHub, replace `GithubClientId` and `GithubClientSecret` with your own values.
 >
 > **Github Docs**: [Creating an OAuth app](https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app)
+>
+> The `Discord:Token` and GitHub values just need to be non-empty strings to satisfy startup validation. They don't need to be real credentials unless you're testing GitHub login or Discord bot features.
 
 5. Open the solution `TCSA.V2026.sln`.
 
