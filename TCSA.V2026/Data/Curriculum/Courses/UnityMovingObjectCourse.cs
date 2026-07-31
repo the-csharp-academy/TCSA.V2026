@@ -1052,6 +1052,19 @@ public class UnityMovingObjectCourse
                     "Import static 2D artwork, create a grass background, and replace the Player's square sprite with a farmer.",
                     new Block
                     {
+                        Title = "Choose and Download Your Own Sprites",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("We are intentionally not providing the grass, farmer, or apple sprites for this project. Choosing the artwork yourself gives you a chance to make the game feel like your own instead of producing an exact visual copy of the tutorial."),
+                            Text("Look specifically for <b>2D sprites</b> made for a <b>top-down game</b>. Do not download 3D models, materials, or first-person and side-view character art for this project. A useful starter set includes a grass or ground image, one top-down character, and an apple or another small collectible."),
+                            Text("These are popular places to find game artwork:<br>🔹 <a href='https://itch.io/game-assets/tag-2d' target='_blank'>itch.io 2D Game Assets</a> — free and paid asset packs with filters for sprites, pixel art, top-down games, formats, and licences.<br>🔹 <a href='https://opengameart.org/' target='_blank'>OpenGameArt</a> — community-created 2D artwork published under a range of open licences.<br>🔹 <a href='https://kenney.nl/assets' target='_blank'>Kenney Assets</a> — consistent game-asset packs that are especially useful for prototypes and learning projects.<br>🔹 <a href='https://assetstore.unity.com/2d' target='_blank'>Unity Asset Store: 2D</a> — free and paid 2D packages that can be imported into Unity projects."),
+                            Text("For this tutorial, the easiest files to use are separate <code class='inline-code'>.png</code> images with transparent backgrounds. A sprite sheet can contain several characters or animation frames in one image and requires slicing, which is outside this course. Choose individual static sprites where possible."),
+                            Text("<b>Always read the licence on the exact asset page before downloading.</b> Check whether commercial use, modification, redistribution, and attribution are allowed. Save the licence or a link to it with your project, and credit the artist in your README when required."),
+                            Text("Try to choose sprites that belong to the same pack or have a similar pixel size, perspective, and art style. They do not need to match the tutorial video. Your farmer could be another character, and your apple could be any collectible, provided the object still uses the Collectible tag and the same gameplay setup.")
+                        }
+                    },
+                    new Block
+                    {
                         Title = "What an Asset Is",
                         Paragraphs = new List<Paragraph>
                         {
@@ -1228,6 +1241,17 @@ public class UnityMovingObjectCourse
                         {
                             Text("We will add another Unity tutorial soon. This course is only the beginning of The C# Academy's Unity curriculum, and future tutorials will build on these foundations with more game-development concepts."),
                             Text("In the meantime, keep experimenting with this project. Small changes are real practice, and every feature you add will make the next Unity project easier to understand.")
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "Submit Your Game for Review",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("Your Unity game uses C#, so you can submit it to The C# Academy as a <a href='https://thecsharpacademy.com/project/100001/free-style' target='_blank'>Freestyle Project</a>. A review gives you feedback on your code and project presentation, and an approved submission awards Academy experience points."),
+                            Text("Freestyle Projects can award <b>10 to 200 XP</b> based on creativity, complexity, and quality. You can submit more than one Freestyle Project, so this first Unity game does not need to be your last."),
+                            Text("Before submitting, place the project in a public repository and add a clear README. Explain what the game does, which version of Unity it uses, how to open and play it, which controls it uses, what you learned, and where the sprites came from. Include screenshots or a short gameplay recording and any attribution required by the asset licences."),
+                            Text("You are welcome to submit the tutorial result as it is, but completing some of the independent challenges will make the project more personal and give reviewers more of your own decisions to discuss.")
                         }
                     },
                     new Block
