@@ -41,7 +41,7 @@ public class WebApiCourse
                             },
                             new Block
                             {
-                                Title = "What are We APIs?",
+                                Title = "What are Web APIs?",
                                 Paragraphs = new List<Paragraph>
                                 {
                                     new Paragraph {
