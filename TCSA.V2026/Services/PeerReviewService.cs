@@ -13,7 +13,6 @@ namespace TCSA.V2026.Services;
 public interface IPeerReviewService
 {
     Task<List<CodeReviewDetail>> GetCodeReviewDetails(string userId);
-    Task<ApplicationUser> GetUserForPeerReview(string reviewerId);
     Task<List<PeerReviewDisplay>> GetProjectsForPeerReview(string userId);
     Task<BaseResponse> AssignUserToCodeReview(string userId, int id);
     Task<BaseResponse> ReleaseUserFromCodeReview(string userId, int id);
@@ -88,23 +87,6 @@ public class PeerReviewService(IDbContextFactory<ApplicationDbContext> _factory)
         }
     }
 
-    public async Task<ApplicationUser> GetUserForPeerReview(string reviewerId)
-    {
-        try
-        {
-            using (var context = _factory.CreateDbContext())
-            {
-                return await context.AspNetUsers
-                    .Include(x => x.CodeReviewProjects)
-                    .FirstOrDefaultAsync(x => x.Id.Equals(reviewerId));
-            }
-        }
-        catch (Exception ex)
-        {
-            return null;
-        }
-    }
-
     public async Task<List<PeerReviewDisplay>> GetProjectsForPeerReview(string userId)
     {
         var validUrls = new[]
@@ -131,7 +113,7 @@ public class PeerReviewService(IDbContextFactory<ApplicationDbContext> _factory)
                 List<int> eligibleProjectIds =
                     PeerReviewHelpers.DetermineReviewableProjectIds(user.Level, user.DashboardProjects.Select(dp => dp.ProjectId));
 
-                var assignedProjectIds = context.UserReviews
+                var assignedProjectIds = await context.UserReviews
                     .Where(x => x.AppUserId != user.Id)
                     .Select(x => x.DashboardProjectId);
 
