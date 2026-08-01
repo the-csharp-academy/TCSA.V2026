@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TCSA.V2026.Data;
+using TCSA.V2026.Data.Curriculum;
 using TCSA.V2026.Data.DTOs;
 using TCSA.V2026.Data.Enums;
 using TCSA.V2026.Data.Models;
@@ -25,6 +26,7 @@ public class AdminService(
     IDiscordService _discordService
     ) : IAdminService
 {
+    
     public async Task<ServiceResponse> ChangePoints(string userId, int points)
     {
         try

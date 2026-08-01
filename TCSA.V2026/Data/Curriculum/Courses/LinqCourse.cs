@@ -12,7 +12,7 @@ public class LinqCourse
             Id = 8,
             Title = "LINQ Fundamentals",
             Description = "Learn how to query, filter, sort, group, and transform data with modern C#.",
-            ImgUrl = "icons8-magnifying-glass-64.png",
+            ImgUrl = "icons8-business-report-100.png",
             Articles = new List<Article>
             {
                 new Article

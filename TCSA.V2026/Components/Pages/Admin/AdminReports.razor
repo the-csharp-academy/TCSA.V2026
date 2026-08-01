@@ -1,9 +1,108 @@
-﻿@page "/adminreports"
+@page "/adminreports"
 @using Microsoft.AspNetCore.Authorization
-
+@using System.Text.Json
+@using TCSA.V2026.Services
 
 @attribute [Authorize(Roles = "Admin")]
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+
+<PageTitle>Admin Reports</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="py-6">
+    <AdminToolBar Count="@TotalCompletions" />
+
+    <MudPaper Class="pa-6 mt-3" Elevation="4">
+        <MudText Typo="Typo.h4">Course completions</MudText>
+        <MudText Typo="Typo.body1" Class="text-secondary mt-1 mb-5">
+            Total completed articles recorded across all users, grouped by course.
+        </MudText>
+
+        @if (_isLoading)
+        {
+            <div class="d-flex justify-center pa-8">
+                <MudProgressCircular Color="Color.Primary" Indeterminate="true" Size="Size.Large" />
+            </div>
+        }
+        else if (!string.IsNullOrWhiteSpace(_errorMessage))
+        {
+            <MudAlert Severity="Severity.Error" Variant="Variant.Outlined">
+                @_errorMessage
+            </MudAlert>
+        }
+        else if (_courseCounts.Count == 0)
+        {
+            <MudAlert Severity="Severity.Info" Variant="Variant.Outlined">
+                No course data is available.
+            </MudAlert>
+        }
+        else
+        {
+            <MudTable T="CourseCompletionRow"
+                      Items="@_courseCounts"
+                      Dense="true"
+                      Hover="true"
+                      Striped="true"
+                      Elevation="0">
+                <HeaderContent>
+                    <MudTh>Course</MudTh>
+                    <MudTh Class="text-right">Articles completed</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Course">@context.CourseName</MudTd>
+                    <MudTd DataLabel="Articles completed" Class="text-right">
+                        <MudChip T="int" Color="Color.Primary" Variant="Variant.Outlined" Size="Size.Small">
+                            @context.ArticlesCompleted
+                        </MudChip>
+                    </MudTd>
+                </RowTemplate>
+                <FooterContent>
+                    <MudTd><strong>Total</strong></MudTd>
+                    <MudTd Class="text-right"><strong>@TotalCompletions</strong></MudTd>
+                </FooterContent>
+            </MudTable>
+        }
+    </MudPaper>
+</MudContainer>
 
 @code {
+    [Inject] private IReportService ReportService { get; set; } = null!;
 
+    private List<CourseCompletionRow> _courseCounts = [];
+    private string? _errorMessage;
+    private bool _isLoading = true;
+
+    private int TotalCompletions => _courseCounts.Sum(course => course.ArticlesCompleted);
+
+    protected override async Task OnInitializedAsync()
+    {
+        var response = await ReportService.GetCourseCount();
+
+        if (!response.IsSuccessful)
+        {
+            _errorMessage = response.Message;
+            _isLoading = false;
+            return;
+        }
+
+        try
+        {
+            var counts = JsonSerializer.Deserialize<Dictionary<string, int>>(response.Message) ?? [];
+
+            _courseCounts = counts
+                .Select(course => new CourseCompletionRow(course.Key, course.Value))
+                .OrderByDescending(course => course.ArticlesCompleted)
+                .ThenBy(course => course.CourseName)
+                .ToList();
+        }
+        catch (JsonException)
+        {
+            _errorMessage = "The course report returned data in an unexpected format.";
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private sealed record CourseCompletionRow(string CourseName, int ArticlesCompleted);
 }

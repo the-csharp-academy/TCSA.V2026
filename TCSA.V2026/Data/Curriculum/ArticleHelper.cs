@@ -132,6 +132,18 @@ public static class ArticleHelper
                     },
                     new Block
                     {
+                        Title = "Prefer a Course?",
+                        CssClass = "article-ads-help-block",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            new Paragraph
+                            {
+                                Body = "If you don't want to follow the roadmap, you can learn through one of our self-contained <a href='/dashboard/courses'>courses</a> instead. For example, we've just launched our first <b>Unity course</b>, so you can start building games with C# while following a clear, guided path."
+                            }
+                        }
+                    },
+                    new Block
+                    {
                         Title = "Feedback",
                         ImgUrl = "icons8-feedback-64.png",
                         Paragraphs = new List<Paragraph>

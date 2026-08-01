@@ -12,7 +12,7 @@ public class DataStructuresCourse
             Id = 9,
             Title = "Beginner Data Structures in C#",
             Description = "Learn to use common .NET data structures and choose the right collection for practical C# problems.",
-            ImgUrl = "icons8-memory-512.png",
+            ImgUrl = "icons8-combo-chart-100.png",
             Articles = new List<Article>
             {
                 new Article

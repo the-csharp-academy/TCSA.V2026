@@ -14,7 +14,7 @@ public class UnityMovingObjectCourse
             Theme = CourseTheme.Unity,
             Title = "Build Your First 2D Unity Game",
             Description = "Build a top-down collector game in Unity 6 with C#: movement, trigger collisions, scoring, win and restart UI, imported sprites, and reusable apple prefabs.",
-            ImgUrl = "icons8-board-game-64.png",
+            ImgUrl = "icons8-games-folder-100.png",
             Articles = new List<Article>
             {
                 IntroChapter(
