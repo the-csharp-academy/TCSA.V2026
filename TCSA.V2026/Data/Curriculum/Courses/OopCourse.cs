@@ -1,5 +1,7 @@
 ﻿using TCSA.V2026.Data.Models;
 
+using static TCSA.V2026.Helpers.CourseContentHelper;
+
 namespace TCSA.V2026.Data.Curriculum;
 
 public class OopCourse
@@ -20,7 +22,7 @@ public class OopCourse
                         CourseDisplayId = 1,
                         Title = "Introduction",
                         Slug = "oop-introduction",
-                        Description = "Let's create the console app, install a package and write some code!",
+                        Description = "Understand the course prerequisites, learning approach, and available support.",
                         Area = Area.Course,
                         ExperiencePoints = 1,
                         Blocks = new List<Block>
@@ -29,7 +31,7 @@ public class OopCourse
                             {
                                 Paragraphs = new List<Paragraph>
                                 {
-                                    new Paragraph { Body = "It's a pleasure to teach you Object Oriented Programming! Not only it's an elegant approach to software development, but it's especially nice in C#. You'll have a great time while learning powerful concepts in the context of a project!" },
+                                    new Paragraph { Body = "It's a pleasure to teach you object-oriented programming! It is a powerful way to organise software, and C# provides excellent support for it. You will learn the concepts in the context of a practical project." },
                                 }
                             },
                             new Block
@@ -37,7 +39,7 @@ public class OopCourse
                                 Title = "Who's this course for?",
                                 Paragraphs = new List<Paragraph>
                                 {
-                                    new Paragraph { Body = "This course isn't for absolute beginners in C#. You'll struggle if you don't know basic topics such as basic C# syntax (variables, loops, methods, data types, basic data structures, control flow),  how to navigate Visual Studio or Visual Studio Code and how to create a console apps, to mention a few. If you're an absolute beginner, we recommend you go back to this article and build a solid foundation first." },
+                                    new Paragraph { Body = "This course isn't for absolute beginners in C#. You should already understand variables, loops, methods, data types, basic data structures, and control flow. You should also know how to navigate Visual Studio or Visual Studio Code and create a console application. If those topics are unfamiliar, build a solid C# foundation before starting this course." },
                                     new Paragraph {
                                        Body = "This course doesn't cover all topics in OOP. It's an Intro course. We will be releasing an advanced course within the next few weeks. However you will still benefit from this course if you have previous knowledge of OOP but not a lot of practice. If you have extensive professional experience, you might still be able to close some knowledge gaps." }
                                 }
@@ -47,11 +49,11 @@ public class OopCourse
                                 Title = "What We Recommend?",
                                 Paragraphs = new List<Paragraph>
                                 {
-                                    new Paragraph { Body = "<b>Study each chapter carefully</b>: Make quick notes with important observations and remaining doubts. Don't rush through things. Make sure you understand what each key word does. Ask follow-up questions from Chat GPT. Use it as an assistant. Its biggest strength is the ability to explain concepts in different ways in a conversational style." },
+                                    new Paragraph { Body = "<b>Study each chapter carefully</b>: Make quick notes about important observations and remaining questions. Don't rush. Make sure you understand what each keyword does, and use an AI assistant for explanations or follow-up questions when helpful." },
                                     new Paragraph {
                                        Body = "<b>Make Notes</b>: Using your preferred note-taking system, write down what you took from each chapter. What do you understand better? What topic is still not clear? Reflecting upon what you've learned is one of the best ways to retain knowledge." },
                                     new Paragraph {
-                                       Body = "<b>Review the Code</b>: At the end of each practical chapter you'll find a <b>View Code</b> button, where you can see all of the project's code up to that point in the course. If you run into issues, compare your code to ours before asking for help. It could be a typo or somethign you forgot to add." }
+                                       Body = "<b>Review the Code</b>: At the end of each practical chapter you'll find a <b>View Code</b> button, where you can see all of the project's code up to that point. If you run into issues, compare your code with ours before asking for help. The problem may be a typo or something you forgot to add." }
                                 }
                             },
                             new Block
@@ -59,10 +61,11 @@ public class OopCourse
                                 Title = "Video Course",
                                 Paragraphs = new List<Paragraph>
                                 {
-                                    new Paragraph { Body = "We also have a paid video version of this tutorial. You have three options to access this course:<br><br>\r\n" +
-                                    "🔹<b>Option 1</b>: Purchase the course <a href='https://thecsharpschool.getlearnworlds.com/payment?product_id=cshasp-object-oriented-programming-crash-course' target='_blank'><b><u>individually for $4.99</u></b></a>.<br>\r\n" +
-                                    "🔹<b>Option 2</b>: Subscribe to the <b>VIP Membership</b> and have access to <a href='https://thecsharpschool.getlearnworlds.com/payment?product_id=the-c-academy-membership&type=subscription' target='_blank'><b><u>all our courses for $4.99/month</b></u></a><br>\r\n" +
-                                    "🔹<b>Option 3</b>: Subscribe to the <b>VIP Mentorship</b> for <a href='https://thecsharpschool.getlearnworlds.com/payment?product_id=net-accelerator-mentorship&type=subscription' target='_blank'><b><u>all courses and 1-on-1 mentorship for 39.99/month</b></u></a>" },
+                                    new Paragraph { Body = "We also have a paid video version of this tutorial. You have three options to access this course:" },
+                                    new Paragraph { Body = RedDotList(
+                                        "<b>Option 1</b>: Purchase the course <a href='https://thecsharpschool.getlearnworlds.com/payment?product_id=cshasp-object-oriented-programming-crash-course' target='_blank'><b><u>individually for $4.99</u></b></a>.",
+                                        "<b>Option 2</b>: Subscribe to the <b>VIP Membership</b> and access <a href='https://thecsharpschool.getlearnworlds.com/payment?product_id=the-c-academy-membership&type=subscription' target='_blank'><b><u>all our courses for $4.99/month</u></b></a>.",
+                                        "<b>Option 3</b>: Subscribe to the <b>VIP Mentorship</b> for <a href='https://thecsharpschool.getlearnworlds.com/payment?product_id=net-accelerator-mentorship&type=subscription' target='_blank'><b><u>all courses and one-to-one mentorship for $39.99/month</u></b></a>.") },
                                 }
                             },
                             new Block
@@ -81,7 +84,7 @@ public class OopCourse
                         CourseDisplayId = 2,
                         Title = "What Is OOP?",
                         Slug = "getting-started-with-csharp",
-                        Description = "Learn the fundamentals of C# programming language.",
+                        Description = "Understand object-oriented programming and how it differs from procedural and functional approaches.",
                         Area = Area.Course,
                         ExperiencePoints = 1,
                         Blocks = new List<Block>
@@ -119,9 +122,9 @@ public class OopCourse
                     {
                         Id = 500001,
                         CourseDisplayId = 3,
-                        Title = "About this course",
+                        Title = "About This Course",
                         Slug = "getting-started-with-csharp",
-                        Description = "About this Cou",
+                        Description = "Meet the Library Management System used to practise OOP throughout the course.",
                         Area = Area.Course,
                         ExperiencePoints = 1,
                         Blocks = new List<Block>
@@ -140,17 +143,11 @@ public class OopCourse
                                 Paragraphs = new List<Paragraph>
                                 {
                                     new Paragraph { Body = "Projects provide context. They allow you to see how all the pieces fit together and how the concepts you learn are applied in actual coding tasks. A project:" },
-                                    new Paragraph
-{
-    Body = @"
-<ul>
-    <li>➡️ <strong>Gives Purpose to Concepts:</strong> Rather than just memorizing definitions, you’ll see how classes, methods, and objects work together to form a functioning system.</li>
-    <li>➡️ <strong>Encourages Problem Solving:</strong> When building a project, you’ll encounter challenges that force you to think critically and apply your knowledge.</li>
-    <li>➡️ <strong>Develops Real-World Skills:</strong> By the end of the course, you won’t just understand OOP—you’ll have practical experience applying it to a full project.</li>
-    <li>➡️ <strong>Boosts Confidence:</strong> Completing a project gives you something tangible to showcase, and it will boost your confidence as you see your progress.</li>
-</ul>
-"
-},
+                                    new Paragraph { Body = RedDotList(
+                                        "<b>Gives purpose to concepts:</b> Rather than merely memorising definitions, you will see how classes, methods, and objects work together to form a functioning system.",
+                                        "<b>Encourages problem-solving:</b> Building a project presents challenges that require you to think critically and apply your knowledge.",
+                                        "<b>Develops practical skills:</b> You will apply OOP concepts throughout a complete project instead of learning them only in isolation.",
+                                        "<b>Builds confidence:</b> Completing a working project gives you a tangible demonstration of your progress.") },
 
                                     new Paragraph { Body = "The Library Management System will simulate a simplified library where you can manage books, magazines, and newspapers. The system will allow you to add, edit, and delete library items, view details of each item, keep track of different types of items (books, magazines, newspapers) with specific properties for each." }
                                 }
@@ -161,17 +158,11 @@ public class OopCourse
                                 Paragraphs = new List<Paragraph>
                                 {
                                     new Paragraph { Body = "Through this project, you'll see how OOP allows us to:" },
-                                    new Paragraph
-{
-    Body = @"
-<ul>
-    <li>➡️ Create reusable components (like different types of library items).</li>
-    <li>➡️ Group related data and behavior into classes.</li>
-    <li>➡️ Leverage inheritance to avoid repeating code.</li>
-    <li>➡️ Use encapsulation to protect and manage data efficiently.</li>
-</ul>
-"
-},
+                                    new Paragraph { Body = RedDotList(
+                                        "Create reusable components, such as different types of library items.",
+                                        "Group related data and behaviour into classes.",
+                                        "Use inheritance to share appropriate behaviour between related types.",
+                                        "Use encapsulation to control access to an object's data.") },
                                     new Paragraph { Body = "In the next chapters, we'll start small by creating classes for different types of library items and gradually expand the system to introduce more complex functionality. Along the way, you'll be applying OOP concepts such as classes, objects, inheritance, polymorphism, and more." },
                                     new Paragraph { Body = "By the end of this course, not only will you have a strong understanding of OOP, but you'll also have a complete Library Management System that you can continue to build upon." },
                                     new Paragraph { Body = "Let's get started! 🤓" },
@@ -185,7 +176,7 @@ public class OopCourse
                         CourseDisplayId = 4,
                         Title = "Creating the Course Project",
                         Slug = "oop-course-project",
-                        Description = "Let's create the console app, install a package and write some code!",
+                        Description = "Create the Library Management System console project and install Spectre.Console.",
                         Area = Area.Course,
                         ExperiencePoints = 1,
                         Blocks = new List<Block>
@@ -245,18 +236,12 @@ public class OopCourse
                                         IsCode = true,
                                         Body = "var menuChoices = new string[3] { \"View Books\", \"Add Book\", \"Delete Book\" };\r\n\r\nvar choice = AnsiConsole.Prompt(\r\n        new SelectionPrompt&lt;string&gt;()\r\n        .Title(\"What do you want to do next?\")\r\n        .AddChoices(menuChoices));"
                                     },
-                                    new Paragraph { Body = "Again if the above code is totally foreign to you, this course might not be the best suit for your current level. <a href='project/53/math-game' target='_blank'>We suggest you watch the tutorial in this article first</a>." },
+                                    new Paragraph { Body = "If the code above is completely unfamiliar, this course may not suit your current level. <a href='/project/53/math-game' target='_blank'>Complete the Math Game tutorial first</a>." },
                                     new Paragraph { Body = "Let's explain the code:" },
-                                    new Paragraph
-{
-    Body = @"
-<ul style='margin-bottom: 10px;'>
-    <li style='margin-bottom: 10px;'>➡️ We're creating an <b>array of strings</b> that will serve as the menu choices. For now we'll only have three choices, but we'll expand it later. I'm creating the variable that stores this array using 'var' but it's up to you how you create it.</li>
-    <li style='margin-bottom: 10px;'>➡️ Then we're using the <b>Prompt method</b> of the <b>AnsiConsole</b> class, from Spectre.Console namespace, to create the menu. We're prompting a <b>SelectionPrompt</b>. This class has a <b>Title method</b>, to which we're passing our desired menu title, and an <b>AddChoices method</b>, to which we're passing our array of choices. </li>
-</ul>
-"
-},
-                                     new Paragraph { Body = "Run the app and you'll see the menu. Use the arrows in your keyboard to select one of the choices. Isn't that cool? this means we will need to write much less validation code, since the menu choices are fixed." },
+                                    new Paragraph { Body = RedDotList(
+                                        "We create a <b>string array</b> containing the three menu choices. The variable uses <code class='inline-code'>var</code>, although writing the explicit array type would also be valid.",
+                                        "We pass a <b>SelectionPrompt&lt;string&gt;</b> to <b>AnsiConsole.Prompt</b>. The prompt's <b>Title</b> method sets the menu heading, and <b>AddChoices</b> receives the array of available choices.") },
+                                     new Paragraph { Body = "Run the app to see the menu. Use the arrow keys to select one of the choices. Because the available choices are fixed, the application needs much less input-validation code." },
 
                                 }
                             },
@@ -281,7 +266,7 @@ public class OopCourse
                         CourseDisplayId = 5,
                         Title = "Basic Functionality",
                         Slug = "oop-course-project-functionality",
-                        Description = "Let's create the console app, install a package and write some code!",
+                        Description = "Build the first menu loop and route each menu choice with a switch statement.",
                         Area = Area.Course,
                         ExperiencePoints = 1,
                         Blocks = new List<Block>
@@ -380,7 +365,7 @@ public class OopCourse
                         CourseDisplayId = 6,
                         Title = "Enumerations",
                         Slug = "object-oriented-enums",
-                        Description = "Let's create the console app, install a package and write some code!",
+                        Description = "Replace menu strings with an enum to improve clarity and type safety.",
                         Area = Area.Course,
                         ExperiencePoints = 1,
                         Blocks = new List<Block>
@@ -431,8 +416,10 @@ public class OopCourse
                                 Title = "How does this fit in OOP?",
                                 Paragraphs = new List<Paragraph>
                                 {
-                                    new Paragraph { Body = "➡️ <b>Readability</b>: Using enums makes your code more expressive and easier to understand compared to using literal constants or integers." },
-                                    new Paragraph { Body = "➡️ <b>Encapsulation</b>: Enums help encapsulate related constants within a single type, promoting better organization and abstraction in your codebase. We'll learn more about encapsulation later in this course. It's one of the core principles of OOP" },
+                                    new Paragraph { Body = RedDotList(
+                                        "<b>Readability:</b> Enums make code more expressive and easier to understand than unrelated string or integer values.",
+                                        "<b>Type safety:</b> The compiler restricts values to the members defined by the enum and helps catch invalid assignments.",
+                                        "<b>Organisation:</b> Enums group a fixed set of related named constants into one type.") },
                                 }
                             },
                             new Block
@@ -440,7 +427,7 @@ public class OopCourse
                                 Title = "Less Errors",
                                 Paragraphs = new List<Paragraph>
                                 {
-                                    new Paragraph { Body = "Additionally, using enums provide a safeguard against typos. Let's take our ViewBooks enum as an example. As a developer, I'd have to be precise when writing this reference elsewhere in the code. \"View Books\", \"Viewbooks\", \"viewbooks\" are all variations that could cause problems. I'd have to write extra code to prevent these errors. With enums, the compiler will help us with the correct value. In the fast-paced environment of enterprise development, such ease of use can't be neglected!" }
+                                    new Paragraph { Body = "Enums also protect against invalid values and typos. Strings such as \"View Books\", \"ViewBooks\", and \"viewbooks\" are different values, but an enum reference must name one of the declared members. The compiler can therefore catch many mistakes before the program runs." }
                                 }
                             },
                             new Block
@@ -464,7 +451,7 @@ public class OopCourse
                         CourseDisplayId = 7,
                         Title = "Methods",
                         Slug = "object-oriented-methods",
-                        Description = "Let's create the console app, install a package and write some code!",
+                        Description = "Extract focused methods and explore reuse, separation of concerns, and testability.",
                         Area = Area.Course,
                         ExperiencePoints = 1,
                         Blocks = new List<Block>
@@ -504,7 +491,7 @@ public class OopCourse
                                 Title = "Encapsulation",
                                 Paragraphs = new List<Paragraph>
                                 {
-                                    new Paragraph { Body = "Encapsulation is one of the fundamental principles of OOP. It involves bundling data and methods that operate on that data into a single unit, typically a class. We will learn about classes soon. For now all we need to know is that all of our code is inside the <b>Program class</b>. Hence the Program.cs file. " },
+                                    new Paragraph { Body = "Encapsulation is one of the fundamental principles of OOP. It involves bundling data with the behaviour that operates on it, typically inside a class, while controlling which details callers can access. We will learn about classes soon. For now, remember that C# compiles these top-level statements and methods into a generated <b>Program</b> class." },
                                     new Paragraph
                                     {
                                         Body = "A helpful analogy is to think of Encapsulation as putting your valuables in a safe. In programming, it means keeping important data and the details of how things work hidden inside a \"box\" (like a class). Only certain parts of the code, in this case, methods, can interact with that data. This protects the data and makes sure it’s only changed or accessed in controlled ways. So, just like only someone with the key can open the safe, only specific parts of your program can access or modify the hidden data."
@@ -516,9 +503,10 @@ public class OopCourse
                                 Title = "Further advantages in using methods in the context of OOP",
                                 Paragraphs = new List<Paragraph>
                                 {
-                                    new Paragraph { Body = "➡️ It helps us enforce that each part of the code is responsible for only one thing. This way of thinking is the Single Responsibility Principle, one of the most important principles in software programming. It fits neatly within the idea of Separation of Concerns." },
-                                    new Paragraph { Body = "➡️ It makes the code reusable. Whenever we need to execute one of those operations we can simple invoke that method, instead of repeating the code. This helps developers abide to the DRY principle." },
-                                    new Paragraph { Body = "➡️ It makes the code more testable.  Isolating functionality into methods makes it much easier to write unit tests." }
+                                    new Paragraph { Body = RedDotList(
+                                        "Methods help separate responsibilities by giving each operation a focused purpose. This supports separation of concerns and can help classes follow the Single Responsibility Principle.",
+                                        "Methods make behaviour reusable. We can invoke an operation when needed instead of repeating its implementation, supporting the DRY principle.",
+                                        "Methods improve testability. Isolating behaviour into focused units makes it easier to exercise with unit tests.") }
                                 }
                             },
                             new Block
@@ -542,7 +530,7 @@ public class OopCourse
                         CourseDisplayId = 8,
                         Title = "Classes",
                         Slug = "object-oriented-classes",
-                        Description = "Let's create the console app, install a package and write some code!",
+                        Description = "Introduce classes and move book-related behaviour into a dedicated controller.",
                         Area = Area.Course,
                         ExperiencePoints = 1,
                         Blocks = new List<Block>
@@ -642,7 +630,7 @@ public class OopCourse
                         CourseDisplayId = 9,
                         Title = "Top-level Statements",
                         Slug = "c-sharp-top-level-statements",
-                        Description = "Let's create the console app, install a package and write some code!",
+                        Description = "Understand how top-level statements relate to the generated Program class.",
                         Area = Area.Course,
                         ExperiencePoints = 1,
                         Blocks = new List<Block>
@@ -688,7 +676,7 @@ public class OopCourse
                         CourseDisplayId = 10,
                         Title = "Access Modifiers",
                         Slug = "object-oriented-access-modifiers",
-                        Description = "Let's create the console app, install a package and write some code!",
+                        Description = "Control type and member visibility with C# access modifiers.",
                         Area = Area.Course,
                         ExperiencePoints = 1,
                         Blocks = new List<Block>
@@ -703,15 +691,16 @@ public class OopCourse
                             },
                             new Block
                             {
-                                Title = "C# Acess Modifiers",
+                                Title = "C# Access Modifiers",
                                 Paragraphs = new List<Paragraph>
                                 {
-                                    new Paragraph { Body = "➡️ <b>Public</b>: It's the most accessible modifier, allowing members to be accessed from any part of the code in the same assembly or from other assemblies. It ensures that the member is available to all." },
-                                   new Paragraph { Body = "➡️ <b>Private</b>: It's the most restrictive modifier, limiting access to the containing class only. Members marked as private cannot be accessed from outside the class, ensuring full encapsulation of the class's implementation details." },
-                                    new Paragraph { Body = "➡️ <b>Protected</b>: Allows access within the containing class and any class that inherits from it. This modifier is useful when you want derived classes to access certain members but still restrict access from the outside." },
-                                   new Paragraph { Body = "➡️ <b>Internal</b>: Limits access to the current assembly, meaning that any type or member marked as internal can only be accessed by other types within the same project but not by other assemblies." },
-                                    new Paragraph { Body = "➡️ <b>Protected Internal</b>: It's a combination of protected and internal, allowing access either from within the same assembly or from a derived class in another assembly. It offers flexibility when sharing access across inheritance hierarchies and assemblies." },
-                                   new Paragraph { Body = "➡️ <b>Private protected</b>: It's the most restrictive of all inheritance-access modifiers, allowing access only from within the containing class or types derived from the class but only within the same assembly. This ensures that members are not exposed to derived classes from other assemblies." },
+                                    new Paragraph { Body = RedDotList(
+                                        "<b>public:</b> Accessible from any code that can reference the containing type.",
+                                        "<b>private:</b> Accessible only within the containing type.",
+                                        "<b>protected:</b> Accessible within the containing type and derived types.",
+                                        "<b>internal:</b> Accessible within the current assembly.",
+                                        "<b>protected internal:</b> Accessible from the current assembly <i>or</i> from a derived type in another assembly.",
+                                        "<b>private protected:</b> Accessible from the containing type and its derived types, but only within the current assembly.") },
                                 },
                             },
                             new Block
@@ -719,11 +708,12 @@ public class OopCourse
                                 Title = "Best Practices",
                                 Paragraphs = new List<Paragraph>
                                 {
-                                    new Paragraph { Body = "➡️ <b>Default to the Least Permissive Access</b>: Start with the most restrictive access level (private) and only increase accessibility when necessary. This minimizes unintended interactions and enhances security." },
-                                   new Paragraph { Body = "➡️ <b>Use private for Implementation Details</b>: Keep fields and helper methods private unless there’s a clear need for broader access." },
-                                    new Paragraph { Body = "➡️ <b>Expose Only Necessary Members</b>: Public members should represent the intended interface of the class. Avoid exposing internal workings unless required for extension or interaction." },
-                                   new Paragraph { Body = "➡️ <b>Leverage internal for Assembly-Wide Access</b>: Use internal when members need to be accessible across multiple classes within the same assembly but should remain hidden from external assemblies." },
-                                    new Paragraph { Body = "➡️ <b>Document Access Levels</b>: Clearly document the intended use and access levels of class members to aid maintainability and clarity for other developers." }
+                                    new Paragraph { Body = RedDotList(
+                                        "<b>Use the least permissive access:</b> Start with the narrowest useful accessibility and broaden it only when required.",
+                                        "<b>Keep implementation details private:</b> Fields and helper methods generally should not be exposed without a reason.",
+                                        "<b>Expose an intentional API:</b> Public members should represent the operations and data that callers are meant to use.",
+                                        "<b>Use internal deliberately:</b> Choose it when code should be shared within an assembly but hidden from external consumers.",
+                                        "<b>Document non-obvious decisions:</b> Explain why unusually broad or inheritance-based access is necessary.") }
                                 },
                             },
                             new Block
@@ -750,7 +740,7 @@ public class OopCourse
                         CourseDisplayId = 11,
                         Title = "Creating More Classes",
                         Slug = "object-oriented-more-classes",
-                        Description = "Let's create the console app, install a package and write some code!",
+                        Description = "Separate the user interface and library operations into focused classes.",
                         Area = Area.Course,
                         ExperiencePoints = 1,
                         Blocks = new List<Block>
@@ -759,7 +749,7 @@ public class OopCourse
                             {
                                 Paragraphs = new List<Paragraph>
                                 {
-                                    new Paragraph { Body = "Now that we have a better understand of access modifiers and of what's happening in Program.cs, let's create a few more classes. Start by creating UserInterface.cs, with a method where the main menu will live: \r\n" },
+                                    new Paragraph { Body = "Now that we have a better understanding of access modifiers and what is happening in Program.cs, let's create a few more classes. Start by creating UserInterface.cs, with a method where the main menu will live: \r\n" },
                                     new Paragraph {
                                         IsCode = true,
                                         Body = "using Spectre.Console;\r\nusing static TCSA.OOP.LibraryManagement.Enums;\r\n\r\nnamespace TCSA.OOP.LibraryManagement;\r\n\r\ninternal class UserInterface\r\n{\r\n    internal static void MainMenu()\r\n    {\r\n        while (true)\r\n        {\r\n            //menu code here:\r\n        }\r\n    }\r\n}" },
@@ -788,7 +778,7 @@ public class OopCourse
                                    new Paragraph {
                                         IsCode = true,
                                         Body = "using TCSA.OOP.LibraryManagementSystem;\r\n\r\nUserInterface.MainMenu();" },
-                                   new Paragraph { Body = "These modifications improved the readability of our code. It's now neatly separated in four classes, following the Separation of Concerns simple." }
+                                   new Paragraph { Body = "These modifications improve the readability of our code. It is now separated into four focused classes, following the separation-of-concerns principle." }
                                 }
                             },
                             new Block
@@ -851,7 +841,7 @@ public class OopCourse
                         CourseDisplayId = 12,
                         Title = "Objects",
                         Slug = "object-oriented-objects",
-                        Description = "Let's create the console app, install a package and write some code!",
+                        Description = "Create class instances and use objects to access instance behaviour.",
                         Area = Area.Course,
                         ExperiencePoints = 1,
                         Blocks = new List<Block>
@@ -912,7 +902,7 @@ public class OopCourse
                         CourseDisplayId = 13,
                         Title = "Static",
                         Slug = "object-oriented-static",
-                        Description = "Let's create the console app, install a package and write some code!",
+                        Description = "Compare static and instance members and understand the risks of shared global state.",
                         Area = Area.Course,
                         ExperiencePoints = 1,
                         Blocks = new List<Block>
@@ -958,7 +948,7 @@ public class OopCourse
                         CourseDisplayId = 14,
                         Title = "Practicing With Objects",
                         Slug = "object-oriented-practice",
-                        Description = "Let's create the console app, install a package and write some code!",
+                        Description = "Refactor the application to instantiate and coordinate its classes as objects.",
                         Area = Area.Course,
                         ExperiencePoints = 1,
                         Blocks = new List<Block>
@@ -1089,7 +1079,7 @@ public class OopCourse
                         CourseDisplayId = 15,
                         Title = "Tuples",
                         Slug = "object-oriented-tuples",
-                        Description = "Let's create the console app, install a package and write some code!",
+                        Description = "Use tuples for small grouped values and recognise when a model is more appropriate.",
                         Area = Area.Course,
                         ExperiencePoints = 1,
                         Blocks = new List<Block>
@@ -1145,7 +1135,7 @@ public class OopCourse
                         CourseDisplayId = 16,
                         Title = "Constructors",
                         Slug = "object-oriented-constructors",
-                        Description = "Let's create the console app, install a package and write some code!",
+                        Description = "Initialise objects with constructors and required input values.",
                         Area = Area.Course,
                         ExperiencePoints = 1,
                         Blocks = new List<Block>
@@ -1225,7 +1215,7 @@ public class OopCourse
                                     new Paragraph { Body = "We could initialize fields this way:" },
                                    new Paragraph {
                                        IsCode = true,
-                                        Body = "internal class Book\r\n{\r\n    string Name = \"Unknown\"\r\n    int Pages = 0;\r\n\r\n    internal Book(int pages)\r\n    {\r\n        Name = \"Unknown\";\r\n        Pages = pages;\r\n        Console.WriteLine($\"Name: {Name}, Pages = {Pages}\");\r\n    }\r\n}" },
+                                        Body = "internal class Book\r\n{\r\n    string Name = \"Unknown\";\r\n    int Pages = 0;\r\n\r\n    internal Book(int pages)\r\n    {\r\n        Name = \"Unknown\";\r\n        Pages = pages;\r\n        Console.WriteLine($\"Name: {Name}, Pages = {Pages}\");\r\n    }\r\n}" },
                                    new Paragraph { Body = "This code would run before any constructors, which means that the assigned values would become default for these fields. However these values can be overridden by the constructors." },
                                 }
                             }
@@ -1237,7 +1227,7 @@ public class OopCourse
                         CourseDisplayId = 17,
                         Title = "Properties",
                         Slug = "object-oriented-properties",
-                        Description = "Let's create the console app, install a package and write some code!",
+                        Description = "Use C# properties to expose and protect an object's state.",
                         Area = Area.Course,
                         ExperiencePoints = 1,
                         Blocks = new List<Block>
@@ -1254,9 +1244,9 @@ public class OopCourse
                                 Title = "Getters and Setters",
                                 Paragraphs = new List<Paragraph>
                                 {
-                                    new Paragraph { Body = "Getters and setters are methods associated with properties. A getter is a method that retrieves the value of a property, while a setter is a method that sets or updates the value of a property. This allows you to add logic during the retrieval or assignment of values, such as validation or logging, without exposing the underlying field directly." },
+                                    new Paragraph { Body = "A property's <code class='inline-code'>get</code> and <code class='inline-code'>set</code> members are called accessors. The getter returns the property's value, while the setter receives an assigned value. Accessors can contain logic such as validation or logging without exposing the backing field directly." },
                                      new Paragraph {
-                                        Body = "In the early versions of C#, specifically C# 1.0 released in 2002, properties were implemented using traditional methods. For example, you would have private fields to store the values, and you would define separate methods to get and set those values. In a class like Book, you might see something like this:" },
+                                        Body = "Before looking at property syntax, consider how a class could expose private fields through ordinary methods. A Book class could define separate methods to retrieve and update each value:" },
                                       new Paragraph {
                                           IsCode = true,
                                           Body = "internal class Book\r\n{\r\n    private string name;\r\n    private int pages;\r\n\r\n    public string GetName()\r\n    {\r\n        return name;\r\n    }\r\n\r\n    public void SetName(string value)\r\n    {\r\n        name = value;\r\n    }\r\n\r\n    public int GetPages()\r\n    {\r\n        return pages;\r\n    }\r\n\r\n    public void SetPages(int value)\r\n    {\r\n        pages = value;\r\n    }\r\n}\r\n" }
@@ -1267,7 +1257,7 @@ public class OopCourse
                                 Title = "Property Syntax",
                                 Paragraphs = new List<Paragraph>
                                 {
-                                    new Paragraph { Body = "Starting with C# 2.0, properties became much easier to use with the introduction of the property syntax. Instead of creating separate getter and setter methods, you could define properties directly within the class. For the Book class, it would look like this:" },
+                                    new Paragraph { Body = "C# properties provide dedicated syntax for this pattern. Instead of defining separate GetName and SetName methods, the class can expose Name and Pages through property accessors:" },
                                    new Paragraph {
                                        IsCode = true,
                                         Body = "internal class Book\r\n{\r\n    public string Name { get; set; }\r\n    public int Pages { get; set; }\r\n}" }
@@ -1275,10 +1265,10 @@ public class OopCourse
                             },
                              new Block
                             {
-                                Title = "Auto-properties",
+                                Title = "Auto-implemented Properties and Initializers",
                                 Paragraphs = new List<Paragraph>
                                 {
-                                    new Paragraph { Body = "The evolution continued with the introduction of auto-properties in C# 6.0. With auto-properties, you could initialize properties directly in the declaration without needing to define a backing field at all. Here's how the Book class would look using auto-properties:" },
+                                    new Paragraph { Body = "Auto-implemented properties were introduced in C# 3.0 and let the compiler create the backing field. C# 6.0 later added auto-property initializers, which allow a default value to be assigned directly in the declaration. The Book class can use both features:" },
                                    new Paragraph {
                                        IsCode = true,
                                         Body = "internal class Book\r\n{\r\n    public string Name { get; set; } = \"Default Name\";\r\n    public int Pages { get; set; } = 100;\r\n}\r\n" },
@@ -1292,7 +1282,7 @@ public class OopCourse
                         CourseDisplayId = 18,
                         Title = "Models",
                         Slug = "object-oriented-models",
-                        Description = "Let's create the console app, install a package and write some code!",
+                        Description = "Create a Book model and replace temporary tuple-based data.",
                         Area = Area.Course,
                         ExperiencePoints = 1,
                         Blocks = new List<Block>
@@ -1301,7 +1291,7 @@ public class OopCourse
                             {
                                 Paragraphs = new List<Paragraph>
                                 {
-                                    new Paragraph { Body = "The Book class we've created in the previous chapter is commonly called a model. A class designed modeling a real-world object. With this we can introduce another OOP principle:" }
+                                    new Paragraph { Body = "The Book class created in the previous chapter is commonly called a model: a class designed to represent a concept relevant to the application. This introduces another OOP principle:" }
                                 }
                             },
                             new Block
@@ -1442,7 +1432,7 @@ public class OopCourse
                         CourseDisplayId = 19,
                         Title = "Abstract Classes",
                         Slug = "object-oriented-abstract-classes",
-                        Description = "Let's create the console app, install a package and write some code!",
+                        Description = "Learn how abstract base classes define shared state and required behaviour.",
                         Area = Area.Course,
                         ExperiencePoints = 1,
                         Blocks = new List<Block>
@@ -1478,7 +1468,7 @@ public class OopCourse
                                    new Paragraph {
                                        IsCode = true,
                                        Body = "internal class Dog : Animal\r\n    {\r\n        public Dog(string name, int age) \r\n            : base(name, age) \r\n        {\r\n        }\r\n\r\n        public override void MakeSound()\r\n        {\r\n            Console.WriteLine($\"{Name} says: Woof!\");\r\n        }\r\n    }\r\n\r\ninternal class Cat : Animal\r\n    {\r\n        public Cat(string name, int age) \r\n            : base(name, age) // Calling the base class constructor\r\n        {\r\n        }\r\n\r\n        public override void MakeSound()\r\n        {\r\n            Console.WriteLine($\"{Name} says: Meow!\");\r\n        }\r\n    }" },
-                                    new Paragraph { Body = "Both the classes inherit from Animal, Implements the MakeSound() method to provide the specific sound the animal makes. The constructor calls the base constructor to initialize Name and Age." },
+                                    new Paragraph { Body = "Both classes inherit from Animal and override MakeSound() to provide the sound for that animal. Each constructor calls the base constructor to initialise Name and Age." },
                                        new Paragraph { Body = "Add this to Program.cs, above the declaration of the classes:" },
                                        new Paragraph {
                                        IsCode = true,
@@ -1490,8 +1480,8 @@ public class OopCourse
                                 Title = "Polymorphism",
                                 Paragraphs = new List<Paragraph>
                                 {
-                                    new Paragraph { Body = "Polymorphism is a fundamental concept in object-oriented programming (OOP) that allows objects of different classes to be treated as objects of a common superclass. The term “polymorphism” literally means “many shapes,” and it refers to the ability of different objects to respond to the same method call in different ways." },
-                                    new Paragraph { Body = "In our example, we have different forms of animals, the cat and the dog. They share common characteristics but also contain unique properties. In the next chapter lets's apply this concept to our Library Management System." }
+                                    new Paragraph { Body = "Polymorphism allows objects of different concrete classes to be used through a common base type. The term means “many forms”: the same method call can run different overridden implementations depending on the object's runtime type." },
+                                    new Paragraph { Body = "In this example, Dog and Cat share the Animal base class but provide different MakeSound() implementations. In the next chapter, let's apply this concept to the Library Management System." }
                                 }
                             }
                         }
@@ -1502,7 +1492,7 @@ public class OopCourse
                         CourseDisplayId = 20,
                         Title = "Applying Abstract Classes",
                         Slug = "applying-abstract-classes",
-                        Description = "Let's create the console app, install a package and write some code!",
+                        Description = "Create a LibraryItem hierarchy and implement polymorphic display behaviour.",
                         Area = Area.Course,
                         ExperiencePoints = 1,
                         Blocks = new List<Block>
@@ -1528,7 +1518,7 @@ public class OopCourse
                                        IsCode = true,
                                        Body = "internal class Book : LibraryItem\r\n{\r\n    internal string Author { get; set; }\r\n    internal string Category { get; set; }\r\n    internal int Pages { get; set; }\r\n\r\n    internal Book(int id, string name, string author, string category, string location, int pages)\r\n        : base(id, name, location)\r\n    {\r\n        Author = author;\r\n        Category = category;\r\n        Pages = pages;\r\n    }\r\n\r\n    public override void DisplayDetails()\r\n    {\r\n        var panel = new Panel(new Markup($\"[bold]Book:[/] [cyan]{Name}[/] by [cyan]{Author}[/]\") +\r\n                              $\"\\n[bold]Pages:[/] {Pages}\" +\r\n                              $\"\\n[bold]Category:[/] [green]{Category}[/]\" +\r\n                              $\"\\n[bold]Location:[/] [blue]{Location}[/]\")\r\n        {\r\n            Border = BoxBorder.Rounded\r\n        };\r\n\r\n        AnsiConsole.Write(panel);\r\n    }\r\n}" },
                                      new Paragraph {
-                                        Body = "Here we have three fields that are unique to Book: Author, Category and Pages. The constructor tells us we need to initiate these three, plus the properties of the base class. This class also implements it own DisplayDetails() using the override keyword." }
+                                        Body = "Book has three properties that are specific to it: Author, Category, and Pages. Its constructor initialises those values and passes the shared values to the base-class constructor. The class also provides its own DisplayDetails() implementation using the override keyword." }
                                 }
                             },
                             new Block
@@ -1632,7 +1622,7 @@ public class OopCourse
                         CourseDisplayId = 21,
                         Title = "Refactoring",
                         Slug = "oop-refactoring",
-                        Description = "Let's create the console app, install a package and write some code!",
+                        Description = "Update the application to work consistently with the new library-item hierarchy.",
                         Area = Area.Course,
                         ExperiencePoints = 1,
                         Blocks = new List<Block>
@@ -1670,7 +1660,7 @@ public class OopCourse
                                 Paragraphs = new List<Paragraph>
                                 {
                                     new Paragraph { Body = "Try fixing the DeleteBook method using what you've learned in the code above. You can find the code in the link at the end of the page. " },
-                                    new Paragraph { Body = "With that step, our app is no longer broken! Run it and you'll be able to add a book with all of it's properties." }
+                                    new Paragraph { Body = "With that step, the application works again. Run it and confirm that you can add a book with all of its properties." }
                                 }
                             },
                             new Block
@@ -1798,7 +1788,7 @@ public class OopCourse
                         CourseDisplayId = 22,
                         Title = "Interfaces",
                         Slug = "interfaces",
-                        Description = "Let's create the console app, install a package and write some code!",
+                        Description = "Use interfaces to define focused contracts that classes can implement.",
                         Area = Area.Course,
                         ExperiencePoints = 1,
                         Blocks = new List<Block>
@@ -1807,14 +1797,14 @@ public class OopCourse
                             {
                                 Paragraphs = new List<Paragraph>
                                 {
-                                    new Paragraph { Body = "An interface defines a contract that classes can implement. It specifies what a class must do, but not how it does it. Unlike abstract classes, interfaces cannot contain implementation details (prior to C# 8.0; newer versions allow default implementations, but we'll focus on the traditional usage for clarity)." },
+                                    new Paragraph { Body = "An interface defines a contract that classes can implement. It specifies which members an implementing type must provide. Modern C# interfaces can include some implementations, but this course focuses on their most common role as focused contracts." },
                                     new Paragraph {
-                                       Body = "Interfaces and Abstract Classes are very similar, particularly after interfaces started allowing default implementations. The most important difference is that a class can implement from multiple interfaces and that's not the case with Abstract classes. Let's see an example. " },
+                                       Body = "Interfaces and abstract classes can both participate in abstraction and polymorphism, but they serve different purposes. A class can inherit from only one base class while implementing multiple interfaces. Let's see an example." },
                                     new Paragraph {
                                         IsCode = true,
                                        Body = "   public interface IAnimal\r\n    {\r\n        string Name { get; set; }\r\n        int Age { get; set; }\r\n\r\n        void MakeSound();\r\n    }\r\n\r\n public interface IMammal\r\n    {\r\n        bool HasFur { get; set; }\r\n\r\n        void NurseYoung();\r\n    }\r\n\r\npublic interface IPet\r\n    {\r\n        void Play();\r\n    }\r\n\r\npublic class Dog : IAnimal, IMammal, IPet\r\n    {\r\n        public string Name { get; set; }\r\n        public int Age { get; set; }\r\n        public bool HasFur { get; set; }\r\n      \r\n        public Dog(string name, int age, bool hasFur)\r\n        {\r\n            Name = name;\r\n            Age = age;\r\n            HasFur = hasFur;\r\n        }\r\n\r\n        public void MakeSound()\r\n        {\r\n            Console.WriteLine($\"{Name} says: Woof!\");\r\n        }\r\n\r\n        public void NurseYoung()\r\n        {\r\n            Console.WriteLine($\"{Name} is nursing its puppies.\");\r\n        }\r\n\r\n        public void Play()\r\n        {\r\n            Console.WriteLine($\"{Name} is playing fetch.\");\r\n        }\r\n    }" },
                                      new Paragraph {
-                                       Body = "Here our dog inherits from multiple interfaces. That's a very common scenario in real applications, since each interface encapsulates a set of related properties and methods. Classes might inherit from difference interfaces as they need those set of members. A good way to think about it is that we should create interfaces so that they're used in a \"per need\" basis." },
+                                       Body = "Here Dog implements three interfaces. This is common in real applications because each interface can describe a focused capability. A class implements the contracts relevant to its responsibilities rather than inheriting unrelated behaviour." },
                                 }
                             }
                         }
@@ -1825,7 +1815,7 @@ public class OopCourse
                         CourseDisplayId = 23,
                         Title = "Applying Interfaces",
                         Slug = "applying-interfaces",
-                        Description = "Let's create the console app, install a package and write some code!",
+                        Description = "Apply an interface to shared library-item operations.",
                         Area = Area.Course,
                         ExperiencePoints = 1,
                         Blocks = new List<Block>
@@ -1834,7 +1824,7 @@ public class OopCourse
                             {
                                 Paragraphs = new List<Paragraph>
                                 {
-                                    new Paragraph { Body = "You probably realized we don't have a controller for Magazines and Newspapers. That means we can't do anything with those entities. Let's fix that by creating a controller for each. Since many of the methods will be similar amongst controller, we can use Inheritance." }
+                                    new Paragraph { Body = "We do not yet have controllers for magazines and newspapers, so the application cannot manage those items. Let's create a controller for each. Because the controllers expose the same operations, they can implement a shared interface." }
                                 }
                             },
                             new Block
@@ -1847,7 +1837,7 @@ public class OopCourse
                                         IsCode = true,
                                        Body = "internal interface IBaseController\r\n{\r\n    void ViewItems();\r\n    void AddItem();\r\n    void DeleteItem();\r\n}" },
                                      new Paragraph {
-                                       Body = "Next modify the BooksController so it inherits from IBaseController. You'll need to modify the names of the methods:" },
+                                       Body = "Next, modify BooksController so it implements IBaseController. You will also need to update the method names to match the interface:" },
                                       new Paragraph {
                                         IsCode = true,
                                        Body = "﻿using Spectre.Console;\r\nusing TCSA.OOP.LibraryManagement.Models;\r\n\r\nnamespace TCSA.OOP.LibraryManagement.Controllers;\r\n\r\ninternal class BookController : IBaseController\r\n{\r\n    public void AddItem()\r\n    {\r\n        // Implementation\r\n    }\r\n\r\n    public void DeleteItem()\r\n    {\r\n       // Implementation\r\n    }\r\n\r\n    public void ViewItems()\r\n    {\r\n        // Implementation\r\n    }\r\n}" },
@@ -2033,9 +2023,9 @@ public class OopCourse
                     {
                         Id = 500022,
                         CourseDisplayId = 24,
-                        Title = "Modifying The Menu",
+                        Title = "Modifying the Menu",
                         Slug = "oop-modifying-menu",
-                        Description = "Let's create the console app, install a package and write some code!",
+                        Description = "Expand the menu so users can manage each supported library-item type.",
                         Area = Area.Course,
                         ExperiencePoints = 1,
                         Blocks = new List<Block>
@@ -2245,7 +2235,7 @@ public class OopCourse
                         CourseDisplayId = 25,
                         Title = "Complex Inheritance",
                         Slug = "oop-complex-inheritance",
-                        Description = "Let's create the console app, install a package and write some code!",
+                        Description = "Review the completed inheritance hierarchy and how its types collaborate.",
                         Area = Area.Course,
                         ExperiencePoints = 1,
                         Blocks = new List<Block>
@@ -2450,7 +2440,7 @@ public class OopCourse
                         CourseDisplayId = 26,
                         Title = "Conclusion",
                         Slug = "oop-conclusion",
-                        Description = "Let's create the console app, install a package and write some code!",
+                        Description = "Review what you learned and decide how to continue practising OOP.",
                         Area = Area.Course,
                         ExperiencePoints = 1,
                         Blocks = new List<Block>
@@ -2470,7 +2460,7 @@ public class OopCourse
                                     new Paragraph { Body = "The first step we recommend is to <b>write down a reflection</b> upon what you've just learned. What did you think of the course? What are sub-topics you still feel you don't understand well? What feels more clear to you now? It's ok to feel like there are things you still don't know, but it's good to be specific about what these things are so you can tackle them in a focused way." },
                                     new Paragraph {
                                        Body = "If you feel confident you've learned a thing or two, we recommend you jump back into our projects and apply the knowledge from this course wherever you can. You can revisit this course at any time. Each time you repeat a course, you'll find that you'll learn something new or see the same topic from a new perspective, <b>no matter how many times you do it</b>." },
-                                    new Paragraph { Body = "Remember that this is an intro course covering the most used aspects of Object Oriented Programming. We're working on an advanced course, covering topics for students that are already very comfortable the material in this course. Stay tuned! And once again! Congratulations!" }
+                                    new Paragraph { Body = "Remember that this is an introductory course covering commonly used aspects of object-oriented programming. A future advanced course can build on this material once you are comfortable with the concepts introduced here. Stay tuned—and once again, congratulations!" }
                                 }
                             },
                             new Block
@@ -2478,10 +2468,11 @@ public class OopCourse
                                 Title = "Video Course",
                                 Paragraphs = new List<Paragraph>
                                 {
-                                    new Paragraph { Body = "We also have a paid video version of this tutorial. You have three options to access this course:<br><br>\r\n" +
-                                    "🔹<b>Option 1</b>: Purchase the course <a href='https://thecsharpschool.getlearnworlds.com/payment?product_id=cshasp-object-oriented-programming-crash-course' target='_blank'><b><u>individually for $4.99</u></b></a>.<br>\r\n" +
-                                    "🔹<b>Option 2</b>: Subscribe to the <b>VIP Membership</b> and have access to <a href='https://thecsharpschool.getlearnworlds.com/payment?product_id=the-c-academy-membership&type=subscription' target='_blank'><b><u>all our courses for $4.99/month</b></u></a><br>\r\n" +
-                                    "🔹<b>Option 3</b>: Subscribe to the <b>VIP Mentorship</b> for <a href='https://thecsharpschool.getlearnworlds.com/payment?product_id=net-accelerator-mentorship&type=subscription' target='_blank'><b><u>all courses and 1-on-1 mentorship for 39.99/month</b></u></a>" },
+                                    new Paragraph { Body = "We also have a paid video version of this tutorial. You have three options to access this course:" },
+                                    new Paragraph { Body = RedDotList(
+                                        "<b>Option 1</b>: Purchase the course <a href='https://thecsharpschool.getlearnworlds.com/payment?product_id=cshasp-object-oriented-programming-crash-course' target='_blank'><b><u>individually for $4.99</u></b></a>.",
+                                        "<b>Option 2</b>: Subscribe to the <b>VIP Membership</b> and access <a href='https://thecsharpschool.getlearnworlds.com/payment?product_id=the-c-academy-membership&type=subscription' target='_blank'><b><u>all our courses for $4.99/month</u></b></a>.",
+                                        "<b>Option 3</b>: Subscribe to the <b>VIP Mentorship</b> for <a href='https://thecsharpschool.getlearnworlds.com/payment?product_id=net-accelerator-mentorship&type=subscription' target='_blank'><b><u>all courses and one-to-one mentorship for $39.99/month</u></b></a>.") },
                                 }
                             },
                         }
