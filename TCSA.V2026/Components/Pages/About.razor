@@ -2,84 +2,695 @@
 
 <PageTitle>About Us - The C# Academy</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.Small" Class="mt-8 mb-8">
-    <MudPaper Elevation="2" Class="pa-6" Rounded="true">
-        <MudText Typo="Typo.h4" Class="mb-2">About The C# Academy</MudText>
-        <MudDivider Class="mb-6" />
+<div class="about-page">
+    <MudContainer MaxWidth="MaxWidth.Large">
 
-        <MudStack Spacing="4">
-            <!-- Mission -->
-            <div>
-                <MudText Typo="Typo.h6" Class="mb-3">Our Mission</MudText>
-                <MudText Typo="Typo.body2">
-                    The C# Academy is dedicated to providing high-quality, project-based learning for aspiring and experienced developers.
-                    We believe in learning by doing—building real applications that solve real problems.
-                </MudText>
-            </div>
+    <!-- Hero / Mission -->
+    <div class="mt-10 mb-10">
+        <MudPaper Class="pa-10 about-hero" Elevation="8">
+            <MudGrid Spacing="3">
+                <MudItem xs="12" md="7" Class="d-flex flex-column justify-center">
+                    <MudChip T="string" Variant="Variant.Filled" Class="about-chip mb-4">
+                        Project-Based Learning
+                    </MudChip>
+                    <h1 class="about-hero-title mud-typography-h2">
+                        We teach C# the way software actually gets built.
+                    </h1>
+                    <MudText Class="mt-4 about-hero-subtitle" Typo="Typo.body1">
+                        The C# Academy is a free, project-based platform for learning .NET — you ship real
+                        applications, get real code review, and grow alongside a community that's been exactly
+                        where you are.
+                    </MudText>
+                    <MudButton Variant="Variant.Filled"
+                               Size="Size.Large"
+                               Class="mt-6 about-btn-contrast"
+                               Style="width: fit-content;"
+                               StartIcon="@Icons.Material.Filled.Map"
+                               Href="/dashboard/roadmap">
+                        Start with the Roadmap
+                    </MudButton>
+                </MudItem>
 
-            <!-- What We Offer -->
-            <div>
-                <MudText Typo="Typo.h6" Class="mb-3">What We Offer</MudText>
-                <MudText Typo="Typo.body2">The C# Academy provides comprehensive resources for learning .NET and C# development:</MudText>
-                <ul style="margin-top: 12px;">
-                    <li><strong>Structured Learning Paths:</strong> Follow roadmaps designed to take you from beginner to advanced developer</li>
-                    <li><strong>Real-World Projects:</strong> Build practical applications that showcase your skills to employers</li>
-                    <li><strong>Expert Code Reviews:</strong> Get feedback from experienced developers to improve your code quality</li>
-                    <li><strong>Community Support:</strong> Connect with other learners and share your progress</li>
-                    <li><strong>Free and Accessible:</strong> Quality education should be available to everyone</li>
-                </ul>
-            </div>
+                <MudItem xs="12" md="5" Class="d-flex align-center">
+                    <div class="about-terminal">
+                        <div class="about-terminal-bar">
+                            <span class="about-terminal-dot dot-red"></span>
+                            <span class="about-terminal-dot dot-yellow"></span>
+                            <span class="about-terminal-dot dot-green"></span>
+                        </div>
+                        <div class="about-terminal-body">
+                            <div class="about-terminal-line">git log --oneline</div>
+                            <div class="about-terminal-line"><span class="about-tag tag-shipped">a1b2c3d</span> feat: ship your first project</div>
+                            <div class="about-terminal-line"><span class="about-tag tag-review">9f8e7d6</span> review: address mentor feedback</div>
+                            <div class="about-terminal-line"><span class="about-tag tag-guided">4c5d6e7</span> docs: follow curated resources</div>
+                            <div class="about-terminal-line"><span class="about-tag tag-open">0f1e2d3</span> chore: open first project ticket</div>
+                        </div>
+                    </div>
+                </MudItem>
+            </MudGrid>
+        </MudPaper>
+    </div>
 
-            <!-- Our Approach -->
-            <div>
-                <MudText Typo="Typo.h6" Class="mb-3">Our Approach</MudText>
-                <MudText Typo="Typo.body2">
-                    We believe developers learn best through hands-on experience. Rather than endless tutorials, we provide:
-                </MudText>
-                <ul style="margin-top: 12px;">
-                    <li>Clear project requirements and acceptance criteria</li>
-                    <li>Curated resources to guide your learning</li>
-                    <li>Peer review opportunities to learn from others</li>
-                    <li>A community that celebrates progress and effort</li>
-                </ul>
-            </div>
+    <!-- What We Offer -->
+    <div class="mt-15 mb-10">
+        <MudText Typo="Typo.h4" Color="Color.Primary" Class="mb-8 text-center about-section-title">What We Offer</MudText>
+        <MudGrid Spacing="3">
+            <MudItem xs="12" sm="6" md="4">
+                <MudPaper Class="about-offer-card" Elevation="6">
+                    <MudCardContent>
+                        <div class="about-card-icon-wrapper about-accent-primary">
+                            <MudIcon Icon="@Icons.Material.Filled.Map" Class="about-card-icon"></MudIcon>
+                        </div>
+                        <MudText Typo="Typo.h6" Color="Color.Primary" Class="mt-4 mb-3">Structured Learning Paths</MudText>
+                        <MudText Typo="Typo.body2">
+                            Follow a roadmap that takes you from your first project to advanced, production-grade work.
+                        </MudText>
+                    </MudCardContent>
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12" sm="6" md="4">
+                <MudPaper Class="about-offer-card" Elevation="6">
+                    <MudCardContent>
+                        <div class="about-card-icon-wrapper about-accent-teal">
+                            <MudIcon Icon="@Icons.Material.Filled.Terminal" Class="about-card-icon"></MudIcon>
+                        </div>
+                        <MudText Typo="Typo.h6" Color="Color.Primary" Class="mt-4 mb-3">Real-World Projects</MudText>
+                        <MudText Typo="Typo.body2">
+                            Build applications that solve real problems — the kind you'd put in front of an employer.
+                        </MudText>
+                    </MudCardContent>
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12" sm="6" md="4">
+                <MudPaper Class="about-offer-card" Elevation="6">
+                    <MudCardContent>
+                        <div class="about-card-icon-wrapper about-accent-pink">
+                            <MudIcon Icon="@Icons.Material.Filled.RateReview" Class="about-card-icon"></MudIcon>
+                        </div>
+                        <MudText Typo="Typo.h6" Color="Color.Primary" Class="mt-4 mb-3">Expert Code Reviews</MudText>
+                        <MudText Typo="Typo.body2">
+                            Get feedback from experienced developers so your code — not just your feature — actually improves.
+                        </MudText>
+                    </MudCardContent>
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12" sm="6" md="4">
+                <MudPaper Class="about-offer-card" Elevation="6">
+                    <MudCardContent>
+                        <div class="about-card-icon-wrapper about-accent-secondary">
+                            <MudIcon Icon="@Icons.Material.Filled.Groups" Class="about-card-icon"></MudIcon>
+                        </div>
+                        <MudText Typo="Typo.h6" Color="Color.Primary" Class="mt-4 mb-3">Community Support</MudText>
+                        <MudText Typo="Typo.body2">
+                            Learn alongside people at every stage, from first commit to senior engineer.
+                        </MudText>
+                    </MudCardContent>
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12" sm="6" md="4">
+                <MudPaper Class="about-offer-card" Elevation="6">
+                    <MudCardContent>
+                        <div class="about-card-icon-wrapper about-accent-primary">
+                            <MudIcon Icon="@Icons.Material.Filled.Public" Class="about-card-icon"></MudIcon>
+                        </div>
+                        <MudText Typo="Typo.h6" Color="Color.Primary" Class="mt-4 mb-3">Free &amp; Accessible</MudText>
+                        <MudText Typo="Typo.body2">
+                            Quality software education, available to anyone, at no cost.
+                        </MudText>
+                    </MudCardContent>
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+    </div>
 
-            <!-- Who We're For -->
-            <div>
-                <MudText Typo="Typo.h6" Class="mb-3">Who We're For</MudText>
-                <MudText Typo="Typo.body2">
-                    The C# Academy is for anyone interested in learning .NET and C# development:
-                </MudText>
-                <ul style="margin-top: 12px;">
-                    <li>Career changers looking to break into tech</li>
-                    <li>Recent graduates building their portfolios</li>
-                    <li>Self-taught developers seeking structured guidance</li>
-                    <li>Experienced developers looking to expand their C# skills</li>
-                </ul>
-            </div>
+    <!-- Our Approach -->
+    <div class="mt-15 mb-10">
+        <MudText Typo="Typo.h4" Color="Color.Primary" Class="mb-2 text-center about-section-title">Our Approach</MudText>
+        <MudText Typo="Typo.body1" Class="mb-8">
+            Every project on The C# Academy moves through the same lifecycle a real ticket would.
+        </MudText>
 
-            <!-- Our Values -->
-            <div>
-                <MudText Typo="Typo.h6" Class="mb-3">Our Values</MudText>
-                <MudText Typo="Typo.body2" Class="mb-2"><strong>Quality:</strong> We create comprehensive, well-researched content and maintain high standards for our platform.</MudText>
-                <MudText Typo="Typo.body2" Class="mb-2"><strong>Accessibility:</strong> Education should be free and available to everyone, regardless of background or location.</MudText>
-                <MudText Typo="Typo.body2" Class="mb-2"><strong>Community:</strong> We foster a supportive environment where learners help each other succeed.</MudText>
-                <MudText Typo="Typo.body2"><strong>Practical Skills:</strong> We focus on real-world skills that employers are looking for.</MudText>
-            </div>
+        <MudTimeline TimelinePosition="TimelinePosition.Start" Class="about-approach-timeline">
+            <MudTimelineItem Size="Size.Large" Class="stage-open" Variant="Variant.Outlined" Elevation="1">
+                <MudPaper Class="about-approach-step pa-4" Elevation="0">
+                    <span class="about-status-pill pill-open">OPEN</span>
+                    <MudText Typo="Typo.h6" Color="Color.Primary" Class="mt-2">Clear requirements</MudText>
+                    <MudText Typo="Typo.body2">
+                        Every project ships with concrete requirements and acceptance criteria — no guessing what "done" means.
+                    </MudText>
+                </MudPaper>
+            </MudTimelineItem>
+            <MudTimelineItem Size="Size.Large" Class="stage-guided" Variant="Variant.Outlined" Elevation="1">
+                <MudPaper Class="about-approach-step pa-4" Elevation="0">
+                    <span class="about-status-pill pill-guided">GUIDED</span>
+                    <MudText Typo="Typo.h6" Color="Color.Primary" Class="mt-2">Curated resources</MudText>
+                    <MudText Typo="Typo.body2">
+                        No endless tutorial-hopping — we point you to the resources that actually get the project done.
+                    </MudText>
+                </MudPaper>
+            </MudTimelineItem>
+            <MudTimelineItem Size="Size.Large" Class="stage-review" Variant="Variant.Outlined" Elevation="1">
+                <MudPaper Class="about-approach-step pa-4" Elevation="0">
+                    <span class="about-status-pill pill-review">IN REVIEW</span>
+                    <MudText Typo="Typo.h6" Color="Color.Primary" Class="mt-2">Peer &amp; expert code review</MudText>
+                    <MudText Typo="Typo.body2" >
+                        Submit your work and get real feedback — the same step every professional codebase requires.
+                    </MudText>
+                </MudPaper>
+            </MudTimelineItem>
+            <MudTimelineItem Size="Size.Large" Class="stage-shipped" Variant="Variant.Outlined" Elevation="1">
+                <MudPaper Class="about-approach-step pa-4" Elevation="0">
+                    <span class="about-status-pill pill-shipped">SHIPPED</span>
+                    <MudText Typo="Typo.h6" Color="Color.Primary" Class="mt-2">Community celebrates progress</MudText>
+                    <MudText Typo="Typo.body2">
+                        Ship it, and the community recognizes the effort — progress here is never invisible.
+                    </MudText>
+                </MudPaper>
+            </MudTimelineItem>
+        </MudTimeline>
+    </div>
 
-            <!-- Contact -->
-            <div>
-                <MudText Typo="Typo.h6" Class="mb-3">Get in Touch</MudText>
-                <MudText Typo="Typo.body2">
-                    Have questions about The C# Academy? Want to contribute or provide feedback? We'd love to hear from you.
-                </MudText>
-                <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-4" Href="/contact">
+    <!-- Who We're For -->
+    <div class="mt-15 mb-10">
+        <MudText Typo="Typo.h4" Color="Color.Primary" Class="mb-2 text-center about-section-title">Who We're For</MudText>
+        <MudText Typo="Typo.body1" Class="mb-8">
+            Pick the one that sounds like you.
+        </MudText>
+
+        <MudTabs Elevation="0" Rounded="true" Color="Color.Secondary" Class="about-tabs" PanelClass="pa-0">
+            <MudTabPanel Text="Career Changers" Icon="@Icons.Material.Filled.SwapHoriz">
+                <MudPaper Class="about-persona-card pa-6" Elevation="0">
+                    <MudText Typo="Typo.h5" Color="Color.Primary" Class="mb-2">Career Changers</MudText>
+                    <MudText Typo="Typo.body1">
+                        Coming from another field? Structured projects and clear requirements replace the guesswork of "what do I build next."
+                    </MudText>
+                    <MudButton Variant="Variant.Text" Color="Color.Secondary" Class="mt-4 px-0" Href="/dashboard/roadmap"
+                               EndIcon="@Icons.Material.Filled.ArrowForward">
+                        Start with the Roadmap
+                    </MudButton>
+                </MudPaper>
+            </MudTabPanel>
+            <MudTabPanel Text="Recent Graduates" Icon="@Icons.Material.Filled.School">
+                <MudPaper Class="about-persona-card pa-6" Elevation="0">
+                    <MudText Typo="Typo.h5" Color="Color.Primary" Class="mb-2">Recent Graduates</MudText>
+                    <MudText Typo="Typo.body1">
+                        Turn coursework into a portfolio. Ship projects that show employers you can build, not just study.
+                    </MudText>
+                    <MudButton Variant="Variant.Text" Color="Color.Secondary" Class="mt-4 px-0" Href="/dashboard/roadmap"
+                               EndIcon="@Icons.Material.Filled.ArrowForward">
+                        Start with the Roadmap
+                    </MudButton>
+                </MudPaper>
+            </MudTabPanel>
+            <MudTabPanel Text="Self-Taught Developers" Icon="@Icons.Material.Filled.AutoStories">
+                <MudPaper Class="about-persona-card pa-6" Elevation="0">
+                    <MudText Typo="Typo.h5" Color="Color.Primary" Class="mb-2">Self-Taught Developers</MudText>
+                    <MudText Typo="Typo.body1">
+                        Fill in the gaps tutorials leave behind, with structured guidance and reviewers who'll tell you what's actually wrong.
+                    </MudText>
+                    <MudButton Variant="Variant.Text" Color="Color.Secondary" Class="mt-4 px-0" Href="/mentorship"
+                               EndIcon="@Icons.Material.Filled.ArrowForward">
+                        Explore Mentorship
+                    </MudButton>
+                </MudPaper>
+            </MudTabPanel>
+            <MudTabPanel Text="Experienced Developers" Icon="@Icons.Material.Filled.Engineering">
+                <MudPaper Class="about-persona-card pa-6" Elevation="0">
+                    <MudText Typo="Typo.h5" Color="Color.Primary" Class="mb-2">Experienced Developers</MudText>
+                    <MudText Typo="Typo.body1">
+                        Expand into C# and .NET, sharpen your review skills, or mentor others working through the same roadmap you once did.
+                    </MudText>
+                    <MudButton Variant="Variant.Text" Color="Color.Secondary" Class="mt-4 px-0" Href="/mentorship"
+                               EndIcon="@Icons.Material.Filled.ArrowForward">
+                        Explore Mentorship
+                    </MudButton>
+                </MudPaper>
+            </MudTabPanel>
+        </MudTabs>
+    </div>
+
+    <!-- Our Values -->
+    <div class="mt-15 mb-10">
+        <MudText Typo="Typo.h4" Color="Color.Primary" Class="mb-8 text-center about-section-title">Our Values</MudText>
+        <MudGrid Spacing="4">
+            <MudItem xs="12" sm="6" md="3">
+                <div class="about-value-block value-primary">
+                    <MudText Typo="Typo.h5" Color="Color.Primary" Class="about-value-title">Quality</MudText>
+                    <MudText Typo="Typo.body2">
+                        Comprehensive, well-researched content and a platform held to a high standard.
+                    </MudText>
+                </div>
+            </MudItem>
+            <MudItem xs="12" sm="6" md="3">
+                <div class="about-value-block value-teal">
+                    <MudText Typo="Typo.h5" Color="Color.Primary" Class="about-value-title">Accessibility</MudText>
+                    <MudText Typo="Typo.body2">
+                        Education should be free and available to everyone, regardless of background or location.
+                    </MudText>
+                </div>
+            </MudItem>
+            <MudItem xs="12" sm="6" md="3">
+                <div class="about-value-block value-pink">
+                    <MudText Typo="Typo.h5" Color="Color.Primary" Class="about-value-title">Community</MudText>
+                    <MudText Typo="Typo.body2">
+                        A supportive environment where learners help each other succeed.
+                    </MudText>
+                </div>
+            </MudItem>
+            <MudItem xs="12" sm="6" md="3">
+                <div class="about-value-block value-secondary">
+                    <MudText Typo="Typo.h5" Color="Color.Primary" Class="about-value-title">Practical Skills</MudText>
+                    <MudText Typo="Typo.body2">
+                        A focus on real-world skills that employers are actually looking for.
+                    </MudText>
+                </div>
+            </MudItem>
+        </MudGrid>
+    </div>
+
+    <!-- Highlighted CTA -->
+    <div class="mt-15 mb-15">
+        <MudPaper Class="about-cta pa-10 text-center" Elevation="8">
+            <MudChip T="string" Class="about-cta-chip mb-4" Variant="Variant.Filled">Get in touch</MudChip>
+            <MudText Typo="Typo.h4" Class="mb-4 about-cta-title">Have questions? Want to contribute?</MudText>
+            <MudText Typo="Typo.body1" Class="mb-6 about-cta-copy"
+                     Style="text-align:center; max-width:620px; margin:0 auto;">
+                Whether you want to ask something, report an issue, or help keep the Academy free for everyone —
+                we'd love to hear from you.
+            </MudText>
+            <MudStack Row="true" Spacing="3" Justify="Justify.Center" Wrap="Wrap.Wrap">
+                <MudButton Variant="Variant.Filled"
+                           Size="Size.Large"
+                           Class="about-btn-contrast"
+                           StartIcon="@Icons.Material.Filled.Forum"
+                           Href="/contact">
                     Contact Us
                 </MudButton>
-            </div>
-        </MudStack>
-    </MudPaper>
-</MudContainer>
+                <MudButton Variant="Variant.Outlined"
+                           Size="Size.Large"
+                           Class="about-cta-outline"
+                           StartIcon="@Icons.Material.Filled.VolunteerActivism"
+                           Href="/contribute">
+                    Support the Academy
+                </MudButton>
+            </MudStack>
+        </MudPaper>
+    </div>
+    </MudContainer>
+</div>
+
+<style>
+    .about-page {
+        --about-page-bg: var(--mud-palette-background, #f6f7fb);
+        --about-surface: var(--mud-palette-surface, #ffffff);
+        --about-surface-muted: var(--mud-palette-background-grey, #f4f6fb);
+        --about-text: var(--mud-palette-text-primary, #273043);
+        --about-border: var(--mud-palette-lines-default, rgba(28, 35, 109, 0.14));
+        --about-soft-border: color-mix(in srgb, var(--about-border) 70%, transparent);
+        --about-primary: var(--mud-palette-primary, #1c236d);
+        background: var(--about-page-bg);
+        color: var(--about-text);
+    }
+
+    .mud-theme-dark .about-page,
+    .mud-application.mud-theme-dark .about-page {
+        --about-surface-muted: #20242d;
+        --about-soft-border: rgba(255, 255, 255, 0.16);
+    }
+
+    .about-section-title {
+        font-weight: 700 !important;
+    }
+
+    /* Hero */
+    .about-hero {
+        background: linear-gradient(135deg, #1c236d 0%, #2d356f 68%, #832a77 100%) !important;
+        color: white;
+        border-radius: 12px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .about-hero::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 600px;
+        height: 600px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+    }
+
+    .about-chip {
+        width: fit-content;
+        background: rgba(255, 255, 255, 0.14) !important;
+        color: #fff !important;
+        font-weight: 700;
+    }
+
+    .about-btn-contrast {
+        background: #ffffff !important;
+        color: #1c236d !important;
+        font-weight: 700 !important;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+    }
+
+    .about-btn-contrast:hover {
+        background: #eef0fa !important;
+    }
+
+    .about-hero-title {
+        font-weight: 700 !important;
+        font-size: 2.5rem !important;
+        line-height: 1.2;
+        color: white;
+        position: relative;
+        z-index: 1;
+    }
+
+    .about-hero-subtitle {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        color: white;
+        opacity: 0.95;
+        position: relative;
+        z-index: 1;
+        max-width: 560px;
+    }
+
+    .about-terminal {
+        width: 100%;
+        border-radius: 10px;
+        overflow: hidden;
+        background: #1b1f2b;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        box-shadow: 0 20px 45px rgba(10, 12, 25, 0.35);
+        position: relative;
+        z-index: 1;
+    }
+
+    .about-terminal-bar {
+        display: flex;
+        gap: 7px;
+        padding: 10px 14px;
+        background: rgba(255, 255, 255, 0.06);
+    }
+
+    .about-terminal-dot {
+        width: 11px;
+        height: 11px;
+        border-radius: 50%;
+        display: inline-block;
+    }
+
+    .dot-red {
+        background: #ff5f56;
+    }
+
+    .dot-yellow {
+        background: #ffbd2e;
+    }
+
+    .dot-green {
+        background: #27c93f;
+    }
+
+    .about-terminal-body {
+        margin: 0;
+        padding: 18px 20px 22px;
+        font-family: 'Consolas', 'SFMono-Regular', Menlo, monospace;
+        font-size: 0.82rem;
+        color: #d9dce3;
+    }
+
+    .about-terminal-line {
+        line-height: 1.9;
+        white-space: normal;
+        word-break: break-word;
+    }
+
+    .about-tag {
+        display: inline-block;
+        font-weight: 700;
+        border-radius: 4px;
+        padding: 1px 6px;
+        margin-right: 6px;
+        color: white;
+    }
+
+    .tag-open {
+        background: #1c236d;
+    }
+
+    .tag-guided {
+        background: #2f6f73;
+    }
+
+    .tag-review {
+        background: #c9436e;
+    }
+
+    .tag-shipped {
+        background: #832a77;
+    }
+
+    /* What We Offer cards */
+    .about-offer-card {
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        background: var(--about-surface) !important;
+        border: 1px solid var(--about-soft-border);
+    }
+
+    .about-offer-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15) !important;
+    }
+
+    .about-card-icon-wrapper {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+    }
+
+    .about-card-icon {
+        font-size: 36px;
+        color: white;
+    }
+
+    .about-accent-primary {
+        background: #1c236d;
+    }
+
+    .about-accent-secondary {
+        background: #832a77;
+    }
+
+    .about-accent-pink {
+        background: #c9436e;
+    }
+
+    .about-accent-teal {
+        background: #2f6f73;
+    }
+
+    /* Approach timeline */
+    .about-approach-step {
+        background: var(--about-surface) !important;
+    }
+
+    .about-status-pill {
+        display: inline-block;
+        font-family: 'Consolas', 'SFMono-Regular', Menlo, monospace;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        padding: 3px 10px;
+        border-radius: 999px;
+        color: white;
+    }
+
+    .pill-open {
+        background: #1c236d;
+    }
+
+    .pill-guided {
+        background: #2f6f73;
+    }
+
+    .pill-review {
+        background: #c9436e;
+    }
+
+    .pill-shipped {
+        background: #832a77;
+    }
+
+    .stage-open .mud-timeline-item-dot .mud-timeline-item-dot-inner {
+        background-color: #1c236d !important;
+        border-color: #1c236d !important;
+    }
+
+    .stage-guided .mud-timeline-item-dot .mud-timeline-item-dot-inner {
+        background-color: #2f6f73 !important;
+        border-color: #2f6f73 !important;
+    }
+
+    .stage-review .mud-timeline-item-dot .mud-timeline-item-dot-inner {
+        background-color: #c9436e !important;
+        border-color: #c9436e !important;
+    }
+
+    .stage-shipped .mud-timeline-item-dot .mud-timeline-item-dot-inner {
+        background-color: #832a77 !important;
+        border-color: #832a77 !important;
+    }
+
+    /* Who We're For tabs */
+    .about-tabs .mud-tabs-toolbar {
+        background: var(--about-surface-muted);
+        border-radius: 10px;
+    }
+
+    .about-persona-card {
+        background: var(--about-surface) !important;
+        border: 1px solid var(--about-soft-border);
+        border-radius: 0 0 10px 10px;
+        min-height: 190px;
+    }
+
+    /* Values grid */
+    .about-value-block {
+        height: 100%;
+        padding: 24px;
+        border-radius: 8px;
+        border-top: 4px solid var(--about-primary);
+    }
+
+    .about-value-title {
+        font-weight: 700 !important;
+        margin-bottom: 8px;
+    }
+
+    .value-primary {
+        border-top-color: #1c236d;
+        background: color-mix(in srgb, #1c236d 6%, transparent);
+    }
+
+    .value-teal {
+        border-top-color: #2f6f73;
+        background: color-mix(in srgb, #2f6f73 6%, transparent);
+    }
+
+    .value-pink {
+        border-top-color: #c9436e;
+        background: color-mix(in srgb, #c9436e 6%, transparent);
+    }
+
+    .value-secondary {
+        border-top-color: #832a77;
+        background: color-mix(in srgb, #832a77 6%, transparent);
+    }
+
+    /* CTA */
+    .about-cta {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        background: linear-gradient(150deg, #1c236d 0%, #832a77 55%, #c9436e 100%) !important;
+        color: white;
+        border-radius: 12px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .about-cta::before {
+        content: '';
+        position: absolute;
+        top: -35%;
+        right: -8%;
+        width: 420px;
+        height: 420px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 50%;
+    }
+
+    .about-cta::after {
+        content: '';
+        position: absolute;
+        bottom: -30%;
+        left: -6%;
+        width: 280px;
+        height: 280px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 50%;
+    }
+
+    .about-cta-chip {
+        width: fit-content;
+        background: rgba(255, 255, 255, 0.14) !important;
+        color: white !important;
+        font-weight: 700;
+        position: relative;
+        z-index: 1;
+    }
+
+    .about-cta-title,
+    .about-cta-copy {
+        color: white;
+        text-align: center;
+        position: relative;
+        z-index: 1;
+    }
+
+    .about-cta-copy {
+        opacity: 0.95;
+    }
+
+    .about-cta-outline {
+        color: white !important;
+        border-color: rgba(255, 255, 255, 0.75) !important;
+        position: relative;
+        z-index: 1;
+    }
+
+    @@media (max-width: 600px) {
+        .about-hero-title {
+            font-size: 2rem !important;
+        }
+
+        .about-hero {
+            padding: 32px 24px !important;
+        }
+
+        .about-terminal {
+            margin-top: 24px;
+        }
+
+        .about-tabs .mud-tab {
+            min-width: 0;
+            padding: 8px 10px;
+        }
+
+        .about-value-block {
+            padding: 18px;
+        }
+
+        .about-cta {
+            padding: 40px 20px !important;
+        }
+    }
+</style>
 
 @code {
     // About page - no code needed as it's a static informational page
