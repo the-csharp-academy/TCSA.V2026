@@ -142,7 +142,7 @@
                                     if (paragraph.IsCode)
                                     {
                                         <MudPaper Class="course-code-block overflow-auto line-numbers" Elevation="0">
-                                            <pre class="line-numbers"><code class="language-csharp">@((MarkupString)paragraph.Body)</code></pre>
+                                            <pre class="line-numbers"><code class="language-csharp">@paragraph.Body</code></pre>
                                         </MudPaper>
                                     }
                                     else if (paragraph.IsPicture)

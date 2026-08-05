@@ -1222,6 +1222,15 @@ public class UnityMovingObjectCourse
                     },
                     new Block
                     {
+                        Title = "Course Project Repository",
+                        CssClass = "article-ads-help-block",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            Text("You can find the completed collector game in the <a href='https://github.com/TheCSharpAcademy/TCSA.UnityCourse.Collector' target='_blank'>TCSA.UnityCourse.Collector GitHub repository</a>. Use it to compare your project with the finished course version or as the starting point for the next Unity course.")
+                        }
+                    },
+                    new Block
+                    {
                         Title = "Five Challenges to Try by Yourself",
                         Paragraphs = new List<Paragraph>
                         {

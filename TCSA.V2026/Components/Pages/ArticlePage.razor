@@ -68,7 +68,7 @@
 
                             else if (paragraph.IsCode)
                             {
-                                <pre class="line-numbers article-code-block"><code class="language-csharp">@((MarkupString)paragraph.Body)</code></pre>
+                                <pre class="line-numbers article-code-block"><code class="language-csharp">@paragraph.Body</code></pre>
                             }
 
                             else if (!string.IsNullOrEmpty(paragraph.Body))
