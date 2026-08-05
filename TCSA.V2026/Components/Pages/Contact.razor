@@ -2,48 +2,275 @@
 
 <PageTitle>Contact Us - The C# Academy</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.Small" Class="mt-8 mb-8">
-    <MudPaper Elevation="2" Class="pa-6" Rounded="true">
-        <MudText Typo="Typo.h4" Class="mb-2">Contact Us</MudText>
-        <MudText Typo="Typo.body2" Class="mb-6">
-            Have questions, feedback, or want to contribute? We'd love to hear from you. Reach out to us through any of the channels below.
-        </MudText>
+<div class="contact-page">
+    <MudContainer MaxWidth="MaxWidth.Medium">
 
-        <MudDivider Class="mb-6" />
-
-        <MudStack Spacing="4">
-            <!-- Email -->
-            <div>
-                <MudText Typo="Typo.h6" Class="mb-3">Email</MudText>
-                <MudText Typo="Typo.body2" Class="mb-2">
-                    Send us an email and we'll get back to you as soon as possible. We typically respond within 2-3 business days.
+        <!-- Hero -->
+        <div class="mt-10 mb-10">
+            <MudPaper Class="pa-10 contact-hero" Elevation="8">
+                <MudChip T="string" Variant="Variant.Filled" Class="contact-chip mb-4">
+                    We're here to help
+                </MudChip>
+                <h1 class="contact-hero-title mud-typography-h3">Let's Talk</h1>
+                <MudText Class="mt-4 contact-hero-subtitle" Typo="Typo.body1">
+                    Have questions, feedback, or want to contribute? We'd love to hear from you. Reach out to us
+                    through any of the channels below.
                 </MudText>
-                <MudLink Href="mailto:thecsharpacademy@gmail.com" Typo="Typo.body1">
-                    support@thecsharpacademy.com
-                </MudLink>
-            </div>
+            </MudPaper>
+        </div>
 
-            <!-- Discord -->
-            <div>
-                <MudText Typo="Typo.h6" Class="mb-3">Discord Community</MudText>
-                <MudText Typo="Typo.body2" Class="mb-2">
-                    Join our Discord community to chat with other developers, get quick help, and stay updated with the latest news.
-                </MudText>
-                <MudLink Href="https://discord.com/invite/aDMDET8ywB" Target="_blank" Typo="Typo.body1">
-                    Join our Discord Server
-                </MudLink>
-            </div>
+        <!-- Channels -->
+        <div class="mb-15">
+            <div class="contact-channel-list">
+                <a class="contact-channel-row" href="mailto:thecsharpacademy@gmail.com">
+                    <span class="contact-channel-icon contact-accent-primary">
+                        <MudIcon Icon="@Icons.Material.Filled.Email" Class="contact-channel-icon-glyph"></MudIcon>
+                    </span>
+                    <span class="contact-channel-body">
+                        <span class="contact-channel-title">Email</span>
+                        <span class="contact-channel-desc">
+                            Send us an email and we'll get back to you as soon as possible. We typically respond
+                            within 2-3 business days.
+                        </span>
+                        <span class="contact-channel-value">support@thecsharpacademy.com</span>
+                    </span>
+                    <MudIcon Icon="@Icons.Material.Filled.ChevronRight" Class="contact-channel-chevron"></MudIcon>
+                </a>
 
-            <!-- Website -->
-            <div>
-                <MudText Typo="Typo.h6" Class="mb-3">Website</MudText>
-                <MudLink Href="https://thecsharpacademy.com" Target="_blank" Typo="Typo.body1">
-                    https://thecsharpacademy.com
-                </MudLink>
+                <a class="contact-channel-row" href="https://discord.com/invite/aDMDET8ywB" target="_blank" rel="noopener">
+                    <span class="contact-channel-icon contact-accent-secondary">
+                        <MudIcon Icon="@Icons.Material.Filled.Forum" Class="contact-channel-icon-glyph"></MudIcon>
+                    </span>
+                    <span class="contact-channel-body">
+                        <span class="contact-channel-title">Discord Community</span>
+                        <span class="contact-channel-desc">
+                            Join our Discord community to chat with other developers, get quick help, and stay
+                            updated with the latest news.
+                        </span>
+                        <span class="contact-channel-value">Join our Discord Server</span>
+                    </span>
+                    <MudIcon Icon="@Icons.Material.Filled.ChevronRight" Class="contact-channel-chevron"></MudIcon>
+                </a>
+
+                <a class="contact-channel-row" href="https://thecsharpacademy.com" target="_blank" rel="noopener">
+                    <span class="contact-channel-icon contact-accent-teal">
+                        <MudIcon Icon="@Icons.Material.Filled.Public" Class="contact-channel-icon-glyph"></MudIcon>
+                    </span>
+                    <span class="contact-channel-body">
+                        <span class="contact-channel-title">Website</span>
+                        <span class="contact-channel-desc">
+                            Browse the full curriculum, projects, and everything else The C# Academy has to offer.
+                        </span>
+                        <span class="contact-channel-value">https://thecsharpacademy.com</span>
+                    </span>
+                    <MudIcon Icon="@Icons.Material.Filled.ChevronRight" Class="contact-channel-chevron"></MudIcon>
+                </a>
             </div>
-        </MudStack>
-    </MudPaper>
-</MudContainer>
+        </div>
+
+    </MudContainer>
+</div>
+
+<style>
+    .contact-page {
+        --contact-page-bg: var(--mud-palette-background, #f6f7fb);
+        --contact-surface: var(--mud-palette-surface, #ffffff);
+        --contact-text: var(--mud-palette-text-primary, #273043);
+        --contact-text-secondary: var(--mud-palette-text-secondary, #5c6478);
+        --contact-border: var(--mud-palette-lines-default, rgba(28, 35, 109, 0.14));
+        --contact-soft-border: color-mix(in srgb, var(--contact-border) 70%, transparent);
+        background: var(--contact-page-bg);
+        color: var(--contact-text);
+    }
+
+    .mud-theme-dark .contact-page,
+    .mud-application.mud-theme-dark .contact-page {
+        --contact-soft-border: rgba(255, 255, 255, 0.16);
+    }
+
+    /* Hero */
+    .contact-hero {
+        background: linear-gradient(135deg, #1c236d 0%, #2d356f 68%, #832a77 100%) !important;
+        color: white;
+        border-radius: 12px;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .contact-hero::before {
+        content: '';
+        position: absolute;
+        top: -55%;
+        left: -15%;
+        width: 480px;
+        height: 480px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 50%;
+    }
+
+    .contact-chip {
+        background: rgba(255, 255, 255, 0.14) !important;
+        color: #fff !important;
+        font-weight: 700;
+        position: relative;
+        z-index: 1;
+    }
+
+    .contact-hero-title {
+        font-weight: 700 !important;
+        line-height: 1.2;
+        color: white;
+        position: relative;
+        z-index: 1;
+    }
+
+    .contact-hero-subtitle {
+        font-size: 1.05rem;
+        line-height: 1.6;
+        color: white;
+        opacity: 0.95;
+        max-width: 600px;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Channel list */
+    .contact-channel-list {
+        border-radius: 16px;
+        overflow: hidden;
+        background: var(--contact-surface);
+        border: 1px solid var(--contact-soft-border);
+        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+    }
+
+    .contact-channel-row {
+        display: flex;
+        align-items: center;
+        gap: 1.1rem;
+        padding: 1.3rem 1.4rem;
+        text-decoration: none;
+        color: inherit;
+        border-bottom: 1px solid var(--contact-soft-border);
+        transition: background-color 0.15s ease;
+    }
+
+    .contact-channel-row:last-child {
+        border-bottom: none;
+    }
+
+    .contact-channel-row:hover,
+    .contact-channel-row:focus-visible {
+        background: color-mix(in srgb, #1c236d 5%, transparent);
+    }
+
+    .contact-channel-row:focus-visible {
+        outline: 2px solid #1c236d;
+        outline-offset: -2px;
+    }
+
+    .contact-channel-row:hover .contact-channel-chevron {
+        transform: translateX(4px);
+    }
+
+    .contact-channel-icon {
+        flex: 0 0 auto;
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .contact-channel-icon-glyph {
+        color: white;
+        font-size: 26px;
+    }
+
+    .contact-accent-primary {
+        background: #1c236d;
+    }
+
+    .contact-accent-secondary {
+        background: #832a77;
+    }
+
+    .contact-accent-teal {
+        background: #2f6f73;
+    }
+
+    .contact-channel-body {
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+    }
+
+    .contact-channel-title {
+        font-weight: 700;
+        font-size: 1.05rem;
+        color: var(--contact-text);
+    }
+
+    .contact-channel-desc {
+        font-size: 0.85rem;
+        color: var(--contact-text-secondary);
+        margin-top: 2px;
+        line-height: 1.5;
+    }
+
+    .contact-channel-value {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #1c236d;
+        margin-top: 6px;
+    }
+
+    .mud-theme-dark .contact-channel-value,
+    .mud-application.mud-theme-dark .contact-channel-value {
+        color: #8b93e6;
+    }
+
+    .contact-channel-chevron {
+        flex: 0 0 auto;
+        color: var(--contact-text-secondary);
+        transition: transform 0.15s ease;
+    }
+
+    @@media (prefers-reduced-motion: reduce) {
+        .contact-channel-chevron {
+            transition: none;
+        }
+
+        .contact-channel-row:hover .contact-channel-chevron {
+            transform: none;
+        }
+    }
+
+    @@media (max-width: 600px) {
+        .contact-hero {
+            padding: 32px 24px !important;
+        }
+
+        .contact-channel-row {
+            padding: 1.1rem;
+            gap: 0.85rem;
+        }
+
+        .contact-channel-icon {
+            width: 44px;
+            height: 44px;
+        }
+
+        .contact-channel-icon-glyph {
+            font-size: 22px;
+        }
+    }
+</style>
 
 @code {
     // Contact page - provides contact information
