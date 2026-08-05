@@ -2,214 +2,459 @@
 
 <PageTitle>Privacy Policy - The C# Academy</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.Small" Class="mt-8 mb-8">
-    <MudPaper Elevation="2" Class="pa-6" Rounded="true">
-        <MudText Typo="Typo.h4" Class="mb-2">Privacy Policy</MudText>
-        <MudText Typo="Typo.caption" Class="mb-6">Last Updated: June 2026</MudText>
+<div class="privacy-page">
+    <MudContainer MaxWidth="MaxWidth.Large" Class="mt-8 mb-10">
 
-        <MudDivider Class="mb-6" />
+        <!-- Header -->
+        <div class="privacy-header">
+            <MudText Typo="Typo.overline" Class="privacy-eyebrow">Legal</MudText>
+            <MudText Typo="Typo.h4" Color="Color.Primary" Class="privacy-title">Privacy Policy</MudText>
+            <MudText Typo="Typo.caption" Class="privacy-updated">Last Updated: June 2026</MudText>
+        </div>
 
-        <MudStack Spacing="4">
-            <!-- Introduction -->
-            <div>
-                <MudText Typo="Typo.h6" Class="mb-2">Privacy Policy for The C# Academy</MudText>
-                <MudText Typo="Typo.body2">
-                    The C# Academy ("we", "our", or "us") respects your privacy and is committed to protecting any personal information you provide while using our website.
-                </MudText>
-                <MudText Typo="Typo.body2">
-                    By using this website, you agree to the practices described in this Privacy Policy.
-                </MudText>
+        <!-- Mobile TOC chip scroller -->
+        <nav class="privacy-toc-mobile" aria-label="Table of contents">
+            <div class="privacy-toc-mobile-scroll">
+                @foreach (var entry in TocEntries)
+                {
+                    <a class="privacy-toc-chip" href="@($"/privacy#{entry.Id}")">@entry.Label</a>
+                }
             </div>
+        </nav>
 
-            <!-- Information We Collect -->
-            <div>
-                <MudText Typo="Typo.h6" Class="mb-3">Information We Collect</MudText>
+        <MudGrid Spacing="6" Class="privacy-layout">
+            <MudItem xs="12" md="3" Class="privacy-toc-column">
+                <nav class="privacy-toc-desktop" aria-label="Table of contents">
+                    <MudText Typo="Typo.overline" Class="privacy-toc-heading">On This Page</MudText>
+                    <ul class="privacy-toc-list">
+                        @foreach (var entry in TocEntries)
+                        {
+                            <li><a href="@($"/privacy#{entry.Id}")">@entry.Label</a></li>
+                        }
+                    </ul>
+                </nav>
+            </MudItem>
 
-                <MudText Typo="Typo.subtitle2" Class="mb-2">Information You Provide</MudText>
-                <MudText Typo="Typo.body2">We may collect information that you voluntarily provide, including:</MudText>
-                <MudList T="string">
-                    <MudListItem T="string">Name</MudListItem>
-                    <MudListItem T="string">Email address</MudListItem>
-                    <MudListItem T="string">GitHub profile information</MudListItem>
-                    <MudListItem T="string">Account registration details</MudListItem>
-                    <MudListItem T="string">Project submissions and code review content</MudListItem>
-                    <MudListItem T="string">Messages sent through contact forms</MudListItem>
-                </MudList>
+            <MudItem xs="12" md="9">
+                <!-- Introduction -->
+                <section id="@TocEntries[0].Id" class="privacy-section @GetAccent(0)">
+                    <MudText Typo="Typo.h6" Color="Color.Primary" Class="mb-2">Privacy Policy for The C# Academy</MudText>
+                    <MudText Typo="Typo.body2">
+                        The C# Academy ("we", "our", or "us") respects your privacy and is committed to protecting any personal information you provide while using our website.
+                    </MudText>
+                    <MudText Typo="Typo.body2">
+                        By using this website, you agree to the practices described in this Privacy Policy.
+                    </MudText>
+                </section>
 
-                <MudText Typo="Typo.subtitle2" Class="mb-2 mt-4">Information Collected Automatically</MudText>
-                <MudText Typo="Typo.body2">When you visit our website, we may automatically collect:</MudText>
-                <MudList T="string">
-                    <MudListItem T="string">IP address</MudListItem>
-                    <MudListItem T="string">Browser type and version</MudListItem>
-                    <MudListItem T="string">Device information</MudListItem>
-                    <MudListItem T="string">Operating system</MudListItem>
-                    <MudListItem T="string">Referring website</MudListItem>
-                    <MudListItem T="string">Pages visited</MudListItem>
-                    <MudListItem T="string">Time spent on pages</MudListItem>
-                    <MudListItem T="string">Usage statistics</MudListItem>
-                </MudList>
-                <MudText Typo="Typo.body2" Class="mt-2">This information helps us improve the website and user experience.</MudText>
-            </div>
+                <!-- Information We Collect -->
+                <section id="@TocEntries[1].Id" class="privacy-section @GetAccent(1)">
+                    <MudText Typo="Typo.h6" Color="Color.Primary" Class="mb-3">Information We Collect</MudText>
 
-            <!-- Cookies -->
-            <div>
-                <MudText Typo="Typo.h6" Class="mb-3">Cookies</MudText>
-                <MudText Typo="Typo.body2">The C# Academy uses cookies and similar technologies to:</MudText>
-                <MudList T="string">
-                    <MudListItem T="string">Keep users signed in</MudListItem>
-                    <MudListItem T="string">Remember preferences</MudListItem>
-                    <MudListItem T="string">Improve website performance</MudListItem>
-                    <MudListItem T="string">Analyze traffic patterns</MudListItem>
-                    <MudListItem T="string">Support advertising services</MudListItem>
-                </MudList>
-                <MudText Typo="Typo.body2" Class="mt-2">
-                    You may disable cookies through your browser settings, although some features of the website may not function correctly.
-                </MudText>
-            </div>
+                    <MudText Typo="Typo.subtitle2" Class="mb-2">Information You Provide</MudText>
+                    <MudText Typo="Typo.body2">We may collect information that you voluntarily provide, including:</MudText>
+                    <MudList T="string">
+                        <MudListItem T="string">Name</MudListItem>
+                        <MudListItem T="string">Email address</MudListItem>
+                        <MudListItem T="string">GitHub profile information</MudListItem>
+                        <MudListItem T="string">Account registration details</MudListItem>
+                        <MudListItem T="string">Project submissions and code review content</MudListItem>
+                        <MudListItem T="string">Messages sent through contact forms</MudListItem>
+                    </MudList>
 
-            <!-- Google AdSense -->
-            <div>
-                <MudText Typo="Typo.h6" Class="mb-3">Google AdSense</MudText>
-                <MudText Typo="Typo.body2">The C# Academy uses Google AdSense to display advertisements.</MudText>
-                <MudText Typo="Typo.body2">Google and its partners may use cookies and similar technologies to:</MudText>
-                <MudList T="string">
-                    <MudListItem T="string">Serve personalized advertisements</MudListItem>
-                    <MudListItem T="string">Measure ad performance</MudListItem>
-                    <MudListItem T="string">Prevent fraud and abuse</MudListItem>
-                    <MudListItem T="string">Improve advertising relevance</MudListItem>
-                </MudList>
-                <MudText Typo="Typo.body2" Class="mt-2">Google may use the information it collects in accordance with its own privacy policies.</MudText>
-                <MudText Typo="Typo.body2" Class="mt-2">You can learn more about how Google uses data here:</MudText>
-                <MudLink Href="https://policies.google.com/technologies/partner-sites" Target="_blank">https://policies.google.com/technologies/partner-sites</MudLink>
-                <MudText Typo="Typo.body2" Class="mt-2">You can manage your advertising preferences through:</MudText>
-                <MudLink Href="https://adssettings.google.com" Target="_blank">https://adssettings.google.com</MudLink>
-                <MudText Typo="Typo.body2" Class="mt-2">
-                    For users located in the European Economic Area (EEA), United Kingdom, or Switzerland, consent options will be provided where required by applicable laws.
-                </MudText>
-            </div>
+                    <MudText Typo="Typo.subtitle2" Class="mb-2 mt-4">Information Collected Automatically</MudText>
+                    <MudText Typo="Typo.body2">When you visit our website, we may automatically collect:</MudText>
+                    <MudList T="string">
+                        <MudListItem T="string">IP address</MudListItem>
+                        <MudListItem T="string">Browser type and version</MudListItem>
+                        <MudListItem T="string">Device information</MudListItem>
+                        <MudListItem T="string">Operating system</MudListItem>
+                        <MudListItem T="string">Referring website</MudListItem>
+                        <MudListItem T="string">Pages visited</MudListItem>
+                        <MudListItem T="string">Time spent on pages</MudListItem>
+                        <MudListItem T="string">Usage statistics</MudListItem>
+                    </MudList>
+                    <MudText Typo="Typo.body2" Class="mt-2">This information helps us improve the website and user experience.</MudText>
+                </section>
 
-            <!-- Analytics -->
-            <div>
-                <MudText Typo="Typo.h6" Class="mb-3">Analytics</MudText>
-                <MudText Typo="Typo.body2">We may use analytics services to understand how visitors use the website.</MudText>
-                <MudText Typo="Typo.body2">These services may collect:</MudText>
-                <MudList T="string">
-                    <MudListItem T="string">Page views</MudListItem>
-                    <MudListItem T="string">Session duration</MudListItem>
-                    <MudListItem T="string">Traffic sources</MudListItem>
-                    <MudListItem T="string">Device information</MudListItem>
-                </MudList>
-                <MudText Typo="Typo.body2" Class="mt-2">Analytics data is aggregated and used solely to improve the website.</MudText>
-            </div>
+                <!-- Cookies -->
+                <section id="@TocEntries[2].Id" class="privacy-section @GetAccent(2)">
+                    <MudText Typo="Typo.h6" Color="Color.Primary" Class="mb-3">Cookies</MudText>
+                    <MudText Typo="Typo.body2">The C# Academy uses cookies and similar technologies to:</MudText>
+                    <MudList T="string">
+                        <MudListItem T="string">Keep users signed in</MudListItem>
+                        <MudListItem T="string">Remember preferences</MudListItem>
+                        <MudListItem T="string">Improve website performance</MudListItem>
+                        <MudListItem T="string">Analyze traffic patterns</MudListItem>
+                        <MudListItem T="string">Support advertising services</MudListItem>
+                    </MudList>
+                    <MudText Typo="Typo.body2" Class="mt-2">
+                        You may disable cookies through your browser settings, although some features of the website may not function correctly.
+                    </MudText>
+                </section>
 
-            <!-- User Accounts -->
-            <div>
-                <MudText Typo="Typo.h6" Class="mb-3">User Accounts</MudText>
-                <MudText Typo="Typo.body2">If you create an account, we may store information necessary to:</MudText>
-                <MudList T="string">
-                    <MudListItem T="string">Authenticate your account</MudListItem>
-                    <MudListItem T="string">Provide educational services</MudListItem>
-                    <MudListItem T="string">Track project progress</MudListItem>
-                    <MudListItem T="string">Deliver code reviews</MudListItem>
-                    <MudListItem T="string">Communicate important updates</MudListItem>
-                </MudList>
-                <MudText Typo="Typo.body2" Class="mt-2">You are responsible for maintaining the confidentiality of your account credentials.</MudText>
-            </div>
+                <!-- Google AdSense -->
+                <section id="@TocEntries[3].Id" class="privacy-section @GetAccent(3)">
+                    <MudText Typo="Typo.h6" Color="Color.Primary" Class="mb-3">Google AdSense</MudText>
+                    <MudText Typo="Typo.body2">The C# Academy uses Google AdSense to display advertisements.</MudText>
+                    <MudText Typo="Typo.body2">Google and its partners may use cookies and similar technologies to:</MudText>
+                    <MudList T="string">
+                        <MudListItem T="string">Serve personalized advertisements</MudListItem>
+                        <MudListItem T="string">Measure ad performance</MudListItem>
+                        <MudListItem T="string">Prevent fraud and abuse</MudListItem>
+                        <MudListItem T="string">Improve advertising relevance</MudListItem>
+                    </MudList>
+                    <MudText Typo="Typo.body2" Class="mt-2">Google may use the information it collects in accordance with its own privacy policies.</MudText>
+                    <MudText Typo="Typo.body2" Class="mt-2">You can learn more about how Google uses data here:</MudText>
+                    <MudLink Href="https://policies.google.com/technologies/partner-sites" Target="_blank">https://policies.google.com/technologies/partner-sites</MudLink>
+                    <MudText Typo="Typo.body2" Class="mt-2">You can manage your advertising preferences through:</MudText>
+                    <MudLink Href="https://adssettings.google.com" Target="_blank">https://adssettings.google.com</MudLink>
+                    <MudText Typo="Typo.body2" Class="mt-2">
+                        For users located in the European Economic Area (EEA), United Kingdom, or Switzerland, consent options will be provided where required by applicable laws.
+                    </MudText>
+                </section>
 
-            <!-- Data Retention -->
-            <div>
-                <MudText Typo="Typo.h6" Class="mb-3">Data Retention</MudText>
-                <MudText Typo="Typo.body2">We retain information only for as long as necessary to:</MudText>
-                <MudList T="string">
-                    <MudListItem T="string">Provide our services</MudListItem>
-                    <MudListItem T="string">Maintain educational records</MudListItem>
-                    <MudListItem T="string">Comply with legal obligations</MudListItem>
-                    <MudListItem T="string">Resolve disputes</MudListItem>
-                    <MudListItem T="string">Enforce our agreements</MudListItem>
-                </MudList>
-            </div>
+                <!-- Analytics -->
+                <section id="@TocEntries[4].Id" class="privacy-section @GetAccent(4)">
+                    <MudText Typo="Typo.h6" Color="Color.Primary" Class="mb-3">Analytics</MudText>
+                    <MudText Typo="Typo.body2">We may use analytics services to understand how visitors use the website.</MudText>
+                    <MudText Typo="Typo.body2">These services may collect:</MudText>
+                    <MudList T="string">
+                        <MudListItem T="string">Page views</MudListItem>
+                        <MudListItem T="string">Session duration</MudListItem>
+                        <MudListItem T="string">Traffic sources</MudListItem>
+                        <MudListItem T="string">Device information</MudListItem>
+                    </MudList>
+                    <MudText Typo="Typo.body2" Class="mt-2">Analytics data is aggregated and used solely to improve the website.</MudText>
+                </section>
 
-            <!-- Third-Party Services -->
-            <div>
-                <MudText Typo="Typo.h6" Class="mb-3">Third-Party Services</MudText>
-                <MudText Typo="Typo.body2">The C# Academy may integrate with third-party providers including:</MudText>
-                <MudList T="string">
-                    <MudListItem T="string">Google AdSense</MudListItem>
-                    <MudListItem T="string">Google Analytics</MudListItem>
-                    <MudListItem T="string">GitHub</MudListItem>
-                    <MudListItem T="string">Microsoft Authentication</MudListItem>
-                    <MudListItem T="string">Other authentication providers</MudListItem>
-                </MudList>
-                <MudText Typo="Typo.body2" Class="mt-2">These services operate under their own privacy policies.</MudText>
-            </div>
+                <!-- User Accounts -->
+                <section id="@TocEntries[5].Id" class="privacy-section @GetAccent(5)">
+                    <MudText Typo="Typo.h6" Color="Color.Primary" Class="mb-3">User Accounts</MudText>
+                    <MudText Typo="Typo.body2">If you create an account, we may store information necessary to:</MudText>
+                    <MudList T="string">
+                        <MudListItem T="string">Authenticate your account</MudListItem>
+                        <MudListItem T="string">Provide educational services</MudListItem>
+                        <MudListItem T="string">Track project progress</MudListItem>
+                        <MudListItem T="string">Deliver code reviews</MudListItem>
+                        <MudListItem T="string">Communicate important updates</MudListItem>
+                    </MudList>
+                    <MudText Typo="Typo.body2" Class="mt-2">You are responsible for maintaining the confidentiality of your account credentials.</MudText>
+                </section>
 
-            <!-- Data Security -->
-            <div>
-                <MudText Typo="Typo.h6" Class="mb-3">Data Security</MudText>
-                <MudText Typo="Typo.body2">
-                    We take reasonable technical and organizational measures to protect personal information against unauthorized access, alteration, disclosure, or destruction.
-                </MudText>
-                <MudText Typo="Typo.body2" Class="mt-2">
-                    However, no method of transmission or storage is completely secure, and we cannot guarantee absolute security.
-                </MudText>
-            </div>
+                <!-- Data Retention -->
+                <section id="@TocEntries[6].Id" class="privacy-section @GetAccent(6)">
+                    <MudText Typo="Typo.h6" Color="Color.Primary" Class="mb-3">Data Retention</MudText>
+                    <MudText Typo="Typo.body2">We retain information only for as long as necessary to:</MudText>
+                    <MudList T="string">
+                        <MudListItem T="string">Provide our services</MudListItem>
+                        <MudListItem T="string">Maintain educational records</MudListItem>
+                        <MudListItem T="string">Comply with legal obligations</MudListItem>
+                        <MudListItem T="string">Resolve disputes</MudListItem>
+                        <MudListItem T="string">Enforce our agreements</MudListItem>
+                    </MudList>
+                </section>
 
-            <!-- Children's Privacy -->
-            <div>
-                <MudText Typo="Typo.h6" Class="mb-3">Children's Privacy</MudText>
-                <MudText Typo="Typo.body2">
-                    The C# Academy is not specifically directed toward children under the age of 13.
-                </MudText>
-                <MudText Typo="Typo.body2" Class="mt-2">
-                    We do not knowingly collect personal information from children under 13.
-                </MudText>
-            </div>
+                <!-- Third-Party Services -->
+                <section id="@TocEntries[7].Id" class="privacy-section @GetAccent(7)">
+                    <MudText Typo="Typo.h6" Color="Color.Primary" Class="mb-3">Third-Party Services</MudText>
+                    <MudText Typo="Typo.body2">The C# Academy may integrate with third-party providers including:</MudText>
+                    <MudList T="string">
+                        <MudListItem T="string">Google AdSense</MudListItem>
+                        <MudListItem T="string">Google Analytics</MudListItem>
+                        <MudListItem T="string">GitHub</MudListItem>
+                        <MudListItem T="string">Microsoft Authentication</MudListItem>
+                        <MudListItem T="string">Other authentication providers</MudListItem>
+                    </MudList>
+                    <MudText Typo="Typo.body2" Class="mt-2">These services operate under their own privacy policies.</MudText>
+                </section>
 
-            <!-- Your Rights -->
-            <div>
-                <MudText Typo="Typo.h6" Class="mb-3">Your Rights</MudText>
-                <MudText Typo="Typo.body2">Depending on your jurisdiction, you may have rights to:</MudText>
-                <MudList T="string">
-                    <MudListItem T="string">Access your personal information</MudListItem>
-                    <MudListItem T="string">Correct inaccurate information</MudListItem>
-                    <MudListItem T="string">Request deletion of your information</MudListItem>
-                    <MudListItem T="string">Restrict processing</MudListItem>
-                    <MudListItem T="string">Object to processing</MudListItem>
-                    <MudListItem T="string">Request data portability</MudListItem>
-                </MudList>
-                <MudText Typo="Typo.body2" Class="mt-2">To exercise these rights, contact us using the information below.</MudText>
-            </div>
+                <!-- Data Security -->
+                <section id="@TocEntries[8].Id" class="privacy-section @GetAccent(8)">
+                    <MudText Typo="Typo.h6" Color="Color.Primary" Class="mb-3">Data Security</MudText>
+                    <MudText Typo="Typo.body2">
+                        We take reasonable technical and organizational measures to protect personal information against unauthorized access, alteration, disclosure, or destruction.
+                    </MudText>
+                    <MudText Typo="Typo.body2" Class="mt-2">
+                        However, no method of transmission or storage is completely secure, and we cannot guarantee absolute security.
+                    </MudText>
+                </section>
 
-            <!-- Contact -->
-            <div>
-                <MudText Typo="Typo.h6" Class="mb-3">Contact</MudText>
-                <MudText Typo="Typo.body2">If you have any questions regarding this Privacy Policy, please contact:</MudText>
-                <MudText Typo="Typo.subtitle2" Class="mt-3 mb-1">The C# Academy</MudText>
-                <MudText Typo="Typo.body2">
-                    Email: <MudLink Href="mailto:support@thecsharpacademy.com">support@thecsharpacademy.com</MudLink>
-                </MudText>
-                <MudText Typo="Typo.body2">
-                    Website: <MudLink Href="https://thecsharpacademy.com" Target="_blank">https://thecsharpacademy.com</MudLink>
-                </MudText>
-            </div>
+                <!-- Children's Privacy -->
+                <section id="@TocEntries[9].Id" class="privacy-section @GetAccent(9)">
+                    <MudText Typo="Typo.h6" Color="Color.Primary" Class="mb-3">Children's Privacy</MudText>
+                    <MudText Typo="Typo.body2">
+                        The C# Academy is not specifically directed toward children under the age of 13.
+                    </MudText>
+                    <MudText Typo="Typo.body2" Class="mt-2">
+                        We do not knowingly collect personal information from children under 13.
+                    </MudText>
+                </section>
 
-            <!-- Changes to This Policy -->
-            <div>
-                <MudText Typo="Typo.h6" Class="mb-3">Changes to This Policy</MudText>
-                <MudText Typo="Typo.body2">
-                    We may update this Privacy Policy from time to time.
-                </MudText>
-                <MudText Typo="Typo.body2" Class="mt-2">
-                    Any changes will be posted on this page with an updated revision date.
-                </MudText>
-                <MudText Typo="Typo.body2" Class="mt-2">
-                    Continued use of the website after changes are published constitutes acceptance of the updated policy.
-                </MudText>
-            </div>
-        </MudStack>
-    </MudPaper>
-</MudContainer>
+                <!-- Your Rights -->
+                <section id="@TocEntries[10].Id" class="privacy-section @GetAccent(10)">
+                    <MudText Typo="Typo.h6" Color="Color.Primary" Class="mb-3">Your Rights</MudText>
+                    <MudText Typo="Typo.body2">Depending on your jurisdiction, you may have rights to:</MudText>
+                    <MudList T="string">
+                        <MudListItem T="string">Access your personal information</MudListItem>
+                        <MudListItem T="string">Correct inaccurate information</MudListItem>
+                        <MudListItem T="string">Request deletion of your information</MudListItem>
+                        <MudListItem T="string">Restrict processing</MudListItem>
+                        <MudListItem T="string">Object to processing</MudListItem>
+                        <MudListItem T="string">Request data portability</MudListItem>
+                    </MudList>
+                    <MudText Typo="Typo.body2" Class="mt-2">To exercise these rights, contact us using the information below.</MudText>
+                </section>
+
+                <!-- Contact -->
+                <section id="@TocEntries[11].Id" class="privacy-section @GetAccent(11)">
+                    <MudText Typo="Typo.h6" Color="Color.Primary" Class="mb-3">Contact</MudText>
+                    <MudText Typo="Typo.body2">If you have any questions regarding this Privacy Policy, please contact:</MudText>
+                    <MudText Typo="Typo.subtitle2" Class="mt-3 mb-1">The C# Academy</MudText>
+                    <MudText Typo="Typo.body2">
+                        Email: <MudLink Href="mailto:support@thecsharpacademy.com">support@thecsharpacademy.com</MudLink>
+                    </MudText>
+                    <MudText Typo="Typo.body2">
+                        Website: <MudLink Href="https://thecsharpacademy.com" Target="_blank">https://thecsharpacademy.com</MudLink>
+                    </MudText>
+                </section>
+
+                <!-- Changes to This Policy -->
+                <section id="@TocEntries[12].Id" class="privacy-section @GetAccent(12)">
+                    <MudText Typo="Typo.h6" Color="Color.Primary" Class="mb-3">Changes to This Policy</MudText>
+                    <MudText Typo="Typo.body2">
+                        We may update this Privacy Policy from time to time.
+                    </MudText>
+                    <MudText Typo="Typo.body2" Class="mt-2">
+                        Any changes will be posted on this page with an updated revision date.
+                    </MudText>
+                    <MudText Typo="Typo.body2" Class="mt-2">
+                        Continued use of the website after changes are published constitutes acceptance of the updated policy.
+                    </MudText>
+                </section>
+            </MudItem>
+        </MudGrid>
+    </MudContainer>
+</div>
+
+<style>
+    .privacy-page {
+        --privacy-page-bg: var(--mud-palette-background, #f6f7fb);
+        --privacy-surface: var(--mud-palette-surface, #ffffff);
+        --privacy-text: var(--mud-palette-text-primary, #273043);
+        --privacy-text-secondary: var(--mud-palette-text-secondary, #5c6478);
+        --privacy-border: var(--mud-palette-lines-default, rgba(28, 35, 109, 0.14));
+        --privacy-soft-border: color-mix(in srgb, var(--privacy-border) 70%, transparent);
+        background: var(--privacy-page-bg);
+        color: var(--privacy-text);
+        scroll-behavior: smooth;
+    }
+
+    @@media (prefers-reduced-motion: reduce) {
+        .privacy-page {
+            scroll-behavior: auto;
+        }
+    }
+
+    .mud-theme-dark .privacy-page,
+    .mud-application.mud-theme-dark .privacy-page {
+        --privacy-soft-border: rgba(255, 255, 255, 0.16);
+    }
+
+    /* Header */
+    .privacy-header {
+        margin-bottom: 2rem;
+    }
+
+    .privacy-eyebrow {
+        color: #832a77;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+    }
+
+    .privacy-title {
+        font-weight: 700 !important;
+        margin-top: 0.25rem;
+    }
+
+    .privacy-updated {
+        color: var(--privacy-text-secondary);
+    }
+
+    /* Desktop TOC */
+    .privacy-toc-column {
+        position: relative;
+    }
+
+    .privacy-toc-desktop {
+        position: sticky;
+        top: 96px;
+    }
+
+    .privacy-toc-heading {
+        color: #1c236d;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        display: block;
+        margin-bottom: 0.75rem;
+    }
+
+    .privacy-toc-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.15rem;
+        border-left: 2px solid var(--privacy-soft-border);
+    }
+
+    .privacy-toc-list a {
+        display: block;
+        padding: 0.4rem 0 0.4rem 0.9rem;
+        margin-left: -2px;
+        border-left: 2px solid transparent;
+        color: var(--privacy-text-secondary);
+        text-decoration: none;
+        font-size: 0.85rem;
+        line-height: 1.4;
+        transition: color 0.15s ease, border-color 0.15s ease;
+    }
+
+    .privacy-toc-list a:hover,
+    .privacy-toc-list a:focus-visible {
+        color: #1c236d;
+        border-left-color: #1c236d;
+    }
+
+    .mud-theme-dark .privacy-toc-list a:hover,
+    .mud-theme-dark .privacy-toc-list a:focus-visible,
+    .mud-application.mud-theme-dark .privacy-toc-list a:hover,
+    .mud-application.mud-theme-dark .privacy-toc-list a:focus-visible {
+        color: #8b93e6;
+        border-left-color: #8b93e6;
+    }
+
+    /* Mobile TOC */
+    .privacy-toc-mobile {
+        display: block;
+        margin-bottom: 1.5rem;
+    }
+
+    .privacy-toc-mobile-scroll {
+        display: flex;
+        gap: 0.5rem;
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    .privacy-toc-mobile-scroll::-webkit-scrollbar {
+        display: none;
+    }
+
+    .privacy-toc-chip {
+        flex: 0 0 auto;
+        padding: 0.4rem 0.9rem;
+        border-radius: 999px;
+        border: 1px solid var(--privacy-soft-border);
+        background: var(--privacy-surface);
+        color: var(--privacy-text);
+        text-decoration: none;
+        font-size: 0.8rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .privacy-toc-chip:hover,
+    .privacy-toc-chip:focus-visible {
+        border-color: #1c236d;
+        color: #1c236d;
+    }
+
+    @@media (min-width: 961px) {
+        .privacy-toc-mobile {
+            display: none;
+        }
+    }
+
+    @@media (max-width: 960px) {
+        .privacy-toc-column {
+            display: none;
+        }
+    }
+
+    /* Sections */
+    .privacy-section {
+        background: var(--privacy-surface);
+        border: 1px solid var(--privacy-soft-border);
+        border-left: 4px solid transparent;
+        border-radius: 10px;
+        padding: 1.5rem 1.75rem;
+        margin-bottom: 1.25rem;
+        scroll-margin-top: 96px;
+    }
+
+    .privacy-section:last-child {
+        margin-bottom: 0;
+    }
+
+    .privacy-section a {
+        overflow-wrap: anywhere;
+        word-break: break-word;
+    }
+
+    .privacy-accent-primary {
+        border-left-color: #1c236d;
+    }
+
+    .privacy-accent-teal {
+        border-left-color: #2f6f73;
+    }
+
+    .privacy-accent-pink {
+        border-left-color: #c9436e;
+    }
+
+    .privacy-accent-secondary {
+        border-left-color: #832a77;
+    }
+
+    @@media (max-width: 600px) {
+        .privacy-section {
+            padding: 1.15rem 1.25rem;
+        }
+    }
+</style>
 
 @code {
-    // Privacy page - no additional code needed as it's a static informational page
+    private record TocEntry(string Id, string Label);
+
+    private static readonly TocEntry[] TocEntries =
+    {
+        new("introduction", "Introduction"),
+        new("information-we-collect", "Information We Collect"),
+        new("cookies", "Cookies"),
+        new("google-adsense", "Google AdSense"),
+        new("analytics", "Analytics"),
+        new("user-accounts", "User Accounts"),
+        new("data-retention", "Data Retention"),
+        new("third-party-services", "Third-Party Services"),
+        new("data-security", "Data Security"),
+        new("childrens-privacy", "Children's Privacy"),
+        new("your-rights", "Your Rights"),
+        new("contact", "Contact"),
+        new("changes-to-this-policy", "Changes to This Policy"),
+    };
+
+    private static readonly string[] AccentClasses =
+    {
+        "privacy-accent-primary",
+        "privacy-accent-teal",
+        "privacy-accent-pink",
+        "privacy-accent-secondary"
+    };
+
+    private static string GetAccent(int index) => AccentClasses[index % AccentClasses.Length];
 }

@@ -1,7 +1,3 @@
-html, body {
-    overflow-x: hidden;
-}
-
 @media (max-width: 600px) {
     .responsive-banner {
         font-size: 1.5rem; /* Smaller for mobile */
