@@ -1,0 +1,507 @@
+@page "/profile/{UserId}"
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+@using TCSA.V2026.Data.Curriculum
+@using TCSA.V2026.Data.DTOs.PublicProfile
+@using TCSA.V2026.Data.Models
+@using TCSA.V2026.Data.Models.Responses
+@using TCSA.V2026.Helpers
+@using TCSA.V2026.Services
+
+<PageTitle>@(UserProfile != null ? UserDisplayNameHelper.GetDisplayName(UserProfile.ProfileIdentity.DisplayName, UserProfile.ProfileIdentity.UserName) : "Profile")</PageTitle>
+
+<MudContainer>
+    @if (IsLoading)
+    {
+        <div class="d-flex justify-center my-8">
+            <MudProgressCircular Color="Color.Default" Indeterminate="true" />
+        </div>
+    }
+    else if (UserProfile != null)
+    {
+        var identity = UserProfile.ProfileIdentity;
+
+        <MudPaper Class="profile-summary-card" Elevation="0">
+            <div class="profile-summary-main">
+                <div class="profile-identity">
+                    <MudImage Class="profile-country-flag"
+                              Src="@FlagHelper.GetFlag(identity.Country)"
+                              Alt="@($"{identity.Country} flag")" />
+                    <div class="profile-copy">
+                        <MudText Typo="Typo.h5" Class="profile-name">
+                            @UserDisplayNameHelper.GetDisplayName(identity.DisplayName, identity.UserName)
+                        </MudText>
+                        <MudText Typo="Typo.body2" Class="profile-member-since">
+                            Member since @identity.CreatedDate.ToString("MMM yyyy")
+                        </MudText>
+                        @if (HasSocialLinks(identity))
+                        {
+                            <div class="profile-links">
+                                @if (!string.IsNullOrWhiteSpace(identity.LinkedInUrl))
+                                {
+                                    <MudButton Href="@identity.LinkedInUrl"
+                                               Target="_blank"
+                                               Size="Size.Small"
+                                               Variant="Variant.Text"
+                                               Color="Color.Primary"
+                                               Class="profile-social-button"
+                                               UserAttributes="@(new() { { "aria-label", "LinkedIn profile" } })">
+                                        <MudIcon Icon="@Icons.Custom.Brands.LinkedIn" Class="profile-social-icon" />
+                                    </MudButton>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(identity.CodeWarsUsername))
+                                {
+                                    <MudButton Href="@($"https://www.codewars.com/users/{identity.CodeWarsUsername}")"
+                                               Target="_blank"
+                                               Size="Size.Small"
+                                               Variant="Variant.Text"
+                                               Color="Color.Primary"
+                                               Class="profile-social-button"
+                                               UserAttributes="@(new() { { "aria-label", "CodeWars profile" } })">
+                                        <img src="img/Icons/icons8-codewars.svg" alt="" class="profile-social-icon" />
+                                    </MudButton>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(identity.LeetCodeUsername))
+                                {
+                                    <MudButton Href="@($"https://leetcode.com/{identity.LeetCodeUsername}")"
+                                               Target="_blank"
+                                               Size="Size.Small"
+                                               Variant="Variant.Text"
+                                               Color="Color.Primary"
+                                               Class="profile-social-button"
+                                               UserAttributes="@(new() { { "aria-label", "LeetCode profile" } })">
+                                        <img src="img/Icons/leetcode.svg" alt="" class="profile-social-icon" />
+                                    </MudButton>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="profile-stats">
+                    <div class="profile-stat profile-belt-stat">
+                        <MudImage Src="@($"img/belts/{identity.Level}-belt.png")"
+                                  Alt="@($"{LevelHelper.FormatBelt(identity.Level)} belt")"
+                                  Class="profile-stat-icon" />
+                        <div>
+                            <MudText Typo="Typo.subtitle1" Class="profile-stat-value">@LevelHelper.FormatBelt(identity.Level)</MudText>
+                        </div>
+                    </div>
+
+                    <div class="profile-stat">
+                        <MudImage Src="img/experience.png" Alt="Experience points" Class="profile-stat-icon" />
+                        <div>
+                            <MudText Typo="Typo.subtitle1" Class="profile-stat-value">@identity.ExperiencePoints XP</MudText>
+                            <MudText Typo="Typo.caption" Class="profile-stat-label">@(identity.LeaderboardRank.HasValue ? $"{LeaderboardHelper.GetRanking(identity.LeaderboardRank.Value)} overall" : "Not ranked yet")</MudText>
+                        </div>
+                    </div>
+
+                    <div class="profile-stat">
+                        <MudIcon Icon="@Icons.Material.Filled.RateReview" Color="Color.Primary" Class="profile-stat-icon profile-stat-icon-mud" />
+                        <div>
+                            <MudText Typo="Typo.subtitle1" Class="profile-stat-value">@identity.ReviewExperiencePoints Review XP</MudText>
+                            <MudText Typo="Typo.caption" Class="profile-stat-label">@(identity.ReviewLeaderboardRank.HasValue ? $"{LeaderboardHelper.GetRanking(identity.ReviewLeaderboardRank.Value)} in reviews" : "Not ranked yet")</MudText>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </MudPaper>
+
+        <MudPaper Class="profile-section-card" Elevation="0">
+            <MudText Typo="Typo.h6" Class="profile-section-title">Completed Pull Requests</MudText>
+            @if (UserProfile.ProfilePullRequests.Count == 0)
+            {
+                <MudText Typo="Typo.body2" Class="profile-empty-state">No pull requests completed yet.</MudText>
+            }
+            else
+            {
+                <div class="profile-pr-list">
+                    @foreach (var pullRequest in UserProfile.ProfilePullRequests)
+                    {
+                        <div class="profile-pr-item">
+                            <div class="profile-pr-info">
+                                <MudText Typo="Typo.body1" Class="profile-pr-title">@pullRequest.IssueTitle</MudText>
+                                <div class="profile-pr-meta">
+                                    <MudChip T="string" Size="Size.Small" Color="Color.Primary" Variant="Variant.Outlined">
+                                        @CommunityProjectHelper.GetDisplayName(pullRequest.CommunityProjectId)
+                                    </MudChip>
+                                    @if (pullRequest.CompletedAt.HasValue)
+                                    {
+                                        <MudText Typo="Typo.caption" Class="profile-pr-date">@pullRequest.CompletedAt.Value.ToString("MMM d, yyyy")</MudText>
+                                    }
+                                </div>
+                            </div>
+                            <MudButton Href="@pullRequest.PullRequestUrl"
+                                       Target="_blank"
+                                       Size="Size.Small"
+                                       Variant="Variant.Filled"
+                                       Color="Color.Primary"
+                                       StartIcon="fas fa-eye">
+                                View PR
+                            </MudButton>
+                        </div>
+                    }
+                </div>
+            }
+        </MudPaper>
+
+        <MudPaper Class="profile-section-card" Elevation="0">
+            <MudText Typo="Typo.h6" Class="profile-section-title">Completed Projects</MudText>
+            @if (CompletedProjects.Count == 0)
+            {
+                <MudText Typo="Typo.body2" Class="profile-empty-state">No projects completed yet.</MudText>
+            }
+            else
+            {
+                <div class="profile-project-grid">
+                    @foreach (var project in CompletedProjects)
+                    {
+                        <a class="profile-project-card" href="@($"/project/{project.Id}/{project.Slug}")">
+                            <MudImage Src="@($"img/icons/{project.IconUrl}")" Alt="@project.Title" Class="profile-project-icon" />
+                            <MudText Typo="Typo.body2" Class="profile-project-title">@project.Title</MudText>
+                        </a>
+                    }
+                </div>
+            }
+        </MudPaper>
+
+        <MudPaper Class="profile-section-card" Elevation="0">
+            <MudText Typo="Typo.h6" Class="profile-section-title">Badges</MudText>
+            <MudText Typo="Typo.body2" Class="profile-empty-state">Badges are coming soon &mdash; keep completing projects and reviews to unlock them!</MudText>
+            <div class="profile-badge-grid">
+                @foreach (var badge in Badges)
+                {
+                    <div class="profile-badge-item @(badge.IsUnlocked ? "unlocked" : "locked")" title="@(badge.IsUnlocked ? badge.Title : $"{badge.Title} (locked)")">
+                        <MudIcon Icon="@badge.Icon" Size="Size.Large" Class="profile-badge-icon" />
+                        <MudText Typo="Typo.caption" Class="profile-badge-title">@badge.Title</MudText>
+                    </div>
+                }
+            </div>
+        </MudPaper>
+    }
+</MudContainer>
+
+@code {
+    [Inject] private IUserService UserService { get; set; }
+    [Inject] private NavigationManager Navigation { get; set; }
+    [Inject] private ISnackbar Snackbar { get; set; }
+
+    [Parameter] public string UserId { get; set; }
+
+    private PublicProfileResponse? UserProfile;
+    private List<Project> CompletedProjects = new();
+    private bool IsLoading = true;
+
+    private record PublicProfileBadge(string Title, string Icon, bool IsUnlocked);
+
+    // Placeholder structure only — badges aren't wired to real unlock data yet.
+    private static readonly List<PublicProfileBadge> Badges = new()
+    {
+        new("First Project", Icons.Material.Filled.RocketLaunch, false),
+        new("Code Reviewer", Icons.Material.Filled.RateReview, false),
+        new("7-Day Streak", Icons.Material.Filled.LocalFireDepartment, false),
+        new("Community Contributor", Icons.Material.Filled.Diversity3, false),
+        new("Top Reviewer", Icons.Material.Filled.Star, false),
+        new("Belt Master", Icons.Material.Filled.MilitaryTech, false),
+    };
+
+    protected async override Task OnInitializedAsync()
+    {
+        var getUserProfile = await UserService.GetPublicProfile(UserId);
+        if (getUserProfile.Status is ResponseStatus.Success)
+        {
+            UserProfile = (PublicProfileResponse)getUserProfile.Data;
+            CompletedProjects = ProjectHelper.GetProjects()
+                .Where(p => UserProfile.CompletedProjectIds.Contains(p.Id))
+                .ToList();
+            IsLoading = false;
+        }
+        else
+        {
+            Snackbar.Add(getUserProfile.Message, Severity.Error);
+            Navigation.NavigateTo("/");
+        }
+    }
+
+    private static bool HasSocialLinks(PublicProfileIdentityResponse identity) =>
+        !string.IsNullOrWhiteSpace(identity.LinkedInUrl) ||
+        !string.IsNullOrWhiteSpace(identity.CodeWarsUsername) ||
+        !string.IsNullOrWhiteSpace(identity.LeetCodeUsername);
+}
+
+<style>
+    .profile-summary-card {
+        margin-top: 1.5rem;
+        padding: 1.15rem 1.35rem;
+        border: 1px solid rgba(var(--mud-palette-primary-rgb), 0.18);
+        border-radius: 18px;
+        background: linear-gradient(135deg, rgba(var(--mud-palette-primary-rgb), 0.08), var(--mud-palette-surface) 48%, rgba(var(--mud-palette-secondary-rgb), 0.06));
+        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+    }
+
+    .profile-summary-main,
+    .profile-identity,
+    .profile-stats,
+    .profile-stat {
+        display: flex;
+        align-items: center;
+    }
+
+    .profile-summary-main {
+        gap: 1.5rem;
+    }
+
+    .profile-identity {
+        gap: 0.9rem;
+        min-width: 0;
+        align-items: flex-start;
+    }
+
+    .profile-country-flag {
+        width: 54px;
+        height: 38px;
+        margin-top: 0.2rem;
+        border-radius: 8px;
+        object-fit: cover;
+        box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.12);
+        flex-shrink: 0;
+    }
+
+    .profile-copy {
+        min-width: 0;
+    }
+
+    .profile-name {
+        font-weight: 750;
+        line-height: 1.2;
+        overflow-wrap: anywhere;
+    }
+
+    .profile-member-since {
+        color: var(--mud-palette-text-secondary);
+    }
+
+    .profile-links {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        margin-top: 0.25rem;
+        flex-wrap: wrap;
+    }
+
+    .profile-social-button {
+        min-width: 0;
+        padding: 0.4rem;
+        border-radius: 50%;
+    }
+
+    .profile-social-icon {
+        width: 36px;
+        height: 36px;
+    }
+
+    .profile-stats {
+        gap: 0.75rem;
+        margin-left: auto;
+    }
+
+    .profile-stat {
+        gap: 0.7rem;
+        min-width: 150px;
+        padding: 0.65rem 0.85rem;
+        border: 1px solid var(--mud-palette-lines-default);
+        border-radius: 12px;
+        background: color-mix(in srgb, var(--mud-palette-surface) 92%, var(--mud-palette-primary) 8%);
+    }
+
+    .profile-stat-icon {
+        width: 34px;
+        height: 34px;
+        object-fit: contain;
+    }
+
+    .profile-stat-icon-mud {
+        font-size: 34px;
+    }
+
+    .profile-stat-value {
+        font-weight: 700;
+        line-height: 1.25;
+    }
+
+    .profile-stat-label {
+        color: var(--mud-palette-text-secondary);
+    }
+
+    .profile-section-card {
+        margin-top: 1.25rem;
+        padding: 1.15rem 1.35rem;
+        border: 1px solid var(--mud-palette-lines-default);
+        border-radius: 18px;
+        background: var(--mud-palette-surface);
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+    }
+
+    .profile-section-title {
+        font-weight: 700;
+        margin-bottom: 0.75rem;
+    }
+
+    .profile-empty-state {
+        color: var(--mud-palette-text-secondary);
+    }
+
+    .profile-pr-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .profile-pr-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--mud-palette-lines-default);
+        border-radius: 12px;
+        background: color-mix(in srgb, var(--mud-palette-surface) 92%, var(--mud-palette-primary) 8%);
+        flex-wrap: wrap;
+    }
+
+    .profile-pr-info {
+        min-width: 0;
+    }
+
+    .profile-pr-title {
+        font-weight: 600;
+        overflow-wrap: anywhere;
+    }
+
+    .profile-pr-meta {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        margin-top: 0.35rem;
+    }
+
+    .profile-pr-date {
+        color: var(--mud-palette-text-secondary);
+    }
+
+    .profile-project-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 0.85rem;
+    }
+
+    .profile-project-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1rem 0.75rem;
+        border: 1px solid var(--mud-palette-lines-default);
+        border-radius: 12px;
+        text-decoration: none;
+        color: inherit;
+        text-align: center;
+        background: color-mix(in srgb, var(--mud-palette-surface) 92%, var(--mud-palette-primary) 8%);
+        transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+    }
+
+    .profile-project-card:hover {
+        transform: translateY(-2px);
+        border-color: color-mix(in srgb, var(--mud-palette-primary) 45%, var(--mud-palette-lines-default));
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.1);
+    }
+
+    .profile-project-icon {
+        width: 40px;
+        height: 40px;
+        object-fit: contain;
+    }
+
+    .profile-project-title {
+        font-weight: 600;
+        overflow-wrap: anywhere;
+    }
+
+    .profile-badge-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 0.85rem;
+        margin-top: 0.75rem;
+    }
+
+    .profile-badge-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 1rem 0.5rem;
+        border: 1px solid var(--mud-palette-lines-default);
+        border-radius: 12px;
+        text-align: center;
+        background: var(--mud-palette-surface);
+    }
+
+    .profile-badge-item .profile-badge-icon {
+        font-size: 34px;
+    }
+
+    .profile-badge-item.locked {
+        filter: grayscale(1);
+        opacity: 0.55;
+    }
+
+    .profile-badge-item.unlocked {
+        border-color: color-mix(in srgb, var(--mud-palette-primary) 45%, var(--mud-palette-lines-default));
+        background: color-mix(in srgb, var(--mud-palette-surface) 90%, var(--mud-palette-primary) 10%);
+    }
+
+    .profile-badge-title {
+        font-weight: 600;
+    }
+
+    @@media (max-width: 800px) {
+        .profile-summary-main {
+            align-items: stretch;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .profile-identity {
+            flex: 1 1 calc(100% - 56px);
+        }
+
+        .profile-stats {
+            width: 100%;
+            margin-left: 0;
+        }
+
+        .profile-stat {
+            flex: 1 1 0;
+            min-width: 0;
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .profile-summary-card,
+        .profile-section-card {
+            padding: 1rem;
+        }
+
+        .profile-stats {
+            flex-direction: column;
+        }
+
+        .profile-stat {
+            width: 100%;
+        }
+
+        .profile-pr-item {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+</style>
