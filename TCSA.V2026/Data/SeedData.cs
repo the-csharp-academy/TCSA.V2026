@@ -92,6 +92,18 @@ public static class SeedData
                     DateSubmitted = new DateTimeOffset(new DateTime(2025, 1, 4, 0, 0, 0, DateTimeKind.Utc)),
                     DateCompleted = new DateTimeOffset(new DateTime(2025, 1, 4, 0, 0, 0, DateTimeKind.Utc)),
                     DateRequestedChange = DateTimeOffset.MinValue,
+                },
+                new DashboardProject
+                {
+                    ProjectId = 207,
+                    GithubUrl = "https://github.com/TheCSharpAcademy/TCSA.V2/pull/501",
+                    IsCompleted = true,
+                    IsArchived = false,
+                    IsPendingNotification = false,
+                    IsPendingReview = false,
+                    DateSubmitted = new DateTimeOffset(new DateTime(2025, 8, 15, 10, 0, 0, DateTimeKind.Utc)),
+                    DateCompleted = new DateTimeOffset(new DateTime(2025, 8, 16, 12, 0, 0, DateTimeKind.Utc)),
+                    DateRequestedChange = DateTimeOffset.MinValue,
                 }
             },
             UserActivity = new List<AppUserActivity>
@@ -602,6 +614,53 @@ public static class SeedData
         user5.PasswordHash = hasher.HashPassword(user5, "Password123!");
 
         await context.Users.AddRangeAsync(user1, user2, user3, user4, user5);
+        await context.SaveChangesAsync();
+
+        await SeedCommunityIssues(context, user1.Id);
+    }
+    private static async Task SeedCommunityIssues(ApplicationDbContext context, string userId)
+    {
+        var issues = new List<CommunityIssue>
+        {
+            new CommunityIssue
+            {
+                Title = "Add pagination to the community feed",
+                AppUserId = userId,
+                ProjectId = 207,
+                CommunityProjectId = (int)CommunityProject.TCSA,
+                ExperiencePoints = 20,
+                Type = IssueType.Feature,
+                GithubUrl = "https://github.com/TheCSharpAcademy/TCSA.V2/issues/498",
+                IconUrl = "icons8-construction-64.png",
+                IsClosed = true,
+            },
+            new CommunityIssue
+            {
+                Title = "Fix broken link on the Contact page",
+                AppUserId = userId,
+                ProjectId = 207,
+                CommunityProjectId = (int)CommunityProject.TCSA,
+                ExperiencePoints = 10,
+                Type = IssueType.Bugfix,
+                GithubUrl = "https://github.com/TheCSharpAcademy/TCSA.V2/issues/480",
+                IconUrl = "icons8-construction-64.png",
+                IsClosed = true,
+            },
+            new CommunityIssue
+            {
+                Title = "Translate the Privacy page to Portuguese",
+                AppUserId = userId,
+                ProjectId = 207,
+                CommunityProjectId = (int)CommunityProject.TCSA,
+                ExperiencePoints = 15,
+                Type = IssueType.Translation,
+                GithubUrl = "https://github.com/TheCSharpAcademy/TCSA.V2/issues/462",
+                IconUrl = "icons8-construction-64.png",
+                IsClosed = true,
+            },
+        };
+
+        await context.Issues.AddRangeAsync(issues);
         await context.SaveChangesAsync();
     }
 
