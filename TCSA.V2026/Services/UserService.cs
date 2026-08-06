@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using TCSA.V2026.Data;
 using TCSA.V2026.Data.DTOs;
+using TCSA.V2026.Data.DTOs.PublicProfile;
 using TCSA.V2026.Data.Enums;
 using TCSA.V2026.Data.Models;
 using TCSA.V2026.Data.Models.Responses;
@@ -26,6 +27,7 @@ public interface IUserService
     Task<BaseResponse> MarkChecklistDismissed(string userId);
     Task<BaseResponse> RestartOnboarding(string userId);
     Task<BaseResponse> ResumeChecklist(string userId);
+    Task<BaseResponse> GetPublicProfile(string userId);
 }
 
 public class UserService : IUserService
@@ -388,6 +390,104 @@ public class UserService : IUserService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to update onboarding flags for userId: {UserId}", userId);
+            return new BaseResponse { Status = ResponseStatus.Fail, Message = ex.Message };
+        }
+    }
+
+    public async Task<BaseResponse> GetPublicProfile(string userId)
+    {
+        try
+        {
+            using var context = _factory.CreateDbContext();
+            var rawSql = @"
+                SELECT
+                    ExperiencePoints,
+                    ReviewExperiencePoints,
+                    Level,
+                    CreatedDate,
+                    UserName,
+                    DisplayName,
+                    Country,
+                    FirstName,
+                    LastName,
+                    LinkedInUrl,
+                    CodeWarsUsername,
+                    LeetCodeUsername,
+                    LeaderboardRank,
+                    ReviewLeaderboardRank
+                FROM (
+                    SELECT
+                        Id,
+                        ExperiencePoints,
+                        ReviewExperiencePoints,
+                        Level,
+                        CreatedDate,
+                        UserName,
+                        DisplayName,
+                        Country,
+                        FirstName,
+                        LastName,
+                        LinkedInUrl,
+                        CodeWarsUsername,
+                        LeetCodeUsername,
+                        CASE WHEN ExperiencePoints > 0 THEN
+                            ROW_NUMBER() OVER (ORDER BY CASE WHEN ExperiencePoints > 0 THEN 0 ELSE 1 END, ExperiencePoints DESC, FirstName, LastName)
+                        END AS LeaderboardRank,
+                        CASE WHEN ReviewExperiencePoints > 0 THEN
+                            ROW_NUMBER() OVER (ORDER BY CASE WHEN ReviewExperiencePoints > 0 THEN 0 ELSE 1 END, ReviewExperiencePoints DESC, FirstName, LastName)
+                        END AS ReviewLeaderboardRank
+                    FROM AspNetUsers
+                ) AS RankedUsers
+                WHERE Id = {0}
+            ";
+
+            var profileIdentity = await context.Database
+                .SqlQueryRaw<PublicProfileIdentityResponse>(rawSql, userId)
+                .FirstOrDefaultAsync();
+
+            if (profileIdentity == null)
+                return new BaseResponse { Status = ResponseStatus.Fail, Message = "User not found." };
+
+            var profilePullRequests = await context.DashboardProjects
+                .AsNoTracking()
+                .Where(dp => dp.AppUserId == userId && dp.IsCompleted)
+                .Join(
+                    context.Issues,
+                    dp => dp.ProjectId,
+                    i => i.ProjectId,
+                    (dp, i) => new PublicProfilePullRequestDetailsResponse
+                    (
+                        dp.DateCompleted,
+                        i.Title,
+                        dp.GithubUrl,
+                        i.CommunityProjectId
+                    )
+                )
+                .Take(5)
+                .ToListAsync();
+
+            int[] communityProjectIds = [.. Enum.GetValues<CommunityProject>().Cast<int>()];
+
+            var completedProjectIds = await context.DashboardProjects
+                .AsNoTracking()
+                .Where(dp => dp.AppUserId == userId && dp.IsCompleted && !communityProjectIds.Contains(dp.ProjectId))
+                .Select(dp => dp.ProjectId)
+                .ToListAsync();
+
+            return new BaseResponse
+            {
+                Status = ResponseStatus.Success,
+                Data = new PublicProfileResponse(
+                    profileIdentity,
+                    profilePullRequests,
+                    completedProjectIds
+                )
+            };
+
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to retrieve public profile for userId: {UserId}", userId);
             return new BaseResponse { Status = ResponseStatus.Fail, Message = ex.Message };
         }
     }
