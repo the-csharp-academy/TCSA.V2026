@@ -6,6 +6,7 @@
 @using TCSA.V2026.Data.Models
 @using TCSA.V2026.Data.Models.Responses
 @using TCSA.V2026.Components.UI
+@using TCSA.V2026.Helpers
 @using TCSA.V2026.Services
 @attribute [Authorize]
 @inject IDialogService DialogService
@@ -35,7 +36,7 @@
             <Columns>
                 <PropertyColumn Property="i => i.Title" Title="Title" />
                 <PropertyColumn Property="i => i.ExperiencePoints" Title="XPs" />
-                <PropertyColumn Property="i => GetProjectName(i.CommunityProjectId)" Title="Project" />
+                <PropertyColumn Property="i => CommunityProjectHelper.GetDisplayName(i.CommunityProjectId)" Title="Project" />
                 <TemplateColumn CellClass="d-flex justify-end">
                     <CellTemplate>
                         <MudStack Row>
@@ -207,12 +208,4 @@
         }
     }
 
-    private string GetProjectName(int commProjectId)
-    {
-        return commProjectId switch
-        {
-            (int)CommunityProject.TCSA => "Academy 2026",
-            (int)CommunityProject.KnowTheCity => "Know The City",
-        };
-    }
 }
