@@ -64,7 +64,7 @@
                         </TemplateColumn>
                         <TemplateColumn Title="Name" HeaderStyle="font-weight:bold" HeaderClass="pa-2 pa-md-3" CellClassFunc="@_userLeaderboardClassFunc">
                             <CellTemplate>
-                                <MudText Style="font-weight:bold" Typo="Typo.subtitle1">@context.Item.DisplayName</MudText>
+                                <MudLink Href="@($"/profile/{context.Item.Id}")" Style="font-weight:bold" Typo="Typo.subtitle1" Color="Color.Inherit">@context.Item.DisplayName</MudLink>
                                 <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center">
                                     <MudImage ObjectFit="ObjectFit.Contain" Width="20" Src="@($"img/belts/{context.Item.Level}-belt.png")" Alt="..." />
                                     <MudText Typo="Typo.subtitle2">@(context.Item.Level) Belt</MudText>
@@ -91,7 +91,7 @@
                         </TemplateColumn>
                         <TemplateColumn Title="Name" HeaderStyle="font-weight:bold" HeaderClass="pa-2 pa-md-3" CellClassFunc="@_userReviewLeaderboardClassFunc">
                             <CellTemplate>
-                                <MudText Style="font-weight:bold" Typo="Typo.subtitle1">@context.Item.DisplayName</MudText>
+                                <MudLink Href="@($"/profile/{context.Item.Id}")" Style="font-weight:bold" Typo="Typo.subtitle1" Color="Color.Inherit">@context.Item.DisplayName</MudLink>
                             </CellTemplate>
                         </TemplateColumn>
                         <TemplateColumn Title="Country" HeaderStyle="font-weight:bold" HeaderClass="pa-2 pa-md-3" CellClassFunc="@_userReviewLeaderboardClassFunc">
