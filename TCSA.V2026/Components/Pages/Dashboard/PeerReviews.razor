@@ -28,90 +28,91 @@
     }
     else
     {
-        if(User != null && User.Level >= Level.Yellow) 
+        if (User != null && User.Level >= Level.Yellow)
         {
-        @* <MudText>LoadTime: @LoadTime.TotalSeconds.ToString()</MudText> *@
-        if (AvailableProjects != null && AvailableProjects.Count > 0)
-        {
-            @foreach (var project in AvailableProjects)
+            @* <MudText>LoadTime: @LoadTime.TotalSeconds.ToString()</MudText> *@
+            if (AvailableProjects != null && AvailableProjects.Count > 0)
             {
-                <MudCard Class="mt-1 mb-1 peer-review-card">
-                    <MudCardHeader>
-                        <CardHeaderAvatar>
-                            <MudImage ObjectFit="ObjectFit.Contain" Width="40" Src="@($"img/icons/{project.IconUrl}")" Alt="..." />
-                        </CardHeaderAvatar>
-                        <CardHeaderContent>
-                            <MudGrid Style="align-self: flex-start;">
-                                <MudItem xs="2" Class="d-flex align-center justify-center">
-                                    <MudLink Href="@($"project/{project.ProjectId}/{project.ProjectSlug}")"
-                                             Target="_blank"
-                                             Style="@($"font-weight:bolder; color:{Colors.DeepPurple.Lighten1} !important")">
-                                        @project.Title
-                                    </MudLink>
-                                </MudItem>
-                                <MudItem xs="2" Class="d-flex align-center justify-center">
-                                    <MudText>@project.Name</MudText>
-                                </MudItem>
-                                <MudItem xs="1" Class="d-flex align-center justify-center gap-1">
-                                    <MudImage Src="img/experience.png" Alt="XP" Width="30" />
-                                    <MudText>@project.ExperiencePoints</MudText>
-                                </MudItem>
-                                <MudItem xs="4" Class="d-flex align-center justify-center">
-                                    <MudText Style="@(project.DurationOpen.TotalDays > 7 ? "color: red" : "")">
-                                        @TimeSpanFormatter.FormatDurationOpen(project.DurationOpen)
-                                    </MudText>
-                                </MudItem>
-                                <MudItem xs="3" Class="d-flex align-center justify-end">
-                                        <MudButton Size="@Size.Small"
-                                                   Class="mr-1"
-                                                   Variant="@Variant.Filled"
-                                                   Color="@Color.Warning"
+                @foreach (var project in AvailableProjects)
+                {
+                    <MudCard Class="mt-1 mb-1 peer-review-card">
+                        <MudCardHeader>
+                            <CardHeaderAvatar>
+                                <MudImage ObjectFit="ObjectFit.Contain" Width="40" Src="@($"img/icons/{project.IconUrl}")" Alt="..." />
+                            </CardHeaderAvatar>
+                            <CardHeaderContent>
+                                <MudGrid Style="align-self: flex-start;">
+                                    <MudItem xs="2" Class="d-flex align-center justify-center">
+                                        <MudLink Href="@($"project/{project.ProjectId}/{project.ProjectSlug}")" Target="_blank"
+                                                 Style="@($"font-weight:bolder; color:{Colors.DeepPurple.Lighten1} !important")">
+                                            @project.Title
+                                        </MudLink>
+                                    </MudItem>
+                                    <MudItem xs="2" Class="d-flex align-center justify-center">
+                                        <MudText>@project.Name</MudText>
+                                    </MudItem>
+                                    <MudItem xs="1" Class="d-flex align-center justify-center gap-1">
+                                        <MudImage Src="img/experience.png" Alt="XP" Width="30" />
+                                        <MudText>@project.ExperiencePoints</MudText>
+                                    </MudItem>
+                                    <MudItem xs="4" Class="d-flex align-center justify-center">
+                                        <MudText Style="@(project.DurationOpen.TotalDays > 7 ? "color: red" : "")">
+                                            @TimeSpanFormatter.FormatDurationOpen(project.DurationOpen)
+                                        </MudText>
+                                    </MudItem>
+                                    <MudItem xs="3" Class="d-flex align-center justify-end">
+                                        <MudButton Size="@Size.Small" Class="mr-1" Variant="@Variant.Filled" Color="@Color.Warning"
                                                    OnClick="@(() => JS.InvokeVoidAsync("window.open", project.GithubUrl, "_blank", "noopener,noreferrer"))"
                                                    StartIcon="fas fa-eye">
                                             View
                                         </MudButton>
-                                    @if (!project.IsAssigned)
-                                    {
-                                        <MudButton Size="@Size.Small"
-                                                   Variant="@Variant.Filled"
-                                                   Color="@Color.Primary"
-                                                   Disabled="@_processingIds.Contains(project.DashboardProjectId)"
-                                                   OnClick="@(() => AssignMyself(project.DashboardProjectId))"
-                                                   StartIcon="fas fa-hand-point-up">
-                                            Pick
-                                        </MudButton>
-                                    }
-                                    else
-                                    {
-                                        <MudButton Size="@Size.Small"
-                                                   Variant="@Variant.Filled"
-                                                   Color="@Color.Error"
-                                                   Disabled="@_processingIds.Contains(project.DashboardProjectId)"
-                                                   OnClick="@(() => ReleaseMyself(project.DashboardProjectId))"
-                                                   StartIcon="@Icons.Material.Filled.Close">
-                                            Drop
-                                        </MudButton>
-                                        <MudButton Size="@Size.Small"
-                                                   Variant="@Variant.Filled"
-                                                   Color="@Color.Success"
-                                                   Disabled="@_processingIds.Contains(project.DashboardProjectId)"
-                                                   OnClick="@(() => MarkAsComplete(project.DashboardProjectId))"
-                                                   StartIcon="@Icons.Material.Filled.ThumbUp">
-                                            Tick
-                                        </MudButton>
-                                    }
-                                </MudItem>
-                            </MudGrid>
-                        </CardHeaderContent>
-                    </MudCardHeader>
-                </MudCard>
+                                        @if (!project.IsAssigned)
+                                        {
+                                            <MudButton Size="@Size.Small" Variant="@Variant.Filled" Color="@Color.Primary"
+                                                       Disabled="@_processingIds.Contains(project.DashboardProjectId)"
+                                                       OnClick="@(() => AssignMyself(project.DashboardProjectId))"
+                                                       StartIcon="fas fa-hand-point-up">
+                                                Pick
+                                            </MudButton>
+                                        }
+                                        else
+                                        {
+                                            <MudButton Size="@Size.Small" Variant="@Variant.Filled" Color="@Color.Error"
+                                                       Disabled="@_processingIds.Contains(project.DashboardProjectId)"
+                                                       OnClick="@(() => ReleaseMyself(project.DashboardProjectId))"
+                                                       StartIcon="@Icons.Material.Filled.Close">
+                                                Drop
+                                            </MudButton>
+                                            <MudButton Size="@Size.Small" Variant="@Variant.Filled" Color="@Color.Success"
+                                                       Disabled="@_processingIds.Contains(project.DashboardProjectId)"
+                                                       OnClick="@(() => MarkAsComplete(project.DashboardProjectId))"
+                                                       StartIcon="@Icons.Material.Filled.ThumbUp">
+                                                Tick
+                                            </MudButton>
+                                        }
+                                    </MudItem>
+                                </MudGrid>
+                            </CardHeaderContent>
+                        </MudCardHeader>
+                    </MudCard>
                 }
+            }
+            else
+            {
+                <MudStack AlignItems="AlignItems.Center" Justify="Justify.Center">
+                    <MudText Typo="@Typo.h3">
+                        No projects available for review right now. Please check back later.
+                    </MudText>
+                </MudStack>
             }
         }
         else
         {
-            <MudStack AlignItems="AlignItems.Center" Justify="Justify.Center" >
-            <MudText  Typo="@Typo.h3"><MudIcon Size="Size.Large"  Icon="@Icons.Material.Outlined.Block" Color="Color.Error"></MudIcon>Not yet. Unlock <MudText Typo="Typo.h3" Color="Color.Warning">Yellow Belt</MudText> to open this area</MudText>
+            <MudStack AlignItems="AlignItems.Center" Justify="Justify.Center">
+                <MudText Typo="@Typo.h3">
+                    <MudIcon Size="Size.Large" Icon="@Icons.Material.Outlined.Block" Color="Color.Error"></MudIcon>Not yet.
+                    Unlock <MudText Typo="Typo.h3" Color="Color.Warning">Yellow Belt</MudText> to open this area
+                </MudText>
             </MudStack>
         }
     }
