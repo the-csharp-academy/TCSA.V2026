@@ -138,13 +138,17 @@
                     </MudButton>
                 </MudItem>
                 <MudItem xs="12" md="4">
-                    <MudTextField @bind-Value="XpInput" Label="Update XP" Class="mb-2" />
+                    <MudTextField T="int" @bind-Value="XpInput" Label="Update XP" Class="mb-2" />
                     <MudButton Color="Color.Info" Variant="Variant.Filled" OnClick="SubmitPoints" Class="mr-2 mb-2">
                         Submit XP
                     </MudButton>
-                    <MudTextField @bind-Value="ReviewsXpInput" Label="Update Reviews XP" Class="mb-2" />
+                    <MudTextField T="int" @bind-Value="ReviewsXpInput" Label="Update Reviews XP" Class="mb-2" />
                     <MudButton Color="Color.Secondary" Variant="Variant.Filled" OnClick="SubmitReviewPoints">
                         Submit Reviews XP
+                    </MudButton>
+                    <MudTextField T="string" @bind-Value="PortDataInput" Label="Port Data" Class="mb-2" />
+                    <MudButton Color="Color.Secondary" Variant="Variant.Filled" OnClick="SubmitPorData">
+                        Port Data
                     </MudButton>
                 </MudItem>
             </MudGrid>
@@ -279,6 +283,7 @@
     private int ranking = 0;
     private int XpInput = 0;
     private int ReviewsXpInput = 0;
+    private string PortDataInput = string.Empty;
     private TimeSpan loadTime;
 
     protected override async Task OnInitializedAsync()
@@ -297,6 +302,20 @@
         loadTime = DateTime.UtcNow - startTime;
 
         IsLoading = false;
+    }
+
+    private async Task SubmitPorData()
+    {
+        var result = await AdminService.PortData(UserId, PortDataInput);
+        if (result.IsSuccessful)
+        {
+            Snackbar.Add("Data Ported!", Severity.Success);
+            UserDisplay = await GetUserDisplay();
+        }
+        else
+        {
+            Snackbar.Add($"Error: {result.Message}", Severity.Error);
+        }
     }
 
     private async Task<AdminUserDetailDisplay> GetUserDisplay()

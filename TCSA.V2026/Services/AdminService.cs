@@ -19,6 +19,7 @@ public interface IAdminService
     Task<ServiceResponse> ChangePoints(string userId, int points);
     Task<ServiceResponse> RequestChanges(int dashboardProjectId);
     Task<ServiceResponse> ChangeReviewPoints(string userId, int points);
+    Task<ServiceResponse> PortData(string originId, string destinationId);
 }
 
 public class AdminService(
@@ -26,7 +27,66 @@ public class AdminService(
     IDiscordService _discordService
     ) : IAdminService
 {
-    
+    public async Task<ServiceResponse> PortData(string originId, string destinationId)
+    {
+        try
+        {
+            using (var context = _factory.CreateDbContext())
+            {
+                var originUser = await context.AspNetUsers
+                    .AsSplitQuery()
+                    .Include(u => u.UserActivity)
+                    .Include(u => u.UserChallenges)
+                    .Include(u => u.DashboardProjects)
+                    .Include(u => u.CodeReviewProjects)
+                    .Include(u => u.Issues)
+                    .FirstOrDefaultAsync(u => u.Id == originId);
+
+                if (originUser.DashboardProjects.Count == 0)
+                {
+                    return new ServiceResponse
+                    {
+                        IsSuccessful = false,
+                        Message = "Origin user has no projects to port."
+                    };
+                }
+
+                var destinationUser = await context.AspNetUsers
+                    .Include(u => u.UserActivity)
+                    .Include(u => u.UserChallenges)
+                    .Include(u => u.DashboardProjects)
+                    .Include(u => u.CodeReviewProjects)
+                    .Include(u => u.Issues)
+                    .FirstOrDefaultAsync(u => u.Id == destinationId);
+
+                destinationUser.ExperiencePoints = originUser.ExperiencePoints;
+                destinationUser.ReviewExperiencePoints = originUser.ReviewExperiencePoints;
+
+                destinationUser.DashboardProjects = originUser.DashboardProjects;
+                destinationUser.CodeReviewProjects = originUser.CodeReviewProjects;
+                destinationUser.UserActivity = originUser.UserActivity;
+                destinationUser.Issues = originUser.Issues;
+                destinationUser.UserChallenges = originUser.UserChallenges;
+
+                await context.SaveChangesAsync();
+
+            }
+            return new ServiceResponse
+            {
+                IsSuccessful = true,
+            };
+        }
+        catch (Exception ex)
+        {
+            return new ServiceResponse
+            {
+                IsSuccessful = true,
+                Message = ex.Message
+            };
+        }
+    }
+
+
     public async Task<ServiceResponse> ChangePoints(string userId, int points)
     {
         try
@@ -54,6 +114,8 @@ public class AdminService(
             };
         }
     }
+
+
 
     public async Task<ServiceResponse> ChangeReviewPoints(string userId, int points)
     {
