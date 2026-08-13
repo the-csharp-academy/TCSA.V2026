@@ -25,7 +25,7 @@ public class SystemDesignProjectHelper
                 ExperiencePoints = 50,
                 Difficulty = Difficulty.Advanced,
                 DisplayOrder = 1,
-                RepositoryLink = "https://github.com/TheCSharpAcademy/CodeReviews.SystemDesign.CleanArchitectureReservations",
+                RepositoryLink = "https://github.com/the-csharp-academy/CodeReviews.SystemDesign.CleanArchitectureReservations",
                 Introduction = new List<Paragraph>
                 {
                     new Paragraph

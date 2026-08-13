@@ -51,7 +51,8 @@
 
         <MudGrid Spacing="4" Class="course-layout">
             <MudItem xs="12" md="4" lg="3">
-                <MudPaper Class="course-sidebar" Elevation="3">
+                <div class="course-sidebar-column">
+                    <MudPaper Class="course-sidebar" Elevation="3">
                     <div class="course-sidebar-header">
                         <MudText Typo="Typo.h6">Lessons</MudText>
                         <MudChip T="string" Size="Size.Small" Color="Color.Primary" Variant="Variant.Outlined">
@@ -83,34 +84,35 @@
                             </MudListItem>
                         }
                     </MudList>
-                </MudPaper>
+                    </MudPaper>
 
-                <aside class="course-ad-rail" aria-label="Advertisement">
-                    <div class="course-sidebar-ad">
-                        <AdSenseAd Slot="1533509954" />
-                    </div>
-                    <div class="course-sidebar-ad">
-                        <AdSenseAd Slot="1788109407" />
-                    </div>
-                    @if (ShowThirdAd)
-                    {
-                        <div class="course-sidebar-ad course-sidebar-ad-third">
-                            <AdSenseAd Slot="3309220423" />
+                    <aside class="course-ad-rail" aria-label="Advertisement">
+                        <div class="course-sidebar-ad">
+                            <AdSenseAd Slot="1533509954" />
                         </div>
-                    }
-                    @if (ShowFourthAd)
-                    {
-                        <div class="course-sidebar-ad course-sidebar-ad-fourth">
-                            <AdSenseAd Slot="8230942835" />
+                        <div class="course-sidebar-ad">
+                            <AdSenseAd Slot="1788109407" />
                         </div>
-                    }
-                    @if (ShowFifthAd)
-                    {
-                        <div class="course-sidebar-ad course-sidebar-ad-fifth">
-                            <AdSenseAd Slot="4207937346" />
-                        </div>
-                    }
-                </aside>
+                        @if (ShowThirdAd)
+                        {
+                            <div class="course-sidebar-ad course-sidebar-ad-third">
+                                <AdSenseAd Slot="3309220423" />
+                            </div>
+                        }
+                        @if (ShowFourthAd)
+                        {
+                            <div class="course-sidebar-ad course-sidebar-ad-fourth">
+                                <AdSenseAd Slot="8230942835" />
+                            </div>
+                        }
+                        @if (ShowFifthAd)
+                        {
+                            <div class="course-sidebar-ad course-sidebar-ad-fifth">
+                                <AdSenseAd Slot="4207937346" />
+                            </div>
+                        }
+                    </aside>
+                </div>
             </MudItem>
 
             <MudItem xs="12" md="8" lg="9">
@@ -142,7 +144,7 @@
                                     if (paragraph.IsCode)
                                     {
                                         <MudPaper Class="course-code-block overflow-auto line-numbers" Elevation="0">
-                                            <pre class="line-numbers"><code class="language-csharp">@paragraph.Body</code></pre>
+                                            <pre class="line-numbers"><code class="language-csharp">@TCSA.V2026.Helpers.CourseContentHelper.DecodeCode(paragraph.Body)</code></pre>
                                         </MudPaper>
                                     }
                                     else if (paragraph.IsPicture)
@@ -313,6 +315,14 @@
         top: 86px;
         max-height: calc(100vh - 112px);
         overflow: hidden;
+        z-index: 2;
+    }
+
+    .course-sidebar-column {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        min-width: 0;
     }
 
     .course-ad-rail {
@@ -537,6 +547,8 @@
 
     .unity-theme .course-hero {
         position: relative;
+        z-index: 1;
+        flex: 0 0 auto;
         isolation: isolate;
         min-height: 220px;
         border: 1px solid rgba(34, 211, 238, 0.42);

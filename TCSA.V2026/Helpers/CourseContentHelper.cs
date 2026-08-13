@@ -9,6 +9,17 @@ public static class CourseContentHelper
     private const string RedDotMarkerStyle = "min-width: 0.65rem; height: 0.65rem; margin-top: 0.45rem; border-radius: 999px; background: #a63a3a; box-shadow: 0 0 0 0.25rem #f8e9e9;";
     private const string AmberSquareMarkerStyle = "min-width: 0.62rem; height: 0.62rem; margin-top: 0.45rem; border-radius: 0.12rem; background: #b7791f; box-shadow: 0 0 0 0.25rem #fff3d6;";
 
+    public static string DecodeCode(string code)
+    {
+        var normalizedCode = code
+            .Replace("&lt;", "<")
+            .Replace("&lt", "<")
+            .Replace("&gt;", ">")
+            .Replace("&gt", ">");
+
+        return System.Net.WebUtility.HtmlDecode(normalizedCode);
+    }
+
     public static string RedDotList(params string[] items)
     {
         var listItems = items.Select(item =>

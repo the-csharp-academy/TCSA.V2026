@@ -348,7 +348,7 @@ public class WebApiCourse
                                 {
                                     new Paragraph {
                                        IsCode = true,
-                                       Body = "var builder = WebApplication.CreateBuilder(args);\r\n\r\nbuilder.Services.AddEndpointsApiExplorer();\r\nbuilder.Services.AddSwaggerGen();\r\nbuilder.Services.AddControllers();\r\n\r\n//NEW \r\nbuilder.Services.AddDbContext&lt;FlightsDbContext&gt(opt => opt.UseSqlite(builder.Configuration.GetConnectionString(\"DefaultConnection\")));\r\n\r\nvar app = builder.Build();\r\n\r\nif (app.Environment.IsDevelopment())\r\n{\r\n    app.UseSwagger();\r\n    app.UseSwaggerUI();\r\n}\r\n\r\napp.MapControllers();\r\n\r\napp.Run();" },
+                                       Body = "var builder = WebApplication.CreateBuilder(args);\r\n\r\nbuilder.Services.AddEndpointsApiExplorer();\r\nbuilder.Services.AddSwaggerGen();\r\nbuilder.Services.AddControllers();\r\n\r\n//NEW \r\nbuilder.Services.AddDbContext<FlightsDbContext>(opt => opt.UseSqlite(builder.Configuration.GetConnectionString(\"DefaultConnection\")));\r\n\r\nvar app = builder.Build();\r\n\r\nif (app.Environment.IsDevelopment())\r\n{\r\n    app.UseSwagger();\r\n    app.UseSwaggerUI();\r\n}\r\n\r\napp.MapControllers();\r\n\r\napp.Run();" },
                                     new Paragraph {
                                        Body = "<b>AddDbContext()</b> adds the FlightsDbContext to the <b>Dependency Injection container</b>, making it available for injection into controllers and other services where it’s needed." },
                                      new Paragraph {
@@ -397,11 +397,11 @@ public class WebApiCourse
                                 Paragraphs = new List<Paragraph>
                                 {
                                     new Paragraph {
-                                        Body = "In our DbContext we will use a <b>DbSet&lt;T&gt</b> class <b>(line 8)</b>, which is used for interactions with the database. The use of 'T' indicates a <b>generic type</b> parameter that allows DbSet to work with any specific type of entity in a strongly-typed manner. In this case we will be working with the <b>Flight</b> custom type we'll define next."
+                                        Body = "In our DbContext we will use a <b>DbSet&lt;T&gt;</b> class <b>(line 8)</b>, which is used for interactions with the database. The use of 'T' indicates a <b>generic type</b> parameter that allows DbSet to work with any specific type of entity in a strongly-typed manner. In this case we will be working with the <b>Flight</b> custom type we'll define next."
                                     },
                                     new Paragraph {
                                         IsCode = true,
-                                        Body = "public class FlightsDbContext: DbContext\r\n    {\r\n        public FlightsDbContext(DbContextOptions options) : base(options)\r\n        {\r\n            \r\n        }\r\n\r\n        public DbSet&lt;Flight&gt Flights { get; set; }\r\n    }"
+                                        Body = "public class FlightsDbContext: DbContext\r\n    {\r\n        public FlightsDbContext(DbContextOptions options) : base(options)\r\n        {\r\n            \r\n        }\r\n\r\n        public DbSet<Flight> Flights { get; set; }\r\n    }"
                                     }
                                 }
                             },
@@ -660,7 +660,7 @@ public class WebApiCourse
                                         IsCode = true,
                                         Body = "public Flight Createflight(Flight flight)\r\n    {\r\n        var savedFlight = _dbContext.Flights.Add(flight);\r\n        _dbContext.SaveChanges();\r\n        return savedFlight.Entity;\r\n    }"
                                     },
-                                    new Paragraph { Body = "In CreateFlight we're adding a flight to the table. The <b>Add() method</b> adds the entity to the context, but it doesn't immediately send the command to the database. Instead, it stages the entity to be added to the database when <b>SaveChanges</b> is called. The object returned by this operation is <b>EntityEntry&lt;Flight&gt</b> and represents the entity (Flight) being tracked by the DbContext. It provides access to information about the entity and its state within the context. This includes properties such as Entity, which represents the entity itself, and various methods and properties for working with the entity's state, tracking changes, etc." },
+                                    new Paragraph { Body = "In CreateFlight we're adding a flight to the table. The <b>Add() method</b> adds the entity to the context, but it doesn't immediately send the command to the database. Instead, it stages the entity to be added to the database when <b>SaveChanges</b> is called. The object returned by this operation is <b>EntityEntry&lt;Flight&gt;</b> and represents the entity (Flight) being tracked by the DbContext. It provides access to information about the entity and its state within the context. This includes properties such as Entity, which represents the entity itself, and various methods and properties for working with the entity's state, tracking changes, etc." },
                                 },
 
                             },
@@ -850,7 +850,7 @@ public class WebApiCourse
                                          Body = "In ASP.NET Core, the ActionResult type is used in controller actions to <b>represent various HTTP responses</b> returned to clients. Controllers in ASP.NET Core act as intermediaries, handling client requests and determining the appropriate responses. When using ActionResult, developers can return a range of HTTP status codes and payloads, helping clients understand the request's success or failure."
                                      },
                                         new Paragraph {
-                                         Body = "The <b>ActionResult&lt;T&gt</b> type allows developers to specify a more descriptive response by using a generic type, like ActionResult&lt;Flight&gt. In the example, ActionResult&lt;List&lt;Flight&gt&gt and ActionResult&lt;Flight&gt indicate that the expected result is a List&lt;Flight&gt or a single Flight object, respectively, wrapped in an <b>HTTP response</b>. When a controller action returns Ok(), it sends a <b>200 OK status code</b> along with the specified object. This approach is beneficial for API design because it not only informs clients of the successful response but also provides the requested data in a straightforward, expected structure."
+                                         Body = "The <b>ActionResult&lt;T&gt;</b> type allows developers to specify a more descriptive response by using a generic type, like ActionResult&lt;Flight&gt;. In the example, ActionResult&lt;List&lt;Flight&gt;&gt; and ActionResult&lt;Flight&gt; indicate that the expected result is a List&lt;Flight&gt; or a single Flight object, respectively, wrapped in an <b>HTTP response</b>. When a controller action returns Ok(), it sends a <b>200 OK status code</b> along with the specified object. This approach is beneficial for API design because it not only informs clients of the successful response but also provides the requested data in a straightforward, expected structure."
                                      }
                                 }
                             },
@@ -1117,7 +1117,7 @@ public class WebApiCourse
                                 Paragraphs = new List<Paragraph>
                                 {
                                      new Paragraph {
-                                         Body = "Although ASP.NET Core Web APIs can be easily configured to work with Swagger, The C# Academy's recommendeds Postman, a popular API development and testing tool that simplifies the process of working with web APIs. Here are some key points about Postman and why it's widely used:"
+                                         Body = "Although ASP.NET Core Web APIs can be easily configured to work with Swagger, The C# Academy recommends Postman, a popular API development and testing tool that simplifies the process of working with web APIs. Here are some key points about Postman and why it's widely used:"
                                      },
                                     new Paragraph {
                                          Body = "✅ <b>User-Friendly Interface</b>: Postman offers an intuitive and easy-to-use graphical interface, allowing developers to create and manage API requests without needing to write code for each request."
@@ -1164,32 +1164,32 @@ public class WebApiCourse
                                 Paragraphs = new List<Paragraph>
                                 {
                                        new Paragraph {
-                                         Body = "Navigate to <a href='https://www.postman.com/' target='_blank'>Postman's website</a> download the app and create an account. You can use it without registering but an account allows you to save your collections of requests for future use, one of the main advantages of using Postman. "
+                                         Body = "Navigate to <a href='https://www.postman.com/' target='_blank'>Postman's website</a>, download the desktop app, and create an account. You can use Postman without registering, but an account lets you save collections of requests for future use."
+                                      },
+                                        new Paragraph {
+                                         Body = "Run the Flights API and leave it running while you test it. Open Swagger and copy the beginning of an endpoint URL, including the protocol and port—for example, <code class='inline-code'>https://localhost:7099</code>. Your port may be different. Postman sends requests to the same endpoints as Swagger; it simply provides a separate interface for constructing and saving them."
+                                      },
+                                        new Paragraph {
+                                         Body = "In Postman, create a new HTTP request. Choose the HTTP method from the dropdown, enter the complete endpoint URL, and click <b>Send</b>. If HTTPS produces a local certificate error, open <b>Settings</b> and temporarily disable SSL certificate verification for this local development API, or use the HTTP URL shown in your launch settings."
+                                      },
+                                        new Paragraph {
+                                         Body = "Start with GetAll: select <b>GET</b>, enter <code class='inline-code'>https://localhost:7099/api/Flights</code>, and click <b>Send</b>. A successful request returns <code class='inline-code'>200 OK</code> and a JSON array in the response body."
                                      },
                                         new Paragraph {
-                                         Body = "Once logged in, click on <b>Workspaces > My Workspaces</b>. You'll see the window you can send requests from. Let's start with GetAll. Copy and paste your endpoint's URL and <b>click on Send</b>, as per the picture below. Keep in mind your localhost might be using a different port: "
-                                     },
-                                        new Paragraph {
-                                            IsPicture = true,
-                                         PictureUrl = "c3-ch13-webapis-postman-interface.png"
-                                     },
-                                        new Paragraph {
-                                         Body = "To create a post request we will need to send a <b>json object as a payload</b>. For this change the type of request to Post (at the left of the URL), click Body and check the \"raw\" option as per the picture below. To speed things up you can use the provided json: \r\n"
+                                         Body = "To create a flight, change the method to <b>POST</b> and keep the URL as <code class='inline-code'>https://localhost:7099/api/Flights</code>. Select <b>Body > raw > JSON</b> and paste the JSON below. Choosing JSON makes Postman add the <code class='inline-code'>Content-Type: application/json</code> header automatically. Do not send an <code class='inline-code'>Id</code>; the database creates it.\r\n"
                                      },
                                          new Paragraph {
                                             IsCode = true,
                                          Body = "{\r\n    \"FlightNumber\": 650,\r\n    \"AirlineName\": \"C# Airlines\",\r\n    \"DepartureAirportCode\": \"LAX\",\r\n    \"ArrivalAirportCode\": \"JFK\",\r\n    \"DepartureDateTime\": \"2024-12-04T07:00:00\",\r\n    \"ArrivalDateTime\":\"2024-12-04T11:00:00\",\r\n    \"PassengerCapacity\": 150\r\n}"
                                      },
-                                         new Paragraph {
-                                            IsPicture = true,
-                                         PictureUrl = "c3-ch13-webapis-postman-post.png"
-                                     },
                                           new Paragraph {
-                                         Body = "To delete, update or get a record you'll need to pass the id in the query as per picture:"
-                                     },
-                                         new Paragraph {
-                                            IsPicture = true,
-                                         PictureUrl = "c3-ch13-webapis-postman-parameter.png"
+                                         Body = "For GetById, select <b>GET</b> and put the flight ID in the URL path, for example <code class='inline-code'>https://localhost:7099/api/Flights/3</code>. A known ID should return <code class='inline-code'>200 OK</code>; an unknown ID should return <code class='inline-code'>404 Not Found</code>."
+                                      },
+                                           new Paragraph {
+                                         Body = "To update a flight, select <b>PUT</b>, use a URL such as <code class='inline-code'>https://localhost:7099/api/Flights?id=3</code>, then select <b>Body > raw > JSON</b> and send the complete updated flight object. In this endpoint, <code class='inline-code'>id</code> is a <b>query parameter</b>; Postman must match the route shown by Swagger exactly."
+                                      },
+                                           new Paragraph {
+                                         Body = "To delete a flight, select <b>DELETE</b>, use a URL such as <code class='inline-code'>https://localhost:7099/api/Flights/3</code>, and click <b>Send</b>. No request body is required. Test GetById with the same ID afterward to confirm that it now returns <code class='inline-code'>404 Not Found</code>."
                                      },
                                 }
                             },
