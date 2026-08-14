@@ -754,7 +754,7 @@ public class WebApiCourse
                                      },
                                       new Paragraph {
                                           IsCode = true,
-                                          Body = "    [ApiController]\r\n    [Route(\"api/[controller]\")]\r\n    //example: http://localhost:5609/api/flight/\r\n    public class FlightsController : ControllerBase\r\n    {\r\n        private readonly IFlightService _flightService;\r\n        public FlightController(IFlightService flightService)\r\n        {\r\n            _flightService = flightService;\r\n        }\r\n    }" },
+                                          Body = "    [ApiController]\r\n    [Route(\"api/[controller]\")]\r\n    //example: http://localhost:5609/api/flight/\r\n    public class FlightsController : ControllerBase\r\n    {\r\n        private readonly IFlightService _flightService;\r\n        public FlightsController(IFlightService flightService)\r\n        {\r\n            _flightService = flightService;\r\n        }\r\n    }" },
                                        new Paragraph {
                                          Body = "The <b>[Route(\"api/[controller]\")]</b> attribute specifies the routing pattern for the controller. The <b>[controller]</b> placeholder is replaced with the name of the controller, minus the \"Controller\" suffix. So, for FlightController, the route becomes <b>api/flight</b>. We'll expand on the subject of routing later in this lesson."
                                      },
