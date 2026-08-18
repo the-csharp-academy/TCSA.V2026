@@ -521,7 +521,7 @@ public class WebApiCourse
                                 Title = "Database File",
                                 Paragraphs = new List<Paragraph>
                                 {
-                                      new Paragraph { Body = "In the picture above we can also see a <b>Flights.db</b> file. This is an Sqlite database file. You can visualise its contents using an external app such as <a href='https://www.thecsharpacademy.com/course/1/article/1/0/false' target='_blank'>DB Browser</a>." },
+                                      new Paragraph { Body = "In the picture above we can also see a <b>Flights.db</b> file. This is an Sqlite database file. You can visualise its contents using an external app such as <a href='https://sqlitebrowser.org/' target='_blank'>DB Browser</a>." },
                                       new Paragraph { Body = "Then open the file using Db Browser. You should see the created tables:" },
                                       new Paragraph {
                                           IsPicture = true,
