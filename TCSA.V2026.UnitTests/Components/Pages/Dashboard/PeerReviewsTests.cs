@@ -283,4 +283,27 @@ public class PeerReviewsTests : BunitContext
         var tickButton = cut.FindAll("button").Single(b => b.TextContent.Contains("Tick"));
         Assert.That(tickButton.HasAttribute("disabled"), Is.True);
     }
+    [Test]
+    public void NoAvailableProjects_DisplaysEmptyStateMessage()
+    {
+        // Arrange
+        AuthorizeAs(TestUserId);
+        Render<MudPopoverProvider>();
+
+        _userServiceMock
+            .Setup(s => s.GetUserById(TestUserId))
+            .ReturnsAsync(_yellowBeltUser);
+
+        _peerReviewServiceMock
+            .Setup(s => s.GetProjectsForPeerReview(TestUserId))
+            .ReturnsAsync([]);
+
+        // Act
+        var cut = Render<PeerReviews>();
+
+        // Assert
+        Assert.That(
+            cut.Markup,
+            Does.Contain("No projects available for review right now. Please check back later."));
+    }
 }
