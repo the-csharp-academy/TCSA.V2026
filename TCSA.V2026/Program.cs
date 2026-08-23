@@ -1,3 +1,4 @@
+using Hangfire;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -11,10 +12,11 @@ using Stripe;
 using TCSA.V2026.Components;
 using TCSA.V2026.Components.Account;
 using TCSA.V2026.Data;
+using TCSA.V2026.Data.Curriculum;
 using TCSA.V2026.Data.Helpers;
 using TCSA.V2026.Data.Models;
 using TCSA.V2026.Data.Models.Options;
-using TCSA.V2026.Data.Curriculum;
+using TCSA.V2026.Filters;
 using TCSA.V2026.Services;
 using TCSA.V2026.Services.Challenges;
 
@@ -81,7 +83,7 @@ builder.Services.AddScoped<IFeedService, FeedService>();
 builder.Services.AddScoped<IAccountabilityBuddyService, AccountabilityBuddyService>();
 builder.Services.AddScoped<IDonateService, DonateService>();
 builder.Services.AddSingleton<ISearchService>(_ =>
-    new SearchService([..ArticleHelper.GetArticles(), ..ProjectHelper.GetProjects()]));
+    new SearchService([.. ArticleHelper.GetArticles(), .. ProjectHelper.GetProjects()]));
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<ICustomEmailSender, EmailSender>();
 builder.Services.AddSingleton<IPeerReviewPublisher, PeerReviewPublisher>();
@@ -123,6 +125,14 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddSignInManager()
     .AddDefaultTokenProviders();
+
+builder.Services.AddHangfire(config => config
+    .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+    .UseSimpleAssemblyNameTypeSerializer()
+    .UseRecommendedSerializerSettings()
+    .UseSqlServerStorage(connectionString)
+);
+builder.Services.AddHangfireServer();
 
 var app = builder.Build();
 
