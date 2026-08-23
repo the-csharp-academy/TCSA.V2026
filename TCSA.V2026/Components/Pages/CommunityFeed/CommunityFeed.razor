@@ -13,9 +13,9 @@
     <h1 class="mud-primary-text mt-3">Community Feed</h1>
     <p class="mb-4 text-secondary mud-typography-body1">See the latest achievements and project completions across the platform.</p>
     <MudGrid Spacing="2">
-        @if (_items.Count != 0)
+        @if (Items != null && Items.Count != 0)
         {
-            @foreach (var item in _items)
+            @foreach (var item in Items)
             {
                 <MudItem Class="d-flex" xs="12" sm="6" lg="4">
                     <MudPaper Class="pa-4 mb-3 d-flex" Elevation="2" Width="100%">
@@ -26,7 +26,7 @@
                 </MudItem>
             }
         }
-        else if (!_isLoading)
+        else
         {
             <MudItem xs="12">
                 <div class="text-center my-4">
@@ -35,7 +35,7 @@
             </MudItem>
         }
     </MudGrid>
-    @if (_nextCursor is not null)
+    @if (NextCursor is not null)
     {
         <div class="d-flex justify-center mt-4 mb-6">
             <MudButton Variant="Variant.Filled"
@@ -52,20 +52,27 @@
     }
 </MudContainer>
 
-@code {
+    @code {
     [Inject] private IFeedService FeedService { get; set; } = default!;
 
-    private List<FeedDisplay> _items = [];
-    private string? _nextCursor;
+    [PersistentState]
+    public List<FeedDisplay>? Items { get; set; }
+
+    [PersistentState]
+    public string? NextCursor { get; set; }
+
     private bool _isLoading;
 
     protected override async Task OnInitializedAsync()
     {
         _isLoading = true;
 
-        var page = await FeedService.GetFeedItemsByCursor(null);
-        _items = page.Items;
-        _nextCursor = page.NextCursor;
+        if (Items is null)
+        {
+            var page = await FeedService.GetFeedItemsByCursor(null);
+            Items = page.Items;
+            NextCursor = page.NextCursor;
+        }
 
         _isLoading = false;
     }
@@ -74,9 +81,9 @@
     {
         _isLoading = true;
 
-        var page = await FeedService.GetFeedItemsByCursor(_nextCursor);
-        _items.AddRange(page.Items);
-        _nextCursor = page.NextCursor;
+        var page = await FeedService.GetFeedItemsByCursor(NextCursor);
+        Items!.AddRange(page.Items);
+        NextCursor = page.NextCursor;
 
         _isLoading = false;
     }
