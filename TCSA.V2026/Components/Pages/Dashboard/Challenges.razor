@@ -188,11 +188,16 @@
     [Inject] private IJSRuntime JS { get; set; }
     [Inject] private ISnackbar Snackbar { get; set; }
 
-    private ChallengeStatistics? ChallengeStatistics;
-    private ApplicationUser User { get; set; }
+    [PersistentState]
+    public ChallengeStatistics? ChallengeStatistics { get; set; }
+
+    [PersistentState]
+    public ApplicationUser? User { get; set; }
 
     private int CurrentPage = 1;
-    private PaginatedList<ChallengeDetails>? PaginatedChallenges;
+
+    [PersistentState]
+    public PaginatedList<ChallengeDetails>? PaginatedChallenges { get; set; }
 
     private IEnumerable<Level> SelectedLevels = [];
     private IEnumerable<ChallengeCategory> SelectedCategories = [];
@@ -223,9 +228,14 @@
 
         var claims = authSate.User;
         UserId = claims.FindFirstValue(ClaimTypes.NameIdentifier);
-        User = await UserService.GetUserProfileById(UserId);
-        await GetChallenges();
-        ChallengeStatistics = await ChallengeService.GetChallengeStatistics(UserId);
+        User ??= await UserService.GetUserProfileById(UserId);
+
+        if (PaginatedChallenges is null)
+        {
+            await GetChallenges();
+        }
+
+        ChallengeStatistics ??= await ChallengeService.GetChallengeStatistics(UserId);
 
         LoadTime = DateTime.UtcNow - startTime;
 
