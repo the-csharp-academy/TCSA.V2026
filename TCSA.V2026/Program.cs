@@ -65,7 +65,7 @@ builder.Services.AddKeyedScoped<IChallengePlatformService, LeetCodeService>(Chal
 builder.Services.AddScoped<IChallengePlatformFactory, ChallengePlatformFactory>();
 builder.Services.AddScoped<ChallengeManager>();
 builder.Services.AddScoped<IDailyChallengeFetchService, LeetCodeDailyChallengeService>();
-builder.Services.AddHostedService<DailyChallengeJob>();
+builder.Services.AddScoped<DailyChallengeJob>();
 builder.Services.AddScoped<IDiscordService, DiscordService>();
 builder.Services.AddScoped<IActivityService, ActivityService>();
 builder.Services.AddScoped<IGalleryService, GalleryService>();
@@ -125,6 +125,16 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
     .AddDefaultTokenProviders();
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var recurringJobManager = scope.ServiceProvider.GetRequiredService<IRecurringJobManager>();
+
+    recurringJobManager.AddOrUpdate<DailyChallengeJob>(
+        "daily-challenge-job",
+        job => job.RunAsync(),
+        Cron.Daily);
+}
 
 var logger = app.Services.GetRequiredService<ILogger<Program>>();
 logger.LogInformation("?? Application has started and logging is working!");
