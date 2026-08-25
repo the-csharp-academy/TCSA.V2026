@@ -9,10 +9,18 @@
 
 @rendermode @(new InteractiveServerRenderMode(prerender: false))
 
-<PageTitle>@Article.Title</PageTitle>
+<PageTitle>@(Article?.Title ?? "Articles")</PageTitle>
 
 <div class="article-theme">
 <MudContainer MaxWidth="MaxWidth.Large" Class="article-container">
+    @if (IsLoading)
+    {
+        <div class="loading-state">
+            <MudProgressCircular Color="Color.Default" Indeterminate="true" Size="Size.Large" />
+        </div>
+    }
+    else if (Article is not null)
+    {
     <MudPaper Class="jumbotron d-flex align-center justify-center mt-3 article-hero" Style=@GetBanner()>
         <div class="article-hero-content">
             <span class="article-eyebrow">Academy article</span>
@@ -23,12 +31,6 @@
             <MudIcon Icon="@Icons.Material.Filled.People" Size="Size.Small" />
             <span>This article has been read by <strong>@CompletionCount</strong> users</span>
         </div>
-    @if (IsLoading)
-    {
-        <div class="loading-state">
-            <MudProgressCircular Color="Color.Default" Indeterminate="true" Size="Size.Large" />
-        </div>
-    }
 
     @if (IsLoggedIn && IsCompleted)
     {
@@ -143,6 +145,7 @@
             </aside>
         </MudItem>
     </MudGrid>
+    }
 
 </MudContainer>
 </div>
@@ -152,11 +155,12 @@
     [Inject] private IProjectService ProjectService { get; set; }
     [Inject] private IJSRuntime JS { get; set; }
     [Inject] private ISnackbar SnackbarService { get; set; }
+        [Inject] private NavigationManager NavigationManager { get; set; }
 
     [Parameter] public string ArticleSlug { get; set; }
     [Parameter] public int ArticleId { get; set; }
 
-    private Article Article { get; set; }
+    private Article? Article { get; set; }
 
     private bool IsLoggedIn = false;
     private bool HasNext = false;
@@ -173,13 +177,18 @@
 
     protected async override Task OnInitializedAsync()
     {
-        await OnParametersSetAsync();
-        CompletionCount = await ProjectService.GetCompletionCount(ArticleId, true);
+        Article = ArticleHelper.GetArticles().FirstOrDefault(x => x.Id == ArticleId);
+
+        if (Article is null)
+        {
+            IsLoading = false;
+            NavigationManager.NavigateTo("/articles");
+            return;
     }
 
     private string GetBanner()
     {
-        var banner = string.IsNullOrEmpty(Article.BannerUrl) ? "article-banner.jpg" : Article.BannerUrl;
+        var banner = string.IsNullOrEmpty(Article?.BannerUrl) ? "article-banner.jpg" : Article.BannerUrl;
         return $"background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/img/banners/{banner}'); background-size: cover; background-position: center;";
     }
 
@@ -243,7 +252,14 @@
         ShowFourthAd = false;
         ShowFifthAd = false;
         _thirdAdMeasured = false;
-        Article = ArticleHelper.GetArticles().Single(x => x.Id == ArticleId);
+        Article = ArticleHelper.GetArticles().FirstOrDefault(x => x.Id == ArticleId);
+
+        if (Article is null)
+        {
+            IsLoading = false;
+            NavigationManager.NavigateTo("/articles");
+            return;
+        }
 
         var AuthSate = await AuthenticationState.GetAuthenticationStateAsync();
 
