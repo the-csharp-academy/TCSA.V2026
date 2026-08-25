@@ -219,7 +219,7 @@ public class ProjectService(IDbContextFactory<ApplicationDbContext> _factory) : 
         }
     }
 
-    public async Task<BaseResponse> PostArticle(int projectId, string userId, string url, bool isArticle, bool isUpdate, CancellationToken cancellationToken)
+    public async Task<BaseResponse> PostArticle(int projectId, string userId, string url, bool isArticle, bool isUpdate, CancellationToken cancellationToken = default)
     {
         var project = DashboardProjectsHelpers.GetProject(projectId);
 
@@ -298,7 +298,7 @@ public class ProjectService(IDbContextFactory<ApplicationDbContext> _factory) : 
         return new BaseResponse();
     }
 
-    public async Task<bool> IsProjectCompleted(string userId, int projectId, CancellationToken cancellationToken)
+    public async Task<bool> IsProjectCompleted(string userId, int projectId, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -387,7 +387,7 @@ public class ProjectService(IDbContextFactory<ApplicationDbContext> _factory) : 
         }
     }
 
-    public async Task<int> GetCompletionCount(int projectId, bool isArticle, CancellationToken cancellationToken)
+    public async Task<int> GetCompletionCount(int projectId, bool isArticle, CancellationToken cancellationToken = default)
     {
         try
         {
