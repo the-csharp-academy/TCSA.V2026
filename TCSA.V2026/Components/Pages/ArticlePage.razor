@@ -152,14 +152,14 @@
 </div>
 
 @code {
-        [Inject] private AuthenticationStateProvider AuthenticationState { get; set; }
-        [Inject] private IProjectService ProjectService { get; set; }
-        [Inject] private IJSRuntime JS { get; set; }
-        [Inject] private ISnackbar SnackbarService { get; set; }
-        [Inject] private NavigationManager NavigationManager { get; set; }
+    [Inject] private AuthenticationStateProvider AuthenticationState { get; set; }
+    [Inject] private IProjectService ProjectService { get; set; }
+    [Inject] private IJSRuntime JS { get; set; }
+    [Inject] private ISnackbar SnackbarService { get; set; }
+    [Inject] private NavigationManager NavigationManager { get; set; }
 
-        [Parameter] public string ArticleSlug { get; set; }
-        [Parameter] public int ArticleId { get; set; }
+    [Parameter] public string ArticleSlug { get; set; }
+    [Parameter] public int ArticleId { get; set; }
 
     private Article? Article { get; set; }
     private CancellationTokenSource? _cts;
@@ -287,7 +287,7 @@
     {
         IsSubmitting = true;
 
-        var response = await ProjectService.PostArticle(ArticleId, UserId, string.Empty, true, false, _cts.Token);
+        var response = await ProjectService.PostArticle(ArticleId, UserId, string.Empty, true, false, _token);
 
         IsSubmitting = false;
 
