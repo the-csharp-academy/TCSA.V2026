@@ -24,8 +24,8 @@ public class ProjectServiceTests : IntegrationTestsBase
     [Test]
     public async Task DashboardProjectsShouldHaveNoDupes()
     {
-        await _service.PostArticle(12, "user1", "fakeUrl", false, false);
-        await _service.PostArticle(12, "user1", "fakeUrl", false, false);
+        await _service.CreateDashboardProject(12, "user1", "fakeUrl");
+        await _service.CreateDashboardProject(12, "user1", "fakeUrl");
 
         using var verifyContext = DbContextFactory.CreateDbContext();
 
@@ -39,7 +39,7 @@ public class ProjectServiceTests : IntegrationTestsBase
     [Test]
     public async Task AddingArticles_ShouldIncrementXPs()
     {
-        await _service.PostArticle((int)ArticleName.StartHere, "user1", "fakeUrl", true, false);
+        await _service.MarkArticleAsRead((int)ArticleName.StartHere, "user1");
 
         using var verifyContext = DbContextFactory.CreateDbContext();
 
@@ -53,7 +53,7 @@ public class ProjectServiceTests : IntegrationTestsBase
     [Test]
     public async Task AddingProject_ShouldNotIncrementXPs()
     {
-        await _service.PostArticle((int)ArticleName.MathGame, "user1", "fakeUrl", false, false);
+        await _service.CreateDashboardProject((int)ArticleName.MathGame, "user1", "fakeUrl");
 
         using var verifyContext = DbContextFactory.CreateDbContext();
 
@@ -84,7 +84,7 @@ public class ProjectServiceTests : IntegrationTestsBase
             await seedContext.SaveChangesAsync();
         }
 
-        await _service.PostArticle(12, "user1", "fakeUrl2", false, false);
+        await _service.CreateDashboardProject(12, "user1", "fakeUrl2");
 
         using var assertContext = DbContextFactory.CreateDbContext();
         var list = assertContext.DashboardProjects
