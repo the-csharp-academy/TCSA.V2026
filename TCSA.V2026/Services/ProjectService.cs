@@ -310,6 +310,17 @@ public class ProjectService(IDbContextFactory<ApplicationDbContext> _factory) : 
         return new BaseResponse();
     }
 
+    private async Task AddUserActivity(ApplicationDbContext context, string userId, int projectId, ActivityType activityType)
+    {
+        await context.UserActivity.AddAsync(new AppUserActivity
+        {
+            ProjectId = projectId,
+            AppUserId = userId,
+            DateSubmitted = DateTime.UtcNow,
+            ActivityType = activityType
+        });
+    }
+
     public async Task<bool> IsProjectCompleted(string userId, int projectId)
     {
         try
