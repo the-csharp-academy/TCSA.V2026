@@ -229,4 +229,86 @@ public class DialogTests : BunitContext
         var submitButton = providerCut.FindAll("button").Single(b => b.TextContent.Contains("Submit"));
         Assert.That(submitButton.HasAttribute("disabled"), Is.True);
     }
+
+    private async Task<IRenderedComponent<MudDialogProvider>> ShowSubmitProjectDialog(bool isUpdate)
+    {
+        var parameters = new DialogParameters<TCSASubmitProjectDialog>();
+        parameters.Add(x => x.ProjectId, (int)ArticleName.Portfolio);
+        parameters.Add(x => x.IsUpdate, isUpdate);
+        parameters.Add(x => x.User, _testUser);
+
+        return await ShowDialog(parameters);
+    }
+
+    [Test]
+    public async Task SubmitProjectDialog_SubmitButton_WhenClickedTwiceWhileProcessing_CallsCreateDashboardProjectOnce()
+    {
+        // Arrange
+        var tcs = new TaskCompletionSource<BaseResponse>();
+
+        _projectServiceMock
+            .Setup(s => s.CreateDashboardProject(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>()))
+            .Returns(tcs.Task);
+
+        var providerCut = await ShowSubmitProjectDialog(isUpdate: false);
+
+        // Act
+        providerCut.FindAll("button").Single(b => b.TextContent.Contains("Submit")).Click();
+        providerCut.FindAll("button").Single(b => b.TextContent.Contains("Submit")).Click();
+
+        tcs.SetResult(new BaseResponse { Status = ResponseStatus.Success });
+        await providerCut.InvokeAsync(() => { });
+
+        // Assert
+        _projectServiceMock.Verify(
+            s => s.CreateDashboardProject(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>()),
+            Times.Once);
+    }
+
+    [Test]
+    public async Task SubmitProjectDialog_SubmitButton_WhileProcessing_IsDisabled()
+    {
+        // Arrange
+        var tcs = new TaskCompletionSource<BaseResponse>();
+
+        _projectServiceMock
+            .Setup(s => s.CreateDashboardProject(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>()))
+            .Returns(tcs.Task);
+
+        var providerCut = await ShowSubmitProjectDialog(isUpdate: false);
+
+        // Act
+        providerCut.FindAll("button").Single(b => b.TextContent.Contains("Submit")).Click();
+
+        // Assert
+        var submitButton = providerCut.FindAll("button").Single(b => b.TextContent.Contains("Submit"));
+        Assert.That(submitButton.HasAttribute("disabled"), Is.True);
+    }
+
+    [Test]
+    public async Task SubmitProjectDialog_WhenIsUpdateTrue_CallsUpdateDashboardProjectUrlNotCreate()
+    {
+        // Arrange
+        var tcs = new TaskCompletionSource<BaseResponse>();
+
+        _projectServiceMock
+            .Setup(s => s.UpdateDashboardProjectUrl(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>()))
+            .Returns(tcs.Task);
+
+        var providerCut = await ShowSubmitProjectDialog(isUpdate: true);
+
+        // Act
+        providerCut.FindAll("button").Single(b => b.TextContent.Contains("Submit")).Click();
+
+        tcs.SetResult(new BaseResponse { Status = ResponseStatus.Success });
+        await providerCut.InvokeAsync(() => { });
+
+        // Assert
+        _projectServiceMock.Verify(
+            s => s.UpdateDashboardProjectUrl(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>()),
+            Times.Once);
+        _projectServiceMock.Verify(
+            s => s.CreateDashboardProject(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>()),
+            Times.Never);
+    }
 }
