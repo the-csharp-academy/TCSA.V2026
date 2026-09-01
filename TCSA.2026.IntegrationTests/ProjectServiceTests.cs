@@ -1,4 +1,5 @@
 ﻿using TCSA.V2026.Data.Models;
+using TCSA.V2026.Data.Models.Responses;
 using TCSA.V2026.Services;
 
 namespace TCSA.V2026.IntegrationTests;
@@ -92,6 +93,141 @@ public class ProjectServiceTests : IntegrationTestsBase
             .ToList();
 
         Assert.That(list.Count, Is.EqualTo(2));
+    }
+
+    [Test]
+    public async Task ArchivedArticleCanBeReopened()
+    {
+        using (var seedContext = DbContextFactory.CreateDbContext())
+        {
+            seedContext.DashboardProjects.Add(new DashboardProject
+            {
+                Id = 1,
+                AppUserId = "user1",
+                ProjectId = (int)ArticleName.StartHere,
+                IsArchived = true,
+                IsPendingNotification = false,
+                IsPendingReview = false,
+                DateSubmitted = DateTime.Now.AddDays(-10),
+                GithubUrl = "fakeUrl1"
+            });
+
+            await seedContext.SaveChangesAsync();
+        }
+
+        await _service.MarkArticleAsRead((int)ArticleName.StartHere, "user1");
+
+        using var assertContext = DbContextFactory.CreateDbContext();
+        var list = assertContext.DashboardProjects
+            .Where(p => p.ProjectId == (int)ArticleName.StartHere && p.AppUserId == "user1")
+            .ToList();
+
+        Assert.That(list.Count, Is.EqualTo(2));
+    }
+
+    [Test]
+    public async Task CreateDashboardProject_SetsExpectedFieldsAndLogsActivity()
+    {
+        await _service.CreateDashboardProject(12, "user1", "fakeUrl");
+
+        using var assertContext = DbContextFactory.CreateDbContext();
+        var project = assertContext.DashboardProjects
+            .First(p => p.ProjectId == 12 && p.AppUserId == "user1");
+
+        Assert.That(project.IsPendingReview, Is.True);
+        Assert.That(project.IsCompleted, Is.False);
+        Assert.That(project.IsArchived, Is.False);
+        Assert.That(project.GithubUrl, Is.EqualTo("fakeUrl"));
+
+        var activity = assertContext.UserActivity
+            .FirstOrDefault(a => a.AppUserId == "user1" && a.ProjectId == 12 && a.ActivityType == ActivityType.ProjectSubmitted);
+
+        Assert.That(activity, Is.Not.Null);
+    }
+
+    [Test]
+    public async Task UpdateDashboardProjectUrl_UpdatesGithubUrl()
+    {
+        using (var seedContext = DbContextFactory.CreateDbContext())
+        {
+            seedContext.DashboardProjects.Add(new DashboardProject
+            {
+                Id = 1,
+                AppUserId = "user1",
+                ProjectId = 12,
+                IsArchived = false,
+                IsPendingNotification = false,
+                IsPendingReview = true,
+                DateSubmitted = DateTime.Now.AddDays(-1),
+                GithubUrl = "fakeUrl1"
+            });
+
+            await seedContext.SaveChangesAsync();
+        }
+
+        var response = await _service.UpdateDashboardProjectUrl(12, "user1", "updatedUrl");
+
+        using var assertContext = DbContextFactory.CreateDbContext();
+        var project = assertContext.DashboardProjects.First(p => p.ProjectId == 12 && p.AppUserId == "user1");
+
+        Assert.That(response.Status, Is.EqualTo(ResponseStatus.Success));
+        Assert.That(project.GithubUrl, Is.EqualTo("updatedUrl"));
+    }
+
+    [Test]
+    public async Task UpdateDashboardProjectUrl_NoMatchingProject_ReturnsFail()
+    {
+        var response = await _service.UpdateDashboardProjectUrl(12, "user1", "updatedUrl");
+
+        Assert.That(response.Status, Is.EqualTo(ResponseStatus.Fail));
+    }
+
+    [Test]
+    public async Task MarkArticleAsRead_CalledTwice_DoesNotDuplicateOrDoubleAwardXp()
+    {
+        await _service.MarkArticleAsRead((int)ArticleName.StartHere, "user1");
+        await _service.MarkArticleAsRead((int)ArticleName.StartHere, "user1");
+
+        using var assertContext = DbContextFactory.CreateDbContext();
+        var list = assertContext.DashboardProjects
+            .Where(p => p.ProjectId == (int)ArticleName.StartHere && p.AppUserId == "user1")
+            .ToList();
+
+        Assert.That(list.Count, Is.EqualTo(1));
+
+        var user = assertContext.AspNetUsers.First(u => u.Id == "user1");
+        Assert.That(user.ExperiencePoints, Is.EqualTo(5));
+    }
+
+    [Test]
+    public async Task MarkArticleAsRead_SetsExpectedFieldsAndLogsActivity()
+    {
+        await _service.MarkArticleAsRead((int)ArticleName.StartHere, "user1");
+
+        using var assertContext = DbContextFactory.CreateDbContext();
+        var project = assertContext.DashboardProjects
+            .First(p => p.ProjectId == (int)ArticleName.StartHere && p.AppUserId == "user1");
+
+        Assert.That(project.IsCompleted, Is.True);
+        Assert.That(project.IsPendingReview, Is.False);
+        Assert.That(project.GithubUrl, Is.Empty);
+
+        var activity = assertContext.UserActivity
+            .FirstOrDefault(a => a.AppUserId == "user1" && a.ProjectId == (int)ArticleName.StartHere && a.ActivityType == ActivityType.ArticleRead);
+
+        Assert.That(activity, Is.Not.Null);
+    }
+
+    [Test]
+    public async Task MarkArticleAsRead_UnknownUser_DoesNothing()
+    {
+        var response = await _service.MarkArticleAsRead((int)ArticleName.StartHere, "nonexistent-user");
+
+        using var assertContext = DbContextFactory.CreateDbContext();
+        var list = assertContext.DashboardProjects.Where(p => p.AppUserId == "nonexistent-user").ToList();
+
+        Assert.That(response.Status, Is.EqualTo(ResponseStatus.Success));
+        Assert.That(list, Is.Empty);
     }
 
     [Test]
