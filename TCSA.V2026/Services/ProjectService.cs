@@ -13,6 +13,7 @@ public interface IProjectService
     Task<bool> IsProjectCompleted(string userId, int projectId);
     Task<List<int>> GetCompletedProjectsById(string userId);
     Task<BaseResponse> PostArticle(int projectId, string userId, string url, bool isArticle, bool isUpdate);
+    Task<BaseResponse> UpdateDashboardProjectUrl(int projectId, string userId, string url);
     Task<BaseResponse> MarkArticleAsRead(int projectId, string userId);
     Task<ServiceResponse> DeleteProject(int dashboardProjectId, string userId);
     Task<BaseResponse> Archive(int dashboardProjectId);
@@ -257,11 +258,27 @@ public class ProjectService(IDbContextFactory<ApplicationDbContext> _factory) : 
                         GithubUrl = url
                     };
 
-                    var trackedEntity = context.ChangeTracker.Entries<DashboardProject>().FirstOrDefault(e => e.Entity.ProjectId == newProject.ProjectId);
+    public async Task<BaseResponse> UpdateDashboardProjectUrl(int projectId, string userId, string url)
+    {
+        try
+        {
+            using var context = _factory.CreateDbContext();
+            var dashboardProject = await context.DashboardProjects
+                .FirstOrDefaultAsync(dp => dp.ProjectId == projectId && dp.AppUserId == userId && !dp.IsArchived);
 
-                    if (trackedEntity != null)
+            dashboardProject!.GithubUrl = url;
+            await context.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            return new BaseResponse
                     {
-                        trackedEntity.State = EntityState.Detached;
+                Status = ResponseStatus.Fail,
+                Message = ex.Message
+            };
+        }
+
+        return new BaseResponse();
                     }
 
     public async Task<BaseResponse> MarkArticleAsRead(int projectId, string userId)
