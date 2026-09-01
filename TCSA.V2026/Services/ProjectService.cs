@@ -13,6 +13,7 @@ public interface IProjectService
     Task<bool> IsProjectCompleted(string userId, int projectId);
     Task<List<int>> GetCompletedProjectsById(string userId);
     Task<BaseResponse> PostArticle(int projectId, string userId, string url, bool isArticle, bool isUpdate);
+    Task<BaseResponse> MarkArticleAsRead(int projectId, string userId);
     Task<ServiceResponse> DeleteProject(int dashboardProjectId, string userId);
     Task<BaseResponse> Archive(int dashboardProjectId);
     Task<BaseResponse> AcknowledgeNotifications(string userId);
@@ -263,27 +264,39 @@ public class ProjectService(IDbContextFactory<ApplicationDbContext> _factory) : 
                         trackedEntity.State = EntityState.Detached;
                     }
 
-                    await context.DashboardProjects.AddAsync(newProject);
+    public async Task<BaseResponse> MarkArticleAsRead(int projectId, string userId)
+    {
+        var project = DashboardProjectsHelpers.GetProject(projectId);
 
-                    await context.UserActivity.AddAsync(
-                      new AppUserActivity
+        try
+        {
+            using var context = _factory.CreateDbContext();
+            var user = await context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+
+            var hasActiveDashboardProject = await context.DashboardProjects
+                .AnyAsync(dp => dp.ProjectId == projectId && dp.AppUserId == userId && !dp.IsArchived);
+
+            if (user != null && !hasActiveDashboardProject)
+            {
+                var newProject = new DashboardProject
                       {
                           ProjectId = projectId,
                           AppUserId = userId,
+                    IsCompleted = true,
+                    IsArchived = false,
+                    IsPendingNotification = false,
+                    IsPendingReview = false,
                           DateSubmitted = DateTime.UtcNow,
-                          ActivityType = isArticle ? ActivityType.ArticleRead : ActivityType.ProjectSubmitted
-                      });
+                    GithubUrl = string.Empty
+                };
 
-                    if (isArticle)
-                    {
+                await context.DashboardProjects.AddAsync(newProject);
+                await AddUserActivity(context, userId, projectId, ActivityType.ArticleRead);
+
                         user.ExperiencePoints = user.ExperiencePoints + project.ExperiencePoints;
-                    }
 
                     await context.SaveChangesAsync();
                 }
-                ;
-            }
-            ;
         }
         catch (Exception ex)
         {
