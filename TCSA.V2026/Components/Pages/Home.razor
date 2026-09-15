@@ -103,7 +103,7 @@ else
         </div>
     </MudContainer>
 
-    @if (Updates.Any())
+    @* @if (Updates.Any())
     {
         <MudContainer MaxWidth="MaxWidth.Large" Class="mt-10 section-panel section-panel-soft">
             <h2 class="mud-typography-h4 mud-primary-text mud-typography-align-center mb-2"
@@ -131,7 +131,7 @@ else
             </MudTimeline>
         </MudContainer>
     }
-
+ *@
     <MudContainer MaxWidth="MaxWidth.Large" Class="mt-10 section-panel section-panel-soft">
         <h2 class="mud-typography-h4 mud-primary-text mud-typography-align-center mb-2"
             style="font-weight: 500;"
@@ -257,7 +257,7 @@ else
     protected List<Project> Projects = new();
     protected List<Article> Articles = new();
     protected List<IndexAreaInfo> Areas = new();
-    protected List<PlatformUpdate> Updates = new();
+    //protected List<PlatformUpdate> Updates = new();
     protected Project CertificationProject = new();
     protected Article ConsoleArticle = new();
     protected Article GraduationArticle = new();
@@ -273,7 +273,7 @@ else
 
         Articles = ArticleHelper.GetArticles();
         Projects = ProjectHelper.GetProjects();
-        Updates = UpdatesHelper.GetLatestUpdates();
+        //Updates = UpdatesHelper.GetLatestUpdates();
         CertificationProject = Projects.Single(x => x.Id == (int)ArticleName.FreecodeCamp);
         ConsoleArticle = Articles.Single(x => x.Id == (int)ArticleName.ImportanceOfConsole);
         GraduationArticle = Articles.Single(x => x.Id == (int)ArticleName.ConsoleGraduation);
@@ -399,13 +399,7 @@ else
         }
     }
 
-    private static string GetUpdateTypeClass(PlatformUpdateType type) => type switch
-    {
-        PlatformUpdateType.Article => "type-article",
-        PlatformUpdateType.Course => "type-course",
-        PlatformUpdateType.Project => "type-project",
-        _ => "type-platform"
-    };
+
 
     private Task NavigateToArticle(Article article, bool isProject)
     {
