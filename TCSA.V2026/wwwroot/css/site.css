@@ -1,3 +1,70 @@
+.password-page {
+    display: flex;
+    justify-content: center;
+    padding: clamp(24px, 6vw, 72px) 16px;
+}
+
+.password-card {
+    width: 100%;
+    max-width: 480px;
+    padding: clamp(24px, 5vw, 40px);
+    border: 1px solid var(--mud-palette-lines-default);
+    border-radius: 20px;
+    background: var(--mud-palette-surface);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, .06);
+}
+
+.password-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    margin-bottom: 24px;
+    border-radius: 16px;
+    color: var(--mud-palette-primary);
+    background: var(--mud-palette-primary-hover);
+}
+
+.password-eyebrow {
+    margin-bottom: 10px;
+    color: var(--mud-palette-primary);
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .12em;
+}
+
+.password-card h1 {
+    margin: 0 0 12px;
+    font-size: clamp(1.65rem, 4vw, 2rem);
+    line-height: 1.2;
+    font-weight: 700;
+    letter-spacing: -.025em;
+}
+
+.password-description {
+    margin-bottom: 28px;
+    color: var(--mud-palette-text-secondary);
+    font-size: .95rem;
+    line-height: 1.65;
+}
+
+.password-card .password-submit {
+    min-height: 48px;
+    border-radius: 8px;
+    text-transform: none;
+    font-size: .95rem;
+    font-weight: 600;
+}
+
+.password-footer {
+    margin-top: 28px;
+    padding-top: 24px;
+    border-top: 1px solid var(--mud-palette-lines-default);
+    text-align: center;
+    font-size: .875rem;
+}
+
 @media (max-width: 600px) {
     .responsive-banner {
         font-size: 1.5rem; /* Smaller for mobile */
