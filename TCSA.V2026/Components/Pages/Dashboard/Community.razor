@@ -31,61 +31,68 @@
         OnClick="@(() => SubmitIssueDialog())">
             Create Issue
         </MudButton>
-        <MudDataGrid Class="mt-2" Items="@IssuesToShow.OrderByDescending(i => i.Id)" Dense="true" RowStyle="GetRowStyle">
-            <Columns>
-                <PropertyColumn Property="i => i.Title" Title="Title" />
-                <PropertyColumn Property="i => i.ExperiencePoints" Title="XPs" />
-                <PropertyColumn Property="i => GetProjectName(i.CommunityProjectId)" Title="Project" />
-                <TemplateColumn CellClass="d-flex justify-end">
-                    <CellTemplate>
-                        <MudStack Row>
-                            @if (!string.IsNullOrEmpty(context.Item.GithubUrl) && context.Item.GithubUrl.StartsWith("http"))
-                            {
-                                <MudButton 
-                                Size="@Size.Small" 
-                                Variant="@Variant.Filled" 
-                                Color="@Color.Warning"
-                                OnClick="@(() => JS.InvokeVoidAsync("window.open", context.Item.GithubUrl, "_blank", "noopener,noreferrer"))"
-                                StartIcon="fas fa-eye">
-                                    View
-                                </MudButton>
-
-                            }
-                            @if (!User.DashboardProjects.Any(d => d.ProjectId == context.Item.ProjectId))
-                            {
-                                <MudButton
-                                Size="@Size.Small"
-                                Variant="@Variant.Filled"
-                                Color="@Color.Success"
-                                Disabled="@_processingIds.Contains(context.Item.Id)"
-                                OnClick="@(() => AssignMyself(context.Item))"
-                                StartIcon="fas fa-hand-point-up">
-                                    Pick
-                                </MudButton>
-                            }
-                            else
-                            {
-                                if (User.DashboardProjects.FirstOrDefault(d => d.ProjectId == context.Item.ProjectId).IsPendingReview)
+        @if (IssuesToShow == null || IssuesToShow.Count == 0)
+        {
+            <MudText Class="mt-3 ml-5 mr-5" Color="Color.Secondary">No issues available at this time.</MudText>
+        }
+        else
+        {
+            <MudDataGrid Class="mt-2" Items="@IssuesToShow.OrderByDescending(i => i.Id)" Dense="true" RowStyle="GetRowStyle">
+                <Columns>
+                    <PropertyColumn Property="i => i.Title" Title="Title" />
+                    <PropertyColumn Property="i => i.ExperiencePoints" Title="XPs" />
+                    <PropertyColumn Property="i => GetProjectName(i.CommunityProjectId)" Title="Project" />
+                    <TemplateColumn CellClass="d-flex justify-end">
+                        <CellTemplate>
+                            <MudStack Row>
+                                @if (!string.IsNullOrEmpty(context.Item.GithubUrl) && context.Item.GithubUrl.StartsWith("http"))
                                 {
-                                    <MudChip T="string" Variant="Variant.Text" Color="Color.Warning">Pending Review</MudChip>
+                                    <MudButton 
+                                    Size="@Size.Small" 
+                                    Variant="@Variant.Filled" 
+                                    Color="@Color.Warning"
+                                    OnClick="@(() => JS.InvokeVoidAsync("window.open", context.Item.GithubUrl, "_blank", "noopener,noreferrer"))"
+                                    StartIcon="fas fa-eye">
+                                        View
+                                    </MudButton>
+
                                 }
-                                else
+                                @if (!User.DashboardProjects.Any(d => d.ProjectId == context.Item.ProjectId))
                                 {
                                     <MudButton
                                     Size="@Size.Small"
-                                    Variant="@Variant.Filled" Color="@Color.Primary"
-                                    Disabled="@_isProcessing"
-                                    OnClick="@(() => SubmitToReviewDialog(context.Item))"
-                                    EndIcon="@Icons.Material.Filled.Send">
-                                        Submit PR
+                                    Variant="@Variant.Filled"
+                                    Color="@Color.Success"
+                                    Disabled="@_processingIds.Contains(context.Item.Id)"
+                                    OnClick="@(() => AssignMyself(context.Item))"
+                                    StartIcon="fas fa-hand-point-up">
+                                        Pick
                                     </MudButton>
                                 }
-                            }
-                        </MudStack>
-                    </CellTemplate>
-                </TemplateColumn>
-            </Columns>
-        </MudDataGrid>
+                                else
+                                {
+                                    if (User.DashboardProjects.FirstOrDefault(d => d.ProjectId == context.Item.ProjectId).IsPendingReview)
+                                    {
+                                        <MudChip T="string" Variant="Variant.Text" Color="Color.Warning">Pending Review</MudChip>
+                                    }
+                                    else
+                                    {
+                                        <MudButton
+                                        Size="@Size.Small"
+                                        Variant="@Variant.Filled" Color="@Color.Primary"
+                                        Disabled="@_isProcessing"
+                                        OnClick="@(() => SubmitToReviewDialog(context.Item))"
+                                        EndIcon="@Icons.Material.Filled.Send">
+                                            Submit PR
+                                        </MudButton>
+                                    }
+                                }
+                            </MudStack>
+                        </CellTemplate>
+                    </TemplateColumn>
+                </Columns>
+            </MudDataGrid>
+        }
     }
 </MudContainer>
 
@@ -99,9 +106,14 @@
     [Inject] private IJSRuntime JS { get; set; }
     [Inject] private ISnackbar Snackbar { get; set; }
 
-    private ApplicationUser User { get; set; }
+    [PersistentState]
+    public ApplicationUser? User { get; set; }
+
     private List<Project> Projects;
-    private List<CommunityIssue>? IssuesToShow = new();
+
+    [PersistentState]
+    public List<CommunityIssue>? IssuesToShow { get; set; }
+
     private List<DashboardProject> UserProjects = new();
 
     private bool IsLoading = true;
@@ -121,9 +133,9 @@
         Projects = ProjectHelper.GetProjects();
         var claims = authSate.User;
         UserId = claims.FindFirstValue(ClaimTypes.NameIdentifier);
-        User = await UserService.GetUserById(UserId);
+        User ??= await UserService.GetUserById(UserId);
 
-        IssuesToShow = await CommunityService.GetAvailableIssuesForCommunityPage(UserId);
+        IssuesToShow ??= await CommunityService.GetAvailableIssuesForCommunityPage(UserId);
 
         IsLoading = false;
     }

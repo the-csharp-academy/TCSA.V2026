@@ -1,4 +1,4 @@
-﻿@page "/contribute"
+@page "/contribute"
 @using System.Security.Claims
 @using TCSA.V2026.Data.DTOs
 @using TCSA.V2026.Data.Models
@@ -99,7 +99,8 @@
     [Inject] private IUserService UserService { get; set; }
     [Inject] private IDonateService DonateService { get; set; }
 
-    private ApplicationUser User;
+    [PersistentState]
+    public ApplicationUser? User { get; set; }
 
     private bool IsBusy { get; set; } = true;
     private string? Error { get; set; }
@@ -132,7 +133,7 @@
 
         var claims = authSate.User;
         UserId = claims.FindFirstValue(ClaimTypes.NameIdentifier);
-        User = await UserService.GetUserById(UserId);
+        User ??= await UserService.GetUserById(UserId);
 
         await LoadDonationProgressAsync();
         IsBusy = false;

@@ -1,10 +1,14 @@
-﻿namespace TCSA.V2026.Data.Models;
+﻿using System.Text.Json.Serialization;
+
+namespace TCSA.V2026.Data.Models;
 
 public class CommunityIssue
 {
     public int Id { get; set; }
     public string Title { get; set; }
     public string? AppUserId { get; set; }
+
+    [JsonIgnore]
     public ApplicationUser? AppUser { get; set; }
     public int ProjectId { get; set; }
     public int CommunityProjectId { get; set; }
