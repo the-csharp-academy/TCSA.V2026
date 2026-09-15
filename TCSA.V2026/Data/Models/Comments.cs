@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace TCSA.V2026.Data.Models;
 
@@ -14,5 +15,6 @@ public class Comments
 
     public DateTimeOffset Date { get; set; }
     public bool IsReviewed { get; set; }
+    [JsonIgnore]
     public ApplicationUser AppUser { get; set; } = null!;
 }

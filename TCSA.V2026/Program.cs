@@ -1,3 +1,4 @@
+using Hangfire;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -11,10 +12,11 @@ using Stripe;
 using TCSA.V2026.Components;
 using TCSA.V2026.Components.Account;
 using TCSA.V2026.Data;
+using TCSA.V2026.Data.Curriculum;
 using TCSA.V2026.Data.Helpers;
 using TCSA.V2026.Data.Models;
 using TCSA.V2026.Data.Models.Options;
-using TCSA.V2026.Data.Curriculum;
+using TCSA.V2026.Filters;
 using TCSA.V2026.Services;
 using TCSA.V2026.Services.Challenges;
 
@@ -23,6 +25,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<LinksOptions>(builder.Configuration.GetSection("Links"));
 builder.Services.Configure<StripeOptions>(builder.Configuration.GetSection("Stripe"));
 builder.Services.Configure<FeatureToggleOptions>(builder.Configuration.GetSection("FeatureToggle"));
+builder.Services.AddOptions<BrevoOptions>()
+    .Bind(builder.Configuration.GetSection("Brevo"))
+    .ValidateDataAnnotations();
 
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
@@ -65,7 +70,7 @@ builder.Services.AddKeyedScoped<IChallengePlatformService, LeetCodeService>(Chal
 builder.Services.AddScoped<IChallengePlatformFactory, ChallengePlatformFactory>();
 builder.Services.AddScoped<ChallengeManager>();
 builder.Services.AddScoped<IDailyChallengeFetchService, LeetCodeDailyChallengeService>();
-builder.Services.AddHostedService<DailyChallengeJob>();
+builder.Services.AddScoped<DailyChallengeJob>();
 builder.Services.AddScoped<IDiscordService, DiscordService>();
 builder.Services.AddScoped<IActivityService, ActivityService>();
 builder.Services.AddScoped<IGalleryService, GalleryService>();
@@ -81,7 +86,7 @@ builder.Services.AddScoped<IFeedService, FeedService>();
 builder.Services.AddScoped<IAccountabilityBuddyService, AccountabilityBuddyService>();
 builder.Services.AddScoped<IDonateService, DonateService>();
 builder.Services.AddSingleton<ISearchService>(_ =>
-    new SearchService([..ArticleHelper.GetArticles(), ..ProjectHelper.GetProjects()]));
+    new SearchService([.. ArticleHelper.GetArticles(), .. ProjectHelper.GetProjects()]));
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<ICustomEmailSender, EmailSender>();
 builder.Services.AddSingleton<IPeerReviewPublisher, PeerReviewPublisher>();
@@ -124,7 +129,25 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
     .AddSignInManager()
     .AddDefaultTokenProviders();
 
+builder.Services.AddHangfire(config => config
+    .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+    .UseSimpleAssemblyNameTypeSerializer()
+    .UseRecommendedSerializerSettings()
+    .UseSqlServerStorage(connectionString)
+);
+builder.Services.AddHangfireServer();
+
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var recurringJobManager = scope.ServiceProvider.GetRequiredService<IRecurringJobManager>();
+
+    recurringJobManager.AddOrUpdate<DailyChallengeJob>(
+        "daily-challenge-job",
+        job => job.RunAsync(),
+        Cron.Daily);
+}
 
 var logger = app.Services.GetRequiredService<ILogger<Program>>();
 logger.LogInformation("?? Application has started and logging is working!");
@@ -149,8 +172,16 @@ else
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.MapControllers();
 app.UseAntiforgery();
+
+app.UseHangfireDashboard("/hangfire", new DashboardOptions
+{
+    Authorization = new[] { new HangfireAuthorizationFilter() }
+});
 
 app.MapStaticAssets();
 app.MapRazorComponents<App>()

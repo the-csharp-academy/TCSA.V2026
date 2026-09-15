@@ -863,7 +863,7 @@
 
         IsSubmitting = true;
 
-        var response = await ProjectService.PostArticle(ArticleId, UserId, string.Empty, true, false);
+        var response = await ProjectService.MarkArticleAsRead(ArticleId, UserId);
 
         IsSubmitting = false;
 

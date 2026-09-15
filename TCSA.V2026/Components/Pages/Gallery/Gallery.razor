@@ -88,12 +88,15 @@
     private int _boundaryCount = 1;
     private Size _paginationSize = Size.Medium;
 
-    private ApplicationUser? User;
+    [PersistentState]
+    public ApplicationUser? User { get; set; }
     private string? UserId;
 
     private IEnumerable<ShowcaseProjectInfo> ShowcaseProjects { get; set; } = [];
     private IEnumerable<ShowcaseProjectInfo> SelectedAreaProjects { get; set; } = [];
-    private PaginatedList<ShowcaseItemDTO>? PaginatedList { get; set; }
+
+    [PersistentState]
+    public PaginatedList<ShowcaseItemDTO>? PaginatedList { get; set; }
     private List<ShowcaseItemDTO>? ItemsToShow { get; set; } = [];
     private List<int> CompletedProjectsNotShowcased { get; set; } = new();
     private IEnumerable<int> SelectedProjects { get; set; } = [];
@@ -110,9 +113,23 @@
         UserId = claims.FindFirstValue(ClaimTypes.NameIdentifier);
         ShowcaseProjects = ProjectHelper.GetProjectInfos();
 
-        await UpdateCompletedProjectsNotShowcased();
+        if (User is null)
+        {
+            await UpdateCompletedProjectsNotShowcased();
+        }
+        else
+        {
+            RecalculateCompletedProjectsNotShowcased();
+        }
 
-        await GetLists();
+        if (PaginatedList is null)
+        {
+            await GetLists();
+        }
+        else
+        {
+            ItemsToShow = PaginatedList.Items;
+        }
 
         IsLoading = false;
     }
@@ -204,7 +221,11 @@
     private async Task UpdateCompletedProjectsNotShowcased()
     {
         User = await UserService.GetUserByIdWithShowcaseItems(UserId);
+        RecalculateCompletedProjectsNotShowcased();
+    }
 
+    private void RecalculateCompletedProjectsNotShowcased()
+    {
         if (User is not null)
         {
             CompletedProjectsNotShowcased = User.DashboardProjects

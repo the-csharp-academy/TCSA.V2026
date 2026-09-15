@@ -88,7 +88,9 @@
 
         try
         {
-            var result = await ProjectService.PostArticle(ProjectId, User.Id, GithubUrl, false, IsUpdate);
+            var result = IsUpdate
+                ? await ProjectService.UpdateDashboardProjectUrl(ProjectId, User.Id, GithubUrl)
+                : await ProjectService.CreateDashboardProject(ProjectId, User.Id, GithubUrl);
             MudDialog.Close(DialogResult.Ok(result.Status));
         }
         finally

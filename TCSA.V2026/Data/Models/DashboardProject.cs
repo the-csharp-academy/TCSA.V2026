@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace TCSA.V2026.Data.Models;
 
@@ -27,6 +28,7 @@ public class DashboardProject
             return null;
         }
     }
+    [JsonIgnore]
     public ApplicationUser AppUser { get; set; }
 
     [NotMapped]

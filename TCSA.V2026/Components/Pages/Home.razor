@@ -1,4 +1,4 @@
-﻿@page "/"
+@page "/"
 @using TCSA.V2026.Data.Curriculum
 @using TCSA.V2026.Data.DTOs
 @using TCSA.V2026.Data.Models
@@ -103,6 +103,35 @@ else
         </div>
     </MudContainer>
 
+    @* @if (Updates.Any())
+    {
+        <MudContainer MaxWidth="MaxWidth.Large" Class="mt-10 section-panel section-panel-soft">
+            <h2 class="mud-typography-h4 mud-primary-text mud-typography-align-center mb-2"
+                style="font-weight: 500;">
+                Latest Updates
+            </h2>
+
+            <MudTimeline TimelinePosition="TimelinePosition.Start" Class="updates-timeline">
+                @foreach (var update in Updates)
+                {
+                    <MudTimelineItem Size="Size.Medium" Class="@GetUpdateTypeClass(update.Type)" Variant="Variant.Outlined" Elevation="1">
+                        <MudPaper Class="update-item pa-4" Elevation="0">
+                            <div class="d-flex align-center justify-space-between flex-wrap gap-2">
+                                <span class="update-type-pill @GetUpdateTypeClass(update.Type)">@update.Type</span>
+                                <MudText Typo="Typo.caption" Class="text-secondary">@update.Date.ToString("MMM d, yyyy")</MudText>
+                            </div>
+                            <MudText Typo="Typo.h6" Color="Color.Primary" Class="mt-2">@update.Title</MudText>
+                            @if (!string.IsNullOrWhiteSpace(update.Description))
+                            {
+                                <MudText Typo="Typo.body2">@update.Description</MudText>
+                            }
+                        </MudPaper>
+                    </MudTimelineItem>
+                }
+            </MudTimeline>
+        </MudContainer>
+    }
+ *@
     <MudContainer MaxWidth="MaxWidth.Large" Class="mt-10 section-panel section-panel-soft">
         <h2 class="mud-typography-h4 mud-primary-text mud-typography-align-center mb-2"
             style="font-weight: 500;"
@@ -228,6 +257,7 @@ else
     protected List<Project> Projects = new();
     protected List<Article> Articles = new();
     protected List<IndexAreaInfo> Areas = new();
+    //protected List<PlatformUpdate> Updates = new();
     protected Project CertificationProject = new();
     protected Article ConsoleArticle = new();
     protected Article GraduationArticle = new();
@@ -243,6 +273,7 @@ else
 
         Articles = ArticleHelper.GetArticles();
         Projects = ProjectHelper.GetProjects();
+        //Updates = UpdatesHelper.GetLatestUpdates();
         CertificationProject = Projects.Single(x => x.Id == (int)ArticleName.FreecodeCamp);
         ConsoleArticle = Articles.Single(x => x.Id == (int)ArticleName.ImportanceOfConsole);
         GraduationArticle = Articles.Single(x => x.Id == (int)ArticleName.ConsoleGraduation);
@@ -367,6 +398,8 @@ else
                 });
         }
     }
+
+
 
     private Task NavigateToArticle(Article article, bool isProject)
     {
@@ -523,6 +556,52 @@ else
             border-radius: 22px;
             pointer-events: none;
         }
+
+    .updates-timeline {
+        max-width: 760px;
+        margin-inline: auto;
+    }
+
+    .update-item {
+        border-radius: 14px;
+        background: linear-gradient(180deg, rgba(var(--mud-palette-surface-rgb), 1) 0%, rgba(var(--mud-palette-primary-rgb), 0.04) 100%);
+    }
+
+    .update-type-pill {
+        display: inline-block;
+        font-family: 'Consolas', 'SFMono-Regular', Menlo, monospace;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        padding: 3px 10px;
+        border-radius: 999px;
+        color: white;
+    }
+
+    .type-article .mud-timeline-item-dot .mud-timeline-item-dot-inner,
+    .update-type-pill.type-article {
+        background-color: rgba(var(--mud-palette-info-rgb), 1) !important;
+        border-color: rgba(var(--mud-palette-info-rgb), 1) !important;
+    }
+
+    .type-course .mud-timeline-item-dot .mud-timeline-item-dot-inner,
+    .update-type-pill.type-course {
+        background-color: rgba(var(--mud-palette-secondary-rgb), 1) !important;
+        border-color: rgba(var(--mud-palette-secondary-rgb), 1) !important;
+    }
+
+    .type-project .mud-timeline-item-dot .mud-timeline-item-dot-inner,
+    .update-type-pill.type-project {
+        background-color: rgba(var(--mud-palette-primary-rgb), 1) !important;
+        border-color: rgba(var(--mud-palette-primary-rgb), 1) !important;
+    }
+
+    .type-platform .mud-timeline-item-dot .mud-timeline-item-dot-inner,
+    .update-type-pill.type-platform {
+        background-color: rgba(var(--mud-palette-success-rgb), 1) !important;
+        border-color: rgba(var(--mud-palette-success-rgb), 1) !important;
+    }
 
     .stats-container .cards-grid {
         gap: 1rem;

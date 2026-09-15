@@ -451,7 +451,9 @@
     [Inject] private IDialogService DialogService { get; set; } = default!;
     [Inject] private ISnackbar Snackbar { get; set; } = default!;
 
-    private ApplicationUser? User { get; set; }
+    [PersistentState]
+    public ApplicationUser? User { get; set; }
+
     private List<Course> CourseList { get; } = CourseHelper.GetCourses();
     private List<CourseCardInfo> DashboardCourses { get; set; } = new();
 
@@ -475,7 +477,7 @@
         if (IsLoggedIn)
         {
             UserId = authState.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
-            User = await UserService.GetUserById(UserId);
+            User ??= await UserService.GetUserById(UserId);
         }
 
         GetCourseInfo();
