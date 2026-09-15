@@ -23,6 +23,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<LinksOptions>(builder.Configuration.GetSection("Links"));
 builder.Services.Configure<StripeOptions>(builder.Configuration.GetSection("Stripe"));
 builder.Services.Configure<FeatureToggleOptions>(builder.Configuration.GetSection("FeatureToggle"));
+builder.Services.AddOptions<BrevoOptions>()
+    .Bind(builder.Configuration.GetSection("Brevo"))
+    .ValidateDataAnnotations();
 
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
