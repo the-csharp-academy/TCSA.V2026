@@ -2,10 +2,10 @@
 
 public static class LeaderboardHelper
 {
-    public static string GetRanking(int ranking)
+    public static string GetRanking(long ranking)
     {
-        int lastTwoDigits = 0;
-        int lastDigit = 0;
+        long lastTwoDigits = 0;
+        long lastDigit = 0;
 
         if (ranking < 100)
         {

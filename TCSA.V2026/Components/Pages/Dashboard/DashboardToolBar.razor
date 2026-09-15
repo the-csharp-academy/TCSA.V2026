@@ -25,10 +25,10 @@
         <div class="user-stats">
             <div class="user-stat user-belt-stat">
                 <MudImage Src="@($"img/belts/{(Level)User.Level}-belt.png")"
-                          Alt="@($"{FormatLevel((Level)User.Level)} belt")"
+                          Alt="@($"{LevelHelper.FormatBelt((Level)User.Level)} belt")"
                           Class="user-stat-icon" />
                 <div>
-                    <MudText Typo="Typo.subtitle1" Class="user-stat-value">@FormatLevel((Level)User.Level)</MudText>
+                    <MudText Typo="Typo.subtitle1" Class="user-stat-value">@LevelHelper.FormatBelt((Level)User.Level)</MudText>
                 </div>
             </div>
 
@@ -75,8 +75,6 @@
     [Inject] private IUserService UserService { get; set; }
 
     private List<TCSANotificationItem> Notifications = new();
-
-    private static string FormatLevel(Level level) => level == Level.OliveGreen ? "Olive Green Belt" : $"{level} Belt";
 
     protected async override Task OnParametersSetAsync()
     {
