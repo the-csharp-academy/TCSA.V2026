@@ -11,7 +11,7 @@
     }
     else
     {
-        @if (RecentFeed.Count > 0)
+        @if (RecentFeed?.Count > 0)
         {
             @foreach (var item in RecentFeed)
             {
@@ -31,12 +31,13 @@
 @code {
     [Inject] private IFeedService FeedService { get; set; } = default!;
 
-    private List<FeedDisplay> RecentFeed { get; set; } = new List<FeedDisplay>();
+    [PersistentState]
+    public List<FeedDisplay>? RecentFeed { get; set; }
     private bool IsLoading = true;
 
     protected override async Task OnInitializedAsync()
     {
-        RecentFeed = await FeedService.GetRecentFeedItems();
+        RecentFeed ??= await FeedService.GetRecentFeedItems();
         IsLoading = false;
     }
 }
