@@ -70,6 +70,7 @@ builder.Services.AddKeyedScoped<IChallengePlatformService, LeetCodeService>(Chal
 builder.Services.AddScoped<IChallengePlatformFactory, ChallengePlatformFactory>();
 builder.Services.AddScoped<ChallengeManager>();
 builder.Services.AddScoped<IDailyChallengeFetchService, LeetCodeDailyChallengeService>();
+builder.Services.AddScoped<IDailyChallengeFetchService, CodewarsDailyChallengeService>();
 builder.Services.AddScoped<DailyChallengeJob>();
 builder.Services.AddScoped<IDiscordService, DiscordService>();
 builder.Services.AddScoped<IActivityService, ActivityService>();

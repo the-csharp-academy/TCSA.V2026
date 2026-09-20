@@ -4,5 +4,5 @@ namespace TCSA.V2026.Services.Challenges;
 
 public interface IDailyChallengeFetchService
 {
-    Task<Challenge?> FetchDailyChallenge();
+    Task<IEnumerable<Challenge>> FetchDailyChallenges();
 }
