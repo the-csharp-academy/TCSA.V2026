@@ -18,7 +18,7 @@ public class LeetCodeDailyChallengeService : IDailyChallengeFetchService
         _logger = logger;
     }
 
-    public async Task<Challenge?> FetchDailyChallenge()
+    public async Task<IEnumerable<Challenge>> FetchDailyChallenges()
     {
         try
         {
@@ -30,7 +30,7 @@ public class LeetCodeDailyChallengeService : IDailyChallengeFetchService
             );
 
             if (!response.IsSuccessStatusCode)
-                return null;
+                return [];
 
             var json = await response.Content.ReadAsStringAsync();
 
@@ -41,13 +41,13 @@ public class LeetCodeDailyChallengeService : IDailyChallengeFetchService
 
             var daily = apiResponse?.Data?.ActiveDailyCodingChallengeQuestion;
             if (daily is null || apiResponse?.Errors?.Count > 0)
-                return null;
+                return [];
 
             var problem = daily.Question;
             if (problem.IsPaidOnly)
-                return null;
+                return [];
 
-            return new Challenge
+            var challenge = new Challenge
             {
                 ExternalId = problem.TitleSlug,
                 Name = problem.Title,
@@ -61,11 +61,13 @@ public class LeetCodeDailyChallengeService : IDailyChallengeFetchService
                     ? ChallengeCategory.SQL
                     : ChallengeCategory.CSharp
             };
+
+            return [challenge];
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to fetch LeetCode daily challenge.");
-            return null;
+            return [];
         }
     }
 
