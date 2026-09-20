@@ -1,9 +1,8 @@
-using System.Net;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 using TCSA.V2026.Data.Enums;
 using TCSA.V2026.Data.Models;
 using TCSA.V2026.Data.Models.Responses;
+using TCSA.V2026.Helpers;
 using TCSA.V2026.Helpers.Constants;
 
 namespace TCSA.V2026.Services.Challenges;
@@ -52,7 +51,7 @@ public class LeetCodeDailyChallengeService : IDailyChallengeFetchService
             {
                 ExternalId = problem.TitleSlug,
                 Name = problem.Title,
-                Description = ExtractFirstSentence(problem.Content),
+                Description = ChallengeHelper.ExtractFirstSentence(problem.Content),
                 Keywords = string.Join(", ", problem.TopicTags.Select(t => t.Name)),
                 ReleaseDate = DateTime.Parse(daily.Date, null, System.Globalization.DateTimeStyles.AssumeUniversal),
                 Level = MapLevel(problem.Difficulty),
@@ -85,12 +84,4 @@ public class LeetCodeDailyChallengeService : IDailyChallengeFetchService
         "Hard" => 15,
         _ => 5
     };
-
-    private static string ExtractFirstSentence(string html)
-    {
-        var plain = Regex.Replace(html, "<[^>]+>", " ");
-        plain = WebUtility.HtmlDecode(Regex.Replace(plain, @"\s+", " ").Trim());
-        var end = plain.IndexOfAny(['.', '!', '?']);
-        return end >= 0 ? plain[..(end + 1)].Trim() : plain[..Math.Min(200, plain.Length)].Trim();
-    }
 }
