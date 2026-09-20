@@ -19,11 +19,12 @@ public class LeetCodeDailyChallengeServiceTests
         var service = CreateService(json);
 
         // Act
-        var challenge = await service.FetchDailyChallenge();
+        var challenges = (await service.FetchDailyChallenges()).ToList();
 
         // Assert
-        Assert.That(challenge, Is.Not.Null);
-        Assert.That(challenge!.ExternalId, Is.EqualTo("two-sum"));
+        Assert.That(challenges, Has.Count.EqualTo(1));
+        var challenge = challenges[0];
+        Assert.That(challenge.ExternalId, Is.EqualTo("two-sum"));
         Assert.That(challenge.Name, Is.EqualTo("Two Sum"));
         Assert.That(challenge.Description, Is.Not.Null.And.Not.Empty);
         Assert.That(challenge.Level, Is.EqualTo(Level.Green));
@@ -44,11 +45,12 @@ public class LeetCodeDailyChallengeServiceTests
         var service = CreateService(json);
 
         // Act
-        var challenge = await service.FetchDailyChallenge();
+        var challenges = (await service.FetchDailyChallenges()).ToList();
 
         // Assert
-        Assert.That(challenge, Is.Not.Null);
-        Assert.That(challenge!.Level, Is.EqualTo(Level.Yellow));
+        Assert.That(challenges, Has.Count.EqualTo(1));
+        var challenge = challenges[0];
+        Assert.That(challenge.Level, Is.EqualTo(Level.Yellow));
         Assert.That(challenge.ExperiencePoints, Is.EqualTo(10));
         Assert.That(challenge.Category, Is.EqualTo(ChallengeCategory.SQL));
     }
@@ -64,11 +66,12 @@ public class LeetCodeDailyChallengeServiceTests
         var service = CreateService(json);
 
         // Act
-        var challenge = await service.FetchDailyChallenge();
+        var challenges = (await service.FetchDailyChallenges()).ToList();
 
         // Assert
-        Assert.That(challenge, Is.Not.Null);
-        Assert.That(challenge!.Level, Is.EqualTo(Level.Orange));
+        Assert.That(challenges, Has.Count.EqualTo(1));
+        var challenge = challenges[0];
+        Assert.That(challenge.Level, Is.EqualTo(Level.Orange));
         Assert.That(challenge.ExperiencePoints, Is.EqualTo(15));
     }
 
@@ -82,10 +85,10 @@ public class LeetCodeDailyChallengeServiceTests
         var service = CreateService(json);
 
         // Act
-        var challenge = await service.FetchDailyChallenge();
+        var challenges = await service.FetchDailyChallenges();
 
         // Assert
-        Assert.That(challenge, Is.Null);
+        Assert.That(challenges, Is.Empty);
     }
 
     [Test]
@@ -95,10 +98,10 @@ public class LeetCodeDailyChallengeServiceTests
         var service = CreateService(statusCode: HttpStatusCode.ServiceUnavailable);
 
         // Act
-        var challenge = await service.FetchDailyChallenge();
+        var challenges = await service.FetchDailyChallenges();
 
         // Assert
-        Assert.That(challenge, Is.Null);
+        Assert.That(challenges, Is.Empty);
     }
 
     private static LeetCodeDailyChallengeService CreateService(string? json = null, HttpStatusCode statusCode = HttpStatusCode.OK)
