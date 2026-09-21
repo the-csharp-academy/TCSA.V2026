@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using TCSA.V2026.Data.Enums;
 
 namespace TCSA.V2026.Data.Models;
@@ -40,6 +41,8 @@ public class Challenge
 public class DailyStreak
 {
     public string AppUserId { get; set; }
+
+    [JsonIgnore]
     public ApplicationUser User { get; set; }
     public int CurrentStreak { get; set; }
     public int LongestStreak { get; set; }
@@ -52,6 +55,8 @@ public class UserChallenge
     public int ChallengeId { get; set; }
     public Challenge Challenge { get; set; }
     public string UserId { get; set; }
+
+    [JsonIgnore]
     public ApplicationUser User { get; set; }
     public DateTime CompletedAt { get; set; }
 }

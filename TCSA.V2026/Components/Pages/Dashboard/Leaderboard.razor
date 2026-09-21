@@ -33,7 +33,7 @@
     else
     {
         @* <MudText>LoadTime: @LoadTime.TotalSeconds.ToString()</MudText> *@
-        if (Users.Count > 0)
+        if (Users?.Count > 0)
         {
             if (!IsReviews)
             {
@@ -128,13 +128,22 @@
     [Inject] private ILeaderboardService LeaderboardService { get; set; }
     [Inject] private IUserService UserService { get; set; }
 
-    private List<UserLeaderboardDisplay> Users { get; set; } = [];
-    private List<UserReviewLeaderboardDisplay> ReviewUsers { get; set; } = [];
+    [PersistentState]
+    public List<UserLeaderboardDisplay>? Users { get; set; }
 
-    private ApplicationUser User;
+    [PersistentState]
+    public List<UserReviewLeaderboardDisplay>? ReviewUsers { get; set; }
+
+    [PersistentState]
+    public ApplicationUser? User { get; set; }
+
     private int CurrentPage;
-    private int Ranking;
-    private int Pages;
+
+    [PersistentState]
+    public int Ranking { get; set; }
+
+    [PersistentState]
+    public int Pages { get; set; }
     private bool IsLoading = true;
     private bool IsReviews = false;
     private string UserId = string.Empty;
@@ -154,21 +163,29 @@
 
         var claims = AuthSate.User;
         UserId = claims.FindFirstValue(ClaimTypes.NameIdentifier);
-        User = await UserService.GetUserById(UserId);
+        User ??= await UserService.GetUserById(UserId);
 
         if (IsReviews)
         {
             await FilterReviews();
         }
-        else
+        else if (Users is null)
         {
             Ranking = await LeaderboardService.GetUserRanking(UserId);
 
             CurrentPage = ((Ranking - 1) / PagingConstants.LeaderboardPageSize) + 1;
             await LoadPagination(CurrentPage);
         }
+        else
+        {
+            CurrentPage = ((Ranking - 1) / PagingConstants.LeaderboardPageSize) + 1;
+        }
 
-        Pages = await LeaderboardService.GetTotalPages();
+        if (Pages == 0)
+        {
+            Pages = await LeaderboardService.GetTotalPages();
+        }
+
         LoadTime = DateTime.UtcNow - startTime;
         IsLoading = false;
     }

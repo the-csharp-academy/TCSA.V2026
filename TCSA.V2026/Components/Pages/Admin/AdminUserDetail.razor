@@ -138,13 +138,17 @@
                     </MudButton>
                 </MudItem>
                 <MudItem xs="12" md="4">
-                    <MudTextField @bind-Value="XpInput" Label="Update XP" Class="mb-2" />
+                    <MudTextField T="int" @bind-Value="XpInput" Label="Update XP" Class="mb-2" />
                     <MudButton Color="Color.Info" Variant="Variant.Filled" OnClick="SubmitPoints" Class="mr-2 mb-2">
                         Submit XP
                     </MudButton>
-                    <MudTextField @bind-Value="ReviewsXpInput" Label="Update Reviews XP" Class="mb-2" />
+                    <MudTextField T="int" @bind-Value="ReviewsXpInput" Label="Update Reviews XP" Class="mb-2" />
                     <MudButton Color="Color.Secondary" Variant="Variant.Filled" OnClick="SubmitReviewPoints">
                         Submit Reviews XP
+                    </MudButton>
+                    <MudTextField T="string" @bind-Value="PortDataInput" Label="Port Data" Class="mb-2" />
+                    <MudButton Color="Color.Secondary" Variant="Variant.Filled" OnClick="SubmitPorData">
+                        Port Data
                     </MudButton>
                 </MudItem>
             </MudGrid>
@@ -184,6 +188,8 @@
                             </MudChip>
                         </CellTemplate>
                     </TemplateColumn>
+                    <PropertyColumn Property="fa => fa.IsArchived" Title="Archived" />
+                    <PropertyColumn Property="fa => fa.Date" Title="Date" />
                     <PropertyColumn Property="fa => fa.ChangesRequested" Title="Changes" />
                     <TemplateColumn CellClass="d-flex justify-end" Title="Actions">
                         <CellTemplate>
@@ -279,6 +285,7 @@
     private int ranking = 0;
     private int XpInput = 0;
     private int ReviewsXpInput = 0;
+    private string PortDataInput = string.Empty;
     private TimeSpan loadTime;
 
     protected override async Task OnInitializedAsync()
@@ -297,6 +304,20 @@
         loadTime = DateTime.UtcNow - startTime;
 
         IsLoading = false;
+    }
+
+    private async Task SubmitPorData()
+    {
+        var result = await AdminService.PortData(UserId, PortDataInput);
+        if (result.IsSuccessful)
+        {
+            Snackbar.Add("Data Ported!", Severity.Success);
+            UserDisplay = await GetUserDisplay();
+        }
+        else
+        {
+            Snackbar.Add($"Error: {result.Message}", Severity.Error);
+        }
     }
 
     private async Task<AdminUserDetailDisplay> GetUserDisplay()
@@ -430,6 +451,7 @@
 
                 return new AdminActivity
                 {
+                    Date = dashboardProject?.DateCompleted?.ToString() ?? "N/A",
                     ProjectId = i.ProjectId,
                     ProjectType = ProjectType.Issue,
                     Title = i.Title,
@@ -454,6 +476,7 @@
             .ThenByDescending(x => x.DateSubmitted)
             .Select(i => new AdminActivity
                 {
+                    Date = i.DateSubmitted.ToString(),
                     ProjectId = i.ProjectId,
                     ProjectType = ProjectType.CourseArticle,
                     Title = courseArticles.FirstOrDefault(x => x.Id == i.ProjectId).Title,
@@ -468,6 +491,7 @@
             .ThenByDescending(x => x.DateSubmitted)
             .Select(i => new AdminActivity
                 {
+                    Date = i.DateSubmitted.ToString(),
                     ProjectId = i.ProjectId,
                     ProjectType = ProjectType.Article,
                     Title = Articles.FirstOrDefault(x => x.Id == i.ProjectId).Title,
@@ -476,18 +500,23 @@
             .ToList();
 
         var projectsForAdmin = User.DashboardProjects
-            .Where(dp => !courseArticlesIds.Contains(dp.ProjectId) && !articlesIds.Contains(dp.ProjectId) && !issuesIds.Contains(dp.ProjectId))
+            .Where(dp => 
+                !courseArticlesIds.Contains(dp.ProjectId) 
+                && !articlesIds.Contains(dp.ProjectId) && 
+                !issuesIds.Contains(dp.ProjectId))
             .OrderBy(dp => dp.IsCompleted)
             .ThenByDescending(x => x.DateSubmitted)
             .Select(i => new AdminActivity
             {
+                Date = i.DateSubmitted.ToString(),
                 ProjectId = i.ProjectId,
                 ProjectType = ProjectType.Project,
                 Title = Projects.FirstOrDefault(x => x.Id == i.ProjectId)?.Title ?? "Dunno",
                 IsCompleted = i.IsCompleted,
-                DashboardProjectId = User.DashboardProjects.FirstOrDefault(dp => dp.ProjectId == i.ProjectId).Id,
-                GithubUrl = User.DashboardProjects.FirstOrDefault(dp => dp.ProjectId == i.ProjectId).GithubUrl,
-                ChangesRequested = i.IsCompleted ? "" : i.DateRequestedChange.ToString("G")
+                DashboardProjectId = i.Id,
+                GithubUrl = i.GithubUrl,
+                ChangesRequested = i.IsCompleted ? "" : i.DateRequestedChange.ToString("G"),
+                IsArchived = i.IsArchived
             })
             .ToList();
 
@@ -495,6 +524,7 @@
             .OrderBy(c => c.CompletedAt)
             .Select(c => new AdminActivity
             {
+                 Date = c.CompletedAt.ToString(),
                  ProjectId = c.ChallengeId,
                  ProjectType = ProjectType.Challenge,
                  Title = c.Challenge.Name,

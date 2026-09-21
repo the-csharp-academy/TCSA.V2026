@@ -11,6 +11,10 @@
 
   <ItemGroup>
     <PackageReference Include="AspNet.Security.OAuth.GitHub" />
+    <PackageReference Include="Hangfire.AspNetCore" />
+    <PackageReference Include="Hangfire.Core" />
+    <PackageReference Include="Hangfire.SqlServer" />
+    <PackageReference Include="HtmlAgilityPack" />
     <PackageReference Include="Humanizer" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" />

@@ -128,8 +128,12 @@
     [Inject] private IJSRuntime JS { get; set; }
 
     private List<Project>? projects;
-    private List<PeerReviewDisplay> AvailableProjects;
-    private ApplicationUser User;
+
+    [PersistentState]
+    public List<PeerReviewDisplay> AvailableProjects { get; set; }
+
+    [PersistentState]
+    public ApplicationUser User { get; set; }
 
     private bool IsLoading = true;
     private string UserId = string.Empty;
@@ -149,9 +153,9 @@
 
         var claims = authSate.User;
         UserId = claims.FindFirstValue(ClaimTypes.NameIdentifier);
-        User = await UserService.GetUserById(UserId);
+        User ??= await UserService.GetUserById(UserId);
 
-        AvailableProjects = await PeerReviewService.GetProjectsForPeerReview(UserId);
+        AvailableProjects ??= await PeerReviewService.GetProjectsForPeerReview(UserId);
         LoadTime = DateTime.UtcNow - startTime;
 
         IsLoading = false;

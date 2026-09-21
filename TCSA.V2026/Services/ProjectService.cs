@@ -11,13 +11,15 @@ namespace TCSA.V2026.Services;
 public interface IProjectService
 {
     Task<BaseResponse> MarkAsCompleted(int projectId);
-    Task<bool> IsProjectCompleted(string userId, int projectId);
+    Task<bool> IsProjectCompleted(string userId, int projectId, CancellationToken cancellationToken = default);
     Task<List<int>> GetCompletedProjectsById(string userId);
-    Task<BaseResponse> PostArticle(int projectId, string userId, string url, bool isArticle, bool isUpdate);
+    Task<BaseResponse> CreateDashboardProject(int projectId, string userId, string url);
+    Task<BaseResponse> UpdateDashboardProjectUrl(int projectId, string userId, string url);
+    Task<BaseResponse> MarkArticleAsRead(int projectId, string userId, CancellationToken cancellation = default);
     Task<ServiceResponse> DeleteProject(int dashboardProjectId, string userId);
     Task<BaseResponse> Archive(int dashboardProjectId);
     Task<BaseResponse> AcknowledgeNotifications(string userId);
-    Task<int> GetCompletionCount(int projectId, bool isArticle);
+    Task<int> GetCompletionCount(int projectId, bool isArticle, CancellationToken cancellationToken = default);
     Task<BaseResponse> ResetCourse(string userId, Course course);
 
 }
@@ -220,71 +222,33 @@ public class ProjectService(IDbContextFactory<ApplicationDbContext> _factory, IB
         }
     }
 
-    public async Task<BaseResponse> PostArticle(int projectId, string userId, string url, bool isArticle, bool isUpdate)
+    public async Task<BaseResponse> CreateDashboardProject(int projectId, string userId, string url)
     {
-        var project = DashboardProjectsHelpers.GetProject(projectId);
-
         try
         {
-            using (var context = _factory.CreateDbContext())
+            using var context = _factory.CreateDbContext();
+            var hasActiveDashboardProject = await context.DashboardProjects
+                .AnyAsync(dp => dp.ProjectId == projectId && dp.AppUserId == userId && !dp.IsArchived);
+
+            if (!hasActiveDashboardProject)
             {
-                var user = await context.Users
-                    .Include(u => u.UserActivity)
-                    .Include(u => u.DashboardProjects)
-                    .FirstOrDefaultAsync(u => u.Id == userId);
-
-                var dashboardProject = user?.DashboardProjects?.FirstOrDefault
-                (dp => dp.ProjectId == projectId && dp.AppUserId == userId && !dp.IsArchived);
-
-                if (isUpdate)
+                var newProject = new DashboardProject
                 {
-                    dashboardProject!.GithubUrl = url;
-                    await context.SaveChangesAsync();
-                    return new BaseResponse();
-                }
+                    ProjectId = projectId,
+                    AppUserId = userId,
+                    IsCompleted = false,
+                    IsArchived = false,
+                    IsPendingNotification = false,
+                    IsPendingReview = true,
+                    DateSubmitted = DateTime.UtcNow,
+                    GithubUrl = url
+                };
 
-                if (user != null && user.DashboardProjects != null && dashboardProject == null)
-                {
-                    var newProject = new DashboardProject
-                    {
-                        ProjectId = projectId,
-                        AppUserId = userId,
-                        IsCompleted = isArticle ? true : false,
-                        IsArchived = false,
-                        IsPendingNotification = false,
-                        IsPendingReview = isArticle ? false : true,
-                        DateSubmitted = DateTime.UtcNow,
-                        GithubUrl = url
-                    };
+                await context.DashboardProjects.AddAsync(newProject);
+                await AddUserActivity(context, userId, projectId, ActivityType.ProjectSubmitted);
 
-                    var trackedEntity = context.ChangeTracker.Entries<DashboardProject>().FirstOrDefault(e => e.Entity.ProjectId == newProject.ProjectId);
-
-                    if (trackedEntity != null)
-                    {
-                        trackedEntity.State = EntityState.Detached;
-                    }
-
-                    await context.DashboardProjects.AddAsync(newProject);
-
-                    await context.UserActivity.AddAsync(
-                      new AppUserActivity
-                      {
-                          ProjectId = projectId,
-                          AppUserId = userId,
-                          DateSubmitted = DateTime.UtcNow,
-                          ActivityType = isArticle ? ActivityType.ArticleRead : ActivityType.ProjectSubmitted
-                      });
-
-                    if (isArticle)
-                    {
-                        user.ExperiencePoints = user.ExperiencePoints + project.ExperiencePoints;
-                    }
-
-                    await context.SaveChangesAsync();
-                }
-                ;
+                await context.SaveChangesAsync();
             }
-            ;
         }
         catch (Exception ex)
         {
@@ -298,7 +262,87 @@ public class ProjectService(IDbContextFactory<ApplicationDbContext> _factory, IB
         return new BaseResponse();
     }
 
-    public async Task<bool> IsProjectCompleted(string userId, int projectId)
+    public async Task<BaseResponse> UpdateDashboardProjectUrl(int projectId, string userId, string url)
+    {
+        try
+        {
+            using var context = _factory.CreateDbContext();
+            var dashboardProject = await context.DashboardProjects
+                .FirstOrDefaultAsync(dp => dp.ProjectId == projectId && dp.AppUserId == userId && !dp.IsArchived);
+
+            dashboardProject!.GithubUrl = url;
+            await context.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            return new BaseResponse
+            {
+                Status = ResponseStatus.Fail,
+                Message = ex.Message
+            };
+        }
+
+        return new BaseResponse();
+    }
+
+    public async Task<BaseResponse> MarkArticleAsRead(int projectId, string userId, CancellationToken cancellationToken = default)
+    {
+        var project = DashboardProjectsHelpers.GetProject(projectId);
+
+        try
+        {
+            using var context = _factory.CreateDbContext();
+            var user = await context.Users.FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
+
+            var hasActiveDashboardProject = await context.DashboardProjects
+                .AnyAsync(dp => dp.ProjectId == projectId && dp.AppUserId == userId && !dp.IsArchived, cancellationToken: cancellationToken);
+
+            if (user != null && !hasActiveDashboardProject)
+            {
+                var newProject = new DashboardProject
+                {
+                    ProjectId = projectId,
+                    AppUserId = userId,
+                    IsCompleted = true,
+                    IsArchived = false,
+                    IsPendingNotification = false,
+                    IsPendingReview = false,
+                    DateSubmitted = DateTime.UtcNow,
+                    GithubUrl = string.Empty
+                };
+
+                await context.DashboardProjects.AddAsync(newProject, cancellationToken);
+                await AddUserActivity(context, userId, projectId, ActivityType.ArticleRead);
+
+                user.ExperiencePoints = user.ExperiencePoints + project.ExperiencePoints;
+
+                await context.SaveChangesAsync(cancellationToken);
+            }
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            return new BaseResponse
+            {
+                Status = ResponseStatus.Fail,
+                Message = ex.Message
+            };
+        }
+
+        return new BaseResponse();
+    }
+
+    private async Task AddUserActivity(ApplicationDbContext context, string userId, int projectId, ActivityType activityType)
+    {
+        await context.UserActivity.AddAsync(new AppUserActivity
+        {
+            ProjectId = projectId,
+            AppUserId = userId,
+            DateSubmitted = DateTime.UtcNow,
+            ActivityType = activityType
+        });
+    }
+
+    public async Task<bool> IsProjectCompleted(string userId, int projectId, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -308,11 +352,12 @@ public class ProjectService(IDbContextFactory<ApplicationDbContext> _factory, IB
                     .AnyAsync(
                         x => x.IsCompleted
                         && x.ProjectId == projectId
-                        && x.AppUserId == userId
+                        && x.AppUserId == userId,
+                        cancellationToken
                     );
             }
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             return false;
         }
@@ -411,7 +456,7 @@ public class ProjectService(IDbContextFactory<ApplicationDbContext> _factory, IB
         };
     }
 
-    public async Task<int> GetCompletionCount(int projectId, bool isArticle)
+    public async Task<int> GetCompletionCount(int projectId, bool isArticle, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -419,10 +464,10 @@ public class ProjectService(IDbContextFactory<ApplicationDbContext> _factory, IB
             {
                 var activityType = isArticle ? ActivityType.ArticleRead : ActivityType.ProjectCompleted;
                 return await context.UserActivity
-                    .CountAsync(x => x.ProjectId == projectId && x.ActivityType == activityType);
+                    .CountAsync(x => x.ProjectId == projectId && x.ActivityType == activityType, cancellationToken);
             }
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             return 0;
         }

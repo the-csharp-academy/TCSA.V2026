@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using TCSA.V2026.Data.Enums;
 
 namespace TCSA.V2026.Data.Models;
@@ -12,6 +13,8 @@ public class AppUserActivity
     public DateTimeOffset DateSubmitted { get; set; }
     public ActivityType ActivityType { get; set; }
     public Level? Level { get; set; }
+
+    [JsonIgnore]
     public ApplicationUser ApplicationUser { get; set; }
     public DashboardProject? DashboardProject { get; set; }
 }

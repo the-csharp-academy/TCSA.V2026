@@ -51,42 +51,43 @@
                                     View
                                 </MudButton>
 
-                            }
-                            @if (!User.DashboardProjects.Any(d => d.ProjectId == context.Item.ProjectId))
-                            {
-                                <MudButton
-                                Size="@Size.Small"
-                                Variant="@Variant.Filled"
-                                Color="@Color.Success"
-                                Disabled="@_processingIds.Contains(context.Item.Id)"
-                                OnClick="@(() => AssignMyself(context.Item))"
-                                StartIcon="fas fa-hand-point-up">
-                                    Pick
-                                </MudButton>
-                            }
-                            else
-                            {
-                                if (User.DashboardProjects.FirstOrDefault(d => d.ProjectId == context.Item.ProjectId).IsPendingReview)
-                                {
-                                    <MudChip T="string" Variant="Variant.Text" Color="Color.Warning">Pending Review</MudChip>
                                 }
-                                else
+                                @if (!User.DashboardProjects.Any(d => d.ProjectId == context.Item.ProjectId))
                                 {
                                     <MudButton
                                     Size="@Size.Small"
-                                    Variant="@Variant.Filled" Color="@Color.Primary"
-                                    Disabled="@_isProcessing"
-                                    OnClick="@(() => SubmitToReviewDialog(context.Item))"
-                                    EndIcon="@Icons.Material.Filled.Send">
-                                        Submit PR
+                                    Variant="@Variant.Filled"
+                                    Color="@Color.Success"
+                                    Disabled="@_processingIds.Contains(context.Item.Id)"
+                                    OnClick="@(() => AssignMyself(context.Item))"
+                                    StartIcon="fas fa-hand-point-up">
+                                        Pick
                                     </MudButton>
                                 }
-                            }
-                        </MudStack>
-                    </CellTemplate>
-                </TemplateColumn>
-            </Columns>
-        </MudDataGrid>
+                                else
+                                {
+                                    if (User.DashboardProjects.FirstOrDefault(d => d.ProjectId == context.Item.ProjectId).IsPendingReview)
+                                    {
+                                        <MudChip T="string" Variant="Variant.Text" Color="Color.Warning">Pending Review</MudChip>
+                                    }
+                                    else
+                                    {
+                                        <MudButton
+                                        Size="@Size.Small"
+                                        Variant="@Variant.Filled" Color="@Color.Primary"
+                                        Disabled="@_isProcessing"
+                                        OnClick="@(() => SubmitToReviewDialog(context.Item))"
+                                        EndIcon="@Icons.Material.Filled.Send">
+                                            Submit PR
+                                        </MudButton>
+                                    }
+                                }
+                            </MudStack>
+                        </CellTemplate>
+                    </TemplateColumn>
+                </Columns>
+            </MudDataGrid>
+        }
     }
 </MudContainer>
 
@@ -100,9 +101,14 @@
     [Inject] private IJSRuntime JS { get; set; }
     [Inject] private ISnackbar Snackbar { get; set; }
 
-    private ApplicationUser User { get; set; }
+    [PersistentState]
+    public ApplicationUser? User { get; set; }
+
     private List<Project> Projects;
-    private List<CommunityIssue>? IssuesToShow = new();
+
+    [PersistentState]
+    public List<CommunityIssue>? IssuesToShow { get; set; }
+
     private List<DashboardProject> UserProjects = new();
 
     private bool IsLoading = true;
@@ -122,9 +128,9 @@
         Projects = ProjectHelper.GetProjects();
         var claims = authSate.User;
         UserId = claims.FindFirstValue(ClaimTypes.NameIdentifier);
-        User = await UserService.GetUserById(UserId);
+        User ??= await UserService.GetUserById(UserId);
 
-        IssuesToShow = await CommunityService.GetAvailableIssuesForCommunityPage(UserId);
+        IssuesToShow ??= await CommunityService.GetAvailableIssuesForCommunityPage(UserId);
 
         IsLoading = false;
     }

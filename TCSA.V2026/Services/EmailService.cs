@@ -1,10 +1,9 @@
-﻿using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
+using System.Net.Http.Json;
 using Microsoft.Extensions.Options;
-using SendGrid;
-using SendGrid.Helpers.Mail;
 using TCSA.V2026.Data.Models;
+using TCSA.V2026.Data.Models.Options;
 
 namespace TCSA.V2026.Services;
 
@@ -18,45 +17,39 @@ public interface ICustomEmailSender : IEmailSender<ApplicationUser>
 
 public class EmailSender : ICustomEmailSender
 {
-    private readonly IConfiguration _configuration;
-    private string _apiKey;
+    private readonly BrevoOptions _options;
+    private readonly IHttpClientFactory _httpClientFactory;
 
-    public EmailSender(IConfiguration configuration, IOptions<AuthMessageSenderOptions> optionsAccessor)
+    public EmailSender(IOptions<BrevoOptions> options, IHttpClientFactory httpClientFactory)
     {
-        Options = optionsAccessor.Value;
-        _configuration = configuration;
-        _apiKey = _configuration["Values:EmailKey"];
+        _options = options.Value;
+        _httpClientFactory = httpClientFactory;
     }
-
-    public AuthMessageSenderOptions Options { get; } //Set with Secret Manager.
 
     public async Task SendEmailAsync(string toEmail, string subject, string message)
     {
-        if (string.IsNullOrEmpty(_apiKey))
+        using var client = _httpClientFactory.CreateClient();
+        using var request = new HttpRequestMessage(HttpMethod.Post, "https://api.brevo.com/v3/smtp/email");
+        request.Headers.Add("api-key", _options.ApiKey);
+        request.Content = JsonContent.Create(new
         {
-            throw new Exception("Null SendGridKey");
+            sender = new { email = _options.SenderEmail, name = _options.SenderName },
+            to = new[] { new { email = toEmail } },
+            replyTo = new { email = _options.ReplyToEmail },
+            subject,
+            htmlContent = message
+        });
+
+        using var response = await client.SendAsync(request);
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorBody = await response.Content.ReadAsStringAsync();
+            throw new HttpRequestException(
+                $"Brevo rejected the email ({(int)response.StatusCode}): {errorBody}",
+                null,
+                response.StatusCode);
         }
-        await Execute(_apiKey, subject, message, toEmail);
     }
-
-    public async Task Execute(string apiKey, string subject, string message, string toEmail)
-    {
-        var client = new SendGridClient(apiKey);
-        var msg = new SendGridMessage()
-        {
-            From = new EmailAddress("thecsharpacademy@gmail.com", "The C# Academy"),
-            Subject = subject,
-            PlainTextContent = message,
-            HtmlContent = message
-        };
-        msg.AddTo(new EmailAddress(toEmail));
-
-        // Disable click tracking.
-        // See https://sendgrid.com/docs/User_Guide/Settings/tracking.html
-        msg.SetClickTracking(false, false);
-        var response = await client.SendEmailAsync(msg);
-    }
-
     public Task SendConfirmationLinkAsync(ApplicationUser user, string email, string confirmationLink)
     {
         throw new NotImplementedException();
@@ -65,17 +58,12 @@ public class EmailSender : ICustomEmailSender
     public async Task SendPasswordResetLinkAsync(ApplicationUser user, string email, string resetLink)
     {
         await SendEmailAsync(email, "Reset your password", $"Please reset your password by <a href='{resetLink}'>clicking here</a>.");
-        Console.WriteLine("cazzo");
+
     }
 
 
     public Task SendPasswordResetCodeAsync(ApplicationUser user, string email, string resetCode) =>
         SendEmailAsync(email, "Reset your password", $"Please reset your password using the following code: {resetCode}");
-}
-
-public class AuthMessageSenderOptions
-{
-    public string? SendGridKey { get; set; }
 }
 
 public class CustomEmailConfirmationTokenProvider<TUser>

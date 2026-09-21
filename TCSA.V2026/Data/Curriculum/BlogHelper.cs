@@ -8,6 +8,88 @@ public static class BlogHelper
     [
             new Article
             {
+                Id = 30012,
+                Title = "AI and My Experience as a Developer",
+                IconUrl = "",
+                Slug = "ai-and-my-experience-as-a-developer",
+                BannerUrl = "ai-developer.png",
+                CardImgUrl = "ai-developer.png",
+                Description = "My experience using AI as a professional developer, from writing code to integrations, testing, and taking responsibility for the result.",
+                ReleaseDate = new DateTime(2026, 9, 11),
+                Area = Area.Blog,
+                Blocks = new List<Block>
+                {
+                    new Block
+                    {
+                        Paragraphs = new List<Paragraph>
+                        {
+                            new Paragraph { Body = "I tried writing a blog about AI before, but it became a rant really quickly, so here’s another attempt. I’ll try to keep it short. One of my difficulties writing about it is that there’s so much to say. Instead of trying to touch every possible aspect of AI that comes to mind I’ll just talk about my experience as a developer." },
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "The Beginning",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            new Paragraph { Body = "A few years ago, when the first LLM came out, it wouldn’t do a very good job at writing code. In fact, it was so unreliable that lots of people quickly dismissed it. I was one of them. Fast-forward a couple of years and Chat GPT itself, followed by Cursor and Claude all improved fantastically, as you all know." },
+                            new Paragraph { Body = "Initially it could do a very good job but circumspect to a repository. Lately it’s gotten better at checking lots of repositories to get context. That ability when paired with good documentation looks scary. Lots of people panicked because it looked like AI could now do anything. With good prompts it could design, create and test systems within minutes. And that’s undeniable, I can’t dispute it. I’ve tried it myself at home on my own projects and at work where we have unlimited access to Claude." },
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "Going Back to My Junior Days",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            new Paragraph { Body = "I understand that a lot of the panic that comes with the latest improvements comes from people that either haven’t worked professionally as developers or from junior devs that spend the day actually writing code." },
+                            new Paragraph { Body = "Let’s look back at when I started at EB Games in Brisbane. I’d grab a task on the Jira board and if it was a bug I’d spend a good amount of time trying to reproduce it locally and in dev. Then I’d proceed to try to fix it on my own or with the help of forums such as Stack Overflow. Often, I’d ask people for clarification either in the ticket itself or in the office. Then I’d write tests if applicable." },
+                            new Paragraph { Body = "If it was a new feature I’d plan how to tackle it based on other examples in the code base, write the code, test it thoroughly locally to make sure I didn’t embarrass myself when creating a pull request (which happened many times anyways), create the pull request, deal with frequent source-control issues such as conflicts (because lots of devs would work at the same time in the same repo) and test it in dev." },
+                            new Paragraph { Body = "Once in dev the ticket would move to the QA area where it would be approved or not (half the times it wouldn’t be approved as a I was a noob and QA would pick up on things I didn’t). Once finally approved by the Quality Assurance team, I’d create a PR to prod where it would be tested again by QA." },
+                            new Paragraph { Body = "If you notice the steps above, how much of that is actually writing code? Even back then it was about 20/30% of the time. Most of the time went into reproducing the bug, physically testing, fixing version control issues, meetings, clarifications, reasoning, putting myself in the shoes of users, etc." },
+                            new Paragraph { Body = "Yeah, AI made those 20/30% much faster. I can find bugs a little faster. I can write code snippets in context and create tests with tons of seed data much quicker. So, the 20-30% of the job got way easier and quicker, for sure. The other 70-80% haven’t improved at all." },
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "Coding now",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            new Paragraph { Body = "As a mid-level dev with 5 years of experience, those 20/30% of the time writing code are now about 5%. Since my tasks are much more complex than just fixing a bug or adding a small feature, roughly 60% of my time goes into testing things manually, particularly integrations (oh yeah, AI sucks at integrations)." },
+                            new Paragraph { Body = "A good chunk of time also goes into monitoring what’s happening with real data from real users and APIs in real time, writing documentation that’s actually readable and useful. AI is particularly good at writing documentation that looks good on surface but is essentially unreadable. Same with creating automated tests that test nothing." },
+                            new Paragraph { Body = "Some people might say: Yeah, but it’s really good at simple CRUD apps. Well, I have news for you. There’s no such thing as “simple CRUD apps” in enterprise development. Most apps integrate with at least several internal services, and the complexity increases dramatically when third-party integrations are added to the mix, which happens more often than not." },
+                            new Paragraph { Body = "Good luck trying to get “Agents” to read data from an Excel that can come in a variety of formats and matching it with data that comes from an API once a day, where that API constantly release breaking changes. Good luck when the whole thing breaks and you start your day with 10 support tickets from angry customers. Good luck not owning that code and not knowing it back to front with your eyes closed and not being able to explain to your manager what’s causing the issue and having a plan to solve it within an hour. That’s called professional software development." },
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "Your code is your responsibility, not AI’s",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            new Paragraph { Body = "It’s important to keep in mind that being able to do something doesn’t mean being able to do it professionally. I can cook decent pasta. Should a restaurant hire me because I can cook? Fuck I hope not, if they want to keep their customers." },
+                            new Paragraph { Body = "I can also try being a doctor and use AI to help. I’m sure I’d give decent advice a lot of the time to my patients. I might even be able to do some simple procedures. Does that mean AI will render doctors obsolete? Obviously not. AI doesn’t give me the depth to troubleshoot when things go wrong." },
+                            new Paragraph { Body = "It does mean however that doctors and even cooks can be much better if they use AI wisely, as a tool, without letting it replace their thinking." },
+                            new Paragraph { Body = "Likewise, being able to code decently doesn’t get AI anywhere near capable of looking after an enterprise system with all it entails, particularly when dollars and livelihoods are on the line and angry users will sink companies very quickly. I would never ever consider creating a pull request without checking the code and testing it thoroughly. Because my name is on that code and I’m proud of my work." },
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "Some perspective",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            new Paragraph { Body = "Not just software related but another important number. Since Chat GPT was publicly released in November 2022 to now unemployment in the US remained steady (3.6% vs 4.1%). Same with Europe (6% vs 6,1%). I’ll believe in mass unemployment when I see it." },
+                        }
+                    },
+                    new Block
+                    {
+                        Title = "Rant?",
+                        Paragraphs = new List<Paragraph>
+                        {
+                            new Paragraph { Body = "Genuine question. It intrigues me when people say they have several agents working together and they all talk to each other and so on and so forth. What on earth are these agents doing? I know this question sounds like a rant, but I’d love to hear real world use cases for this because I can’t see it. Oh, and please justify the costs because that stuff is not free." },
+                        }
+                    }
+                }
+            },
+            new Article
+            {
                 Id = 30011,
                 Title = "Five Years as a Professional Software Engineer",
                 IconUrl = "",

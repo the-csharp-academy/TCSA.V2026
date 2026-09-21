@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging.Abstractions;
 using TCSA.V2026.Data.Enums;
 using TCSA.V2026.Data.Models;
+using TCSA.V2026.Data.Models.Responses;
 using TCSA.V2026.Services;
 
 namespace TCSA.V2026.IntegrationTests;
@@ -13,7 +15,7 @@ public class ChallengeServiceTests : IntegrationTestsBase
     public void Setup()
     {
         BaseSetup();
-        _service = new ChallengeService(DbContextFactory);
+        _service = new ChallengeService(DbContextFactory, NullLogger<ChallengeService>.Instance);
     }
 
     [TearDown]
@@ -546,5 +548,114 @@ public class ChallengeServiceTests : IntegrationTestsBase
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Items.Count, Is.EqualTo(1));
         Assert.That(result.Items[0].Id, Is.EqualTo(1));
+    }
+
+    [Test]
+    public async Task AddChallenge_ShouldNotAddDuplicate()
+    {
+        // Arrange
+        var challenge = new Challenge
+        {
+            ExternalId = "fakeId",
+            Description = "desc",
+            Keywords = "kw",
+            Name = "challenge1",
+            ExperiencePoints = 1,
+            Platform = ChallengePlatform.LeetCode,
+            Level = Level.Green,
+        };
+
+        // Act
+        var result = await _service.AddChallenge(challenge);
+        var resultDuplicate = await _service.AddChallenge(challenge);
+
+        // Assert
+        Assert.That(result.Status, Is.EqualTo(ResponseStatus.Success));
+        Assert.That(resultDuplicate.Status, Is.EqualTo(ResponseStatus.Fail));
+        Assert.That(resultDuplicate.Message, Is.EqualTo("Challenge already exists."));
+
+        using var assertContext = DbContextFactory.CreateDbContext();
+        var challenges = await assertContext.Challenges.Where(c => c.ExternalId == challenge.ExternalId).ToListAsync();
+        Assert.That(challenges.Count, Is.EqualTo(1));
+    }
+
+    [Test]
+    public async Task AddChallenge_ShouldAddBoth_WhenExternalIdMatchesButPlatformDiffers()
+    {
+        // Arrange
+        var leetCodeChallenge = new Challenge
+        {
+            ExternalId = "shared-id",
+            Description = "desc",
+            Keywords = "kw",
+            Name = "LeetCode Challenge",
+            ExperiencePoints = 1,
+            Platform = ChallengePlatform.LeetCode,
+            Category = ChallengeCategory.CSharp,
+            Level = Level.Green,
+        };
+        var codeWarsChallenge = new Challenge
+        {
+            ExternalId = "shared-id",
+            Description = "desc",
+            Keywords = "kw",
+            Name = "Codewars Challenge",
+            ExperiencePoints = 1,
+            Platform = ChallengePlatform.CodeWars,
+            Category = ChallengeCategory.CSharp,
+            Level = Level.Green,
+        };
+
+        // Act
+        var leetCodeResult = await _service.AddChallenge(leetCodeChallenge);
+        var codeWarsResult = await _service.AddChallenge(codeWarsChallenge);
+
+        // Assert
+        Assert.That(leetCodeResult.Status, Is.EqualTo(ResponseStatus.Success));
+        Assert.That(codeWarsResult.Status, Is.EqualTo(ResponseStatus.Success));
+
+        using var assertContext = DbContextFactory.CreateDbContext();
+        var challenges = await assertContext.Challenges.Where(c => c.ExternalId == "shared-id").ToListAsync();
+        Assert.That(challenges.Count, Is.EqualTo(2));
+    }
+
+    [Test]
+    public async Task AddChallenge_ShouldAddBoth_WhenExternalIdAndPlatformMatchButCategoryDiffers()
+    {
+        // Arrange: same Codewars kata id completed in both C# and SQL.
+        var csharpChallenge = new Challenge
+        {
+            ExternalId = "shared-kata-id",
+            Description = "desc",
+            Keywords = "kw",
+            Name = "Shared Kata (C#)",
+            ExperiencePoints = 1,
+            Platform = ChallengePlatform.CodeWars,
+            Category = ChallengeCategory.CSharp,
+            Level = Level.Green,
+        };
+        var sqlChallenge = new Challenge
+        {
+            ExternalId = "shared-kata-id",
+            Description = "desc",
+            Keywords = "kw",
+            Name = "Shared Kata (SQL)",
+            ExperiencePoints = 1,
+            Platform = ChallengePlatform.CodeWars,
+            Category = ChallengeCategory.SQL,
+            Level = Level.Green,
+        };
+
+        // Act
+        var csharpResult = await _service.AddChallenge(csharpChallenge);
+        var sqlResult = await _service.AddChallenge(sqlChallenge);
+
+        // Assert
+        Assert.That(csharpResult.Status, Is.EqualTo(ResponseStatus.Success));
+        Assert.That(sqlResult.Status, Is.EqualTo(ResponseStatus.Success));
+
+        using var assertContext = DbContextFactory.CreateDbContext();
+        var challenges = await assertContext.Challenges.Where(c => c.ExternalId == "shared-kata-id").ToListAsync();
+        Assert.That(challenges.Count, Is.EqualTo(2));
     }
 }
