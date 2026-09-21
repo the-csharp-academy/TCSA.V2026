@@ -61,6 +61,7 @@ builder.Services.AddScoped<IUserService>(sp =>
     );
 });
 builder.Services.AddScoped<IProjectService, ProjectService>();
+builder.Services.AddScoped<IBadgeService, BadgeService>();
 builder.Services.AddScoped<ICommentsService, CommentsService>();
 builder.Services.AddScoped<ILeaderboardService, LeaderboardService>();
 builder.Services.AddScoped<IPeerReviewService, PeerReviewService>();
