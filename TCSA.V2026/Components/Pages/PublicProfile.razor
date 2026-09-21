@@ -1,7 +1,9 @@
 @page "/profile/{UserId}"
 @rendermode @(new InteractiveServerRenderMode(prerender: false))
+@using System.Security.Claims
 @using TCSA.V2026.Data.Curriculum
 @using TCSA.V2026.Data.DTOs.PublicProfile
+@using TCSA.V2026.Data.Enums
 @using TCSA.V2026.Data.Models
 @using TCSA.V2026.Data.Models.Responses
 @using TCSA.V2026.Helpers
@@ -166,13 +168,33 @@
 
         <MudPaper Class="profile-section-card" Elevation="0">
             <MudText Typo="Typo.h6" Class="profile-section-title">Badges</MudText>
-            <MudText Typo="Typo.body2" Class="profile-empty-state">Badges are coming soon &mdash; keep completing projects and reviews to unlock them!</MudText>
             <div class="profile-badge-grid">
-                @foreach (var badge in Badges)
+                @foreach (var (family, earnedTierIndex) in BadgeFamilies)
                 {
-                    <div class="profile-badge-item @(badge.IsUnlocked ? "unlocked" : "locked")" title="@(badge.IsUnlocked ? badge.Title : $"{badge.Title} (locked)")">
-                        <MudIcon Icon="@badge.Icon" Size="Size.Large" Class="profile-badge-icon" />
-                        <MudText Typo="Typo.caption" Class="profile-badge-title">@badge.Title</MudText>
+                    var isUnlocked = earnedTierIndex >= 0;
+                    var displayTier = family.Tiers[Math.Max(earnedTierIndex, 0)];
+                    var nextMilestone = isUnlocked
+                        ? (earnedTierIndex + 1 < family.Tiers.Count ? family.Tiers[earnedTierIndex + 1] : null)
+                        : family.Tiers[0];
+                    <div class="profile-badge-item @(isUnlocked ? "unlocked" : "locked")" title="@(isUnlocked ? displayTier.Title : $"{displayTier.Title} (locked)")">
+                        <div class="profile-badge-icon-wrap">
+                            <MudImage Src="@displayTier.ImageUrl" Alt="@displayTier.Title" Class="profile-badge-icon" />
+                            @if (!isUnlocked)
+                            {
+                                <MudIcon Icon="@Icons.Material.Filled.Lock" Class="profile-badge-lock" />
+                            }
+                        </div>
+                        <MudText Typo="Typo.caption" Class="profile-badge-title">@displayTier.Title</MudText>
+                        @if (family.Tiers.Count > 1)
+                        {
+                            <MudText Typo="Typo.caption" Class="profile-badge-tier-label">Tier @(Math.Max(earnedTierIndex, 0) + 1) of @family.Tiers.Count</MudText>
+                        }
+                        @if (IsOwnProfile && nextMilestone != null)
+                        {
+                            <MudText Typo="Typo.caption" Class="profile-badge-requirement">
+                                @(isUnlocked ? "Next: " : "Unlocks: ")@nextMilestone.Requirement
+                            </MudText>
+                        }
                     </div>
                 }
             </div>
@@ -182,30 +204,31 @@
 
 @code {
     [Inject] private IUserService UserService { get; set; }
+    [Inject] private IBadgeService BadgeService { get; set; }
     [Inject] private NavigationManager Navigation { get; set; }
     [Inject] private ISnackbar Snackbar { get; set; }
+    [Inject] private AuthenticationStateProvider AuthenticationState { get; set; }
 
     [Parameter] public string UserId { get; set; }
 
     private PublicProfileResponse? UserProfile;
     private List<Project> CompletedProjects = new();
     private bool IsLoading = true;
+    private bool IsOwnProfile = false;
 
-    private record PublicProfileBadge(string Title, string Icon, bool IsUnlocked);
+    // EarnedTierIndex is the index into Family.Tiers the user has reached, or -1 if the family isn't earned at all.
+    private record DisplayBadgeFamily(BadgeFamilyDefinition Family, int EarnedTierIndex);
 
-    // Placeholder structure only — badges aren't wired to real unlock data yet.
-    private static readonly List<PublicProfileBadge> Badges = new()
-    {
-        new("First Project", Icons.Material.Filled.RocketLaunch, false),
-        new("Code Reviewer", Icons.Material.Filled.RateReview, false),
-        new("7-Day Streak", Icons.Material.Filled.LocalFireDepartment, false),
-        new("Community Contributor", Icons.Material.Filled.Diversity3, false),
-        new("Top Reviewer", Icons.Material.Filled.Star, false),
-        new("Belt Master", Icons.Material.Filled.MilitaryTech, false),
-    };
+    private List<DisplayBadgeFamily> BadgeFamilies = new();
 
     protected async override Task OnInitializedAsync()
     {
+        var authState = await AuthenticationState.GetAuthenticationStateAsync();
+        var currentUserId = authState.User.Identity?.IsAuthenticated == true
+            ? authState.User.FindFirstValue(ClaimTypes.NameIdentifier)
+            : null;
+        IsOwnProfile = currentUserId is not null && currentUserId == UserId;
+
         var getUserProfile = await UserService.GetPublicProfile(UserId);
         if (getUserProfile.Status is ResponseStatus.Success)
         {
@@ -213,6 +236,13 @@
             CompletedProjects = ProjectHelper.GetProjects()
                 .Where(p => UserProfile.CompletedProjectIds.Contains(p.Id))
                 .ToList();
+
+            var awardedBadges = await BadgeService.GetUserAwardedBadges(UserId);
+            var earnedBadgeIds = awardedBadges.Select(b => (BadgeId)b.BadgeId).ToHashSet();
+            BadgeFamilies = BadgeHelper.Families
+                .Select(family => new DisplayBadgeFamily(family, family.Tiers.FindLastIndex(t => earnedBadgeIds.Contains(t.Id))))
+                .ToList();
+
             IsLoading = false;
         }
         else
@@ -366,6 +396,13 @@
         border-radius: 12px;
         background: color-mix(in srgb, var(--mud-palette-surface) 92%, var(--mud-palette-primary) 8%);
         flex-wrap: wrap;
+        transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+    }
+
+    .profile-pr-item:hover {
+        transform: translateY(-2px);
+        border-color: color-mix(in srgb, var(--mud-palette-primary) 45%, var(--mud-palette-lines-default));
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.1);
     }
 
     .profile-pr-info {
@@ -437,21 +474,61 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 0.4rem;
-        padding: 1rem 0.5rem;
+        gap: 0.5rem;
+        padding: 1rem 0.75rem;
         border: 1px solid var(--mud-palette-lines-default);
         border-radius: 12px;
         text-align: center;
-        background: var(--mud-palette-surface);
+        background: color-mix(in srgb, var(--mud-palette-surface) 92%, var(--mud-palette-primary) 8%);
+        transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+    }
+
+    .profile-badge-item:hover {
+        transform: translateY(-2px);
+        border-color: color-mix(in srgb, var(--mud-palette-primary) 45%, var(--mud-palette-lines-default));
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.1);
+    }
+
+    .profile-badge-icon-wrap {
+        position: relative;
+        display: inline-flex;
     }
 
     .profile-badge-item .profile-badge-icon {
-        font-size: 34px;
+        width: 64px;
+        height: 64px;
+        object-fit: contain;
     }
 
-    .profile-badge-item.locked {
+    .profile-badge-lock {
+        position: absolute;
+        inset: 0;
+        margin: auto;
+        width: 26px;
+        height: 26px;
+        color: #fff;
+        filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.7));
+    }
+
+    .profile-badge-tier-label {
+        color: var(--mud-palette-text-secondary);
+        margin-top: -0.3rem;
+    }
+
+    .profile-badge-requirement {
+        color: var(--mud-palette-text-secondary);
+        font-size: 0.7rem;
+        line-height: 1.3;
+        margin-top: -0.2rem;
+    }
+
+    .profile-badge-item.locked .profile-badge-icon {
         filter: grayscale(1);
         opacity: 0.55;
+    }
+
+    .profile-badge-item.locked .profile-badge-title {
+        color: var(--mud-palette-text-secondary);
     }
 
     .profile-badge-item.unlocked {
