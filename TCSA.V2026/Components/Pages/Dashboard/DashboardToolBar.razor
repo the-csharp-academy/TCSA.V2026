@@ -73,6 +73,7 @@
     [Parameter] public ApplicationUser User { get; set; }
     [Inject] private IProjectService ProjectService { get; set; }
     [Inject] private IUserService UserService { get; set; }
+    [Inject] private IBadgeService BadgeService { get; set; }
 
     private List<TCSANotificationItem> Notifications = new();
 
@@ -120,6 +121,33 @@
                 });
             }
         }
+
+        var recentBadges = await BadgeService.GetRecentAwardedBadges(User.Id, DateTimeOffset.UtcNow.AddDays(-7));
+
+        foreach (var badge in recentBadges)
+        {
+            var tier = BadgeHelper.Families
+                .SelectMany(f => f.Tiers)
+                .FirstOrDefault(t => t.Id == (BadgeId)badge.BadgeId);
+
+            if (tier == null)
+            {
+                continue;
+            }
+
+            var description = $"You earned the {tier.Title} badge!";
+            var isDupe = Notifications.Any(x => description.Equals(x.Description));
+
+            if (!isDupe)
+            {
+                Notifications.Add(new TCSANotificationItem
+                {
+                    IconUrl = tier.ImageUrl,
+                    Description = description,
+                    IsActive = badge.IsPendingNotification
+                });
+            }
+        }
     }
 
     private string GetDescription(int projectId)
@@ -143,13 +171,15 @@
         {
             var acknowledgeProjectsTask = ProjectService.AcknowledgeNotifications(User.Id);
             var acknowledgeBeltTask = UserService.AcknowledgeBeltNotification(User.Id);
+            var acknowledgeBadgesTask = BadgeService.AcknowledgeBadgeNotifications(User.Id);
 
-            await Task.WhenAll(acknowledgeProjectsTask, acknowledgeBeltTask);
+            await Task.WhenAll(acknowledgeProjectsTask, acknowledgeBeltTask, acknowledgeBadgesTask);
 
             var acknowledgeProjectsResponse = await acknowledgeProjectsTask;
             var acknowledgeBeltResponse = await acknowledgeBeltTask;
+            var acknowledgeBadgesResponse = await acknowledgeBadgesTask;
 
-            if (acknowledgeProjectsResponse.Status == ResponseStatus.Success && acknowledgeBeltResponse.Status == ResponseStatus.Success)
+            if (acknowledgeProjectsResponse.Status == ResponseStatus.Success && acknowledgeBeltResponse.Status == ResponseStatus.Success && acknowledgeBadgesResponse.Status == ResponseStatus.Success)
             {
                 Notifications.ForEach(x => x.IsActive = false);
                 StateHasChanged();

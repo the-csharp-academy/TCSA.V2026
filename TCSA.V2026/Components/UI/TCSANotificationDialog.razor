@@ -34,7 +34,17 @@
 
     private string GetIcon(string description, string iconUrl)
     {
-        return description.Contains("belt") ? $"img/belts/{iconUrl}" : $"img/icons/{iconUrl}";
+        if (description.Contains("belt"))
+        {
+            return $"img/belts/{iconUrl}";
+        }
+
+        if (description.Contains("badge"))
+        {
+            return iconUrl;
+        }
+
+        return $"img/icons/{iconUrl}";
     }
 
     private void Submit() => MudDialog.Close(DialogResult.Ok(true));
