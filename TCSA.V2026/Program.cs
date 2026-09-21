@@ -156,6 +156,11 @@ using (var scope = app.Services.CreateScope())
         "daily-challenge-job",
         job => job.RunAsync(),
         Cron.Daily);
+
+    recurringJobManager.AddOrUpdate<BadgeBackfillJob>(
+        "badge-backfill-job",
+        job => job.RunAsync(),
+        Cron.Hourly);
 }
 
 var logger = app.Services.GetRequiredService<ILogger<Program>>();

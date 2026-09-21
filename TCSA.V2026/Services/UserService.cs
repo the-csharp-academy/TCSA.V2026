@@ -28,6 +28,7 @@ public interface IUserService
     Task<BaseResponse> RestartOnboarding(string userId);
     Task<BaseResponse> ResumeChecklist(string userId);
     Task<BaseResponse> GetPublicProfile(string userId);
+    Task<List<string>> GetUserIdsPendingBackfill(int batchSize);
 }
 
 public class UserService : IUserService
@@ -489,6 +490,25 @@ public class UserService : IUserService
         {
             _logger.LogError(ex, "Failed to retrieve public profile for userId: {UserId}", userId);
             return new BaseResponse { Status = ResponseStatus.Fail, Message = ex.Message };
+        }
+    }
+
+    public async Task<List<string>> GetUserIdsPendingBackfill(int batchSize)
+    {
+        try
+        {
+            using var context = _factory.CreateDbContext();
+            return await context.Users
+                .AsNoTracking()
+                .Where(u => !u.HasBackfilledBadges)
+                .Select(u => u.Id)
+                .Take(batchSize)
+                .ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to retrieve user ids pending badge backfill");
+            return new List<string>();
         }
     }
 }

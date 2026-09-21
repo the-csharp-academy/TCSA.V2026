@@ -15,6 +15,7 @@ public interface IBadgeService
     Task AwardFullStackBadges(string userId, List<int> completedProjectIds);
     Task AwardReviewBadges(string userId, int reviewedProjectsCount);
     Task<BaseResponse> AcknowledgeBadgeNotifications(string userId);
+    Task AwardMissingBadges(string userId);
 }
 
 public class BadgeService(IDbContextFactory<ApplicationDbContext> _factory, ILogger<BadgeService> _logger) : IBadgeService
@@ -142,6 +143,46 @@ public class BadgeService(IDbContextFactory<ApplicationDbContext> _factory, ILog
                 Status = ResponseStatus.Fail,
                 Message = ex.Message
             };
+        }
+    }
+
+    public async Task AwardMissingBadges(string userId)
+    {
+        try
+        {
+            using var context = await _factory.CreateDbContextAsync();
+
+            var user = await context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (user is null || user.HasBackfilledBadges)
+            {
+                return;
+            }
+
+            var completedProjectIds = await context.DashboardProjects
+                .AsNoTracking()
+                .Where(dp => dp.AppUserId == userId && dp.IsCompleted)
+                .Select(dp => dp.ProjectId)
+                .ToListAsync();
+
+            var hasClosedCommunityIssue = await context.Issues
+                .AsNoTracking()
+                .AnyAsync(i => i.AppUserId == userId && i.IsClosed);
+
+            await AwardReviewBadges(userId, user.ReviewedProjects);
+            await AwardFullStackBadges(userId, completedProjectIds);
+
+            if (hasClosedCommunityIssue)
+            {
+                await AwardBadge(userId, (int)BadgeId.PlatformBuilder);
+            }
+
+            user.HasBackfilledBadges = true;
+            await context.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to backfill missing badges for user {UserId}", userId);
         }
     }
 }

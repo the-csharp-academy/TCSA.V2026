@@ -33,6 +33,7 @@ public class CachingUserService : IUserService
     public Task<BaseResponse> MarkChecklistDismissed(string userId) => _userService.MarkChecklistDismissed(userId);
     public Task<BaseResponse> RestartOnboarding(string userId) => _userService.RestartOnboarding(userId);
     public Task<BaseResponse> ResumeChecklist(string userId) => _userService.ResumeChecklist(userId);
+    public Task<List<string>> GetUserIdsPendingBackfill(int batchSize) => _userService.GetUserIdsPendingBackfill(batchSize);
 
     public async Task<BaseResponse> GetPublicProfile(string userId)
     {
