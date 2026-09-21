@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using TCSA.V2026.Data;
 using TCSA.V2026.Data.Curriculum;
+using TCSA.V2026.Data.Enums;
 using TCSA.V2026.Data.Models;
 using TCSA.V2026.Data.Models.Responses;
 using TCSA.V2026.Helpers;
@@ -21,7 +22,7 @@ public interface IProjectService
 
 }
 
-public class ProjectService(IDbContextFactory<ApplicationDbContext> _factory) : IProjectService
+public class ProjectService(IDbContextFactory<ApplicationDbContext> _factory, IBadgeService _badgeService) : IProjectService
 {
     public async Task<BaseResponse> ResetCourse(string userId, Course course)
     {
@@ -319,6 +320,10 @@ public class ProjectService(IDbContextFactory<ApplicationDbContext> _factory) : 
 
     public async Task<BaseResponse> MarkAsCompleted(int projectId)
     {
+        string appUserId;
+        bool isCommunityIssue;
+        bool isFullStackAreaProject;
+
         try
         {
             using (var context = _factory.CreateDbContext())
@@ -343,8 +348,10 @@ public class ProjectService(IDbContextFactory<ApplicationDbContext> _factory) : 
 
                 int experiencePoints;
                 var dashboardProject = DashboardProjectsHelpers.GetProject(project.ProjectId);
+                isCommunityIssue = dashboardProject == null;
+                isFullStackAreaProject = !isCommunityIssue && dashboardProject.Area is Area.MVC or Area.Angular or Area.React or Area.Blazor or Area.MAUI;
 
-                if (dashboardProject == null)
+                if (isCommunityIssue)
                 {
                     var issue = await context.Issues.FirstOrDefaultAsync(x => x.ProjectId == project.ProjectId);
                     experiencePoints = issue.ExperiencePoints;
@@ -368,12 +375,9 @@ public class ProjectService(IDbContextFactory<ApplicationDbContext> _factory) : 
                 context.Entry(project.AppUser).Property(u => u.ExperiencePoints).IsModified = true;
 
                 await context.SaveChangesAsync();
-            }
 
-            return new BaseResponse
-            {
-                Status = ResponseStatus.Success,
-            };
+                appUserId = project.AppUser.Id;
+            }
         }
         catch (Exception ex)
         {
@@ -383,6 +387,28 @@ public class ProjectService(IDbContextFactory<ApplicationDbContext> _factory) : 
                 Message = ex.Message
             };
         }
+
+        try
+        {
+            if (isCommunityIssue)
+            {
+                await _badgeService.AwardBadge(appUserId, (int)BadgeId.PlatformBuilder);
+            }
+
+            if (isFullStackAreaProject)
+            {
+                var completedProjectIds = await GetCompletedProjectsById(appUserId);
+                await _badgeService.AwardFullStackBadges(appUserId, completedProjectIds);
+            }
+        }
+        catch (Exception)
+        {
+        }
+
+        return new BaseResponse
+        {
+            Status = ResponseStatus.Success,
+        };
     }
 
     public async Task<int> GetCompletionCount(int projectId, bool isArticle)
