@@ -3,7 +3,6 @@ using TCSA.V2026.Data;
 using TCSA.V2026.Data.Enums;
 using TCSA.V2026.Data.Models;
 using TCSA.V2026.Data.Models.Responses;
-using TCSA.V2026.Helpers;
 
 namespace TCSA.V2026.Services;
 
@@ -12,7 +11,7 @@ public interface IBadgeService
     Task<IEnumerable<Badge>> GetUserAwardedBadges(string userId);
     Task<IEnumerable<Badge>> GetRecentAwardedBadges(string userId, DateTimeOffset since);
     Task<BaseResponse> AwardBadge(string userId, int badgeId);
-    Task AwardFullStackBadges(string userId, List<int> completedProjectIds);
+    Task AwardPlatformBuilderBadges(string userId);
     Task AwardReviewBadges(string userId, int reviewedProjectsCount);
     Task<BaseResponse> AcknowledgeBadgeNotifications(string userId);
     Task AwardMissingBadges(string userId);
@@ -76,25 +75,26 @@ public class BadgeService(IDbContextFactory<ApplicationDbContext> _factory, ILog
             .ToListAsync();
     }
 
-    private const int FullStackAreaCount = 5;
-
-    public async Task AwardFullStackBadges(string userId, List<int> completedProjectIds)
+    public async Task AwardPlatformBuilderBadges(string userId)
     {
-        if (completedProjectIds is null)
+        using var context = await _factory.CreateDbContextAsync();
+        var mergedPullRequestsCount = await context.Issues
+            .AsNoTracking()
+            .CountAsync(i => i.AppUserId == userId && i.IsClosed);
+
+        if (mergedPullRequestsCount >= 1)
         {
-            return;
+            await AwardBadge(userId, (int)BadgeId.PlatformBuilder);
         }
 
-        var completedAreas = RoadmapHelper.GetFullStackAreasCompleted(completedProjectIds);
-
-        if (completedAreas.Count >= 1)
+        if (mergedPullRequestsCount >= 10)
         {
-            await AwardBadge(userId, (int)BadgeId.FullstackDeveloper);
+            await AwardBadge(userId, (int)BadgeId.PlatformContributor);
         }
 
-        if (completedAreas.Count == FullStackAreaCount)
+        if (mergedPullRequestsCount >= 20)
         {
-            await AwardBadge(userId, (int)BadgeId.PolyglotDeveloper);
+            await AwardBadge(userId, (int)BadgeId.PlatformArchitect);
         }
     }
 
@@ -113,11 +113,6 @@ public class BadgeService(IDbContextFactory<ApplicationDbContext> _factory, ILog
         if (reviewedProjectsCount >= 100)
         {
             await AwardBadge(userId, (int)BadgeId.MasterReviewer);
-        }
-
-        if (reviewedProjectsCount >= 500)
-        {
-            await AwardBadge(userId, (int)BadgeId.ExpertReviewer);
         }
     }
 
@@ -159,23 +154,8 @@ public class BadgeService(IDbContextFactory<ApplicationDbContext> _factory, ILog
                 return;
             }
 
-            var completedProjectIds = await context.DashboardProjects
-                .AsNoTracking()
-                .Where(dp => dp.AppUserId == userId && dp.IsCompleted)
-                .Select(dp => dp.ProjectId)
-                .ToListAsync();
-
-            var hasClosedCommunityIssue = await context.Issues
-                .AsNoTracking()
-                .AnyAsync(i => i.AppUserId == userId && i.IsClosed);
-
             await AwardReviewBadges(userId, user.ReviewedProjects);
-            await AwardFullStackBadges(userId, completedProjectIds);
-
-            if (hasClosedCommunityIssue)
-            {
-                await AwardBadge(userId, (int)BadgeId.PlatformBuilder);
-            }
+            await AwardPlatformBuilderBadges(userId);
 
             user.HasBackfilledBadges = true;
             await context.SaveChangesAsync();
