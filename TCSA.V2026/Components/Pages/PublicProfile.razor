@@ -148,7 +148,7 @@
 
         <MudPaper Class="profile-section-card" Elevation="0">
             <MudText Typo="Typo.h6" Class="profile-section-title">Completed Projects</MudText>
-            @if (CompletedProjects.Count == 0)
+            @if (CompletedProjects == null || CompletedProjects.Count == 0)
             {
                 <MudText Typo="Typo.body2" Class="profile-empty-state">No projects completed yet.</MudText>
             }
@@ -168,36 +168,43 @@
 
         <MudPaper Class="profile-section-card" Elevation="0">
             <MudText Typo="Typo.h6" Class="profile-section-title">Badges</MudText>
-            <div class="profile-badge-grid">
-                @foreach (var (family, earnedTierIndex) in BadgeFamilies)
-                {
-                    var isUnlocked = earnedTierIndex >= 0;
-                    var displayTier = family.Tiers[Math.Max(earnedTierIndex, 0)];
-                    var nextMilestone = isUnlocked
-                        ? (earnedTierIndex + 1 < family.Tiers.Count ? family.Tiers[earnedTierIndex + 1] : null)
-                        : family.Tiers[0];
-                    <div class="profile-badge-item @(isUnlocked ? "unlocked" : "locked")" title="@(isUnlocked ? displayTier.Title : $"{displayTier.Title} (locked)")">
-                        <div class="profile-badge-icon-wrap">
-                            <MudImage Src="@displayTier.ImageUrl" Alt="@displayTier.Title" Class="profile-badge-icon" />
-                            @if (!isUnlocked)
+            @if (BadgeFamilies == null || BadgeFamilies.Count == 0)
+            {
+                <MudText Typo="Typo.body2" Class="profile-empty-state">No badges found.</MudText>
+            }
+            else
+            {
+                <div class="profile-badge-grid">
+                    @foreach (var (family, earnedTierIndex) in BadgeFamilies)
+                    {
+                        var isUnlocked = earnedTierIndex >= 0;
+                        var displayTier = family.Tiers[Math.Max(earnedTierIndex, 0)];
+                        var nextMilestone = isUnlocked
+                            ? (earnedTierIndex + 1 < family.Tiers.Count ? family.Tiers[earnedTierIndex + 1] : null)
+                            : family.Tiers[0];
+                        <div class="profile-badge-item @(isUnlocked ? "unlocked" : "locked")" title="@(isUnlocked ? displayTier.Title : $"{displayTier.Title} (locked)")">
+                            <div class="profile-badge-icon-wrap">
+                                <MudImage Src="@displayTier.ImageUrl" Alt="@displayTier.Title" Class="profile-badge-icon" />
+                                @if (!isUnlocked)
+                                {
+                                    <MudIcon Icon="@Icons.Material.Filled.Lock" Class="profile-badge-lock" />
+                                }
+                            </div>
+                            <MudText Typo="Typo.caption" Class="profile-badge-title">@displayTier.Title</MudText>
+                            @if (family.Tiers.Count > 1)
                             {
-                                <MudIcon Icon="@Icons.Material.Filled.Lock" Class="profile-badge-lock" />
+                                <MudText Typo="Typo.caption" Class="profile-badge-tier-label">Tier @(Math.Max(earnedTierIndex, 0) + 1) of @family.Tiers.Count</MudText>
+                            }
+                            @if (IsOwnProfile && nextMilestone != null)
+                            {
+                                <MudText Typo="Typo.caption" Class="profile-badge-requirement">
+                                    @(isUnlocked ? "Next: " : "Unlocks: ")@nextMilestone.Requirement
+                                </MudText>
                             }
                         </div>
-                        <MudText Typo="Typo.caption" Class="profile-badge-title">@displayTier.Title</MudText>
-                        @if (family.Tiers.Count > 1)
-                        {
-                            <MudText Typo="Typo.caption" Class="profile-badge-tier-label">Tier @(Math.Max(earnedTierIndex, 0) + 1) of @family.Tiers.Count</MudText>
-                        }
-                        @if (IsOwnProfile && nextMilestone != null)
-                        {
-                            <MudText Typo="Typo.caption" Class="profile-badge-requirement">
-                                @(isUnlocked ? "Next: " : "Unlocks: ")@nextMilestone.Requirement
-                            </MudText>
-                        }
-                    </div>
-                }
-            </div>
+                    }
+                </div>
+            }
         </MudPaper>
     }
 </MudContainer>
@@ -211,15 +218,16 @@
 
     [Parameter] public string UserId { get; set; }
 
-    private PublicProfileResponse? UserProfile;
-    private List<Project> CompletedProjects = new();
+    [PersistentState]
+    public PublicProfileResponse? UserProfile { get; set; }
+    public List<Project>? CompletedProjects { get; set; }
     private bool IsLoading = true;
     private bool IsOwnProfile = false;
 
-    // EarnedTierIndex is the index into Family.Tiers the user has reached, or -1 if the family isn't earned at all.
-    private record DisplayBadgeFamily(BadgeFamilyDefinition Family, int EarnedTierIndex);
+    public record DisplayBadgeFamily(BadgeFamilyDefinition Family, int EarnedTierIndex);
 
-    private List<DisplayBadgeFamily> BadgeFamilies = new();
+    [PersistentState]
+    public List<DisplayBadgeFamily>? BadgeFamilies { get; set; }
 
     protected async override Task OnInitializedAsync()
     {
@@ -229,27 +237,36 @@
             : null;
         IsOwnProfile = currentUserId is not null && currentUserId == UserId;
 
-        var getUserProfile = await UserService.GetPublicProfile(UserId);
-        if (getUserProfile.Status is ResponseStatus.Success)
+        if (UserProfile is null)
         {
+            var getUserProfile = await UserService.GetPublicProfile(UserId);
+            if (getUserProfile.Status is not ResponseStatus.Success)
+            {
+                Snackbar.Add(getUserProfile.Message, Severity.Error);
+                Navigation.NavigateTo("/");
+                return;
+            }
+
             UserProfile = (PublicProfileResponse)getUserProfile.Data;
-            CompletedProjects = ProjectHelper.GetProjects()
+        }
+
+        if (UserProfile is not null)
+        {
+            CompletedProjects ??= ProjectHelper.GetProjects()
                 .Where(p => UserProfile.CompletedProjectIds.Contains(p.Id))
                 .ToList();
+        }
 
+        if (BadgeFamilies is null)
+        {
             var awardedBadges = await BadgeService.GetUserAwardedBadges(UserId);
             var earnedBadgeIds = awardedBadges.Select(b => (BadgeId)b.BadgeId).ToHashSet();
             BadgeFamilies = BadgeHelper.Families
                 .Select(family => new DisplayBadgeFamily(family, family.Tiers.FindLastIndex(t => earnedBadgeIds.Contains(t.Id))))
                 .ToList();
+        }
 
-            IsLoading = false;
-        }
-        else
-        {
-            Snackbar.Add(getUserProfile.Message, Severity.Error);
-            Navigation.NavigateTo("/");
-        }
+        IsLoading = false;
     }
 
     private static bool HasSocialLinks(PublicProfileIdentityResponse identity) =>

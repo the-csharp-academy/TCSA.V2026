@@ -39,13 +39,21 @@ public class CachingUserService : IUserService
     {
         var key = $"public-profile-{userId}";
 
-        return await _cache.GetOrCreateAsync(
+        var profile = await _cache.GetOrCreateAsync(
             key: key,
-            factory: async _ => await _userService.GetPublicProfile(userId),
+            factory: async _ =>
+            {
+                var response = await _userService.GetPublicProfile(userId);
+                return response.Status == ResponseStatus.Success ? (PublicProfileResponse)response.Data : null;
+            },
             options: new HybridCacheEntryOptions
             {
                 LocalCacheExpiration = TimeSpan.FromMinutes(5),
             }
         );
+
+        return profile is not null
+            ? new BaseResponse { Status = ResponseStatus.Success, Data = profile }
+            : new BaseResponse { Status = ResponseStatus.Fail, Message = "User not found." };
     }
 }
