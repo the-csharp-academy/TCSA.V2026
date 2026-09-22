@@ -19,7 +19,7 @@ public interface IPeerReviewService
     Task<BaseResponse> ReleaseUserFromCodeReview(string userId, int id);
     Task<BaseResponse> MarkCodeReviewAsCompleted(string reviewerId, int dashboardProjectId);
 }
-public class PeerReviewService(IDbContextFactory<ApplicationDbContext> _factory, IBadgeService _badgeService, IProjectService _projectService) : IPeerReviewService
+public class PeerReviewService(IDbContextFactory<ApplicationDbContext> _factory, IBadgeService _badgeService) : IPeerReviewService
 {
     public async Task<BaseResponse> AssignUserToCodeReview(string userId, int id)
     {
@@ -195,9 +195,7 @@ public class PeerReviewService(IDbContextFactory<ApplicationDbContext> _factory,
     public async Task<BaseResponse> MarkCodeReviewAsCompleted(string reviewerId, int dashboardProjectId)
     {
         var result = new BaseResponse();
-        string authorId;
         int reviewedProjectsCount;
-        bool isFullStackAreaProject;
 
         try
         {
@@ -235,7 +233,6 @@ public class PeerReviewService(IDbContextFactory<ApplicationDbContext> _factory,
                 }
 
                 var academyProject = ProjectHelper.GetProjects().FirstOrDefault(x => x.Id == dashboardProject.ProjectId);
-                isFullStackAreaProject = academyProject.Area is Area.MVC or Area.Angular or Area.React or Area.Blazor or Area.MAUI;
 
                 dashboardProject.IsPendingReview = false;
                 dashboardProject.IsPendingNotification = true;
@@ -282,7 +279,6 @@ public class PeerReviewService(IDbContextFactory<ApplicationDbContext> _factory,
 
                 await context.SaveChangesAsync();
 
-                authorId = dashboardProject.AppUserId;
                 reviewedProjectsCount = reviewer.ReviewedProjects;
             }
         }
@@ -296,12 +292,6 @@ public class PeerReviewService(IDbContextFactory<ApplicationDbContext> _factory,
         try
         {
             await _badgeService.AwardReviewBadges(reviewerId, reviewedProjectsCount);
-
-            if (isFullStackAreaProject)
-            {
-                var authorCompletedProjectIds = await _projectService.GetCompletedProjectsById(authorId);
-                await _badgeService.AwardFullStackBadges(authorId, authorCompletedProjectIds);
-            }
         }
         catch (Exception)
         {

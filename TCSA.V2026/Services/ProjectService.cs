@@ -367,7 +367,6 @@ public class ProjectService(IDbContextFactory<ApplicationDbContext> _factory, IB
     {
         string appUserId;
         bool isCommunityIssue;
-        bool isFullStackAreaProject;
 
         try
         {
@@ -394,7 +393,6 @@ public class ProjectService(IDbContextFactory<ApplicationDbContext> _factory, IB
                 int experiencePoints;
                 var dashboardProject = DashboardProjectsHelpers.GetProject(project.ProjectId);
                 isCommunityIssue = dashboardProject == null;
-                isFullStackAreaProject = !isCommunityIssue && dashboardProject.Area is Area.MVC or Area.Angular or Area.React or Area.Blazor or Area.MAUI;
 
                 if (isCommunityIssue)
                 {
@@ -437,13 +435,7 @@ public class ProjectService(IDbContextFactory<ApplicationDbContext> _factory, IB
         {
             if (isCommunityIssue)
             {
-                await _badgeService.AwardBadge(appUserId, (int)BadgeId.PlatformBuilder);
-            }
-
-            if (isFullStackAreaProject)
-            {
-                var completedProjectIds = await GetCompletedProjectsById(appUserId);
-                await _badgeService.AwardFullStackBadges(appUserId, completedProjectIds);
+                await _badgeService.AwardPlatformBuilderBadges(appUserId);
             }
         }
         catch (Exception)
