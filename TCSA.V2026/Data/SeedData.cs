@@ -630,6 +630,43 @@ public static class SeedData
         await context.SaveChangesAsync();
 
         await SeedCommunityIssues(context, user1.Id);
+        await SeedBadges(context, user1.Id, user2.Id, user3.Id, user4.Id);
+    }
+
+    private static async Task SeedBadges(ApplicationDbContext context, string user1Id, string user2Id, string user3Id, string user4Id)
+    {
+        var badges = new List<Badge>
+        {
+            // user1: merged a community PR, completed their first peer review, and just now reached Trusted Reviewer (pending notification)
+            new Badge { BadgeId = (int)BadgeId.PlatformBuilder, UserId = user1Id, DateAwarded = new DateTimeOffset(new DateTime(2025, 8, 16, 12, 0, 0, DateTimeKind.Utc)) },
+            new Badge { BadgeId = (int)BadgeId.CodeReviewer, UserId = user1Id, DateAwarded = new DateTimeOffset(new DateTime(2025, 1, 10, 0, 0, 0, DateTimeKind.Utc)) },
+            new Badge { BadgeId = (int)BadgeId.TrustedReviewer, UserId = user1Id, DateAwarded = DateTimeOffset.UtcNow.AddDays(-2), IsPendingNotification = true },
+
+            // user2: progressed to Trusted Reviewer
+            new Badge { BadgeId = (int)BadgeId.CodeReviewer, UserId = user2Id, DateAwarded = new DateTimeOffset(new DateTime(2025, 2, 1, 0, 0, 0, DateTimeKind.Utc)) },
+            new Badge { BadgeId = (int)BadgeId.TrustedReviewer, UserId = user2Id, DateAwarded = new DateTimeOffset(new DateTime(2025, 4, 15, 0, 0, 0, DateTimeKind.Utc)) },
+
+            // user3: progressed to Master Reviewer, merged their first community PR, and just now jumped to Platform Contributor + Platform Architect (two pending notifications at once)
+            new Badge { BadgeId = (int)BadgeId.CodeReviewer, UserId = user3Id, DateAwarded = new DateTimeOffset(new DateTime(2025, 1, 15, 0, 0, 0, DateTimeKind.Utc)) },
+            new Badge { BadgeId = (int)BadgeId.TrustedReviewer, UserId = user3Id, DateAwarded = new DateTimeOffset(new DateTime(2025, 3, 20, 0, 0, 0, DateTimeKind.Utc)) },
+            new Badge { BadgeId = (int)BadgeId.MasterReviewer, UserId = user3Id, DateAwarded = new DateTimeOffset(new DateTime(2025, 7, 1, 0, 0, 0, DateTimeKind.Utc)) },
+            new Badge { BadgeId = (int)BadgeId.PlatformBuilder, UserId = user3Id, DateAwarded = new DateTimeOffset(new DateTime(2025, 6, 1, 0, 0, 0, DateTimeKind.Utc)) },
+            new Badge { BadgeId = (int)BadgeId.PlatformContributor, UserId = user3Id, DateAwarded = DateTimeOffset.UtcNow.AddDays(-1), IsPendingNotification = true },
+            new Badge { BadgeId = (int)BadgeId.PlatformArchitect, UserId = user3Id, DateAwarded = DateTimeOffset.UtcNow.AddDays(-1), IsPendingNotification = true },
+
+            // user4: maxed out every badge family
+            new Badge { BadgeId = (int)BadgeId.PlatformBuilder, UserId = user4Id, DateAwarded = new DateTimeOffset(new DateTime(2025, 3, 1, 0, 0, 0, DateTimeKind.Utc)) },
+            new Badge { BadgeId = (int)BadgeId.PlatformContributor, UserId = user4Id, DateAwarded = new DateTimeOffset(new DateTime(2025, 6, 15, 0, 0, 0, DateTimeKind.Utc)) },
+            new Badge { BadgeId = (int)BadgeId.PlatformArchitect, UserId = user4Id, DateAwarded = new DateTimeOffset(new DateTime(2025, 9, 10, 0, 0, 0, DateTimeKind.Utc)) },
+            new Badge { BadgeId = (int)BadgeId.CodeReviewer, UserId = user4Id, DateAwarded = new DateTimeOffset(new DateTime(2025, 2, 10, 0, 0, 0, DateTimeKind.Utc)) },
+            new Badge { BadgeId = (int)BadgeId.TrustedReviewer, UserId = user4Id, DateAwarded = new DateTimeOffset(new DateTime(2025, 5, 5, 0, 0, 0, DateTimeKind.Utc)) },
+            new Badge { BadgeId = (int)BadgeId.MasterReviewer, UserId = user4Id, DateAwarded = new DateTimeOffset(new DateTime(2025, 8, 1, 0, 0, 0, DateTimeKind.Utc)) },
+
+            // user5 intentionally has no badges yet — demonstrates the fully-locked state
+        };
+
+        await context.Badges.AddRangeAsync(badges);
+        await context.SaveChangesAsync();
     }
     private static async Task SeedCommunityIssues(ApplicationDbContext context, string userId)
     {
