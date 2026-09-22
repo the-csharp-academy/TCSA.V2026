@@ -104,6 +104,19 @@ public static class SeedData
                     DateSubmitted = new DateTimeOffset(new DateTime(2025, 8, 15, 10, 0, 0, DateTimeKind.Utc)),
                     DateCompleted = new DateTimeOffset(new DateTime(2025, 8, 16, 12, 0, 0, DateTimeKind.Utc)),
                     DateRequestedChange = DateTimeOffset.MinValue,
+                },
+                // Freestyle project
+                new DashboardProject
+                {
+                    ProjectId = 100001,
+                    GithubUrl = "https://github.com/TheCSharpAcademy/CodeReviews.Freestyle/pull/1",
+                    IsCompleted = true,
+                    IsArchived = false,
+                    IsPendingNotification = false,
+                    IsPendingReview = false,
+                    DateSubmitted = new DateTimeOffset(new DateTime(2025, 2, 1, 0, 0, 0, DateTimeKind.Utc)),
+                    DateCompleted = new DateTimeOffset(new DateTime(2025, 2, 1, 0, 0, 0, DateTimeKind.Utc)),
+                    DateRequestedChange = DateTimeOffset.MinValue,
                 }
             },
             UserActivity = new List<AppUserActivity>
