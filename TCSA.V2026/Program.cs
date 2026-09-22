@@ -66,7 +66,14 @@ builder.Services.AddScoped<IUserService>(sp =>
     );
 });
 builder.Services.AddScoped<IProjectService, ProjectService>();
-builder.Services.AddScoped<IBadgeService, BadgeService>();
+builder.Services.AddScoped<BadgeService>();
+builder.Services.AddScoped<IBadgeService>(sp =>
+{
+    return new CachingBadgeService(
+        sp.GetRequiredService<BadgeService>(),
+        sp.GetRequiredService<HybridCache>()
+    );
+});
 builder.Services.AddScoped<ICommentsService, CommentsService>();
 builder.Services.AddScoped<ILeaderboardService, LeaderboardService>();
 builder.Services.AddScoped<IPeerReviewService, PeerReviewService>();
