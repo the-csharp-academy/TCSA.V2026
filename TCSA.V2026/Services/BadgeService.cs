@@ -63,6 +63,7 @@ public class BadgeService(IDbContextFactory<ApplicationDbContext> _factory, ILog
     {
         using var context = await _factory.CreateDbContextAsync();
         return await context.Badges
+            .AsNoTracking()
             .Where(b => b.UserId == userId)
             .ToListAsync();
     }
@@ -71,6 +72,7 @@ public class BadgeService(IDbContextFactory<ApplicationDbContext> _factory, ILog
     {
         using var context = await _factory.CreateDbContextAsync();
         return await context.Badges
+            .AsNoTracking()
             .Where(b => b.UserId == userId && b.DateAwarded > since)
             .ToListAsync();
     }
@@ -78,21 +80,29 @@ public class BadgeService(IDbContextFactory<ApplicationDbContext> _factory, ILog
     public async Task AwardPlatformBuilderBadges(string userId)
     {
         using var context = await _factory.CreateDbContextAsync();
+
+        var relevantBadgeIds = new[] { (int)BadgeId.PlatformBuilder, (int)BadgeId.PlatformContributor, (int)BadgeId.PlatformArchitect };
+        var ownedBadgeIds = await GetOwnedBadgeIds(context, userId, relevantBadgeIds);
+
+        if (ownedBadgeIds.Count == relevantBadgeIds.Length)
+        {
+            return;
+        }
+
         var mergedPullRequestsCount = await context.Issues
-            .AsNoTracking()
             .CountAsync(i => i.AppUserId == userId && i.IsClosed);
 
-        if (mergedPullRequestsCount >= 1)
+        if (mergedPullRequestsCount >= 1 && !ownedBadgeIds.Contains((int)BadgeId.PlatformBuilder))
         {
             await AwardBadge(userId, (int)BadgeId.PlatformBuilder);
         }
 
-        if (mergedPullRequestsCount >= 10)
+        if (mergedPullRequestsCount >= 10 && !ownedBadgeIds.Contains((int)BadgeId.PlatformContributor))
         {
             await AwardBadge(userId, (int)BadgeId.PlatformContributor);
         }
 
-        if (mergedPullRequestsCount >= 20)
+        if (mergedPullRequestsCount >= 20 && !ownedBadgeIds.Contains((int)BadgeId.PlatformArchitect))
         {
             await AwardBadge(userId, (int)BadgeId.PlatformArchitect);
         }
@@ -100,20 +110,33 @@ public class BadgeService(IDbContextFactory<ApplicationDbContext> _factory, ILog
 
     public async Task AwardReviewBadges(string userId, int reviewedProjectsCount)
     {
-        if (reviewedProjectsCount >= 1)
+        using var context = await _factory.CreateDbContextAsync();
+        var relevantBadgeIds = new[] { (int)BadgeId.CodeReviewer, (int)BadgeId.TrustedReviewer, (int)BadgeId.MasterReviewer };
+        var ownedBadgeIds = await GetOwnedBadgeIds(context, userId, relevantBadgeIds);
+
+        if (reviewedProjectsCount >= 1 && !ownedBadgeIds.Contains((int)BadgeId.CodeReviewer))
         {
             await AwardBadge(userId, (int)BadgeId.CodeReviewer);
         }
 
-        if (reviewedProjectsCount >= 25)
+        if (reviewedProjectsCount >= 25 && !ownedBadgeIds.Contains((int)BadgeId.TrustedReviewer))
         {
             await AwardBadge(userId, (int)BadgeId.TrustedReviewer);
         }
 
-        if (reviewedProjectsCount >= 100)
+        if (reviewedProjectsCount >= 100 && !ownedBadgeIds.Contains((int)BadgeId.MasterReviewer))
         {
             await AwardBadge(userId, (int)BadgeId.MasterReviewer);
         }
+    }
+
+    private static async Task<HashSet<int>> GetOwnedBadgeIds(ApplicationDbContext context, string userId, int[] badgeIds)
+    {
+        return await context.Badges
+            .AsNoTracking()
+            .Where(b => b.UserId == userId && badgeIds.Contains(b.BadgeId))
+            .Select(b => b.BadgeId)
+            .ToHashSetAsync();
     }
 
     public async Task<BaseResponse> AcknowledgeBadgeNotifications(string userId)
