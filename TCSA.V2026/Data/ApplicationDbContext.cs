@@ -30,6 +30,12 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         modelBuilder.Entity<Badge>()
             .HasKey(b => new { b.BadgeId, b.UserId });
 
+        modelBuilder.Entity<Badge>()
+            .HasOne<ApplicationUser>()
+            .WithMany()
+            .HasForeignKey(b => b.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         modelBuilder.Entity<AppUserActivity>()
             .HasOne(aua => aua.DashboardProject)
             .WithMany()
