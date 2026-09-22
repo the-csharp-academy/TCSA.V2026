@@ -20,6 +20,7 @@ public class ProfileTests : BunitContext
 {
     private readonly Mock<IProjectService> _projectServiceMock = new();
     private readonly Mock<IUserService> _userServiceMock = new();
+    private readonly Mock<IBadgeService> _badgeServiceMock = new();
 
     private const string TestUserId = "test-user-id";
 
@@ -51,6 +52,7 @@ public class ProfileTests : BunitContext
             .AddSingleton(mockConfig.Object)
             .BuildServiceProvider();
 
+        Services.AddSingleton(_badgeServiceMock.Object);
         Services.AddSingleton(_projectServiceMock.Object);
         Services.AddSingleton(_userServiceMock.Object);
         Services.AddSingleton(new HttpClient());

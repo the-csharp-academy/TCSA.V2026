@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Moq;
 using TCSA.V2026.Data;
@@ -25,7 +24,8 @@ public class ProjectServiceResetCourseTests
 
         var factory = new Mock<IDbContextFactory<ApplicationDbContext>>();
         factory.Setup(x => x.CreateDbContext()).Returns(() => new ApplicationDbContext(_options));
-        _sut = new ProjectService(factory.Object);
+        var badgeServiceMock = new Mock<IBadgeService>();
+        _sut = new ProjectService(factory.Object, badgeServiceMock.Object);
     }
 
     [Test]
