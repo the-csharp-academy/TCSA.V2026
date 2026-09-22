@@ -626,7 +626,42 @@ public static class SeedData
         };
         user5.PasswordHash = hasher.HashPassword(user5, "Password123!");
 
-        await context.Users.AddRangeAsync(user1, user2, user3, user4, user5);
+        var adminRole = new IdentityRole
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = "Admin",
+            NormalizedName = "ADMIN"
+        };
+
+        var admin = new ApplicationUser
+        {
+            Id = Guid.NewGuid().ToString(),
+            UserName = "admin@example.com",
+            NormalizedUserName = "ADMIN@EXAMPLE.COM",
+            Email = "admin@example.com",
+            NormalizedEmail = "ADMIN@EXAMPLE.COM",
+            FirstName = "Admin",
+            LastName = "User",
+            Country = "USA",
+            ExperiencePoints = 0,
+            ReviewExperiencePoints = 0,
+            ReviewedProjects = 0,
+            EmailConfirmed = true,
+            GithubLogin = false,
+            Level = Level.White
+        };
+        admin.PasswordHash = hasher.HashPassword(admin, "Password123!");
+
+        var adminUserRole = new IdentityUserRole<string>
+        {
+            RoleId = adminRole.Id,
+            UserId = admin.Id
+        };
+
+        await context.Roles.AddAsync(adminRole);
+        await context.Users.AddRangeAsync(user1, user2, user3, user4, user5, admin);
+        await context.UserRoles.AddAsync(adminUserRole);
+
         await context.SaveChangesAsync();
 
         await SeedCommunityIssues(context, user1.Id);
