@@ -1,0 +1,191 @@
+using Microsoft.EntityFrameworkCore;
+using TCSA.V2026.Data;
+using TCSA.V2026.Data.Enums;
+using TCSA.V2026.Data.Models;
+using TCSA.V2026.Data.Models.Responses;
+
+namespace TCSA.V2026.Services;
+
+public interface IBadgeService
+{
+    Task<IEnumerable<Badge>> GetUserAwardedBadges(string userId);
+    Task<IEnumerable<Badge>> GetRecentAwardedBadges(string userId, DateTimeOffset since);
+    Task<BaseResponse> AwardBadge(string userId, int badgeId);
+    Task AwardPlatformBuilderBadges(string userId);
+    Task AwardReviewBadges(string userId, int reviewedProjectsCount);
+    Task<BaseResponse> AcknowledgeBadgeNotifications(string userId);
+    Task AwardMissingBadges(string userId);
+}
+
+public class BadgeService(IDbContextFactory<ApplicationDbContext> _factory, ILogger<BadgeService> _logger) : IBadgeService
+{
+    public async Task<BaseResponse> AwardBadge(string userId, int badgeId)
+    {
+        try
+        {
+            using var context = await _factory.CreateDbContextAsync();
+            context.Badges.Add(new Badge
+            {
+                UserId = userId,
+                BadgeId = badgeId,
+                DateAwarded = DateTime.UtcNow,
+                IsPendingNotification = true
+            });
+
+            await context.SaveChangesAsync();
+
+            return new BaseResponse
+            {
+                Status = ResponseStatus.Success,
+            };
+        }
+        catch (DbUpdateException ex)
+        {
+            _logger.LogError(ex, "Error awarding badge {BadgeId} to user {UserId}", badgeId, userId);
+            return new BaseResponse
+            {
+                Status = ResponseStatus.Fail,
+                Message = $"Badge has already been awarded.",
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error awarding badge {BadgeId} to user {UserId}", badgeId, userId);
+            return new BaseResponse
+            {
+                Status = ResponseStatus.Fail,
+                Message = $"An unexpected error occurred while awarding the badge.",
+            };
+        }
+    }
+
+    public async Task<IEnumerable<Badge>> GetUserAwardedBadges(string userId)
+    {
+        using var context = await _factory.CreateDbContextAsync();
+        return await context.Badges
+            .AsNoTracking()
+            .Where(b => b.UserId == userId)
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<Badge>> GetRecentAwardedBadges(string userId, DateTimeOffset since)
+    {
+        using var context = await _factory.CreateDbContextAsync();
+        return await context.Badges
+            .AsNoTracking()
+            .Where(b => b.UserId == userId && b.DateAwarded > since)
+            .ToListAsync();
+    }
+
+    public async Task AwardPlatformBuilderBadges(string userId)
+    {
+        using var context = await _factory.CreateDbContextAsync();
+
+        var relevantBadgeIds = new[] { (int)BadgeId.PlatformBuilder, (int)BadgeId.PlatformContributor, (int)BadgeId.PlatformArchitect };
+        var ownedBadgeIds = await GetOwnedBadgeIds(context, userId, relevantBadgeIds);
+
+        if (ownedBadgeIds.Count == relevantBadgeIds.Length)
+        {
+            return;
+        }
+
+        var mergedPullRequestsCount = await context.Issues
+            .CountAsync(i => i.AppUserId == userId && i.IsClosed);
+
+        if (mergedPullRequestsCount >= 1 && !ownedBadgeIds.Contains((int)BadgeId.PlatformBuilder))
+        {
+            await AwardBadge(userId, (int)BadgeId.PlatformBuilder);
+        }
+
+        if (mergedPullRequestsCount >= 10 && !ownedBadgeIds.Contains((int)BadgeId.PlatformContributor))
+        {
+            await AwardBadge(userId, (int)BadgeId.PlatformContributor);
+        }
+
+        if (mergedPullRequestsCount >= 20 && !ownedBadgeIds.Contains((int)BadgeId.PlatformArchitect))
+        {
+            await AwardBadge(userId, (int)BadgeId.PlatformArchitect);
+        }
+    }
+
+    public async Task AwardReviewBadges(string userId, int reviewedProjectsCount)
+    {
+        using var context = await _factory.CreateDbContextAsync();
+        var relevantBadgeIds = new[] { (int)BadgeId.CodeReviewer, (int)BadgeId.TrustedReviewer, (int)BadgeId.MasterReviewer };
+        var ownedBadgeIds = await GetOwnedBadgeIds(context, userId, relevantBadgeIds);
+
+        if (reviewedProjectsCount >= 1 && !ownedBadgeIds.Contains((int)BadgeId.CodeReviewer))
+        {
+            await AwardBadge(userId, (int)BadgeId.CodeReviewer);
+        }
+
+        if (reviewedProjectsCount >= 25 && !ownedBadgeIds.Contains((int)BadgeId.TrustedReviewer))
+        {
+            await AwardBadge(userId, (int)BadgeId.TrustedReviewer);
+        }
+
+        if (reviewedProjectsCount >= 100 && !ownedBadgeIds.Contains((int)BadgeId.MasterReviewer))
+        {
+            await AwardBadge(userId, (int)BadgeId.MasterReviewer);
+        }
+    }
+
+    private static async Task<HashSet<int>> GetOwnedBadgeIds(ApplicationDbContext context, string userId, int[] badgeIds)
+    {
+        return await context.Badges
+            .AsNoTracking()
+            .Where(b => b.UserId == userId && badgeIds.Contains(b.BadgeId))
+            .Select(b => b.BadgeId)
+            .ToHashSetAsync();
+    }
+
+    public async Task<BaseResponse> AcknowledgeBadgeNotifications(string userId)
+    {
+        try
+        {
+            using var context = await _factory.CreateDbContextAsync();
+            await context.Badges
+                .Where(b => b.UserId == userId && b.IsPendingNotification)
+                .ExecuteUpdateAsync(s => s.SetProperty(b => b.IsPendingNotification, false));
+
+            return new BaseResponse
+            {
+                Status = ResponseStatus.Success,
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to acknowledge badge notifications for user {UserId}", userId);
+            return new BaseResponse
+            {
+                Status = ResponseStatus.Fail,
+                Message = ex.Message
+            };
+        }
+    }
+
+    public async Task AwardMissingBadges(string userId)
+    {
+        try
+        {
+            using var context = await _factory.CreateDbContextAsync();
+
+            var user = await context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (user is null || user.HasBackfilledBadges)
+            {
+                return;
+            }
+
+            await AwardReviewBadges(userId, user.ReviewedProjects);
+            await AwardPlatformBuilderBadges(userId);
+
+            user.HasBackfilledBadges = true;
+            await context.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to backfill missing badges for user {UserId}", userId);
+        }
+    }
+}

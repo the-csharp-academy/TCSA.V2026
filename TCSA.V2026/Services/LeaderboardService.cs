@@ -61,6 +61,8 @@ public class LeaderboardService(IDbContextFactory<ApplicationDbContext> _factory
             var users = await context.Users
                 .Where(u => u.ReviewExperiencePoints > 0)
                 .OrderByDescending(u => u.ReviewExperiencePoints)
+                .ThenBy(u => u.FirstName)
+                .ThenBy(u => u.LastName)
                 .Take(PagingConstants.LeaderboardPageSize)
                 .Select(u => new
                 {

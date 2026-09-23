@@ -22,6 +22,7 @@ public class CommunityTests : BunitContext
     private readonly Mock<IUserService> _userServiceMock = new();
     private readonly Mock<ICommunityService> _communityServiceMock = new();
     private readonly Mock<IDialogService> _dialogServiceMock = new();
+    private readonly Mock<IBadgeService> _badgeServiceMock = new();
 
     private const string TestUserId = "test-user-id";
 
@@ -61,6 +62,7 @@ public class CommunityTests : BunitContext
         var snackbarMock = new Mock<ISnackbar>();
 
         Services.AddMudServices();
+        Services.AddSingleton(_badgeServiceMock.Object);
         Services.AddSingleton(_projectServiceMock.Object);
         Services.AddSingleton(_userServiceMock.Object);
         Services.AddSingleton(_communityServiceMock.Object);

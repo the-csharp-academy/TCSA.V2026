@@ -57,8 +57,23 @@ builder.Services.AddSingleton<IStripeClient>(sp =>
 
 builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<IReportService, ReportService>();
-builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<IUserService>(sp =>
+{
+    return new CachingUserService(
+        sp.GetRequiredService<UserService>(),
+        sp.GetRequiredService<HybridCache>()
+    );
+});
 builder.Services.AddScoped<IProjectService, ProjectService>();
+builder.Services.AddScoped<BadgeService>();
+builder.Services.AddScoped<IBadgeService>(sp =>
+{
+    return new CachingBadgeService(
+        sp.GetRequiredService<BadgeService>(),
+        sp.GetRequiredService<HybridCache>()
+    );
+});
 builder.Services.AddScoped<ICommentsService, CommentsService>();
 builder.Services.AddScoped<ILeaderboardService, LeaderboardService>();
 builder.Services.AddScoped<IPeerReviewService, PeerReviewService>();
@@ -148,6 +163,11 @@ using (var scope = app.Services.CreateScope())
         "daily-challenge-job",
         job => job.RunAsync(),
         Cron.Daily);
+
+    recurringJobManager.AddOrUpdate<BadgeBackfillJob>(
+        "badge-backfill-job",
+        job => job.RunAsync(),
+        Cron.Hourly);
 }
 
 var logger = app.Services.GetRequiredService<ILogger<Program>>();

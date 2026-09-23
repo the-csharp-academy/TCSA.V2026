@@ -57,6 +57,7 @@ public class ApplicationUser : IdentityUser
     public bool HasCompletedWelcome { get; set; }
     public bool HasCompletedTour { get; set; }
     public bool HasDismissedChecklist { get; set; }
+    public bool HasBackfilledBadges { get; set; }
     public DateTimeOffset? OnboardingStartedDate { get; set; }
     public DateTimeOffset CreatedDate { get; set; }
     public Level Level { get; set; }
