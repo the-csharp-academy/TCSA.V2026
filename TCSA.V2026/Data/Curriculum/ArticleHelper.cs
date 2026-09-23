@@ -578,7 +578,7 @@ public static class ArticleHelper
                             {
                                 Body = @"<a href='https://www.youtube.com/watch?v=nvTwDirvwIw&t=4s' target='blank'>Visual Studio for Windows</a><br>
                                          <a href='https://www.youtube.com/watch?v=r5dtl9Uq9V0' target='blank'>Visual Studio Code for Windows</a><br>
-                                         <a href='https://www.youtube.com/watch?v=LXxjCNfd5b4' target='blank'>Visual Studio Code for Mac</a><br>
+                                         <a href='https://www.youtube.com/watch?v=DA03DODTP5w' target='blank'>Visual Studio Code for Mac</a><br>
                                          <a href='https://www.youtube.com/watch?v=3YIADWbQFzE' target='blank'>Visual Studio Code for Linux</a><br>"
                             }
                         }
@@ -2234,7 +2234,7 @@ git push</code>"
                             },
                             new Paragraph
                             {
-                                Body = "Let's summarize the whole thing in one paragraph in case your attention spam isn't long enough to read an article for 10 minutes (I don't blame you, smart phones did it to all of us):<br><br>"
+                                Body = "Let's summarize the whole thing in one paragraph in case your attention span isn't long enough to read an article for 10 minutes (I don't blame you, smart phones did it to all of us):<br><br>"
                             },
                             new Paragraph
                             {
