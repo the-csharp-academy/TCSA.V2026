@@ -9,8 +9,8 @@ public class DailyChallengeJob(
     {
         foreach (var fetcher in fetchers)
         {
-            var challenge = await fetcher.FetchDailyChallenge();
-            if (challenge is not null)
+            var challenges = await fetcher.FetchDailyChallenges();
+            foreach (var challenge in challenges)
                 await challengeService.AddChallenge(challenge);
         }
     }

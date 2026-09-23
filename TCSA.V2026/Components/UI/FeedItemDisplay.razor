@@ -21,22 +21,22 @@
     {
         case ActivityType.ProjectCompleted:
             <MudText Typo="Typo.body2">
-                <strong>@(UserDisplayNameHelper.GetDisplayName(Item.DisplayName, Item.UserName))</strong> finished the <strong>@Item.ProjectName</strong>
+                <strong>@ProfileLink</strong> finished the <strong>@Item.ProjectName</strong>
             </MudText>
             break;
         case ActivityType.NewBelt:
             <MudText Typo="Typo.body2">
-                <strong>@(UserDisplayNameHelper.GetDisplayName(Item.DisplayName, Item.UserName))</strong> earned the <strong>@Item.Level</strong> belt!
+                <strong>@ProfileLink</strong> earned the <strong>@Item.Level</strong> belt!
             </MudText>
             break;
         case ActivityType.NewUser:
             <MudText Typo="Typo.body2">
-                Welcome <strong>@(UserDisplayNameHelper.GetDisplayName(Item.DisplayName, Item.UserName))</strong> to the community!
+                Welcome <strong>@ProfileLink</strong> to the community!
             </MudText>
             break;
         default:
             <MudText Typo="Typo.body2">
-                <strong>@(UserDisplayNameHelper.GetDisplayName(Item.DisplayName, Item.UserName))</strong> did something awesome!
+                <strong>@ProfileLink</strong> did something awesome!
             </MudText>
             break;
     }
@@ -48,4 +48,6 @@
 @code {
     [Parameter] public FeedDisplay Item { get; set; } = default!;
     [Parameter] public string IconSize { get; set; } = "2em";
+
+    private RenderFragment ProfileLink => @<MudLink Href="@($"/profile/{Item.UserId}")" Color="Color.Inherit">@(UserDisplayNameHelper.GetDisplayName(Item.DisplayName, Item.UserName))</MudLink>;
 }

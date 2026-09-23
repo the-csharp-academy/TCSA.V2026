@@ -6,6 +6,7 @@
 @using TCSA.V2026.Data.Models
 @using TCSA.V2026.Data.Models.Responses
 @using TCSA.V2026.Components.UI
+@using TCSA.V2026.Helpers
 @using TCSA.V2026.Services
 @attribute [Authorize]
 @inject IDialogService DialogService
@@ -41,31 +42,29 @@
                 <Columns>
                     <PropertyColumn Property="i => i.Title" Title="Title" />
                     <PropertyColumn Property="i => i.ExperiencePoints" Title="XPs" />
-                    <PropertyColumn Property="i => GetProjectName(i.CommunityProjectId)" Title="Project" />
+                    <PropertyColumn Property="i => CommunityProjectHelper.GetDisplayName(i.CommunityProjectId)" Title="Project" />
                     <TemplateColumn CellClass="d-flex justify-end">
                         <CellTemplate>
                             <MudStack Row>
                                 @if (!string.IsNullOrEmpty(context.Item.GithubUrl) && context.Item.GithubUrl.StartsWith("http"))
                                 {
-                                    <MudButton 
-                                    Size="@Size.Small" 
-                                    Variant="@Variant.Filled" 
-                                    Color="@Color.Warning"
-                                    OnClick="@(() => JS.InvokeVoidAsync("window.open", context.Item.GithubUrl, "_blank", "noopener,noreferrer"))"
-                                    StartIcon="fas fa-eye">
+                                    <MudButton Size="@Size.Small"
+                                               Variant="@Variant.Filled"
+                                               Color="@Color.Warning"
+                                               OnClick="@(() => JS.InvokeVoidAsync("window.open", context.Item.GithubUrl, "_blank", "noopener,noreferrer"))"
+                                               StartIcon="fas fa-eye">
                                         View
                                     </MudButton>
 
                                 }
                                 @if (!User.DashboardProjects.Any(d => d.ProjectId == context.Item.ProjectId))
                                 {
-                                    <MudButton
-                                    Size="@Size.Small"
-                                    Variant="@Variant.Filled"
-                                    Color="@Color.Success"
-                                    Disabled="@_processingIds.Contains(context.Item.Id)"
-                                    OnClick="@(() => AssignMyself(context.Item))"
-                                    StartIcon="fas fa-hand-point-up">
+                                    <MudButton Size="@Size.Small"
+                                               Variant="@Variant.Filled"
+                                               Color="@Color.Success"
+                                               Disabled="@_processingIds.Contains(context.Item.Id)"
+                                               OnClick="@(() => AssignMyself(context.Item))"
+                                               StartIcon="fas fa-hand-point-up">
                                         Pick
                                     </MudButton>
                                 }
@@ -77,12 +76,11 @@
                                     }
                                     else
                                     {
-                                        <MudButton
-                                        Size="@Size.Small"
-                                        Variant="@Variant.Filled" Color="@Color.Primary"
-                                        Disabled="@_isProcessing"
-                                        OnClick="@(() => SubmitToReviewDialog(context.Item))"
-                                        EndIcon="@Icons.Material.Filled.Send">
+                                        <MudButton Size="@Size.Small"
+                                                   Variant="@Variant.Filled" Color="@Color.Primary"
+                                                   Disabled="@_isProcessing"
+                                                   OnClick="@(() => SubmitToReviewDialog(context.Item))"
+                                                   EndIcon="@Icons.Material.Filled.Send">
                                             Submit PR
                                         </MudButton>
                                     }
@@ -219,12 +217,4 @@
         }
     }
 
-    private string GetProjectName(int commProjectId)
-    {
-        return commProjectId switch
-        {
-            (int)CommunityProject.TCSA => "Academy 2026",
-            (int)CommunityProject.KnowTheCity => "Know The City",
-        };
-    }
 }

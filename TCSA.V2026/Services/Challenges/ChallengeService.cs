@@ -177,7 +177,10 @@ public class ChallengeService(IDbContextFactory<ApplicationDbContext> _factory, 
         {
             using var context = _factory.CreateDbContext();
 
-            bool exists = await context.Challenges.AnyAsync(c => c.ExternalId == challenge.ExternalId);
+            bool exists = await context.Challenges
+                .AnyAsync(c => c.ExternalId == challenge.ExternalId &&
+                               c.Platform == challenge.Platform &&
+                               c.Category == challenge.Category);
             if (exists)
                 return new BaseResponse { Status = ResponseStatus.Fail, Message = "Challenge already exists." };
 

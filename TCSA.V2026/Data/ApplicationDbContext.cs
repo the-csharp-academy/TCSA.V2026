@@ -21,10 +21,20 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public virtual DbSet<UserDonation> UserDonations { get; set; }
     public virtual DbSet<WebhookDebugLog> WebhookDebugLog { get; set; }
     public virtual DbSet<Comments> Comments { get; set; }
+    public virtual DbSet<Badge> Badges { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<Badge>()
+            .HasKey(b => new { b.BadgeId, b.UserId });
+
+        modelBuilder.Entity<Badge>()
+            .HasOne<ApplicationUser>()
+            .WithMany()
+            .HasForeignKey(b => b.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<AppUserActivity>()
             .HasOne(aua => aua.DashboardProject)

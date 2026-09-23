@@ -1,4 +1,6 @@
-﻿using TCSA.V2026.Data.Models;
+using Microsoft.Extensions.Logging.Abstractions;
+using TCSA.V2026.Data.Enums;
+using TCSA.V2026.Data.Models;
 using TCSA.V2026.Data.Models.Responses;
 using TCSA.V2026.Services;
 
@@ -8,12 +10,14 @@ namespace TCSA.V2026.IntegrationTests;
 public class ProjectServiceTests : IntegrationTestsBase
 {
     private ProjectService _service;
+    private BadgeService _badgeService;
 
     [SetUp]
     public void Setup()
     {
         BaseSetup();
-        _service = new ProjectService(DbContextFactory);
+        _badgeService = new BadgeService(DbContextFactory, NullLogger<BadgeService>.Instance);
+        _service = new ProjectService(DbContextFactory, _badgeService);
     }
 
     [TearDown]
@@ -264,5 +268,77 @@ public class ProjectServiceTests : IntegrationTestsBase
             .FirstOrDefault(p => p.Id.Equals("user2"));
 
         Assert.That(user.ExperiencePoints, Is.EqualTo(110));
+    }
+
+    [Test]
+    public async Task MarkAsCompleted_CommunityIssue_AwardsPlatformBuilderBadge()
+    {
+        const int communityProjectId = 999999;
+
+        using (var seedContext = DbContextFactory.CreateDbContext())
+        {
+            seedContext.DashboardProjects.Add(new DashboardProject
+            {
+                Id = 1,
+                AppUserId = "user1",
+                ProjectId = communityProjectId,
+                GithubUrl = "https://github.com/TheCSharpAcademy/CommunityRepo/pull/1"
+            });
+            seedContext.Issues.Add(new CommunityIssue
+            {
+                ProjectId = communityProjectId,
+                AppUserId = "user1",
+                Title = "Community issue",
+                GithubUrl = "https://github.com/TheCSharpAcademy/CommunityRepo/issues/1",
+                IconUrl = "icons8-feature-64.png",
+                ExperiencePoints = 15,
+                IsClosed = false
+            });
+
+            await seedContext.SaveChangesAsync();
+        }
+
+        await _service.MarkAsCompleted(1);
+
+        using var assertContext = DbContextFactory.CreateDbContext();
+        var badge = assertContext.Badges.FirstOrDefault(b => b.UserId == "user1" && b.BadgeId == (int)BadgeId.PlatformBuilder);
+
+        Assert.That(badge, Is.Not.Null);
+    }
+
+    [Test]
+    public async Task MarkAsCompleted_CurriculumProject_DoesNotAwardPlatformBuilderBadge()
+    {
+        using (var seedContext = DbContextFactory.CreateDbContext())
+        {
+            seedContext.DashboardProjects.Add(new DashboardProject
+            {
+                Id = 100,
+                AppUserId = "user1",
+                ProjectId = (int)ArticleName.Calculator,
+                GithubUrl = "fakeUrl"
+            });
+
+            await seedContext.SaveChangesAsync();
+        }
+
+        await _service.MarkAsCompleted(100);
+
+        using var assertContext = DbContextFactory.CreateDbContext();
+        var badgeCount = assertContext.Badges.Count(b => b.UserId == "user1");
+
+        Assert.That(badgeCount, Is.EqualTo(0));
+    }
+
+    [Test]
+    public async Task MarkAsCompleted_ProjectNotFound_DoesNotAwardAnyBadge()
+    {
+        var response = await _service.MarkAsCompleted(9999);
+
+        using var assertContext = DbContextFactory.CreateDbContext();
+        var badgeCount = assertContext.Badges.Count();
+
+        Assert.That(response.Status, Is.EqualTo(ResponseStatus.Fail));
+        Assert.That(badgeCount, Is.EqualTo(0));
     }
 }

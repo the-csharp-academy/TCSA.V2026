@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Logging.Abstractions;
+using TCSA.V2026.Data.Enums;
 using TCSA.V2026.Data.Models;
 using TCSA.V2026.Data.Models.Responses;
 using TCSA.V2026.Services;
@@ -8,12 +10,14 @@ public class PeerReviewTests : IntegrationTestsBase
 {
 
     private PeerReviewService _service;
+    private BadgeService _badgeService;
 
     [SetUp]
     public void Setup()
     {
         BaseSetup();
-        _service = new PeerReviewService(DbContextFactory);
+        _badgeService = new BadgeService(DbContextFactory, NullLogger<BadgeService>.Instance);
+        _service = new PeerReviewService(DbContextFactory, _badgeService);
     }
 
     [TearDown]
@@ -570,5 +574,90 @@ public class PeerReviewTests : IntegrationTestsBase
         var projects = await _service.GetProjectsForPeerReview("purpleuser");
         var count = projects.Count;
         Assert.That(count, Is.EqualTo(5));
+    }
+
+    [Test]
+    public async Task MarkCodeReviewAsCompleted_FirstReview_AwardsCodeReviewerBadge()
+    {
+        using (var seedContext = DbContextFactory.CreateDbContext())
+        {
+            seedContext.DashboardProjects.Add(new DashboardProject
+            {
+                Id = 1,
+                AppUserId = "user1",
+                ProjectId = (int)ArticleName.Calculator,
+                IsPendingReview = true,
+                GithubUrl = "https://github.com/TheCSharpAcademy/CodeReviews/Calculator"
+            });
+            await seedContext.SaveChangesAsync();
+        }
+
+        await _service.MarkCodeReviewAsCompleted("user2", 1);
+
+        using var assertContext = DbContextFactory.CreateDbContext();
+        var badge = assertContext.Badges.FirstOrDefault(b => b.UserId == "user2" && b.BadgeId == (int)BadgeId.CodeReviewer);
+
+        Assert.That(badge, Is.Not.Null);
+    }
+
+    [Test]
+    public async Task MarkCodeReviewAsCompleted_ReviewerReaches25Reviews_AwardsTrustedReviewerBadge()
+    {
+        using (var seedContext = DbContextFactory.CreateDbContext())
+        {
+            var reviewer = seedContext.AspNetUsers.First(u => u.Id == "user2");
+            reviewer.ReviewedProjects = 24;
+            reviewer.ReviewExperiencePoints = 240;
+
+            seedContext.DashboardProjects.Add(new DashboardProject
+            {
+                Id = 1,
+                AppUserId = "user1",
+                ProjectId = (int)ArticleName.Calculator,
+                IsPendingReview = true,
+                GithubUrl = "https://github.com/TheCSharpAcademy/CodeReviews/Calculator"
+            });
+            await seedContext.SaveChangesAsync();
+        }
+
+        await _service.MarkCodeReviewAsCompleted("user2", 1);
+
+        using var assertContext = DbContextFactory.CreateDbContext();
+        var badgeIds = assertContext.Badges.Where(b => b.UserId == "user2").Select(b => b.BadgeId).ToList();
+
+        Assert.That(badgeIds, Is.EquivalentTo(new[] { (int)BadgeId.CodeReviewer, (int)BadgeId.TrustedReviewer }));
+    }
+
+    [Test]
+    public async Task MarkCodeReviewAsCompleted_ReviewerReaches100Reviews_AwardsAllReviewTiers()
+    {
+        using (var seedContext = DbContextFactory.CreateDbContext())
+        {
+            var reviewer = seedContext.AspNetUsers.First(u => u.Id == "user2");
+            reviewer.ReviewedProjects = 99;
+            reviewer.ReviewExperiencePoints = 990;
+
+            seedContext.DashboardProjects.Add(new DashboardProject
+            {
+                Id = 1,
+                AppUserId = "user1",
+                ProjectId = (int)ArticleName.Calculator,
+                IsPendingReview = true,
+                GithubUrl = "https://github.com/TheCSharpAcademy/CodeReviews/Calculator"
+            });
+            await seedContext.SaveChangesAsync();
+        }
+
+        await _service.MarkCodeReviewAsCompleted("user2", 1);
+
+        using var assertContext = DbContextFactory.CreateDbContext();
+        var badgeIds = assertContext.Badges.Where(b => b.UserId == "user2").Select(b => b.BadgeId).ToList();
+
+        Assert.That(badgeIds, Is.EquivalentTo(new[]
+        {
+            (int)BadgeId.CodeReviewer,
+            (int)BadgeId.TrustedReviewer,
+            (int)BadgeId.MasterReviewer
+        }));
     }
 }
