@@ -1,4 +1,5 @@
-﻿using TCSA.V2026.Data.Models;
+﻿using TCSA.V2026.Data.Curriculum;
+using TCSA.V2026.Data.Models;
 using TCSA.V2026.Data.Models.LanguageModels;
 using TCSA.V2026.Helpers;
 
@@ -62,12 +63,12 @@ internal static class ChallengeProjectsHelper
                     "No front-end is needed, just the API",
                     "Use REST architecture",
                     "Use Entity Framework",
-                    "No migrations are needed; use Ensure Deleted and Ensure Created to facilitate development and code reviews."
+                    "No migrations are needed; use Ensure Deleted and Ensure Created to facilitate development and code reviews.",
+                    CurriculumConstants.ReadMeRequirement
                 },
                 Challenges = new List<string>
                 {
                     "Add unit tests to make sure business constraints are accurate. <b>(Bonus: 20XPs)</b>",
-                    "Include a Read me with your thought process, your challenges and instructions on how to run the app. <b>(Bonus: 20XPs)</b>",
                     "Add integrations tests using a real test database. These will ensure data is still added corrected when the codebase changes. The test database must be created and deleted for each test. <b>(Bonus: 50XPs)</b>",
                     "Create a separate project with a front-end of your choice. Provide instructions on how to run it. <b>(Bonus: 50XPs)</b>"
                 }
@@ -97,9 +98,8 @@ internal static class ChallengeProjectsHelper
                     @"You must present the a menu to the user where they can start the game, view game history/stats and quit the app.",
                     @"You must handle errors (no crashing on invalid input)",
                     @"You need to include a unit test project with tests you think are relevant.",
-                    @"You need to provide a Readme with information on how to run your project and detailing your thought process. This is extremely useful for your learning. Science shows self-reflection goes a long way in retention and motivation. Plus you'll be working on your communication skills.",
-                    @"You don’t need a database. History can reset when the app closes."
-
+                    @"You don’t need a database. History can reset when the app closes.",
+                    CurriculumConstants.ReadMeRequirement
                 },
                 RequirementsConclusion = "You can use any technology you want, as long as .NET/C# is involved. Console? WPF? MAUI? Avalonia? Blazor? Winforms? Totally up to you.",
                 Tips = new List<string>

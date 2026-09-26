@@ -1,4 +1,5 @@
-﻿using TCSA.V2026.Data.Models;
+﻿using TCSA.V2026.Data.Curriculum;
+using TCSA.V2026.Data.Models;
 using TCSA.V2026.Data.Models.LanguageModels;
 using TCSA.V2026.Helpers;
 
@@ -41,6 +42,7 @@ internal static class MauiProjectsHelper
                 Requirements = new List<string>
                 {
                     "This application has only one requirement: You'll build a Math Game with MAUI (and no MVVM) with the help of the tutorial below:",
+                    CurriculumConstants.ReadMeRequirement
                 },
                 Resources = new List<string>
                 {
@@ -96,9 +98,8 @@ internal static class MauiProjectsHelper
                     "Users should be able to perform all CRUD operations against the database.",
                     "To keep things simple and focus on MVVM, you'll have just one \"books\" table.",
                     "You should use the MVVM pattern.",
-                    "You should use SQLite."
-
-
+                    "You should use SQLite.",
+                    CurriculumConstants.ReadMeRequirement
                 },
                 Resources = new List<string>
                 {
@@ -141,7 +142,8 @@ internal static class MauiProjectsHelper
                 },
                 Requirements = new List<string>
                 {
-                    "This project has only one requirement: Follow and complete <a href='https://www.youtube.com/watch?v=DuNLR_NJv8U'>James Montemagno's Monkeys App Tutorial.</a>"
+                    "This project has only one requirement: Follow and complete <a href='https://www.youtube.com/watch?v=DuNLR_NJv8U'>James Montemagno's Monkeys App Tutorial.</a>",
+                    CurriculumConstants.ReadMeRequirement
                 },
                 Challenges = new List<string>
                 {
@@ -178,7 +180,8 @@ internal static class MauiProjectsHelper
                     "Every time a product is in movement, a new record needs to be added in the \"ItemMovement\" table. Every itemMovement needs to have two employess associated with it. One in the shipping end and one in the receiving end.",
                     "An Item is an instance of a product. Products are unique, but there can be multiple items of the same product.",
                     "A warehouse slot needs to contain at least an \"Isle\" and a \"Slot Number\" columns.",
-                    "Users should be able to see a history of item movements."
+                    "Users should be able to see a history of item movements.",
+                    CurriculumConstants.ReadMeRequirement
                 },
                 Tips = new List<string>
                 {

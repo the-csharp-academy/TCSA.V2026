@@ -1,4 +1,5 @@
-﻿using TCSA.V2026.Data.Models;
+﻿using TCSA.V2026.Data.Curriculum;
+using TCSA.V2026.Data.Models;
 using TCSA.V2026.Data.Models.LanguageModels;
 using TCSA.V2026.Helpers;
 
@@ -50,7 +51,8 @@ internal static class AngularProjectsHelper
                 RequirementsIntro="From Angular’s documentation page: 'The lessons in this tutorial create an Angular app that lists houses for rent and shows the details of individual houses. This app uses features that are common to many Angular apps.'",
                 Requirements = new List<string>
                 {
-                    "This project has only one requirement: You should complete the \"Home's\" app in Angular's documentation page."
+                    "This project has only one requirement: You should complete the \"Home's\" app in Angular's documentation page.",
+                    CurriculumConstants.ReadMeRequirement
                 },
                 ResourcesIntro = "Angular uses Typescript. If you decide you want to jump straight onto Angular, but don't have Typescript experience, we recommend you go to the third last link, which gives you a quick intro to this flavour of Javascript. Once that is finished you can do the tutorial in the two last links, which are a quick intro to Angular, followed by the Home's App mentioned in the requirements above. ",
 
@@ -99,7 +101,8 @@ internal static class AngularProjectsHelper
                     "You can choose a different type of shop, if you're not a coffee person 🤓.",
                     "You should create two projects: A.NET WebApi and an Angular app.",
                     "You should have a filter functionality, so users can select records per date.",
-                    "Make sure validation is user-friendly so the users know exactly what's wrong with their input."
+                    "Make sure validation is user-friendly so the users know exactly what's wrong with their input.",
+                    CurriculumConstants.ReadMeRequirement
                 },
                 Resources = new List<string>
                 {
@@ -159,7 +162,8 @@ internal static class AngularProjectsHelper
                     "Your list of sleep records should have pagination, so you're not loading all records every time you visualise the list.",
                     "This app should be mobile-first, since realistically , most users will use it from their phones.",
                     "Your app should contain integration tests for the services that are interacting with the database, and unit tests where you find applicable.",
-                    "Your repository should contain a Postman collection with all endpoints documented for easy testing."
+                    "Your repository should contain a Postman collection with all endpoints documented for easy testing.",
+                    CurriculumConstants.ReadMeRequirement
                 },
                 Resources = new List<string>
                 {
@@ -205,6 +209,7 @@ internal static class AngularProjectsHelper
                     "Your app needs to support multiple users.",
                     "Your UI needs to have a vibrant color scheme.",
                     "You need to secure your application so that users have to register and login to use it.",
+                    CurriculumConstants.ReadMeRequirement
                 },
                 Resources = new List<string>
                 {

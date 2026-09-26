@@ -111,6 +111,7 @@ internal static class AuthProjectsHelper
                     "You need to seed test data",
                     "You need to use EF's EnsureCreated method so the database and tables are created automatically",
                     "You need to add logging logic to your app and save logs to your database when errors occur",
+                    CurriculumConstants.ReadMeRequirement
                 },
                 ResourcesIntro = "On top of the resources available for the <a href='https://docs.microsoft.com/en-us/aspnet/core/security/authentication/identity?view=aspnetcore-6.0&tabs=visual-studio'>Introduction to Identity</a> project, you can use:",
                 Resources = new List<string>
@@ -148,6 +149,7 @@ internal static class AuthProjectsHelper
                     "Users should be able to register/login into your website using Facebook, Gmail, Github, Windows and Twitter. All five are necessary for the project to be approved.",
                     "User should also be able to register using the existing registration form.",
                     "Existing users should be able to link their account to one of the services above.",
+                    CurriculumConstants.ReadMeRequirement
                 },
                 Resources = new List<string>
                 {
@@ -202,8 +204,6 @@ internal static class AuthProjectsHelper
                      "You need to configure callback and logout URLs correctly for local development.",
                      "You need to store Auth0 configuration values such as Domain, ClientId and ClientSecret in configuration files or user secrets. These values should not be hard-coded.",
                      "You need to add role-based or claim-based authorization to protect at least one admin-only area or feature.",
-                     "You need to document the Auth0 setup steps in your README, including the required dashboard configuration. The reviewer will follow these steps to review your project using the integration.",
-                     "You need to explain in your README the difference between ASP.NET Core Identity and using an external identity provider such as Auth0.",
                      CurriculumConstants.ReadMeRequirement
                  },
                  ResourcesIntro = "Here are a few resources that might be helpful.",

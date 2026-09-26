@@ -1,4 +1,5 @@
-﻿using TCSA.V2026.Data.Enums;
+﻿using TCSA.V2026.Data.Curriculum;
+using TCSA.V2026.Data.Enums;
 using TCSA.V2026.Data.Models;
 using TCSA.V2026.Data.Models.LanguageModels;
 using TCSA.V2026.Helpers;
@@ -46,7 +47,8 @@ internal static class AzureProjectsHelper
                     "You can choose any type of .NET app: Razor Pages, MVC or Blazor.",
                     "You can use an existing app, provided it doesn't need a database connection.",
                     "You won't need authentication or authorization.",
-                    "You should publish your app to an 'Azure App Service'."
+                    "You should publish your app to an 'Azure App Service'.",
+                    CurriculumConstants.ReadMeRequirement
                 },
                 Resources = new List<string>
                 {
@@ -107,7 +109,8 @@ internal static class AzureProjectsHelper
                 {
                     "You'll have to deploy the <a href='project/25/movies'>Movies App</a> To Azure",
                     "You'll have to create an SQL server in azure",
-                    "You'll have to make sure that the controller of the Azure app is calling the SQL server in Azure."
+                    "You'll have to make sure that the controller of the Azure app is calling the SQL server in Azure.",
+                    CurriculumConstants.ReadMeRequirement
                 },
                 Resources = new List<string>
                 {
@@ -164,7 +167,8 @@ internal static class AzureProjectsHelper
                     "You'll have to create an SQL server in azure",
                     "You'll have to create two app services: one for the Web API and one for the front-end app",
                     "Your app needs to have all 4 CRUD functionalities",
-                    "Your app needs to have Authentication and Authorization. Non-authorized users should have Read permissions, but only authorized users should have Write Permissions."
+                    "Your app needs to have Authentication and Authorization. Non-authorized users should have Read permissions, but only authorized users should have Write Permissions.",
+                    CurriculumConstants.ReadMeRequirement
                 },
                 Tips = new List<string>
                 {
@@ -232,8 +236,8 @@ internal static class AzureProjectsHelper
                     "The Event Grid Trigger will subscribe to status change events from Cosmos DB or other sources and notify customers.",
                     "The Cosmos DB Trigger will update the inventory based on order transactions.",
                     "All functions need to be under the same solution.",
-                    "Your repository needs to contain a Readme with instructions on how to run the system, including configuration files.",
-                    "You need to submit a systems design document, with a diagram of the data flow."
+                    "You need to submit a systems design document, with a diagram of the data flow.",
+                    CurriculumConstants.ReadMeRequirement
                 },
                 ResourcesIntro = "Azure Functions is a vast topic and it's easy to get lost. Here are some resources to get you started:",
                 Resources = new List<string>

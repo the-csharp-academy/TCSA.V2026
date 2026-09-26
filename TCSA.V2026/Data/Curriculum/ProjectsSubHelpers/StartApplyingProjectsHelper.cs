@@ -1,4 +1,5 @@
-﻿using TCSA.V2026.Data.Enums;
+﻿using TCSA.V2026.Data.Curriculum;
+using TCSA.V2026.Data.Enums;
 using TCSA.V2026.Data.Models;
 using TCSA.V2026.Data.Models.LanguageModels;
 
@@ -64,7 +65,8 @@ internal static class StartApplyingProjectsHelper
                     "You can use any technology you want: WordPress, a front-end framework, bootstrap or just the good old Html/Css/Vanilla Js combo.",
                     "The 'My Work' area should contain links to your github repositories. If you have full-stack web apps, it should contain links to their webpages.",
                     "Your portfolio should contain a \"Download Resume\" button, preferably in the top area.",
-                    "It should be responsive and look good in any screen size."
+                    "It should be responsive and look good in any screen size.",
+                    CurriculumConstants.ReadMeRequirement
                 },
                 ResourcesIntro = "Here are a few resources that might be helpful.",
                 Resources = new List<string>

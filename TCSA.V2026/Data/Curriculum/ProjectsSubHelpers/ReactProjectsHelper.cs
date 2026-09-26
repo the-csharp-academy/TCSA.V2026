@@ -1,4 +1,5 @@
-﻿using TCSA.V2026.Data.Models;
+﻿using TCSA.V2026.Data.Curriculum;
+using TCSA.V2026.Data.Models;
 using TCSA.V2026.Data.Models.LanguageModels;
 using TCSA.V2026.Helpers;
 using static System.Net.WebRequestMethods;
@@ -52,7 +53,11 @@ internal static class ReactProjectsHelper
                         Body = "However, I have to admit, it’s a great tutorial. Truly beginner friendly. And it does have an interesting feature that lets you back previous moves. With this tutorial, you’ll be ready to jump into more interesting stuff right away."
                     }
                 },
-                RequirementsIntro = "This project has only one requirement. You’ll build a Tic-Tac-Toe game following React’s documentation. The objective at this stage isn’t to modify it or do anything fancy with it. Right now all you need to do is learn the basics. And there’s a lot to learn. So stick to the tutorial and take your time studying each line of code.",
+                Requirements = new List<string>
+                {
+                    CurriculumConstants.ReadMeRequirement
+                },
+                RequirementsIntro = "You’ll build a Tic-Tac-Toe game following React’s documentation. The objective at this stage isn’t to modify it or do anything fancy with it. Right now all you need to do is learn the basics. And there’s a lot to learn. So stick to the tutorial and take your time studying each line of code.",
 
                 Resources = new List<string>
                 {
@@ -102,7 +107,8 @@ internal static class ReactProjectsHelper
                     "One of the properties of your API's model should be imageUrl, with a link to pictures that will be shown by the React front end.",
                     "Your app needs to have a list of records and a page to visualise an individual record.",
                     "Your app should show a 'Loading Data...' message or some other UI element (i.e. spinner, loading bar) while the request hasn't been completed.",
-                    "If there's a server error, the user should be informed."
+                    "If there's a server error, the user should be informed.",
+                    CurriculumConstants.ReadMeRequirement
                 },
                 Resources = new List<string>
                 {
@@ -148,7 +154,8 @@ internal static class ReactProjectsHelper
                     "This is a CRUD Shopping List App with React and .NET Web API .",
                     "Users should be able to cross items from the shopping-list without deleting them. You can use a IsPickedUp boolean for that.",
                     "You should create two projects: A .NET WebApi and a React app.",
-                    "You should use state management libraries (i.e. Redux)."
+                    "You should use state management libraries (i.e. Redux).",
+                    CurriculumConstants.ReadMeRequirement
                 },
                 ResourcesIntro = "The resources from the previous projects will be helpful in the completion of this project, plus these tutorials:",
 
@@ -202,7 +209,8 @@ internal static class ReactProjectsHelper
                     "Users should be able to easily visualize the friends that are getting the least attention (i.e. Last contact date has been longer than desired contact frequency)",
                     "When adding a new friend, the form should contain a dropdown with the Category.",
                     "You need to use Redux for state management.",
-                    "You need to handle validation and server errors."
+                    "You need to handle validation and server errors.",
+                    CurriculumConstants.ReadMeRequirement
                 },
                 ResourcesIntro = "Adding onto the resources of our previous React projects, you’ll need to find out how to use Redux:",
                 Resources = new List<string>

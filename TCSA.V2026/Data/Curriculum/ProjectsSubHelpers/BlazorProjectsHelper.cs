@@ -1,4 +1,5 @@
-﻿using TCSA.V2026.Data.Models;
+﻿using TCSA.V2026.Data.Curriculum;
+using TCSA.V2026.Data.Models;
 using TCSA.V2026.Data.Models.LanguageModels;
 using TCSA.V2026.Helpers;
 
@@ -50,7 +51,8 @@ internal static class BlazorProjectsHelper
                     "You should use Entity Framework.",
                     "Your database should have a single table. The objective is to focus on learning Blazor, so we should avoid the complexities of relational data.",
                     "Users of your app need to be able to upload pictures of wardrobe items.",
-                    "You <b>can't use Javascript Interop</b>. The objective is to stay away from JS, even though it's still possible to use it."
+                    "You <b>can't use Javascript Interop</b>. The objective is to stay away from JS, even though it's still possible to use it.",
+                    CurriculumConstants.ReadMeRequirement
                 },
                 Resources = new List<string>
                 {
@@ -103,7 +105,8 @@ internal static class BlazorProjectsHelper
                     "You should have at least 3 levels of difficulty.",
                     "Your game should have at least 10 cards.",
                     "The app should have two main components: the game and the games history list.",
-                    "You don't need a database for the game functionality. All the information about the cards can be in lists in the code base."
+                    "You don't need a database for the game functionality. All the information about the cards can be in lists in the code base.",
+                    CurriculumConstants.ReadMeRequirement
                 },
                 ResourcesConclusion = "You should be able to complete this project with the same resources found in the <a href='article/39/wardrobe-inventory' target='blank'>Blazor Wardrobe Inventory</a> project.",
                 Tips = new List<string>
@@ -149,7 +152,8 @@ internal static class BlazorProjectsHelper
                     "Your app should have a vibrant color palette.",
                     "There should be a feature that allows the users to quickly record frequent meals.",
                     "There should be a search functionality (per date, per food, per meal type)",
-                    "There should be a report feature with queries such as how many times the user had a certain food per period of time."
+                    "There should be a report feature with queries such as how many times the user had a certain food per period of time.",
+                    CurriculumConstants.ReadMeRequirement
                 },
                 Tips = new List<string>
                 {
@@ -194,6 +198,7 @@ internal static class BlazorProjectsHelper
                     "The reports area should be updated immediately upon a button being clicked.",
                     "You need to have unit tests and integration tests covering some of your code. Pick the most critical and error-prone parts of your code base to be covered by tests.",
                     "You need to add Authentication and Authorization so only logged in users can use the app.",
+                    CurriculumConstants.ReadMeRequirement
                 },
                 ResourcesIntro="You should have all skills necessary to complete this project, except for adding charts . Here are a couple of resources to get you started.",
                 Resources = new List<string>

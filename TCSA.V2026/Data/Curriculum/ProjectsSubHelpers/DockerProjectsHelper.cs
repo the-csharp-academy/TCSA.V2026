@@ -1,4 +1,5 @@
-﻿using TCSA.V2026.Data.Enums;
+﻿using TCSA.V2026.Data.Curriculum;
+using TCSA.V2026.Data.Enums;
 using TCSA.V2026.Data.Models;
 using TCSA.V2026.Data.Models.LanguageModels;
 
@@ -46,7 +47,7 @@ public class DockerProjectsHelper
                     @"The goal is to demonstrate a working application inside a container. You do NOT need to use external databases, volumes, or advanced Docker features. The Math Game is ideal for this project, since it doesn't contain any dependencies.",
                     @"You must create a Dockerfile that defines how your application is containerized. Include instructions to restore, build, and run your project.",
                     @"Your Docker image should be buildable using the 'docker build' command, and the container should be runnable with 'docker run'.",
-                    @"You should include a brief README explaining how to build and run your container. Mention any dependencies or setup steps.",
+                    CurriculumConstants.ReadMeRequirement
                 },
                 Resources = new List<string>
                 {
@@ -111,8 +112,7 @@ public class DockerProjectsHelper
                      @"Your application needs to connect to the database using a connection string provided through Docker Compose.",
                      @"You need to seed test data so it's clear the app is successfully communicating with the database container.",
                      @"Your docker-compose.yml file should expose the necessary ports so the app can be accessed from the browser or an API client.",
-                     @"You should include a README explaining how to build and run the application using Docker Compose.",
-                     @"Your README should explain the purpose of each service in your docker-compose.yml file.",
+                     CurriculumConstants.ReadMeRequirement
                  },
                  Resources = new List<string>
                  {
@@ -175,7 +175,7 @@ public class DockerProjectsHelper
                      @"You need to configure CORS correctly so the frontend can communicate with the API.",
                      @"You need to use environment variables for API URLs, database connection strings and any other environment-specific values.",
                      @"You need to use a volume so database data can persist between container restarts.",
-                     @"You should include a README explaining how the containers communicate with each other. It should include commands to build, run, stop and remove the application containers."
+                     CurriculumConstants.ReadMeRequirement
                  },
                  Resources = new List<string>
                  {
@@ -242,7 +242,7 @@ public class DockerProjectsHelper
                      @"You need to use a ConfigMap for non-sensitive configuration.",
                      @"You need to use a Secret for at least one sensitive configuration value.",
                      @"You need to document the kubectl commands used to apply, inspect and delete your Kubernetes resources.",
-                     @"Your README should explain, in your own words, the difference between a Docker container, a Kubernetes Pod, a Deployment and a Service.",
+                     CurriculumConstants.ReadMeRequirement
                  },
                  Resources = new List<string>
                  {

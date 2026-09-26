@@ -1,4 +1,5 @@
-﻿using TCSA.V2026.Data.Enums;
+﻿using TCSA.V2026.Data.Curriculum;
+using TCSA.V2026.Data.Enums;
 using TCSA.V2026.Data.Models;
 using TCSA.V2026.Data.Models.LanguageModels;
 
@@ -129,7 +130,7 @@ internal static class StandAloneProjectsHelper
                 },
                 Requirements = new List<string>
                 {
-                    @"Your project needs to contain a Readme with an overview of the system, justification of your choices and instructions on how to run the application. An initial PR needs to be created with this document and a diagram file (the format is up to you). This PR is a requirement to achieve Grey Belt.",
+                    @"An initial PR needs to be created with your README and a diagram file (the format is up to you). This PR is a requirement to achieve Grey Belt.",
                     @"You need to build a full-stack web app with front-end, back-end and database. You can choose any front-end technology, but the back end has to be .NET/C#.",
                     @"If you have an amazing idea that doesn't require a front-end, let us know so we can assess it.",
                     @"Authorization/authentication, including at least one external provider.",
@@ -137,7 +138,8 @@ internal static class StandAloneProjectsHelper
                     @"You need to use at least two Azure Functions.",
                     @"Your project will be thoroughly tested. Make sure errors are handled properly.",
                     @"Logging and monitoring capabilities. You can choose a service of your choice.",
-                    @"You need to deploy your solution to Azure and produce a link to the website."
+                    @"You need to deploy your solution to Azure and produce a link to the website.",
+                    CurriculumConstants.ReadMeRequirement
                 },
                 Blocks = new List<Block>
                 {
@@ -197,7 +199,7 @@ internal static class StandAloneProjectsHelper
                 Requirements = new List<string>
                 {
                     @"You can't build a project with the same features/challenges already present in the academy. But you can definitely expand or tweak our existing projects. Example: Do you want to create a multi-player function for the Math Game? Yup, that counts and will be approved.",
-                    @"You need to provide a Readme with information on how to run your project and detailing your thought process. This is extremely useful for your learning. Science shows self-reflection goes a long way in retention and motivation. Plus you'll be working on your communication skills."
+                    CurriculumConstants.ReadMeRequirement
                 },
                 RequirementsConclusion = "You can use any technology you want, as long as .NET/C# is involved. It can be just console or full-stack. You'll be rewarded from <b>10 to 200 Experience Points</b> based on the creativity, complexity and quality of your project. That's it! We can't wait to see what you come up with.",
                 Tips = new List<string>

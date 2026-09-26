@@ -1,4 +1,5 @@
-﻿using TCSA.V2026.Data.Enums;
+﻿using TCSA.V2026.Data.Curriculum;
+using TCSA.V2026.Data.Enums;
 using TCSA.V2026.Data.Models;
 using TCSA.V2026.Data.Models.LanguageModels;
 using TCSA.V2026.Helpers;
@@ -254,7 +255,7 @@ public class ConsoleProjectsHelper
                     "You should handle all possible errors so that the application never crashes.",
                     "You can only interact with the database using ADO.NET. You can’t use mappers such as Entity Framework or Dapper.",
                     "Follow the <a href='/article/30006/dry-principle-csharp' target='_blank'>DRY Principle</a>, and avoid code repetition.",
-                    "Your project needs to contain a Read Me file where you'll explain how your app works and tell a little bit about your thought progress. What was hard? What was easy? What have you learned? Here's a nice example:"
+                    CurriculumConstants.ReadMeRequirement
                 },
                 RequirementsConclusion = "<a target='_blank' href='https://github.com/thags/ConsoleTimeLogger'>Github project with an example of a tidy Read Me file.</a>",
 
@@ -379,7 +380,7 @@ public class ConsoleProjectsHelper
                     "The user should be able to input the start and end times manually.",
                     "You need to use <b>Dapper ORM</b> for the data access instead of ADO.NET. (This requirement was included in Feb/2024)",
                     "Follow the <a href='/article/30006/dry-principle-csharp' target='_blank'>DRY Principle</a>, and avoid code repetition.",
-                    "Don't forget the <b>ReadMe</b> explaining your thought process."
+                    CurriculumConstants.ReadMeRequirement
                 },
                 Resources = new List<string>
                 {
@@ -471,7 +472,8 @@ public class ConsoleProjectsHelper
                     "When showing a stack to the user, the flashcard Ids should always start with 1 without gaps between them. If you have 10 cards and number 5 is deleted, the table should show Ids from 1 to 9.",
                     "After creating the flashcards functionalities, create a \"Study Session\" area, where the users will study the stacks. All study sessions should be stored, with date and score.",
                     "The study and stack tables should be linked. If a stack is deleted, it's study sessions should be deleted.",
-                    "The project should contain a call to the study table so the users can see all their study sessions. This table receives insert calls upon each study session, but there shouldn't be update and delete calls to it."
+                    "The project should contain a call to the study table so the users can see all their study sessions. This table receives insert calls upon each study session, but there shouldn't be update and delete calls to it.",
+                    CurriculumConstants.ReadMeRequirement
                 },
                 Tips = new List<string>
                 {
@@ -567,7 +569,8 @@ public class ConsoleProjectsHelper
                     "You don't need SQL here, as you won't be operating the database. All you need is to create a user-friendly way to present the data to the users (the restaurant employees)",
                     "When the users open the application, they should be presented with the Drinks Category Menu and invited to choose a category. Then they'll have the chance to choose a drink and see information about it.",
                     "When the users visualise the drink detail, there shouldn't be any properties with empty values.",
-                    "You should handle errors so that if the API is down, the application doesn't crash."
+                    "You should handle errors so that if the API is down, the application doesn't crash.",
+                    CurriculumConstants.ReadMeRequirement
                 },
                 ResourcesIntro = "Here are the links for using HTTP calls with C# and to the Drinks API documentation:",
                 Resources = new List<string>
@@ -624,6 +627,7 @@ public class ConsoleProjectsHelper
                     "Make sure you handle errors so the app doesn't crash unexpectedly in case EF or the database have problems.",
                     "You should use Code-First Approach, which means EF will create the database schema for you.",
                     "You should seed data using Entity Framework so the user has some contacts to start with.",
+                    CurriculumConstants.ReadMeRequirement
                 },
                 ResourcesIntro = "Here are a few resources that might be helpful.",
                 Resources = new List<string>
@@ -685,7 +689,8 @@ public class ConsoleProjectsHelper
                     "All validation and user input should happen in the UI app.",
                     "Your API's controller should be lean. Any logic should be handled in a separate \"service\".",
                     "You should use the \"code first\" approach to create your database, using Entity Framework's migrations tool.",
-                    "Your front-end project needs to have try-catch blocks around the API calls so it handles unexpected errors (i.e. the API isn't running or returns a 500 error.)"
+                    "Your front-end project needs to have try-catch blocks around the API calls so it handles unexpected errors (i.e. the API isn't running or returns a 500 error.)",
+                    CurriculumConstants.ReadMeRequirement
                 },
                 ResourcesIntro = "Here are a few resources that might be helpful.",
                 Resources = new List<string>
@@ -743,7 +748,8 @@ public class ConsoleProjectsHelper
                     "You don't need to create a UI to consume your API.",
                     "Your GetProducts and GetSales endpoints need to have pagination capabilities.",
                     "In retail it's good practice to prevent deletion of records. Feel free to add soft-deletes.",
-                    "You shouldn't update products prices. What would happen if you made a sale and later updated the price of that product?"
+                    "You shouldn't update products prices. What would happen if you made a sale and later updated the price of that product?",
+                    CurriculumConstants.ReadMeRequirement
                 },
                 ResourcesIntro = "Here are a few resources that might be helpful.",
                 Resources = new List<string>
@@ -794,7 +800,8 @@ public class ConsoleProjectsHelper
                     "This is an application where you should read sports data from a website once a day and send it to a specific e-mail address.",
                     "You don't need any interaction with the program. It will be a service that runs automatically.",
                     "The data should be collected from the Basketball Reference Website in the resources area.",
-                    "You should use the Agility Pack library for scrapping."
+                    "You should use the Agility Pack library for scrapping.",
+                    CurriculumConstants.ReadMeRequirement
                 },
                 ResourcesIntro = "Here are a few resources that might be helpful.",
                 Resources = new List<string>
@@ -843,11 +850,12 @@ public class ConsoleProjectsHelper
                 Requirements = new List<string>
                 {
                     "In this project you'll seed data either into the Phone Book app or the Ecommerce app you've created before as part of the roadmap. The spreadsheet can have .xls, xlsx or csv formats.",
-                    "You can use any package or library you need, just make sure you provide enough information on how to set it up in your readme.",
+                    "You can use any package or library you need.",
                     "When the application starts, if there's no data it should populate the database with data from the spreadsheet. ",
                     "Once the database is populated, you'll fetch data from it and show it in the console.",
                     "Your app needs to have a report functionality that exports data into a pdf file in your computer.",
-                    "Handle errors so that a file is corrupted or the path is wrong, the app doesn't crash."
+                    "Handle errors so that a file is corrupted or the path is wrong, the app doesn't crash.",
+                    CurriculumConstants.ReadMeRequirement
                 },
                 Challenges = new List<string>
                 {
@@ -889,7 +897,8 @@ public class ConsoleProjectsHelper
                     "Your unit tests should test <b>at least</b> the input validation methods, making sure the app correctly prevents the user from inserting incorrect data.",
                     "Your integration tests cannot use InMemoryDatabase, as it doesn't mimick the behavior of a SQL database correctly. If your project uses SQL Server, using SQLite for the tests is still acceptable",
                     "You can user whatever testing library you want. The most popular are NUnit and Xunit.",
-                    "You should test both correct and incorrect inputs."
+                    "You should test both correct and incorrect inputs.",
+                    CurriculumConstants.ReadMeRequirement
                 },
                 ResourcesIntro = "Here are a few resources that might be helpful.",
                 Resources = new List<string>

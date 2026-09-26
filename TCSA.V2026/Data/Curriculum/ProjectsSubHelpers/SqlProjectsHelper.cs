@@ -1,4 +1,5 @@
-﻿using TCSA.V2026.Data.Enums;
+﻿using TCSA.V2026.Data.Curriculum;
+using TCSA.V2026.Data.Enums;
 using TCSA.V2026.Data.Models;
 using TCSA.V2026.Data.Models.LanguageModels;
 using TCSA.V2026.Helpers;
@@ -45,7 +46,8 @@ internal static class SqlProjectsHelper
                     "Create a query to list out the id number and name of the last 3 categories from the tblCategory table in alphabetical order,",
                     "Write a query to show the first 5 events (in date order) from the tblEvent table. You should give the columns aliases (What and Details in this case); Even though you're sorting by the event date, it shouldn't be included in your results. ",
                     "Create a query which uses two separate SELECT statements to show the first and last 2 events in date order from the tblEvent table. Redirect the output of this query to text, rather than to grid.",
-                    "Each exercise should be preceded by a comment stating the exercise instruction: (i.e. -- Create a query to list out the event name ...)"
+                    "Each exercise should be preceded by a comment stating the exercise instruction: (i.e. -- Create a query to list out the event name ...)",
+                    CurriculumConstants.ReadMeRequirement
                 },
                 Tips = new List<string>
                 {
@@ -94,7 +96,8 @@ internal static class SqlProjectsHelper
                     "Create a query with events which aren't in the Transport category (number 14), but which nevertheless include the text Train in the EventDetails column.",
                     "List events which are in the Space country (number 13), but which don't mention Space in either the event name or the event details columns.",
                     "Events which are in categories 5 or 6 (War/conflict and Death/disaster), but which don't mention either War or Death in the EventDetails column.",
-                    "Each exercise should be preceded by a comment stating the exercise instruction: (i.e. -- Create a query to list out the event name ...)"
+                    "Each exercise should be preceded by a comment stating the exercise instruction: (i.e. -- Create a query to list out the event name ...)",
+                    CurriculumConstants.ReadMeRequirement
                 },
                 Resources = new List<string>
                 {
@@ -140,6 +143,7 @@ internal static class SqlProjectsHelper
                     "<a target='blank' href='https://www.codewars.com/kata/5910b0d378cc2ba91400000b'>Collect Tuition (SQL for Beginners #4)</a>",
                     "<a target='blank' href='https://www.codewars.com/kata/591127cbe8b9fb05bd00004b'>Best-Selling Books (SQL for Beginners #5)</a>",
                     "<a target='blank' href='https://www.codewars.com/kata/5e5f09dc0a17be0023920f6f'>Countries Capitals for Trivia Night (SQL for Beginners #6)</a>",
+                    CurriculumConstants.ReadMeRequirement
                 },
                 Tips = new List<string>
                 {
@@ -217,6 +221,7 @@ internal static class SqlProjectsHelper
                     "<a target='blank' href='https://www.codewars.com/kata/5809508cc47d327c12000084'>SQL Basics: Simple WHERE and ORDER BY</a>",
                     "<a target='blank' href='https://www.codewars.com/kata/594a9592704e4d21bc000131'>SQL Basics: Modulus</a>",
                     "<a target='blank' href='https://www.codewars.com/kata/594a6133704e4daf5d00003d'>Easy SQL: Rounding Decimals</a>",
+                    CurriculumConstants.ReadMeRequirement
                 },
                 ResourcesIntro = "If this is your first contact with SQL, Free Code Camp's tutorial is an excellent resource. It's 5 years old but that's not an issue. Most core SQL features haven't changed a lot since they have been created. If you already know some SQL, SQLtutorial.org is a slim, to-the-point resource for learning commands you're not familiar with.",
                 Resources = new List<string>
@@ -281,6 +286,7 @@ internal static class SqlProjectsHelper
                     "<a target='blank' href='https://www.codewars.com/kata/653f7207da59f62d2ee55035'>Drug Dosages with Dual Unit Measurements</a>",
                     "<a target='blank' href='https://www.codewars.com/kata/650c5aa70b7009a1640c9596'>Sibling Count based on Common Parent</a>",
                     "<a target='blank' href='https://www.codewars.com/kata/62b0da0e58e471000f28ce99'>First Normal Form</a>",
+                    CurriculumConstants.ReadMeRequirement
                 },
                 IsClosed = false,
                 CodeWarsChallenges = new List<CodeWarsChallenge>

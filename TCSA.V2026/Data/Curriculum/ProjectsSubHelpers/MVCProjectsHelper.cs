@@ -1,4 +1,5 @@
-﻿using TCSA.V2026.Data.Models;
+﻿using TCSA.V2026.Data.Curriculum;
+using TCSA.V2026.Data.Models;
 using TCSA.V2026.Data.Models.LanguageModels;
 using TCSA.V2026.Helpers;
 
@@ -49,6 +50,7 @@ internal static class MVCProjectsHelper
                     "Follow the Razor Project Tutorial in the link provided, creating a list of steps with notes you think are important.",
                     "Recreate the project, with a different business case. Track something different and use different styling. Time to be creative!!",
                     "Add error handling to all your operations. You can test this by deleting the table and trying any of the CRUD operations to see what happens.",
+                    CurriculumConstants.ReadMeRequirement
                 },
                 ResourcesIntro = "Here are a few resources that might be helpful.",
                 Resources = new List<string>
@@ -127,7 +129,8 @@ internal static class MVCProjectsHelper
                     "There needs to be a search functionality where I can search movies by name.",
                     "You should use SQL Server, not SQLite.",
                     "Once you finish the tutorial, you'll need to improve the UI. Add your personal touch with different colors, buttons, etc. The more the better.",
-                    "You can't leave any unused code from the tutorials. Make sure you remove any unused controllers, unnecessary comments and whatever else you find that doesn't abide to professional standards."
+                    "You can't leave any unused code from the tutorials. Make sure you remove any unused controllers, unnecessary comments and whatever else you find that doesn't abide to professional standards.",
+                    CurriculumConstants.ReadMeRequirement
                 },
                 ResourcesIntro = "Here are a few resources that might be helpful.",
                 Resources = new List<string>
@@ -196,7 +199,8 @@ internal static class MVCProjectsHelper
                     "When deleting, present an 'Are you sure?' confirmation message",
                     "Upon updating, present a message saying the record hasn't been updated until the user submits the new todo. Then present a success message.",
                     "You need to add validation. For example, empty input shouldn't be allowed. Feel free to add more validations as you see fit.",
-                    "You need to handle errors gracefully, with a relevant error message presented to the user."
+                    "You need to handle errors gracefully, with a relevant error message presented to the user.",
+                    CurriculumConstants.ReadMeRequirement
                 },
                 ResourcesIntro = "Here are a few resources that might be helpful.",
                 Resources = new List<string>
@@ -253,7 +257,8 @@ internal static class MVCProjectsHelper
                     "You should use SQL Server, not SQLite.",
                     "You should have a search functionality where I can search transactions by name",
                     "You should have a filter functionality, so I can show transactions per category and per date.",
-                    "You need to use modals to insert, delete and update transactions and categories. These operations shouldn't be done in a different page."
+                    "You need to use modals to insert, delete and update transactions and categories. These operations shouldn't be done in a different page.",
+                    CurriculumConstants.ReadMeRequirement
                 },
                 ResourcesIntro = "Here are a few resources that might be helpful.",
                 Resources = new List<string>

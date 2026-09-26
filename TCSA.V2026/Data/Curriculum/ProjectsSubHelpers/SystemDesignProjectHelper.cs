@@ -65,12 +65,11 @@ public class SystemDesignProjectHelper
                     "You need to add logging for important operations and errors.",
                     "You need to add Open API documentation.",
                     "You should seed sample tables so the application can be tested immediately.",
-                    "You should include a README explaining Clean Architecture, dependency direction and how a reservation request flows through your application.",
                     "You need to containerize the application using Docker.",
                     "You need to create a Dockerfile for the API project.",
                     "You need to use Docker Compose to run the API and database together.",
                     "The application should be fully runnable with a single docker compose up command.",
-                    "You should include instructions in the README explaining how to run the project with Docker.",
+                    CurriculumConstants.ReadMeRequirement
                 },
                 ResourcesIntro = "Here are a few resources that might be helpful.",
                 Resources = new List<string>
