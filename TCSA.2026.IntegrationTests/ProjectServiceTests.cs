@@ -100,6 +100,38 @@ public class ProjectServiceTests : IntegrationTestsBase
     }
 
     [Test]
+    public async Task ArchivedFreestyleProjectCanBeResubmitted()
+    {
+        using (var seedContext = DbContextFactory.CreateDbContext())
+        {
+            seedContext.DashboardProjects.Add(new DashboardProject
+            {
+                Id = 1,
+                AppUserId = "user1",
+                ProjectId = (int)ArticleName.FreestyleProject,
+                IsCompleted = true,
+                IsArchived = true,
+                IsPendingNotification = false,
+                IsPendingReview = false,
+                DateSubmitted = DateTime.Now.AddDays(-10),
+                DateCompleted = DateTime.Now.AddDays(-9),
+                GithubUrl = "fakeUrl1"
+            });
+
+            await seedContext.SaveChangesAsync();
+        }
+
+        await _service.CreateDashboardProject((int)ArticleName.FreestyleProject, "user1", "fakeUrl2");
+
+        using var assertContext = DbContextFactory.CreateDbContext();
+        var list = assertContext.DashboardProjects
+            .Where(p => p.ProjectId == (int)ArticleName.FreestyleProject && p.AppUserId == "user1")
+            .ToList();
+
+        Assert.That(list.Count, Is.EqualTo(2));
+    }
+
+    [Test]
     public async Task ArchivedArticleCanBeReopened()
     {
         using (var seedContext = DbContextFactory.CreateDbContext())
