@@ -331,6 +331,33 @@ public class ProjectServiceTests : IntegrationTestsBase
     }
 
     [Test]
+    public async Task MarkAsCompleted_FreestyleProject_ArchivesRow()
+    {
+        using (var seedContext = DbContextFactory.CreateDbContext())
+        {
+            seedContext.DashboardProjects.Add(new DashboardProject
+            {
+                Id = 101,
+                AppUserId = "user1",
+                ProjectId = (int)ArticleName.FreestyleProject,
+                IsPendingReview = true,
+                GithubUrl = "fakeUrl"
+            });
+
+            await seedContext.SaveChangesAsync();
+        }
+
+        await _service.MarkAsCompleted(101);
+
+        using var assertContext = DbContextFactory.CreateDbContext();
+        var project = assertContext.DashboardProjects.FirstOrDefault(p => p.Id == 101);
+
+        Assert.That(project, Is.Not.Null);
+        Assert.That(project.IsCompleted, Is.True);
+        Assert.That(project.IsArchived, Is.True);
+    }
+
+    [Test]
     public async Task MarkAsCompleted_ProjectNotFound_DoesNotAwardAnyBadge()
     {
         var response = await _service.MarkAsCompleted(9999);
