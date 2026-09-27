@@ -43,7 +43,9 @@
 
     protected override void OnParametersSet()
     {
-        GithubUrl = User.DashboardProjects.FirstOrDefault(p => p.ProjectId == ProjectId)?.GithubUrl ?? string.Empty;
+        GithubUrl = IsUpdate
+            ? User.DashboardProjects.FirstOrDefault(p => p.ProjectId == ProjectId && !p.IsArchived)?.GithubUrl ?? string.Empty
+            : string.Empty;
     }
 
     private void ValidateUrl()
