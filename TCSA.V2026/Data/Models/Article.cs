@@ -144,6 +144,7 @@ public enum ArticleName
     DeployFullStack = 48,
     DeployFramework = 49,
     AzureFunctions = 100000,
+    FreestyleProject = 100001,
 
     BreweryApi = 64,
     Flagship = 139,
