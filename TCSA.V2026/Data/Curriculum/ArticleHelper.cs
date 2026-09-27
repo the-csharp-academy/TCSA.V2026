@@ -1270,65 +1270,10 @@ git push</code>"
                             }
                         }
                     },
+                    // Removed codacy/code-analysis block as requested
                     new Block
                     {
-                        Title = "6. Fix any code-analysis issues",
-                        Paragraphs = new List<Paragraph>
-                        {
-                            new Paragraph
-                            {
-                                Body = "\nWe're currently implementing automatic code-analysis to speed up the code review process. In some projects, after submitting a pull request, you'll see the following:"
-                            },
-                            new Paragraph
-                            {
-                                IsPicture = true,
-                                PictureUrl = "code-review-6.png"
-                            },
-                            new Paragraph
-                            {
-                                Body = "\nThis means your code is currently being scanned by a code-analysis tool. Wait a few minutes and you'll see if any issues have been picked up. If  no problems were found, you don't need to do anything. You'll see the following message: "
-                            },
-                            new Paragraph
-                            {
-                                IsPicture = true,
-                                PictureUrl = "code-review-7.png"
-                            },
-                            new Paragraph
-                            {
-                                Body = "If issues were found, you'll see the following message. Click on the 'details' link on the right side:  "
-                            },
-                            new Paragraph
-                            {
-                                IsPicture = true,
-                                PictureUrl = "code-review-8.png"
-                            },
-                            new Paragraph
-                            {
-                                Body = "Another screen will be opened. Click on 'Resolve' or 'View more details on Codacy Production':"
-                            },
-                            new Paragraph
-                            {
-                                IsPicture = true,
-                                PictureUrl = "code-review-9.png"
-                            },
-                            new Paragraph
-                            {
-                                Body = "In the next screen you'll be able to see all pending issues. You can expand each alert to see exactly where the error is by click on the down arrow on the right side. Go back to your code, fix those errors, commit and push. Your PR will be updated automatically and the code-analysis will run again. Check if all tests passed and wait for The C# Academy to review your code."
-                            },
-                            new Paragraph
-                            {
-                                IsPicture = true,
-                                PictureUrl = "code-review-10.png"
-                            },
-                            new Paragraph
-                            {
-                                Body = "<b>Important</b>: If Codacy is demanding you make changes that break your code, <b>feel free to ignore</b>. Also, <b>ignore Codacy's warnings about the README file</b>."
-                            },
-                        }
-                    },
-                    new Block
-                    {
-                        Title = "7. Submit in the Dashboard",
+                        Title = "6. Submit in the Dashboard",
                         Paragraphs = new List<Paragraph>
                         {
                             new Paragraph
@@ -1348,7 +1293,7 @@ git push</code>"
                     },
                     new Block
                     {
-                        Title = "8. Rework your project",
+                        Title = "7. Rework your project",
                         Paragraphs = new List<Paragraph>
                         {
                             new Paragraph
@@ -1364,7 +1309,7 @@ git push</code>"
                     },
                     new Block
                     {
-                        Title = "9. Project Archived",
+                        Title = "8. Project Archived",
                         Paragraphs = new List<Paragraph>
                         {
                             new Paragraph
