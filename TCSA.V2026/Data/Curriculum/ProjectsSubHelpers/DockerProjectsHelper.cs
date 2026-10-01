@@ -24,7 +24,7 @@ public class DockerProjectsHelper
                 Level = Level.Black,
                 ExperiencePoints = 50,
                 DisplayOrder= 1,
-                RepositoryLink = "https://github.com/TheCSharpAcademy/CodeReviews.Docker.Containers",
+                RepositoryLink = "https://github.com/the-csharp-academy/CodeReviews.Docker.Containers",
                 Introduction = new List<Paragraph>
                 {
                     new Paragraph
@@ -83,7 +83,7 @@ public class DockerProjectsHelper
                  Level = Level.Black,
                  ExperiencePoints = 75,
                  DisplayOrder = 2,
-                 RepositoryLink = "https://github.com/TheCSharpAcademy/CodeReviews.Docker.Compose",
+                 RepositoryLink = "https://github.com/the-csharp-academy/CodeReviews.Docker.Compose",
                  Introduction = new List<Paragraph>
                  {
                      new Paragraph
@@ -149,7 +149,7 @@ public class DockerProjectsHelper
                  Level = Level.Black,
                  ExperiencePoints = 100,
                  DisplayOrder = 3,
-                 RepositoryLink = "https://github.com/TheCSharpAcademy/CodeReviews.Docker.FullStack",
+                 RepositoryLink = "https://github.com/the-csharp-academy/CodeReviews.Docker.FullStack",
                  Introduction = new List<Paragraph>
                  {
                      new Paragraph
@@ -214,7 +214,7 @@ public class DockerProjectsHelper
                  Level = Level.Black,
                  ExperiencePoints = 125,
                  DisplayOrder = 4,
-                 RepositoryLink = "https://github.com/TheCSharpAcademy/CodeReviews.Docker.Kubernetes",
+                 RepositoryLink = "https://github.com/the-csharp-academy/CodeReviews.Docker.Kubernetes",
                  Introduction = new List<Paragraph>
                  {
                      new Paragraph
