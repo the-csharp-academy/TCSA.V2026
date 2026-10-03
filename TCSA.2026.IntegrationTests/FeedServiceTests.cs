@@ -147,6 +147,45 @@ public class FeedServiceTests : IntegrationTestsBase
     }
 
     [Test]
+    public async Task GetFeedItemsByCursor_ShouldIncludeMultipleFreestyleCompletionsSeparately()
+    {
+        // Arrange
+        using var context = DbContextFactory.CreateDbContext();
+
+        var firstCompletion = new AppUserActivity
+        {
+            Id = 1,
+            AppUserId = "user1",
+            ProjectId = (int)ArticleName.FreestyleProject,
+            ActivityType = ActivityType.ProjectCompleted,
+            DateSubmitted = DateTime.UtcNow.AddDays(-2)
+        };
+
+        var secondCompletion = new AppUserActivity
+        {
+            Id = 2,
+            AppUserId = "user1",
+            ProjectId = (int)ArticleName.FreestyleProject,
+            ActivityType = ActivityType.ProjectCompleted,
+            DateSubmitted = DateTime.UtcNow.AddDays(-1)
+        };
+
+        context.UserActivity.AddRange(firstCompletion, secondCompletion);
+        await context.SaveChangesAsync();
+
+        // Act
+        var result = await _feedService.GetFeedItemsByCursor(null);
+
+        // Assert
+        var freestyleActivities = result.Items
+            .Where(f => f.ActivityType == ActivityType.ProjectCompleted && f.ProjectId == (int)ArticleName.FreestyleProject)
+            .ToList();
+
+        Assert.That(freestyleActivities.Count, Is.EqualTo(2));
+        Assert.That(freestyleActivities.All(f => f.ProjectName == "Free Style Project"), Is.True);
+    }
+
+    [Test]
     public async Task GetFeedItemsByCursor_ShouldIncludeUsers()
     {
         // Arrange
@@ -294,6 +333,45 @@ public class FeedServiceTests : IntegrationTestsBase
         Assert.That(projectActivity.ProjectName, Is.EqualTo("Calculator"));
         Assert.That(projectActivity.Level, Is.Null);
         Assert.That(projectActivity.UserId, Is.EqualTo("user1"));
+    }
+
+    [Test]
+    public async Task GetRecentFeedItems_ShouldIncludeMultipleFreestyleCompletionsSeparately()
+    {
+        // Arrange
+        using var context = DbContextFactory.CreateDbContext();
+
+        var firstCompletion = new AppUserActivity
+        {
+            Id = 1,
+            AppUserId = "user1",
+            ProjectId = (int)ArticleName.FreestyleProject,
+            ActivityType = ActivityType.ProjectCompleted,
+            DateSubmitted = DateTime.UtcNow.AddDays(-2)
+        };
+
+        var secondCompletion = new AppUserActivity
+        {
+            Id = 2,
+            AppUserId = "user1",
+            ProjectId = (int)ArticleName.FreestyleProject,
+            ActivityType = ActivityType.ProjectCompleted,
+            DateSubmitted = DateTime.UtcNow.AddDays(-1)
+        };
+
+        context.UserActivity.AddRange(firstCompletion, secondCompletion);
+        await context.SaveChangesAsync();
+
+        // Act
+        var result = await _feedService.GetRecentFeedItems();
+
+        // Assert
+        var freestyleActivities = result
+            .Where(f => f.ActivityType == ActivityType.ProjectCompleted && f.ProjectId == (int)ArticleName.FreestyleProject)
+            .ToList();
+
+        Assert.That(freestyleActivities.Count, Is.EqualTo(2));
+        Assert.That(freestyleActivities.All(f => f.ProjectName == "Free Style Project"), Is.True);
     }
 
     [Test]

@@ -125,4 +125,42 @@ public class ActivityHelperTests
         Assert.That(actual[5].CurrentExperiencePoints, Is.EqualTo(5));
         Assert.That(actual[6].CurrentExperiencePoints, Is.EqualTo(5));
     }
+
+    [Test]
+    public void FreestyleProject_MultipleCompletions_BothAppearButSecondIsFlaggedAsDuplicateByDescription()
+    {
+        var user = new ApplicationUser
+        {
+            Id = Guid.NewGuid().ToString(),
+            ExperiencePoints = 40,
+            UserActivity = new List<AppUserActivity>
+            {
+                new AppUserActivity
+                {
+                    DateSubmitted = DateTime.Now.AddDays(-2),
+                    ProjectId = (int) ArticleName.FreestyleProject,
+                    ActivityType = ActivityType.ProjectCompleted,
+                },
+                new AppUserActivity
+                {
+                    DateSubmitted = DateTime.Now.AddDays(-1),
+                    ProjectId = (int) ArticleName.FreestyleProject,
+                    ActivityType = ActivityType.ProjectCompleted,
+                }
+            }
+        };
+
+        List<ActivityDisplay> actual = ActivityHelper.GetActivityDisplay(user);
+
+        // Both completions must still show up, most recent first (OrderByDescending DateSubmitted).
+        Assert.That(actual.Count, Is.EqualTo(2));
+        Assert.That(actual[0].Description, Does.Contain("Free Style Project"));
+        Assert.That(actual[1].Description, Does.Contain("Free Style Project"));
+
+        // Documents the current false-positive: identical descriptions from repeat Freestyle
+        // completions get flagged as duplicates even though they're legitimate separate submissions.
+        // CheckForDupes iterates newest-first and flags the second (older) occurrence it sees.
+        Assert.That(actual[0].IsDuplicate, Is.False);
+        Assert.That(actual[1].IsDuplicate, Is.True);
+    }
 }

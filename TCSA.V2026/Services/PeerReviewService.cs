@@ -239,6 +239,11 @@ public class PeerReviewService(IDbContextFactory<ApplicationDbContext> _factory,
                 dashboardProject.IsCompleted = true;
                 dashboardProject.DateCompleted = DateTime.UtcNow;
 
+                if (dashboardProject.ProjectId == (int)ArticleName.FreestyleProject)
+                {
+                    dashboardProject.IsArchived = true;
+                }
+
                 context.UserActivity.AddRange(
                     new AppUserActivity
                     {

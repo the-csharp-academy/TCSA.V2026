@@ -100,6 +100,38 @@ public class ProjectServiceTests : IntegrationTestsBase
     }
 
     [Test]
+    public async Task ArchivedFreestyleProjectCanBeResubmitted()
+    {
+        using (var seedContext = DbContextFactory.CreateDbContext())
+        {
+            seedContext.DashboardProjects.Add(new DashboardProject
+            {
+                Id = 1,
+                AppUserId = "user1",
+                ProjectId = (int)ArticleName.FreestyleProject,
+                IsCompleted = true,
+                IsArchived = true,
+                IsPendingNotification = false,
+                IsPendingReview = false,
+                DateSubmitted = DateTime.Now.AddDays(-10),
+                DateCompleted = DateTime.Now.AddDays(-9),
+                GithubUrl = "fakeUrl1"
+            });
+
+            await seedContext.SaveChangesAsync();
+        }
+
+        await _service.CreateDashboardProject((int)ArticleName.FreestyleProject, "user1", "fakeUrl2");
+
+        using var assertContext = DbContextFactory.CreateDbContext();
+        var list = assertContext.DashboardProjects
+            .Where(p => p.ProjectId == (int)ArticleName.FreestyleProject && p.AppUserId == "user1")
+            .ToList();
+
+        Assert.That(list.Count, Is.EqualTo(2));
+    }
+
+    [Test]
     public async Task ArchivedArticleCanBeReopened()
     {
         using (var seedContext = DbContextFactory.CreateDbContext())
@@ -328,6 +360,33 @@ public class ProjectServiceTests : IntegrationTestsBase
         var badgeCount = assertContext.Badges.Count(b => b.UserId == "user1");
 
         Assert.That(badgeCount, Is.EqualTo(0));
+    }
+
+    [Test]
+    public async Task MarkAsCompleted_FreestyleProject_ArchivesRow()
+    {
+        using (var seedContext = DbContextFactory.CreateDbContext())
+        {
+            seedContext.DashboardProjects.Add(new DashboardProject
+            {
+                Id = 101,
+                AppUserId = "user1",
+                ProjectId = (int)ArticleName.FreestyleProject,
+                IsPendingReview = true,
+                GithubUrl = "fakeUrl"
+            });
+
+            await seedContext.SaveChangesAsync();
+        }
+
+        await _service.MarkAsCompleted(101);
+
+        using var assertContext = DbContextFactory.CreateDbContext();
+        var project = assertContext.DashboardProjects.FirstOrDefault(p => p.Id == 101);
+
+        Assert.That(project, Is.Not.Null);
+        Assert.That(project.IsCompleted, Is.True);
+        Assert.That(project.IsArchived, Is.True);
     }
 
     [Test]

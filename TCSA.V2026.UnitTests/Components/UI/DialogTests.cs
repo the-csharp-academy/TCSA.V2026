@@ -311,4 +311,70 @@ public class DialogTests : BunitContext
             s => s.CreateDashboardProject(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>()),
             Times.Never);
     }
+
+    [Test]
+    public async Task SubmitProjectDialog_FreestyleProject_FreshSubmit_StartsWithBlankUrl_EvenWithArchivedRow()
+    {
+        // Arrange
+        var freestyleUser = new ApplicationUser
+        {
+            Id = TestUserId,
+            DashboardProjects = [new DashboardProject
+            {
+                ProjectId = (int)ArticleName.FreestyleProject,
+                IsCompleted = true,
+                IsArchived = true,
+                GithubUrl = "https://github.com/TheCSharpAcademy/CodeReviews/OldFreestyle"
+            }]
+        };
+
+        var parameters = new DialogParameters<TCSASubmitProjectDialog>();
+        parameters.Add(x => x.ProjectId, (int)ArticleName.FreestyleProject);
+        parameters.Add(x => x.IsUpdate, false);
+        parameters.Add(x => x.User, freestyleUser);
+
+        var providerCut = await ShowDialog(parameters);
+
+        // Assert
+        var input = providerCut.Find("input");
+        Assert.That(input.GetAttribute("value"), Is.Empty);
+    }
+
+    [Test]
+    public async Task SubmitProjectDialog_FreestyleProject_Update_PrefillsFromActiveRowNotArchivedRow()
+    {
+        // Arrange
+        var freestyleUser = new ApplicationUser
+        {
+            Id = TestUserId,
+            DashboardProjects =
+            [
+                new DashboardProject
+                {
+                    ProjectId = (int)ArticleName.FreestyleProject,
+                    IsCompleted = true,
+                    IsArchived = true,
+                    GithubUrl = "https://github.com/TheCSharpAcademy/CodeReviews/OldFreestyle"
+                },
+                new DashboardProject
+                {
+                    ProjectId = (int)ArticleName.FreestyleProject,
+                    IsPendingReview = true,
+                    IsArchived = false,
+                    GithubUrl = "https://github.com/TheCSharpAcademy/CodeReviews/CurrentFreestyle"
+                }
+            ]
+        };
+
+        var parameters = new DialogParameters<TCSASubmitProjectDialog>();
+        parameters.Add(x => x.ProjectId, (int)ArticleName.FreestyleProject);
+        parameters.Add(x => x.IsUpdate, true);
+        parameters.Add(x => x.User, freestyleUser);
+
+        var providerCut = await ShowDialog(parameters);
+
+        // Assert
+        var input = providerCut.Find("input");
+        Assert.That(input.GetAttribute("value"), Is.EqualTo("https://github.com/TheCSharpAcademy/CodeReviews/CurrentFreestyle"));
+    }
 }
