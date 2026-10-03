@@ -37,13 +37,6 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<AppUserActivity>()
-            .HasOne(aua => aua.DashboardProject)
-            .WithMany()
-            .HasForeignKey(aua => aua.ProjectId)
-            .HasPrincipalKey(dp => dp.ProjectId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        modelBuilder.Entity<AppUserActivity>()
             .HasOne(aua => aua.ApplicationUser)
             .WithMany(u => u.UserActivity)
             .HasForeignKey(aua => aua.AppUserId);
