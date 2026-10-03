@@ -390,6 +390,11 @@ public class ProjectService(IDbContextFactory<ApplicationDbContext> _factory, IB
                 project.DateCompleted = DateTime.UtcNow;
                 project.IsPendingNotification = true;
 
+                if (project.ProjectId == (int)ArticleName.FreestyleProject)
+                {
+                    project.IsArchived = true;
+                }
+
                 int experiencePoints;
                 var dashboardProject = DashboardProjectsHelpers.GetProject(project.ProjectId);
                 isCommunityIssue = dashboardProject == null;

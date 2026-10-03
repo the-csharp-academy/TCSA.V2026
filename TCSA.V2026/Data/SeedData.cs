@@ -111,7 +111,7 @@ public static class SeedData
                     ProjectId = 100001,
                     GithubUrl = "https://github.com/TheCSharpAcademy/CodeReviews.Freestyle/pull/1",
                     IsCompleted = true,
-                    IsArchived = false,
+                    IsArchived = true,
                     IsPendingNotification = false,
                     IsPendingReview = false,
                     DateSubmitted = new DateTimeOffset(new DateTime(2025, 2, 1, 0, 0, 0, DateTimeKind.Utc)),

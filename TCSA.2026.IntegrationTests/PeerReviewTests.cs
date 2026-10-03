@@ -391,6 +391,32 @@ public class PeerReviewTests : IntegrationTestsBase
     }
 
     [Test]
+    public async Task MarkCodeReviewAsCompleted_FreestyleProject_ArchivesRow()
+    {
+        using (var seedContext = DbContextFactory.CreateDbContext())
+        {
+            seedContext.DashboardProjects.Add(new DashboardProject
+            {
+                Id = 1,
+                AppUserId = "user1",
+                ProjectId = (int)ArticleName.FreestyleProject,
+                IsPendingReview = true,
+                GithubUrl = "https://github.com/TheCSharpAcademy/CodeReviews/Freestyle1"
+            });
+            await seedContext.SaveChangesAsync();
+        }
+
+        await _service.MarkCodeReviewAsCompleted("user2", 1);
+
+        using var assertContext = DbContextFactory.CreateDbContext();
+        var project = assertContext.DashboardProjects.FirstOrDefault(p => p.Id == 1);
+
+        Assert.That(project, Is.Not.Null);
+        Assert.That(project.IsCompleted, Is.True);
+        Assert.That(project.IsArchived, Is.True);
+    }
+
+    [Test]
     public async Task ReleaseUserFromCodeReview_UserReviewNotFound_ReturnsFail()
     {
         using (var seedContext = DbContextFactory.CreateDbContext())
