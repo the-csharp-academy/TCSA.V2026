@@ -148,6 +148,25 @@
     color: white !important;
 }
 
+/* Page content offset. The drawers live in the interactive LayoutControls island, which reports their
+   state through setLayoutState() (App.razor) as classes on <body>. The nav drawer defaults to open
+   (md and up) so prerendered pages don't jump when the circuit connects. Drawer width is MudBlazor's 240px. */
+.app-content {
+    padding-top: 64px;
+    padding-bottom: 64px;
+    transition: padding .225s cubic-bezier(0, 0, .2, 1);
+}
+
+@media (min-width: 960px) {
+    body:not(.app-nav-closed) .app-content {
+        padding-left: 240px;
+    }
+
+    body.app-right-open .app-content {
+        padding-right: 240px;
+    }
+}
+
 .appbar-search {
     max-width: 320px;
 }
