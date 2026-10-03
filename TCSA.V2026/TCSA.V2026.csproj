@@ -51,6 +51,7 @@
 
   <ItemGroup>
     <None Include="Services\Challenges\ChallengeService.cs" />
+    <None Include="wwwroot\img\Banners\vipbanner.png" />
     <None Include="wwwroot\img\Banners\article-banner.jpg" />
   </ItemGroup>
 
