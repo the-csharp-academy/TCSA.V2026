@@ -15,19 +15,19 @@ public interface IUserService
     Task<ApplicationUser> GetUserForDashboard(string userId);
     Task<ApplicationUser> GetDetailedUserById(string userId);
     Task<ApplicationUser> GetUserProfileById(string userId);
-    Task<BaseResponse> SaveProfile(ApplicationUser user);
-    Task<BaseResponse> ResetAccount(ApplicationUser user);
-    Task<BaseResponse> DeleteAccount(ApplicationUser user);
+    Task<Result> SaveProfile(ApplicationUser user);
+    Task<Result> ResetAccount(ApplicationUser user);
+    Task<Result> DeleteAccount(ApplicationUser user);
     Task<ApplicationUser?> GetUserByIdWithShowcaseItems(string? userid);
     Task<List<ApplicationUser>> GetRecentlyJoinedUsers(int count);
-    Task<BaseResponse> AcknowledgeBeltNotification(string userId);
+    Task<Result> AcknowledgeBeltNotification(string userId);
     Task<OnboardingStatusDto> GetOnboardingStatus(string userId);
-    Task<BaseResponse> MarkWelcomeSeen(string userId);
-    Task<BaseResponse> MarkTourCompleted(string userId);
-    Task<BaseResponse> MarkChecklistDismissed(string userId);
-    Task<BaseResponse> RestartOnboarding(string userId);
-    Task<BaseResponse> ResumeChecklist(string userId);
-    Task<BaseResponse> GetPublicProfile(string userId);
+    Task<Result> MarkWelcomeSeen(string userId);
+    Task<Result> MarkTourCompleted(string userId);
+    Task<Result> MarkChecklistDismissed(string userId);
+    Task<Result> RestartOnboarding(string userId);
+    Task<Result> ResumeChecklist(string userId);
+    Task<Result<PublicProfileResponse>> GetPublicProfile(string userId);
     Task<List<string>> GetUserIdsPendingBackfill(int batchSize);
 }
 
@@ -129,7 +129,7 @@ public class UserService : IUserService
         }
     }
 
-    public async Task<BaseResponse> SaveProfile(ApplicationUser user)
+    public async Task<Result> SaveProfile(ApplicationUser user)
     {
         try
         {
@@ -146,25 +146,17 @@ public class UserService : IUserService
 
                 await context.SaveChangesAsync();
 
-                return new BaseResponse
-                {
-                    Status = ResponseStatus.Success,
-                    Message = "Profile updated successfully."
-                };
+                return Result.Success(new Success("Profile.Updated", "Profile updated successfully."));
             }
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to SaveProfile {UserId}", user.Id);
-            return new BaseResponse
-            {
-                Status = ResponseStatus.Fail,
-                Message = ex.Message
-            };
+            return Result.Failure(new Error("User.Unexpected", ex.Message));
         }
     }
 
-    public async Task<BaseResponse> DeleteAccount(ApplicationUser user)
+    public async Task<Result> DeleteAccount(ApplicationUser user)
     {
         try
         {
@@ -175,25 +167,17 @@ public class UserService : IUserService
 
                 await context.SaveChangesAsync();
 
-                return new BaseResponse
-                {
-                    Status = ResponseStatus.Success,
-                    Message = "Account deleted successfully."
-                };
+                return Result.Success(new Success("Account.Deleted", "Account deleted successfully."));
             }
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to DeleteAccount {UserId}", user.Id);
-            return new BaseResponse
-            {
-                Status = ResponseStatus.Fail,
-                Message = ex.Message
-            };
+            return Result.Failure(new Error("User.Unexpected", ex.Message));
         }
     }
 
-    public async Task<BaseResponse> ResetAccount(ApplicationUser user)
+    public async Task<Result> ResetAccount(ApplicationUser user)
     {
         try
         {
@@ -203,7 +187,7 @@ public class UserService : IUserService
                     .FirstOrDefaultAsync(x => x.Id.Equals(user.Id));
 
                 if (dbUser == null)
-                    return new BaseResponse { Status = ResponseStatus.Fail, Message = "User not found." };
+                    return Result.Failure(new Error("User.NotFound", "User not found."));
 
                 dbUser.ExperiencePoints = 0;
                 dbUser.ReviewedProjects = 0;
@@ -219,21 +203,13 @@ public class UserService : IUserService
 
                 await context.SaveChangesAsync();
 
-                return new BaseResponse
-                {
-                    Status = ResponseStatus.Success,
-                    Message = "User data reset successfully."
-                };
+                return Result.Success(new Success("Account.Reset", "User data reset successfully."));
             }
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to ResetAccount {UserId}", user.Id);
-            return new BaseResponse
-            {
-                Status = ResponseStatus.Fail,
-                Message = ex.Message
-            };
+            return Result.Failure(new Error("User.Unexpected", ex.Message));
         }
     }
 
@@ -278,7 +254,7 @@ public class UserService : IUserService
         }
     }
 
-    public async Task<BaseResponse> AcknowledgeBeltNotification(string userId)
+    public async Task<Result> AcknowledgeBeltNotification(string userId)
     {
         try
         {
@@ -292,11 +268,11 @@ public class UserService : IUserService
                 }
             }
 
-            return new BaseResponse { Status = ResponseStatus.Success };
+            return Result.Success();
         }
         catch (Exception ex)
         {
-            return new BaseResponse { Status = ResponseStatus.Fail, Message = ex.Message };
+            return Result.Failure(new Error("User.Unexpected", ex.Message));
         }
     }
 
@@ -328,7 +304,7 @@ public class UserService : IUserService
         }
     }
 
-    public Task<BaseResponse> MarkWelcomeSeen(string userId)
+    public Task<Result> MarkWelcomeSeen(string userId)
     {
         return UpdateOnboardingFlag(userId, user =>
         {
@@ -336,7 +312,7 @@ public class UserService : IUserService
         });
     }
 
-    public Task<BaseResponse> MarkTourCompleted(string userId)
+    public Task<Result> MarkTourCompleted(string userId)
     {
         return UpdateOnboardingFlag(userId, user =>
         {
@@ -344,7 +320,7 @@ public class UserService : IUserService
         });
     }
 
-    public Task<BaseResponse> MarkChecklistDismissed(string userId)
+    public Task<Result> MarkChecklistDismissed(string userId)
     {
         return UpdateOnboardingFlag(userId, user =>
         {
@@ -352,7 +328,7 @@ public class UserService : IUserService
         });
     }
 
-    public Task<BaseResponse> RestartOnboarding(string userId)
+    public Task<Result> RestartOnboarding(string userId)
     {
         return UpdateOnboardingFlag(userId, user =>
         {
@@ -362,7 +338,7 @@ public class UserService : IUserService
         });
     }
 
-    public Task<BaseResponse> ResumeChecklist(string userId)
+    public Task<Result> ResumeChecklist(string userId)
     {
         return UpdateOnboardingFlag(userId, user =>
         {
@@ -370,7 +346,7 @@ public class UserService : IUserService
         });
     }
 
-    private async Task<BaseResponse> UpdateOnboardingFlag(string userId, Action<ApplicationUser> applyUpdate)
+    private async Task<Result> UpdateOnboardingFlag(string userId, Action<ApplicationUser> applyUpdate)
     {
         try
         {
@@ -379,23 +355,23 @@ public class UserService : IUserService
                 var user = await context.Users.FirstOrDefaultAsync(u => u.Id == userId);
                 if (user == null)
                 {
-                    return new BaseResponse { Status = ResponseStatus.Fail, Message = "User not found." };
+                    return Result.Failure(new Error("User.NotFound", "User not found."));
                 }
 
                 applyUpdate(user);
                 await context.SaveChangesAsync();
             }
 
-            return new BaseResponse { Status = ResponseStatus.Success };
+            return Result.Success();
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to update onboarding flags for userId: {UserId}", userId);
-            return new BaseResponse { Status = ResponseStatus.Fail, Message = ex.Message };
+            return Result.Failure(new Error("User.Unexpected", ex.Message));
         }
     }
 
-    public async Task<BaseResponse> GetPublicProfile(string userId)
+    public async Task<Result<PublicProfileResponse>> GetPublicProfile(string userId)
     {
         try
         {
@@ -447,7 +423,7 @@ public class UserService : IUserService
                 .FirstOrDefaultAsync();
 
             if (profileIdentity == null)
-                return new BaseResponse { Status = ResponseStatus.Fail, Message = "User not found." };
+                return Result.Failure<PublicProfileResponse>(new Error("User.NotFound", "User not found."));
 
             var profilePullRequests = await context.DashboardProjects
                 .AsNoTracking()
@@ -475,21 +451,17 @@ public class UserService : IUserService
                 .Select(dp => dp.ProjectId)
                 .ToListAsync();
 
-            return new BaseResponse
-            {
-                Status = ResponseStatus.Success,
-                Data = new PublicProfileResponse(
-                    profileIdentity,
-                    profilePullRequests,
-                    completedProjectIds
-                )
-            };
+            return Result.Success(new PublicProfileResponse(
+                profileIdentity,
+                profilePullRequests,
+                completedProjectIds
+            ));
 
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to retrieve public profile for userId: {UserId}", userId);
-            return new BaseResponse { Status = ResponseStatus.Fail, Message = ex.Message };
+            return Result.Failure<PublicProfileResponse>(new Error("User.Unexpected", ex.Message));
         }
     }
 

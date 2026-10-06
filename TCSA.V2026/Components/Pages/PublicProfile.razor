@@ -5,7 +5,6 @@
 @using TCSA.V2026.Data.DTOs.PublicProfile
 @using TCSA.V2026.Data.Enums
 @using TCSA.V2026.Data.Models
-@using TCSA.V2026.Data.Models.Responses
 @using TCSA.V2026.Helpers
 @using TCSA.V2026.Services
 
@@ -240,14 +239,14 @@
         if (UserProfile is null)
         {
             var getUserProfile = await UserService.GetPublicProfile(UserId);
-            if (getUserProfile.Status is not ResponseStatus.Success)
+            if (getUserProfile.IsFailure)
             {
                 Snackbar.Add(getUserProfile.Message, Severity.Error);
                 Navigation.NavigateTo("/");
                 return;
             }
 
-            UserProfile = (PublicProfileResponse)getUserProfile.Data;
+            UserProfile = getUserProfile.Value;
         }
 
         if (UserProfile is not null)
