@@ -147,20 +147,23 @@ CREATE PROCEDURE [dbo].[GetRanking]
 AS
 BEGIN
     DECLARE @userExperiencePoints INT;
+    DECLARE @userCreatedDate DATETIMEOFFSET;
 
-    -- Get the user's experience points based on the provided user ID
-    SELECT @userExperiencePoints = [ExperiencePoints]
+    -- Get the user's experience points and join date based on the provided user ID
+    SELECT @userExperiencePoints = [ExperiencePoints],
+           @userCreatedDate = [CreatedDate]
     FROM [AspNetUsers]
     WHERE [Id] = @userId;
 
-    -- Calculate the user's ranking
+    -- Calculate the user's ranking.
+    -- Must match the leaderboard ordering: ExperiencePoints DESC, CreatedDate ASC, Id ASC
     SELECT @ranking = COUNT(*) + 1
-FROM [AspNetUsers]
-WHERE [ExperiencePoints] > @userExperiencePoints
-   OR ([ExperiencePoints] = @userExperiencePoints AND (
-       [FirstName] < (SELECT [FirstName] FROM [AspNetUsers] WHERE [Id] = @userId) OR
-       ([FirstName] = (SELECT [FirstName] FROM [AspNetUsers] WHERE [Id] = @userId) AND [LastName] < (SELECT [LastName] FROM [AspNetUsers] WHERE [Id] = @userId))
-   ));
+    FROM [AspNetUsers]
+    WHERE [ExperiencePoints] > @userExperiencePoints
+       OR ([ExperiencePoints] = @userExperiencePoints AND (
+           [CreatedDate] < @userCreatedDate OR
+           ([CreatedDate] = @userCreatedDate AND [Id] < @userId)
+       ));
 END;
 GO
 ```

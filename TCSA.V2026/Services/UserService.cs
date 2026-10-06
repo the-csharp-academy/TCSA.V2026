@@ -432,10 +432,10 @@ public class UserService : IUserService
                         CodeWarsUsername,
                         LeetCodeUsername,
                         CASE WHEN ExperiencePoints > 0 THEN
-                            ROW_NUMBER() OVER (ORDER BY CASE WHEN ExperiencePoints > 0 THEN 0 ELSE 1 END, ExperiencePoints DESC, FirstName, LastName)
+                            ROW_NUMBER() OVER (ORDER BY CASE WHEN ExperiencePoints > 0 THEN 0 ELSE 1 END, ExperiencePoints DESC, CreatedDate, Id)
                         END AS LeaderboardRank,
                         CASE WHEN ReviewExperiencePoints > 0 THEN
-                            ROW_NUMBER() OVER (ORDER BY CASE WHEN ReviewExperiencePoints > 0 THEN 0 ELSE 1 END, ReviewExperiencePoints DESC, FirstName, LastName)
+                            ROW_NUMBER() OVER (ORDER BY CASE WHEN ReviewExperiencePoints > 0 THEN 0 ELSE 1 END, ReviewExperiencePoints DESC, CreatedDate, Id)
                         END AS ReviewLeaderboardRank
                     FROM AspNetUsers
                 ) AS RankedUsers
