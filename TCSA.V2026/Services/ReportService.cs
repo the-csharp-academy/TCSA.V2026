@@ -1,4 +1,3 @@
-using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using TCSA.V2026.Data;
 using TCSA.V2026.Data.Curriculum;
@@ -8,14 +7,14 @@ namespace TCSA.V2026.Services;
 
 public interface IReportService
 {
-    Task<ServiceResponse> GetCourseCount();
+    Task<Result<Dictionary<string, int>>> GetCourseCount();
 }
 
 public class ReportService(IDbContextFactory<ApplicationDbContext> factory) : IReportService
 {
     private readonly IDbContextFactory<ApplicationDbContext> _factory = factory;
 
-    public async Task<ServiceResponse> GetCourseCount()
+    public async Task<Result<Dictionary<string, int>>> GetCourseCount()
     {
         var courses = CourseHelper.GetCourses();
         var courseArticles = courses.ToDictionary(
@@ -38,19 +37,11 @@ public class ReportService(IDbContextFactory<ApplicationDbContext> factory) : IR
                 course => course.Value.Sum(articleId =>
                     completedArticleCounts.GetValueOrDefault(articleId)));
 
-            return new ServiceResponse
-            {
-                IsSuccessful = true,
-                Message = JsonSerializer.Serialize(count)
-            };
+            return Result.Success(count);
         }
         catch (Exception ex)
         {
-            return new ServiceResponse
-            {
-                IsSuccessful = false,
-                Message = ex.Message
-            };
+            return Result.Failure<Dictionary<string, int>>(new Error("Report.Unexpected", ex.Message));
         }
     }
 }
