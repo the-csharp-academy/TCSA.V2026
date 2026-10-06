@@ -1,6 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using TCSA.V2026.Data;
-using TCSA.V2026.Data.Curriculum;
 using TCSA.V2026.Data.DTOs;
 using TCSA.V2026.Data.Enums;
 using TCSA.V2026.Data.Models;
@@ -15,11 +14,11 @@ public interface IAdminService
     Task<List<AdminEventDisplay>> GetAdminEvents();
     Task<List<AdminPendingDisplay>> GetAdminPendingProjects();
     Task<List<ApplicationUser>> SearchUsers(string? email, string? userName, string? displayName, string? discordAlias);
-    Task<ServiceResponse> ChangeBelt(string userId, Level newBelt);
-    Task<ServiceResponse> ChangePoints(string userId, int points);
-    Task<ServiceResponse> RequestChanges(int dashboardProjectId);
-    Task<ServiceResponse> ChangeReviewPoints(string userId, int points);
-    Task<ServiceResponse> PortData(string originId, string destinationId);
+    Task<Result> ChangeBelt(string userId, Level newBelt);
+    Task<Result> ChangePoints(string userId, int points);
+    Task<Result> RequestChanges(int dashboardProjectId);
+    Task<Result> ChangeReviewPoints(string userId, int points);
+    Task<Result> PortData(string originId, string destinationId);
 }
 
 public class AdminService(
@@ -27,7 +26,7 @@ public class AdminService(
     IDiscordService _discordService
     ) : IAdminService
 {
-    public async Task<ServiceResponse> PortData(string originId, string destinationId)
+    public async Task<Result> PortData(string originId, string destinationId)
     {
         try
         {
@@ -44,11 +43,7 @@ public class AdminService(
 
                 if (originUser.DashboardProjects.Count == 0)
                 {
-                    return new ServiceResponse
-                    {
-                        IsSuccessful = false,
-                        Message = "Origin user has no projects to port."
-                    };
+                    return Result.Failure(new Error("Admin.NoProjectsToPort", "Origin user has no projects to port."));
                 }
 
                 var destinationUser = await context.AspNetUsers
@@ -71,23 +66,16 @@ public class AdminService(
                 await context.SaveChangesAsync();
 
             }
-            return new ServiceResponse
-            {
-                IsSuccessful = true,
-            };
+            return Result.Success();
         }
         catch (Exception ex)
         {
-            return new ServiceResponse
-            {
-                IsSuccessful = true,
-                Message = ex.Message
-            };
+            return Result.Failure(new Error("Admin.Unexpected", ex.Message));
         }
     }
 
 
-    public async Task<ServiceResponse> ChangePoints(string userId, int points)
+    public async Task<Result> ChangePoints(string userId, int points)
     {
         try
         {
@@ -100,24 +88,17 @@ public class AdminService(
                 await context.SaveChangesAsync();
 
             }
-            return new ServiceResponse
-            {
-                IsSuccessful = true,
-            };
+            return Result.Success();
         }
         catch (Exception ex)
         {
-            return new ServiceResponse
-            {
-                IsSuccessful = true,
-                Message = ex.Message
-            };
+            return Result.Failure(new Error("Admin.Unexpected", ex.Message));
         }
     }
 
 
 
-    public async Task<ServiceResponse> ChangeReviewPoints(string userId, int points)
+    public async Task<Result> ChangeReviewPoints(string userId, int points)
     {
         try
         {
@@ -130,22 +111,15 @@ public class AdminService(
                 await context.SaveChangesAsync();
 
             }
-            return new ServiceResponse
-            {
-                IsSuccessful = true,
-            };
+            return Result.Success();
         }
         catch (Exception ex)
         {
-            return new ServiceResponse
-            {
-                IsSuccessful = false,
-                Message = ex.Message
-            };
+            return Result.Failure(new Error("Admin.Unexpected", ex.Message));
         }
     }
 
-    public async Task<ServiceResponse> ChangeBelt(string userId, Level newBelt)
+    public async Task<Result> ChangeBelt(string userId, Level newBelt)
     {
         try
         {
@@ -173,18 +147,11 @@ public class AdminService(
                     await _discordService.ChangeDiscordBelt(user.DiscordAlias!, newBelt);
                 }
             }
-            return new ServiceResponse
-            {
-                IsSuccessful = true,
-            };
+            return Result.Success();
         }
         catch (Exception ex)
         {
-            return new ServiceResponse
-            {
-                IsSuccessful = false,
-                Message = ex.Message
-            };
+            return Result.Failure(new Error("Admin.Unexpected", ex.Message));
         }
     }
 
@@ -294,7 +261,7 @@ public class AdminService(
         return null;
     }
 
-    public async Task<ServiceResponse> RequestChanges(int dashboardProjectId)
+    public async Task<Result> RequestChanges(int dashboardProjectId)
     {
         try
         {
@@ -304,11 +271,7 @@ public class AdminService(
 
                 if (project == null)
                 {
-                    return new ServiceResponse
-                    {
-                        IsSuccessful = false,
-                        Message = "Project Not Found"
-                    };
+                    return Result.Failure(new Error("Admin.ProjectNotFound", "Project Not Found"));
                 }
 
                 project.DateRequestedChange = DateTime.UtcNow;
@@ -316,18 +279,11 @@ public class AdminService(
                 await context.SaveChangesAsync();
             }
 
-            return new ServiceResponse
-            {
-                IsSuccessful = true,
-            };
+            return Result.Success();
         }
         catch (Exception ex)
         {
-            return new ServiceResponse
-            {
-                IsSuccessful = false,
-                Message = ex.Message
-            };
+            return Result.Failure(new Error("Admin.Unexpected", ex.Message));
         }
     }
 
