@@ -13,7 +13,7 @@ public class ChallengeManager
         _challengePlatformFactory = challengePlatformFactory;
     }
 
-    public async Task<BaseResponse> Sync(SyncChallengeRequest request, ChallengePlatform platform)
+    public async Task<Result> Sync(SyncChallengeRequest request, ChallengePlatform platform)
     {
         var platformService = _challengePlatformFactory.GetCodingPlatformService(platform);
         return await platformService.SyncChallenge(request);

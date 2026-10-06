@@ -45,16 +45,13 @@ public class LeetCodeService : IChallengePlatformService
         }
     }
 
-    public async Task<BaseResponse> SyncChallenge(SyncChallengeRequest request)
+    public async Task<Result> SyncChallenge(SyncChallengeRequest request)
     {
-        var result = new BaseResponse();
         var username = request.PlatformCredentials.LeetCodeUsername;
 
         if (username == null)
         {
-            result.Status = ResponseStatus.Fail;
-            result.Message = "You haven't integrated your LeetCode account yet. Go to your profile and add your LeetCode username.";
-            return result;
+            return Result.Failure(new Error("LeetCode.AccountNotIntegrated", "You haven't integrated your LeetCode account yet. Go to your profile and add your LeetCode username."));
         }
 
         var apiRequest = new
@@ -73,9 +70,7 @@ public class LeetCodeService : IChallengePlatformService
 
         if (response.StatusCode != HttpStatusCode.OK)
         {
-            result.Status = ResponseStatus.Fail;
-            result.Message = "Failed to connect to LeetCode API. Please try again later.";
-            return result;
+            return Result.Failure(new Error("LeetCode.ApiUnavailable", "Failed to connect to LeetCode API. Please try again later."));
         }
 
         string jsonResponse = await response.Content.ReadAsStringAsync();
@@ -91,31 +86,23 @@ public class LeetCodeService : IChallengePlatformService
 
         if (apiResponse?.Data == null || apiResponse.Errors?.Count > 0)
         {
-            result.Status = ResponseStatus.Fail;
-            result.Message = "Failed to retrieve your recent submissions from LeetCode. Contact support if the issue persists.";
-            return result;
+            return Result.Failure(new Error("LeetCode.SubmissionsUnavailable", "Failed to retrieve your recent submissions from LeetCode. Contact support if the issue persists."));
         }
 
-        if (apiResponse.Data.RecentAcSubmissionList.Any(s => s.TitleSlug == request.ExternalId && s.StatusDisplay == "Accepted"))
+        if (!apiResponse.Data.RecentAcSubmissionList.Any(s => s.TitleSlug == request.ExternalId && s.StatusDisplay == "Accepted"))
         {
-            try
-            {
-                await MarkChallengeAsCompleted(new MarkChallengeCompletedRequest(request.ChallengeId, request.UserId));
-
-                return result;
-            }
-            catch (Exception ex)
-            {
-                result.Message = ex.Message;
-                result.Status = ResponseStatus.Fail;
-                return result;
-            }
+            return Result.Failure(new Error("LeetCode.ChallengeNotCompleted", "You haven't completed this challenge yet or it is not within the recent 20 submissions."));
         }
-        else
+
+        try
         {
-            result.Status = ResponseStatus.Fail;
-            result.Message = "You haven't completed this challenge yet or it is not within the recent 20 submissions.";
-            return result;
+            await MarkChallengeAsCompleted(new MarkChallengeCompletedRequest(request.ChallengeId, request.UserId));
+
+            return Result.Success();
+        }
+        catch (Exception ex)
+        {
+            return Result.Failure(new Error("LeetCode.Unexpected", ex.Message));
         }
     }
 }

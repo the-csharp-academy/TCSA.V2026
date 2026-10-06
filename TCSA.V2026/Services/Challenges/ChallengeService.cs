@@ -19,7 +19,7 @@ public interface IChallengeService
         IEnumerable<ChallengePlatform> selectedPlatforms);
     Task<ChallengeStatistics?> GetChallengeStatistics(string userId);
     Task UpdateStreakInfo(string userId);
-    Task<BaseResponse> AddChallenge(Challenge challenge);
+    Task<Result> AddChallenge(Challenge challenge);
 }
 
 public class ChallengeService(IDbContextFactory<ApplicationDbContext> _factory, ILogger<ChallengeService> _logger) : IChallengeService
@@ -171,7 +171,7 @@ public class ChallengeService(IDbContextFactory<ApplicationDbContext> _factory, 
         }
     }
 
-    public async Task<BaseResponse> AddChallenge(Challenge challenge)
+    public async Task<Result> AddChallenge(Challenge challenge)
     {
         try
         {
@@ -182,16 +182,16 @@ public class ChallengeService(IDbContextFactory<ApplicationDbContext> _factory, 
                                c.Platform == challenge.Platform &&
                                c.Category == challenge.Category);
             if (exists)
-                return new BaseResponse { Status = ResponseStatus.Fail, Message = "Challenge already exists." };
+                return Result.Failure(new Error("Challenge.AlreadyExists", "Challenge already exists."));
 
             context.Challenges.Add(challenge);
             await context.SaveChangesAsync();
-            return new BaseResponse { Status = ResponseStatus.Success };
+            return Result.Success();
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to add challenge with ExternalId {ExternalId}.", challenge.ExternalId);
-            return new BaseResponse { Status = ResponseStatus.Fail, Message = ex.Message };
+            return Result.Failure(new Error("Challenge.Unexpected", ex.Message));
         }
     }
 }

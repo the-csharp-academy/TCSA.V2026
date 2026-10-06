@@ -1,12 +1,4 @@
-﻿using TCSA.V2026.Data.Models;
-using TCSA.V2026.Data.Models.Responses;
-
 namespace TCSA.V2026.Models.Responses;
-
-public class CodeWarsResponse : BaseResponse
-{
-    public List<CodeWarsChallenge>? Challenges { get; set; }
-}
 
 public class CodeWarsApiResponse
 {

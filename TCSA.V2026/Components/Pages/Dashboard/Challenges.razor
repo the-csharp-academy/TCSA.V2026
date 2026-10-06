@@ -7,7 +7,6 @@
 @using TCSA.V2026.Data.Models
 @using TCSA.V2026.Data.Models.Responses
 @using TCSA.V2026.Helpers
-@using TCSA.V2026.Helpers.Constants
 @using TCSA.V2026.Services
 @using TCSA.V2026.Services.Challenges
 @attribute [Authorize]
@@ -305,7 +304,7 @@
             UserId
         ), platform);
 
-        if (result.Status == ResponseStatus.Success)
+        if (result.IsSuccess)
         {
             Snackbar.Add("Sync Successful", Severity.Success);
 
