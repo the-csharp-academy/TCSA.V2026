@@ -4,7 +4,6 @@
 @using TCSA.V2026.Data.Curriculum
 @using TCSA.V2026.Data.Enums
 @using TCSA.V2026.Data.Models
-@using TCSA.V2026.Data.Models.Responses
 @using TCSA.V2026.Components.UI
 @using TCSA.V2026.Helpers
 @using TCSA.V2026.Services
@@ -199,7 +198,7 @@
         {
             var result = await CommunityService.AssignUserToIssue(UserId, issue);
 
-            if (result.Status == ResponseStatus.Success)
+            if (result.IsSuccess)
             {
                 Snackbar.Add("Assignment Successful", Severity.Success);
                 User = await UserService.GetUserById(UserId);

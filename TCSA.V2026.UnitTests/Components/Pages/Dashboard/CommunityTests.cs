@@ -81,7 +81,7 @@ public class CommunityTests : BunitContext
     public async Task PickButton_WhenClickedTwiceWhileProcessing_CallsAssignUserToIssueOnce()
     {
         // Arrange
-        var tcs = new TaskCompletionSource<BaseResponse>();
+        var tcs = new TaskCompletionSource<Result>();
 
         AuthorizeAs(TestUserId);
         Render<MudPopoverProvider>();
@@ -103,7 +103,7 @@ public class CommunityTests : BunitContext
         cut.FindAll("button").Single(b => b.TextContent.Contains("Pick")).Click();
         cut.FindAll("button").Single(b => b.TextContent.Contains("Pick")).Click();
 
-        tcs.SetResult(new BaseResponse { Status = ResponseStatus.Success });
+        tcs.SetResult(Result.Success());
         await cut.InvokeAsync(() => { });
 
         // Assert
@@ -270,7 +270,7 @@ public class CommunityTests : BunitContext
     public void PickButton_WhileProcessing_IsDisabled()
     {
         // Arrange
-        var tcs = new TaskCompletionSource<BaseResponse>();
+        var tcs = new TaskCompletionSource<Result>();
 
         AuthorizeAs(TestUserId);
         Render<MudPopoverProvider>();
@@ -295,6 +295,6 @@ public class CommunityTests : BunitContext
         var pickButton = cut.FindAll("button").Single(b => b.TextContent.Contains("Pick"));
         Assert.That(pickButton.HasAttribute("disabled"), Is.True);
 
-        tcs.SetResult(new BaseResponse { Status = ResponseStatus.Success });
+        tcs.SetResult(Result.Success());
     }
 }

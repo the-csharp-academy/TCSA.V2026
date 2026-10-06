@@ -84,7 +84,7 @@
 
             var result = await GalleryService.AddItem(newItem);
 
-            MudDialog.Close(DialogResult.Ok(result.Status));
+            MudDialog.Close(DialogResult.Ok(result.IsSuccess));
         }
         finally
         {

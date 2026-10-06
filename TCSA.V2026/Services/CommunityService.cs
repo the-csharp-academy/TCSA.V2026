@@ -11,14 +11,14 @@ public interface ICommunityService
 {
     Task<CommunityIssue> GetIssueByProjectId(int projectId);
     Task<List<CommunityIssue>> GetAvailableIssuesForCommunityPage(string appUserId);
-    Task<BaseResponse> AssignUserToIssue(string appUserId, CommunityIssue issue);
-    Task<BaseResponse> SubmitIssueToReview(int issueId, string githubUrl);
-    Task<BaseResponse> CreateIssue(IssueType type, string issueUrl, string Title, CommunityProject communityProject);
+    Task<Result> AssignUserToIssue(string appUserId, CommunityIssue issue);
+    Task<Result> SubmitIssueToReview(int issueId, string githubUrl);
+    Task<Result> CreateIssue(IssueType type, string issueUrl, string Title, CommunityProject communityProject);
 }
 
 public class CommunityService(IDbContextFactory<ApplicationDbContext> _factory) : ICommunityService
 {
-    public async Task<BaseResponse> CreateIssue(IssueType type, string issueUrl, string title, CommunityProject communityProject)
+    public async Task<Result> CreateIssue(IssueType type, string issueUrl, string title, CommunityProject communityProject)
     {
         string iconUrl = type switch
         {
@@ -30,14 +30,9 @@ public class CommunityService(IDbContextFactory<ApplicationDbContext> _factory) 
 
         if (!UrlHelper.IsValidCommunityProjectIssueUrl(issueUrl, communityProject))
         {
-            return new BaseResponse
-            {
-                Status = ResponseStatus.Fail,
-                Message = "Invalid issue URL for the selected community project."
-            };
+            return Result.Failure(new Error("Community.InvalidIssueUrl", "Invalid issue URL for the selected community project."));
         }
 
-        var result = new BaseResponse();
         try
         {
             using (var context = _factory.CreateDbContext())
@@ -49,9 +44,7 @@ public class CommunityService(IDbContextFactory<ApplicationDbContext> _factory) 
 
                 if (existingIssue != null)
                 {
-                    result.Status = ResponseStatus.Fail;
-                    result.Message = "Issue with the same URL already exists.";
-                    return result;
+                    return Result.Failure(new Error("Community.IssueAlreadyExists", "Issue with the same URL already exists."));
                 }
 
                 var issue = new CommunityIssue
@@ -71,19 +64,16 @@ public class CommunityService(IDbContextFactory<ApplicationDbContext> _factory) 
                 await context.SaveChangesAsync();
             }
 
-            return result;
+            return Result.Success();
         }
         catch (Exception ex)
         {
-            result.Message = ex.Message;
-            result.Status = ResponseStatus.Fail;
-            return result;
+            return Result.Failure(new Error("Community.Unexpected", ex.Message));
         }
     }
 
-    public async Task<BaseResponse> AssignUserToIssue(string appUserId, CommunityIssue issue)
+    public async Task<Result> AssignUserToIssue(string appUserId, CommunityIssue issue)
     {
-        var result = new BaseResponse();
         try
         {
             using (var context = _factory.CreateDbContext())
@@ -101,18 +91,15 @@ public class CommunityService(IDbContextFactory<ApplicationDbContext> _factory) 
                 await context.SaveChangesAsync();
             }
 
-            return result;
+            return Result.Success();
         }
         catch (Exception ex)
         {
-            result.Message = ex.Message;
-            result.Status = ResponseStatus.Fail;
-            return result;
+            return Result.Failure(new Error("Community.Unexpected", ex.Message));
         }
     }
-    public async Task<BaseResponse> SubmitIssueToReview(int issueId, string githubUrl)
+    public async Task<Result> SubmitIssueToReview(int issueId, string githubUrl)
     {
-        var result = new BaseResponse();
         try
         {
             using (var context = _factory.CreateDbContext())
@@ -125,13 +112,11 @@ public class CommunityService(IDbContextFactory<ApplicationDbContext> _factory) 
                 await context.SaveChangesAsync();
             }
 
-            return result;
+            return Result.Success();
         }
         catch (Exception ex)
         {
-            result.Message = ex.Message;
-            result.Status = ResponseStatus.Fail;
-            return result;
+            return Result.Failure(new Error("Community.Unexpected", ex.Message));
         }
     }
     public async Task<List<CommunityIssue>> GetAvailableIssuesForCommunityPage(string appUserId)
