@@ -1,8 +1,6 @@
-﻿@using TCSA.V2026.Data.DTOs
+@using TCSA.V2026.Data.DTOs
 @using TCSA.V2026.Data.Models
-@using TCSA.V2026.Data.Models.Responses
 @using TCSA.V2026.Helpers
-@using TCSA.V2026.Services
 
 @inject IDialogService DialogService
 
@@ -87,8 +85,8 @@
 
         if (!result.Canceled)
         {
-            var status = (ResponseStatus)result.Data;
-            MudDialog.Close(DialogResult.Ok(status));
+            var isSuccess = (bool)result.Data;
+            MudDialog.Close(DialogResult.Ok(isSuccess));
         }
 
     }

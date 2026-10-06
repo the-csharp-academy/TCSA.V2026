@@ -867,7 +867,7 @@
 
         IsSubmitting = false;
 
-        if (response.Status == Data.Models.Responses.ResponseStatus.Success)
+        if (response.IsSuccess)
         {
             SnackbarService.Add("Article successfully marked as read", Severity.Success);
         }
@@ -877,7 +877,7 @@
         }
 
         IsCompleted = await ProjectService.IsProjectCompleted(UserId, ArticleId);
-        if (response.Status == Data.Models.Responses.ResponseStatus.Success)
+        if (response.IsSuccess)
         {
             if (Article.Id != Course.Articles.Last().Id)
             {

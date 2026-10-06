@@ -70,7 +70,7 @@ public class DialogTests : BunitContext
     public async Task SubmitIssueDialog_SubmitButton_WhenClickedTwiceWhileProcessing_CallsCreateIssueOnce()
     {
         // Arrange
-        var tcs = new TaskCompletionSource<BaseResponse>();
+        var tcs = new TaskCompletionSource<Result>();
 
         _communityServiceMock
             .Setup(s => s.CreateIssue(It.IsAny<IssueType>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CommunityProject>()))
@@ -83,7 +83,7 @@ public class DialogTests : BunitContext
         providerCut.FindAll("button").Single(b => b.TextContent.Contains("Submit")).Click();
         providerCut.FindAll("button").Single(b => b.TextContent.Contains("Submit")).Click();
 
-        tcs.SetResult(new BaseResponse { Status = ResponseStatus.Success });
+        tcs.SetResult(Result.Success());
         await providerCut.InvokeAsync(() => { });
 
         // Assert
@@ -96,7 +96,7 @@ public class DialogTests : BunitContext
     public async Task SubmitIssueDialog_SubmitButton_WhileProcessing_IsDisabled()
     {
         // Arrange
-        var tcs = new TaskCompletionSource<BaseResponse>();
+        var tcs = new TaskCompletionSource<Result>();
 
         _communityServiceMock
             .Setup(s => s.CreateIssue(It.IsAny<IssueType>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CommunityProject>()))
@@ -117,7 +117,7 @@ public class DialogTests : BunitContext
     public async Task SubmitIssueToReviewDialog_SubmitButton_WhenClickedTwiceWhileProcessing_CallsSubmitIssueToReviewOnce()
     {
         // Arrange
-        var tcs = new TaskCompletionSource<BaseResponse>();
+        var tcs = new TaskCompletionSource<Result>();
 
         _communityServiceMock
             .Setup(s => s.SubmitIssueToReview(TestProjectId, It.IsAny<string>()))
@@ -133,7 +133,7 @@ public class DialogTests : BunitContext
         providerCut.FindAll("button").Single(b => b.TextContent.Contains("Submit")).Click();
         providerCut.FindAll("button").Single(b => b.TextContent.Contains("Submit")).Click();
 
-        tcs.SetResult(new BaseResponse { Status = ResponseStatus.Success });
+        tcs.SetResult(Result.Success());
         await providerCut.InvokeAsync(() => { });
 
         // Assert
@@ -146,7 +146,7 @@ public class DialogTests : BunitContext
     public async Task SubmitIssueToReviewDialog_SubmitButton_WhileProcessing_IsDisabled()
     {
         // Arrange
-        var tcs = new TaskCompletionSource<BaseResponse>();
+        var tcs = new TaskCompletionSource<Result>();
 
         _communityServiceMock
             .Setup(s => s.SubmitIssueToReview(TestProjectId, It.IsAny<string>()))
@@ -191,7 +191,7 @@ public class DialogTests : BunitContext
     public async Task SubmitShowcaseProjectDialog_SubmitButton_WhenClickedTwiceWhileProcessing_CallsAddItemOnce()
     {
         // Arrange
-        var tcs = new TaskCompletionSource<BaseResponse>();
+        var tcs = new TaskCompletionSource<Result>();
 
         _galleryServiceMock
             .Setup(s => s.AddItem(It.IsAny<ShowcaseItemDTO>()))
@@ -203,7 +203,7 @@ public class DialogTests : BunitContext
         providerCut.FindAll("button").Single(b => b.TextContent.Contains("Submit")).Click();
         providerCut.FindAll("button").Single(b => b.TextContent.Contains("Submit")).Click();
 
-        tcs.SetResult(new BaseResponse { Status = ResponseStatus.Success });
+        tcs.SetResult(Result.Success());
         await providerCut.InvokeAsync(() => { });
 
         // Assert
@@ -214,7 +214,7 @@ public class DialogTests : BunitContext
     public async Task SubmitShowcaseProjectDialog_SubmitButton_WhileProcessing_IsDisabled()
     {
         // Arrange
-        var tcs = new TaskCompletionSource<BaseResponse>();
+        var tcs = new TaskCompletionSource<Result>();
 
         _galleryServiceMock
             .Setup(s => s.AddItem(It.IsAny<ShowcaseItemDTO>()))
@@ -244,7 +244,7 @@ public class DialogTests : BunitContext
     public async Task SubmitProjectDialog_SubmitButton_WhenClickedTwiceWhileProcessing_CallsCreateDashboardProjectOnce()
     {
         // Arrange
-        var tcs = new TaskCompletionSource<BaseResponse>();
+        var tcs = new TaskCompletionSource<Result>();
 
         _projectServiceMock
             .Setup(s => s.CreateDashboardProject(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>()))
@@ -256,7 +256,7 @@ public class DialogTests : BunitContext
         providerCut.FindAll("button").Single(b => b.TextContent.Contains("Submit")).Click();
         providerCut.FindAll("button").Single(b => b.TextContent.Contains("Submit")).Click();
 
-        tcs.SetResult(new BaseResponse { Status = ResponseStatus.Success });
+        tcs.SetResult(Result.Success());
         await providerCut.InvokeAsync(() => { });
 
         // Assert
@@ -269,7 +269,7 @@ public class DialogTests : BunitContext
     public async Task SubmitProjectDialog_SubmitButton_WhileProcessing_IsDisabled()
     {
         // Arrange
-        var tcs = new TaskCompletionSource<BaseResponse>();
+        var tcs = new TaskCompletionSource<Result>();
 
         _projectServiceMock
             .Setup(s => s.CreateDashboardProject(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>()))
@@ -289,7 +289,7 @@ public class DialogTests : BunitContext
     public async Task SubmitProjectDialog_WhenIsUpdateTrue_CallsUpdateDashboardProjectUrlNotCreate()
     {
         // Arrange
-        var tcs = new TaskCompletionSource<BaseResponse>();
+        var tcs = new TaskCompletionSource<Result>();
 
         _projectServiceMock
             .Setup(s => s.UpdateDashboardProjectUrl(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>()))
@@ -300,7 +300,7 @@ public class DialogTests : BunitContext
         // Act
         providerCut.FindAll("button").Single(b => b.TextContent.Contains("Submit")).Click();
 
-        tcs.SetResult(new BaseResponse { Status = ResponseStatus.Success });
+        tcs.SetResult(Result.Success());
         await providerCut.InvokeAsync(() => { });
 
         // Assert

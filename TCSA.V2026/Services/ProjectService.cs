@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using TCSA.V2026.Data;
 using TCSA.V2026.Data.Curriculum;
-using TCSA.V2026.Data.Enums;
 using TCSA.V2026.Data.Models;
 using TCSA.V2026.Data.Models.Responses;
 using TCSA.V2026.Helpers;
@@ -10,27 +9,27 @@ namespace TCSA.V2026.Services;
 
 public interface IProjectService
 {
-    Task<BaseResponse> MarkAsCompleted(int projectId);
+    Task<Result> MarkAsCompleted(int projectId);
     Task<bool> IsProjectCompleted(string userId, int projectId, CancellationToken cancellationToken = default);
     Task<List<int>> GetCompletedProjectsById(string userId);
-    Task<BaseResponse> CreateDashboardProject(int projectId, string userId, string url);
-    Task<BaseResponse> UpdateDashboardProjectUrl(int projectId, string userId, string url);
-    Task<BaseResponse> MarkArticleAsRead(int projectId, string userId, CancellationToken cancellation = default);
-    Task<ServiceResponse> DeleteProject(int dashboardProjectId, string userId);
-    Task<BaseResponse> Archive(int dashboardProjectId);
-    Task<BaseResponse> AcknowledgeNotifications(string userId);
+    Task<Result> CreateDashboardProject(int projectId, string userId, string url);
+    Task<Result> UpdateDashboardProjectUrl(int projectId, string userId, string url);
+    Task<Result> MarkArticleAsRead(int projectId, string userId, CancellationToken cancellation = default);
+    Task<Result> DeleteProject(int dashboardProjectId, string userId);
+    Task<Result> Archive(int dashboardProjectId);
+    Task<Result> AcknowledgeNotifications(string userId);
     Task<int> GetCompletionCount(int projectId, bool isArticle, CancellationToken cancellationToken = default);
-    Task<BaseResponse> ResetCourse(string userId, Course course);
+    Task<Result> ResetCourse(string userId, Course course);
 
 }
 
 public class ProjectService(IDbContextFactory<ApplicationDbContext> _factory, IBadgeService _badgeService) : IProjectService
 {
-    public async Task<BaseResponse> ResetCourse(string userId, Course course)
+    public async Task<Result> ResetCourse(string userId, Course course)
     {
         if (string.IsNullOrWhiteSpace(userId) || course?.Articles is null)
         {
-            return new BaseResponse { Status = ResponseStatus.Fail, Message = "A user and course are required." };
+            return Result.Failure(new Error("Course.InvalidRequest", "A user and course are required."));
         }
 
         try
@@ -40,7 +39,7 @@ public class ProjectService(IDbContextFactory<ApplicationDbContext> _factory, IB
 
             if (user is null)
             {
-                return new BaseResponse { Status = ResponseStatus.Fail, Message = "User not found." };
+                return Result.Failure(new Error("Course.UserNotFound", "User not found."));
             }
 
             var chapterIds = course.Articles.Select(article => article.Id).ToHashSet();
@@ -65,20 +64,15 @@ public class ProjectService(IDbContextFactory<ApplicationDbContext> _factory, IB
 
             await context.SaveChangesAsync();
 
-            return new BaseResponse
-            {
-                Status = ResponseStatus.Success,
-                Message = "Course progress reset.",
-                Data = new { ChaptersReset = dashboardProjects.Count, ExperiencePointsRemoved = xpToRemove }
-            };
+            return Result.Success(new Success("Course.ProgressReset", "Course progress reset."));
         }
         catch (Exception ex)
         {
-            return new BaseResponse { Status = ResponseStatus.Fail, Message = ex.Message };
+            return Result.Failure(new Error("Course.Unexpected", ex.Message));
         }
     }
 
-    public async Task<BaseResponse> AcknowledgeNotifications(string userId)
+    public async Task<Result> AcknowledgeNotifications(string userId)
     {
         try
         {
@@ -97,22 +91,15 @@ public class ProjectService(IDbContextFactory<ApplicationDbContext> _factory, IB
                 await context.SaveChangesAsync();
 
             }
-            return new BaseResponse
-            {
-                Status = ResponseStatus.Success,
-            };
+            return Result.Success();
         }
         catch (Exception ex)
         {
-            return new BaseResponse
-            {
-                Status = ResponseStatus.Fail,
-                Message = ex.Message
-            };
+            return Result.Failure(new Error("Project.Unexpected", ex.Message));
         }
     }
 
-    public async Task<ServiceResponse> DeleteProject(int dashboardProjectId, string userId)
+    public async Task<Result> DeleteProject(int dashboardProjectId, string userId)
     {
         try
         {
@@ -122,11 +109,7 @@ public class ProjectService(IDbContextFactory<ApplicationDbContext> _factory, IB
 
                 if (project == null)
                 {
-                    return new ServiceResponse
-                    {
-                        IsSuccessful = false,
-                        Message = "Project Not Found"
-                    };
+                    return Result.Failure(new Error("Project.NotFound", "Project Not Found"));
                 }
 
                 var activity = context.UserActivity.Where(a => a.AppUserId == userId && a.ProjectId == project.ProjectId);
@@ -137,22 +120,15 @@ public class ProjectService(IDbContextFactory<ApplicationDbContext> _factory, IB
                 await context.SaveChangesAsync();
             }
 
-            return new ServiceResponse
-            {
-                IsSuccessful = true
-            };
+            return Result.Success();
         }
         catch (Exception ex)
         {
-            return new ServiceResponse
-            {
-                IsSuccessful = false,
-                Message = ex.Message
-            };
+            return Result.Failure(new Error("Project.Unexpected", ex.Message));
         }
     }
 
-    public async Task<BaseResponse> Archive(int dashboardProjectId)
+    public async Task<Result> Archive(int dashboardProjectId)
     {
         try
         {
@@ -166,11 +142,7 @@ public class ProjectService(IDbContextFactory<ApplicationDbContext> _factory, IB
 
                 if (reviewProject == null)
                 {
-                    return new BaseResponse
-                    {
-                        Status = ResponseStatus.Fail,
-                        Message = "Project Not Found"
-                    };
+                    return Result.Failure(new Error("Project.NotFound", "Project Not Found"));
                 }
 
                 var academyProject = ProjectHelper.GetProjects().FirstOrDefault(x => x.Id == reviewProject.DashboardProject.ProjectId);
@@ -189,18 +161,11 @@ public class ProjectService(IDbContextFactory<ApplicationDbContext> _factory, IB
                 await context.SaveChangesAsync();
             }
 
-            return new BaseResponse
-            {
-                Status = ResponseStatus.Success,
-            };
+            return Result.Success();
         }
         catch (Exception ex)
         {
-            return new BaseResponse
-            {
-                Status = ResponseStatus.Fail,
-                Message = ex.Message
-            };
+            return Result.Failure(new Error("Project.Unexpected", ex.Message));
         }
     }
 
@@ -222,7 +187,7 @@ public class ProjectService(IDbContextFactory<ApplicationDbContext> _factory, IB
         }
     }
 
-    public async Task<BaseResponse> CreateDashboardProject(int projectId, string userId, string url)
+    public async Task<Result> CreateDashboardProject(int projectId, string userId, string url)
     {
         try
         {
@@ -252,17 +217,13 @@ public class ProjectService(IDbContextFactory<ApplicationDbContext> _factory, IB
         }
         catch (Exception ex)
         {
-            return new BaseResponse
-            {
-                Status = ResponseStatus.Fail,
-                Message = ex.Message
-            };
+            return Result.Failure(new Error("Project.Unexpected", ex.Message));
         }
 
-        return new BaseResponse();
+        return Result.Success();
     }
 
-    public async Task<BaseResponse> UpdateDashboardProjectUrl(int projectId, string userId, string url)
+    public async Task<Result> UpdateDashboardProjectUrl(int projectId, string userId, string url)
     {
         try
         {
@@ -275,17 +236,13 @@ public class ProjectService(IDbContextFactory<ApplicationDbContext> _factory, IB
         }
         catch (Exception ex)
         {
-            return new BaseResponse
-            {
-                Status = ResponseStatus.Fail,
-                Message = ex.Message
-            };
+            return Result.Failure(new Error("Project.Unexpected", ex.Message));
         }
 
-        return new BaseResponse();
+        return Result.Success();
     }
 
-    public async Task<BaseResponse> MarkArticleAsRead(int projectId, string userId, CancellationToken cancellationToken = default)
+    public async Task<Result> MarkArticleAsRead(int projectId, string userId, CancellationToken cancellationToken = default)
     {
         var project = DashboardProjectsHelpers.GetProject(projectId);
 
@@ -321,14 +278,10 @@ public class ProjectService(IDbContextFactory<ApplicationDbContext> _factory, IB
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            return new BaseResponse
-            {
-                Status = ResponseStatus.Fail,
-                Message = ex.Message
-            };
+            return Result.Failure(new Error("Article.Unexpected", ex.Message));
         }
 
-        return new BaseResponse();
+        return Result.Success();
     }
 
     private async Task AddUserActivity(ApplicationDbContext context, string userId, int projectId, ActivityType activityType)
@@ -363,7 +316,7 @@ public class ProjectService(IDbContextFactory<ApplicationDbContext> _factory, IB
         }
     }
 
-    public async Task<BaseResponse> MarkAsCompleted(int projectId)
+    public async Task<Result> MarkAsCompleted(int projectId)
     {
         string appUserId;
         bool isCommunityIssue;
@@ -378,11 +331,7 @@ public class ProjectService(IDbContextFactory<ApplicationDbContext> _factory, IB
 
                 if (project == null)
                 {
-                    return new BaseResponse
-                    {
-                        Status = ResponseStatus.Fail,
-                        Message = "Project Not Found"
-                    };
+                    return Result.Failure(new Error("Project.NotFound", "Project Not Found"));
                 }
 
                 project.IsCompleted = true;
@@ -429,11 +378,7 @@ public class ProjectService(IDbContextFactory<ApplicationDbContext> _factory, IB
         }
         catch (Exception ex)
         {
-            return new BaseResponse
-            {
-                Status = ResponseStatus.Fail,
-                Message = ex.Message
-            };
+            return Result.Failure(new Error("Project.Unexpected", ex.Message));
         }
 
         try
@@ -447,10 +392,7 @@ public class ProjectService(IDbContextFactory<ApplicationDbContext> _factory, IB
         {
         }
 
-        return new BaseResponse
-        {
-            Status = ResponseStatus.Success,
-        };
+        return Result.Success();
     }
 
     public async Task<int> GetCompletionCount(int projectId, bool isArticle, CancellationToken cancellationToken = default)

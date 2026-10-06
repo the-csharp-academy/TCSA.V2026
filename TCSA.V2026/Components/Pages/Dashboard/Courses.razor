@@ -1,5 +1,4 @@
 @page "/dashboard/Courses"
-@using Microsoft.AspNetCore.Authorization
 @using System.Security.Claims
 @using TCSA.V2026.Components.UI
 @using TCSA.V2026.Data.Curriculum
@@ -543,7 +542,7 @@
         IsResettingCourse = true;
         var response = await ProjectService.ResetCourse(UserId, course);
 
-        if (response.Status == Data.Models.Responses.ResponseStatus.Success)
+        if (response.IsSuccess)
         {
             User = await UserService.GetUserById(UserId);
             GetCourseInfo();
@@ -551,7 +550,7 @@
         }
         else
         {
-            Snackbar.Add(response.Message ?? "The course could not be reset.", Severity.Error);
+            Snackbar.Add(response.Message, Severity.Error);
         }
 
         IsResettingCourse = false;

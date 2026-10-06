@@ -4,7 +4,6 @@
 @using TCSA.V2026.Components.UI
 @using TCSA.V2026.Data.DTOs
 @using TCSA.V2026.Data.Models
-@using TCSA.V2026.Data.Models.Responses
 @using TCSA.V2026.Helpers
 @using TCSA.V2026.Services
 @attribute [Authorize]
@@ -172,12 +171,12 @@
 
         if (!result.Canceled)
         {
-            var status = (ResponseStatus)result.Data;
-            var severity = status == ResponseStatus.Success ? Severity.Success : Severity.Error;
-            var message = status == ResponseStatus.Success ? "Project submitted successfully" : "There was an error submitting the project";
+            var isSuccess = (bool)result.Data;
+            var severity = isSuccess ? Severity.Success : Severity.Error;
+            var message = isSuccess ? "Project submitted successfully" : "There was an error submitting the project";
             SnackbarService.Add(message, severity);
 
-            if (status == ResponseStatus.Success)
+            if (isSuccess)
             {
                 User = await UserService.GetUserForDashboard(UserId);
                 await BuildAreasWithProjects();
