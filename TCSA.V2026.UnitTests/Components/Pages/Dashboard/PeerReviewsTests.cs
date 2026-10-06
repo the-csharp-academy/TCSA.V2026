@@ -89,7 +89,7 @@ public class PeerReviewsTests : BunitContext
     public async Task PickButton_WhenClickedTwiceWhileProcessing_CallsAssignUserToCodeReviewOnce()
     {
         // Arrange
-        var tcs = new TaskCompletionSource<BaseResponse>();
+        var tcs = new TaskCompletionSource<Result>();
 
         AuthorizeAs(TestUserId);
         Render<MudPopoverProvider>();
@@ -112,7 +112,7 @@ public class PeerReviewsTests : BunitContext
         cut.FindAll("button").Single(b => b.TextContent.Contains("Pick")).Click();
         cut.FindAll("button").Single(b => b.TextContent.Contains("Pick")).Click();
 
-        tcs.SetResult(new BaseResponse { Status = ResponseStatus.Success });
+        tcs.SetResult(Result.Success());
         await cut.InvokeAsync(() => { });
 
         // Assert
@@ -125,7 +125,7 @@ public class PeerReviewsTests : BunitContext
     public void PickButton_WhileProcessing_IsDisabled()
     {
         // Arrange
-        var tcs = new TaskCompletionSource<BaseResponse>();
+        var tcs = new TaskCompletionSource<Result>();
 
         AuthorizeAs(TestUserId);
         Render<MudPopoverProvider>();
@@ -156,7 +156,7 @@ public class PeerReviewsTests : BunitContext
     public async Task DropButton_WhenClickedTwiceWhileProcessing_CallsReleaseUserFromCodeReviewOnce()
     {
         // Arrange
-        var tcs = new TaskCompletionSource<BaseResponse>();
+        var tcs = new TaskCompletionSource<Result>();
 
         AuthorizeAs(TestUserId);
         Render<MudPopoverProvider>();
@@ -179,7 +179,7 @@ public class PeerReviewsTests : BunitContext
         cut.FindAll("button").Single(b => b.TextContent.Contains("Drop")).Click();
         cut.FindAll("button").Single(b => b.TextContent.Contains("Drop")).Click();
 
-        tcs.SetResult(new BaseResponse { Status = ResponseStatus.Success });
+        tcs.SetResult(Result.Success());
         await cut.InvokeAsync(() => { });
 
         // Assert
@@ -192,7 +192,7 @@ public class PeerReviewsTests : BunitContext
     public void DropButton_WhileProcessing_IsDisabled()
     {
         // Arrange
-        var tcs = new TaskCompletionSource<BaseResponse>();
+        var tcs = new TaskCompletionSource<Result>();
 
         AuthorizeAs(TestUserId);
         Render<MudPopoverProvider>();
@@ -223,7 +223,7 @@ public class PeerReviewsTests : BunitContext
     public async Task TickButton_WhenClickedTwiceWhileProcessing_CallsMarkCodeReviewAsCompletedOnce()
     {
         // Arrange
-        var tcs = new TaskCompletionSource<BaseResponse>();
+        var tcs = new TaskCompletionSource<Result>();
 
         AuthorizeAs(TestUserId);
         Render<MudPopoverProvider>();
@@ -246,7 +246,7 @@ public class PeerReviewsTests : BunitContext
         cut.FindAll("button").Single(b => b.TextContent.Contains("Tick")).Click();
         cut.FindAll("button").Single(b => b.TextContent.Contains("Tick")).Click();
 
-        tcs.SetResult(new BaseResponse { Status = ResponseStatus.Success });
+        tcs.SetResult(Result.Success());
         await cut.InvokeAsync(() => { });
 
         // Assert
@@ -259,7 +259,7 @@ public class PeerReviewsTests : BunitContext
     public void TickButton_WhileProcessing_IsDisabled()
     {
         // Arrange
-        var tcs = new TaskCompletionSource<BaseResponse>();
+        var tcs = new TaskCompletionSource<Result>();
 
         AuthorizeAs(TestUserId);
         Render<MudPopoverProvider>();

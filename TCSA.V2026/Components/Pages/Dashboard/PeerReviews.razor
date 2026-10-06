@@ -1,13 +1,10 @@
 @page "/dashboard/reviews"
 @using Microsoft.AspNetCore.Authorization
 @using System.Security.Claims
-@using TCSA.V2026.Data.Curriculum
 @using TCSA.V2026.Data.DTOs
 @using TCSA.V2026.Data.Enums
 @using TCSA.V2026.Data.Events
 @using TCSA.V2026.Data.Models
-@using TCSA.V2026.Data.Models.Responses
-@using TCSA.V2026.Components.UI
 @using TCSA.V2026.Helpers
 @using TCSA.V2026.Services
 @attribute [Authorize]
@@ -193,7 +190,7 @@
         {
             var result = await PeerReviewService.AssignUserToCodeReview(UserId, dashboardProjectId);
 
-            if (result.Status == ResponseStatus.Success)
+            if (result.IsSuccess)
             {
                 Snackbar.Add("Assignment Successful", Severity.Success);
                 User = await UserService.GetUserById(UserId);
@@ -219,7 +216,7 @@
         {
             var result = await PeerReviewService.ReleaseUserFromCodeReview(UserId, dashboardProjectId);
 
-            if (result.Status == ResponseStatus.Success)
+            if (result.IsSuccess)
             {
                 Snackbar.Add("Release successful", Severity.Success);
                 User = await UserService.GetUserById(UserId);
@@ -247,7 +244,7 @@
 
             // TODO SEND EMAILS
 
-            if (result.Status == ResponseStatus.Success)
+            if (result.IsSuccess)
             {
                 Snackbar.Add("Successfully marked as complete", Severity.Success);
                 User = await UserService.GetUserById(UserId);

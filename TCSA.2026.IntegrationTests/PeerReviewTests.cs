@@ -1,7 +1,6 @@
 using Microsoft.Extensions.Logging.Abstractions;
 using TCSA.V2026.Data.Enums;
 using TCSA.V2026.Data.Models;
-using TCSA.V2026.Data.Models.Responses;
 using TCSA.V2026.Services;
 
 namespace TCSA.V2026.IntegrationTests;
@@ -224,8 +223,11 @@ public class PeerReviewTests : IntegrationTestsBase
 
         var response = await _service.MarkCodeReviewAsCompleted("nonexistent-reviewer", 1);
 
-        Assert.That(response.Status, Is.EqualTo(ResponseStatus.Fail));
-        Assert.That(response.Message, Is.EqualTo("Reviewer not found."));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.IsFailure, Is.True);
+            Assert.That(response.Message, Is.EqualTo("Reviewer not found."));
+        }
     }
 
     [Test]
@@ -233,8 +235,11 @@ public class PeerReviewTests : IntegrationTestsBase
     {
         var response = await _service.MarkCodeReviewAsCompleted("user2", 9999);
 
-        Assert.That(response.Status, Is.EqualTo(ResponseStatus.Fail));
-        Assert.That(response.Message, Is.EqualTo("Dashboard project not found."));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.IsFailure, Is.True);
+            Assert.That(response.Message, Is.EqualTo("Dashboard project not found."));
+        }
     }
 
     [Test]
@@ -256,8 +261,11 @@ public class PeerReviewTests : IntegrationTestsBase
 
         var response = await _service.MarkCodeReviewAsCompleted("user2", 1);
 
-        Assert.That(response.Status, Is.EqualTo(ResponseStatus.Fail));
-        Assert.That(response.Message, Is.EqualTo("Project is already marked as completed."));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.IsFailure, Is.True);
+            Assert.That(response.Message, Is.EqualTo("Project is already marked as completed."));
+        }
     }
 
     [Test]
@@ -278,7 +286,7 @@ public class PeerReviewTests : IntegrationTestsBase
 
         var response = await _service.MarkCodeReviewAsCompleted("user2", 1);
 
-        Assert.That(response.Status, Is.EqualTo(ResponseStatus.Success));
+        Assert.That(response.IsSuccess, Is.True);
     }
 
     [Test]
@@ -434,8 +442,11 @@ public class PeerReviewTests : IntegrationTestsBase
 
         var response = await _service.ReleaseUserFromCodeReview("user10000", 1);
 
-        Assert.That(response.Status, Is.EqualTo(ResponseStatus.Fail));
-        Assert.That(response.Message, Is.EqualTo("User is Null"));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.IsFailure, Is.True);
+            Assert.That(response.Message, Is.EqualTo("User is Null"));
+        }
     }
 
     [Test]
@@ -462,7 +473,7 @@ public class PeerReviewTests : IntegrationTestsBase
 
         var response = await _service.ReleaseUserFromCodeReview("user2", 1);
 
-        Assert.That(response.Status, Is.EqualTo(ResponseStatus.Fail));
+        Assert.That(response.IsFailure, Is.True);
         Assert.That(response.Message, Is.EqualTo("Project is already completed and cannot be released."));
     }
 
@@ -489,7 +500,7 @@ public class PeerReviewTests : IntegrationTestsBase
 
         var response = await _service.ReleaseUserFromCodeReview("user2", 1);
 
-        Assert.That(response.Status, Is.EqualTo(ResponseStatus.Success));
+        Assert.That(response.IsSuccess, Is.True);
     }
 
     [Test]
