@@ -1,6 +1,5 @@
 @page "/contribute"
 @using System.Security.Claims
-@using TCSA.V2026.Data.DTOs
 @using TCSA.V2026.Data.Models
 @using TCSA.V2026.Data.Models.Requests
 @using TCSA.V2026.Services
@@ -148,13 +147,13 @@
         {
             var result = await DonateService.GetDonationsAsync();
 
-            if (!result.IsSuccessful || result.Data is null)
+            if (result.IsFailure)
             {
-                DonationProgressError = result.Message ?? "Could not load contribution progress.";
+                DonationProgressError = result.Message;
                 return;
             }
 
-            CurrentDonatedUsd = result.Data.Sum(d => (decimal)d.AmountCents) / 100m;
+            CurrentDonatedUsd = result.Value.Sum(d => (decimal)d.AmountCents) / 100m;
         }
         catch
         {
@@ -193,13 +192,13 @@
                 Currency = "usd"
             });
 
-            if (!result.IsSuccessful || string.IsNullOrWhiteSpace(result.Data?.CheckoutUrl))
+            if (result.IsFailure || string.IsNullOrWhiteSpace(result.Value.CheckoutUrl))
             {
-                Error = result.Message ?? "Could not start contribution checkout.";
+                Error = result.Message;
                 return;
             }
 
-            Navigation.NavigateTo(result.Data.CheckoutUrl, forceLoad: true);
+            Navigation.NavigateTo(result.Value.CheckoutUrl, forceLoad: true);
         }
         catch (Exception ex)
         {

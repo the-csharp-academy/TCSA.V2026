@@ -13,8 +13,8 @@ namespace TCSA.V2026.Services;
 
 public interface IDonateService
 {
-    Task<ServiceResponse<CreateDonationCheckoutResponse>> CreateCheckoutAsync(CreateDonationCheckoutRequest request);
-    Task<ServiceResponse<List<UserDonation>>> GetDonationsAsync();
+    Task<Result<CreateDonationCheckoutResponse>> CreateCheckoutAsync(CreateDonationCheckoutRequest request);
+    Task<Result<List<UserDonation>>> GetDonationsAsync();
 }
 
 public sealed class DonateService : IDonateService
@@ -36,10 +36,10 @@ public sealed class DonateService : IDonateService
         _logger = logger;
     }
 
-    public async Task<ServiceResponse<CreateDonationCheckoutResponse>> CreateCheckoutAsync(CreateDonationCheckoutRequest request)
+    public async Task<Result<CreateDonationCheckoutResponse>> CreateCheckoutAsync(CreateDonationCheckoutRequest request)
     {
-        var response = ValidateDonationRequest(request);
-        if (!response.IsSuccessful) return response;
+        var validationError = ValidateDonationRequest(request);
+        if (validationError is not null) return Result.Failure<CreateDonationCheckoutResponse>(validationError);
 
         var currency = NormalizeCurrency(request.Currency);
         var amountCents = checked(request.AmountDollars * 100);
@@ -66,22 +66,17 @@ public sealed class DonateService : IDonateService
         donation.StripeCheckoutSessionId = session.Id;
         await db.SaveChangesAsync();
 
-        return new ServiceResponse<CreateDonationCheckoutResponse>
-        {
-            IsSuccessful = true,
-            Message = "Redirect the user to Stripe Checkout to complete the contribution.",
-            Data = new CreateDonationCheckoutResponse
+        return Result.Success(
+            new CreateDonationCheckoutResponse
             {
                 CheckoutSessionId = session.Id,
                 CheckoutUrl = session.Url
-            }
-        };
+            },
+            new Success("Donation.CheckoutCreated", "Redirect the user to Stripe Checkout to complete the contribution."));
     }
 
-    public async Task<ServiceResponse<List<UserDonation>>> GetDonationsAsync()
+    public async Task<Result<List<UserDonation>>> GetDonationsAsync()
     {
-        var response = new ServiceResponse<List<UserDonation>>();
-
         await using var db = await _factory.CreateDbContextAsync();
 
         var donations = await db.UserDonations
@@ -90,26 +85,24 @@ public sealed class DonateService : IDonateService
             .OrderByDescending(x => x.CreatedUtc)
             .ToListAsync();
 
-        response.IsSuccessful = true;
-        response.Data = donations;
-        return response;
+        return Result.Success(donations);
     }
 
-    private ServiceResponse<CreateDonationCheckoutResponse> ValidateDonationRequest(CreateDonationCheckoutRequest request)
+    private static Error? ValidateDonationRequest(CreateDonationCheckoutRequest request)
     {
         if (request is null)
-            return new ServiceResponse<CreateDonationCheckoutResponse> { IsSuccessful = false, Message = "Request cannot be null." };
+            return new Error("Donation.InvalidRequest", "Request cannot be null.");
 
         if (string.IsNullOrWhiteSpace(request.AppUserId))
-            return new ServiceResponse<CreateDonationCheckoutResponse> { IsSuccessful = false, Message = "AppUserId is required." };
+            return new Error("Donation.UserRequired", "AppUserId is required.");
 
         if (request.AmountDollars < 1 || request.AmountDollars > 500)
-            return new ServiceResponse<CreateDonationCheckoutResponse> { IsSuccessful = false, Message = "Contribution amount must be between $1 and $500." };
+            return new Error("Donation.InvalidAmount", "Contribution amount must be between $1 and $500.");
 
         if (string.IsNullOrWhiteSpace(request.Email))
-            return new ServiceResponse<CreateDonationCheckoutResponse> { IsSuccessful = false, Message = "Email is required." };
+            return new Error("Donation.EmailRequired", "Email is required.");
 
-        return new ServiceResponse<CreateDonationCheckoutResponse> { IsSuccessful = true };
+        return null;
     }
 
     private static string NormalizeCurrency(string? currency)
