@@ -87,7 +87,7 @@
         var response = await CommentsService.ApproveCommentAsync(commentId);
         ApprovingCommentId = null;
 
-        if (!response.IsSuccessful)
+        if (response.IsFailure)
         {
             Snackbar.Add(response.Message, Severity.Error);
             return;

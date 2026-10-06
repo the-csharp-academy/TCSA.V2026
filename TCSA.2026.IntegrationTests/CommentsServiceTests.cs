@@ -31,7 +31,7 @@ public class CommentsServiceTests : IntegrationTestsBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(response.IsSuccessful, Is.True);
+            Assert.That(response.IsSuccess, Is.True);
             Assert.That(savedComment.ArticleId, Is.EqualTo(53));
             Assert.That(savedComment.AppUserId, Is.EqualTo("user1"));
             Assert.That(savedComment.Comment, Is.EqualTo("Helpful project!"));
@@ -50,7 +50,7 @@ public class CommentsServiceTests : IntegrationTestsBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(response.IsSuccessful, Is.True);
+            Assert.That(response.IsSuccess, Is.True);
             Assert.That(savedComment.IsReviewed, Is.True);
         });
     }
@@ -67,7 +67,7 @@ public class CommentsServiceTests : IntegrationTestsBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(response.IsSuccessful, Is.True);
+            Assert.That(response.IsSuccess, Is.True);
             Assert.That(savedComment.IsReviewed, Is.True);
         });
     }
@@ -111,7 +111,7 @@ public class CommentsServiceTests : IntegrationTestsBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(response.IsSuccessful, Is.False);
+            Assert.That(response.IsFailure, Is.True);
             Assert.That(context.Comments, Is.Empty);
         });
     }
@@ -125,7 +125,7 @@ public class CommentsServiceTests : IntegrationTestsBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(response.IsSuccessful, Is.False);
+            Assert.That(response.IsFailure, Is.True);
             Assert.That(context.Comments, Is.Empty);
         });
     }
@@ -146,7 +146,7 @@ public class CommentsServiceTests : IntegrationTestsBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(response.IsSuccessful, Is.True);
+            Assert.That(response.IsSuccess, Is.True);
             Assert.That(comments, Has.Count.EqualTo(1));
             Assert.That(comments[0].ArticleId, Is.EqualTo(courseArticle.Id));
             Assert.That(comments[0].Comment, Is.EqualTo("Comment on a course article"));
@@ -205,7 +205,7 @@ public class CommentsServiceTests : IntegrationTestsBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(response.IsSuccessful, Is.False);
+            Assert.That(response.IsFailure, Is.True);
             Assert.That(context.Comments, Is.Empty);
         });
     }
@@ -229,7 +229,7 @@ public class CommentsServiceTests : IntegrationTestsBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(response.IsSuccessful, Is.True);
+            Assert.That(response.IsSuccess, Is.True);
             Assert.That(approvedComment.IsReviewed, Is.True);
         });
     }
@@ -265,7 +265,7 @@ public class CommentsServiceTests : IntegrationTestsBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(response.IsSuccessful, Is.True);
+            Assert.That(response.IsSuccess, Is.True);
             Assert.That(comment.Comment, Is.EqualTo("Updated by owner"));
             Assert.That(comment.IsReviewed, Is.False);
         });
@@ -281,7 +281,7 @@ public class CommentsServiceTests : IntegrationTestsBase
         using var context = DbContextFactory.CreateDbContext();
         Assert.Multiple(() =>
         {
-            Assert.That(response.IsSuccessful, Is.False);
+            Assert.That(response.IsFailure, Is.True);
             Assert.That(context.Comments.Single().Comment, Is.EqualTo("Original"));
         });
     }
@@ -296,7 +296,7 @@ public class CommentsServiceTests : IntegrationTestsBase
         using var context = DbContextFactory.CreateDbContext();
         Assert.Multiple(() =>
         {
-            Assert.That(response.IsSuccessful, Is.True);
+            Assert.That(response.IsSuccess, Is.True);
             Assert.That(context.Comments, Is.Empty);
         });
     }
@@ -311,7 +311,7 @@ public class CommentsServiceTests : IntegrationTestsBase
         using var context = DbContextFactory.CreateDbContext();
         Assert.Multiple(() =>
         {
-            Assert.That(response.IsSuccessful, Is.False);
+            Assert.That(response.IsFailure, Is.True);
             Assert.That(context.Comments.Count(), Is.EqualTo(1));
         });
     }
@@ -331,8 +331,8 @@ public class CommentsServiceTests : IntegrationTestsBase
         Assert.Multiple(() =>
         {
             Assert.That(visibleComments, Has.Count.EqualTo(2));
-            Assert.That(updateResponse.IsSuccessful, Is.True);
-            Assert.That(deleteResponse.IsSuccessful, Is.True);
+            Assert.That(updateResponse.IsSuccess, Is.True);
+            Assert.That(deleteResponse.IsSuccess, Is.True);
             Assert.That(context.Comments.Single().Comment, Is.EqualTo("Admin edit"));
         });
     }
