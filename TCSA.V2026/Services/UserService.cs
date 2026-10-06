@@ -456,14 +456,17 @@ public class UserService : IUserService
                     context.Issues,
                     dp => dp.ProjectId,
                     i => i.ProjectId,
-                    (dp, i) => new PublicProfilePullRequestDetailsResponse
-                    (
-                        dp.DateCompleted,
-                        i.Title,
-                        dp.GithubUrl,
-                        i.CommunityProjectId
-                    )
+                    (dp, i) => new { dp, i }
                 )
+                .OrderByDescending(x => x.dp.DateCompleted)
+                .ThenBy(x => x.i.Id)
+                .Select(x => new PublicProfilePullRequestDetailsResponse
+                (
+                    x.dp.DateCompleted,
+                    x.i.Title,
+                    x.dp.GithubUrl,
+                    x.i.CommunityProjectId
+                ))
                 .Take(5)
                 .ToListAsync();
 
@@ -501,6 +504,7 @@ public class UserService : IUserService
             return await context.Users
                 .AsNoTracking()
                 .Where(u => !u.HasBackfilledBadges)
+                .OrderBy(u => u.Id)
                 .Select(u => u.Id)
                 .Take(batchSize)
                 .ToListAsync();

@@ -1,4 +1,4 @@
-﻿using TCSA.V2026.Data.Curriculum;
+using TCSA.V2026.Data.Curriculum;
 using TCSA.V2026.Data.DTOs;
 using TCSA.V2026.Data.Models;
 
@@ -17,7 +17,7 @@ public static class ActivityHelper
         int currentPoints = user.ExperiencePoints;
         var currentBelt = user.Level;
 
-        var activity = user.UserActivity.OrderByDescending(x => x.DateSubmitted).ToList();
+        var activity = user.UserActivity.OrderByDescending(x => x.DateSubmitted).ThenByDescending(x => x.Id).ToList();
         for (int i = 0; i < activity.Count(); i++)
         {
             AppUserActivity item = activity[i];

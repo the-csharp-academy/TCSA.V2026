@@ -101,6 +101,7 @@ public class ChallengeService(IDbContextFactory<ApplicationDbContext> _factory, 
 
             var items = await query
                 .OrderByDescending(c => c.ReleaseDate)
+                .ThenBy(c => c.Id)
                 .Skip((pageNumber - 1) * PagingConstants.ChallengesPageSize)
                 .Take(PagingConstants.ChallengesPageSize).Select(c => new ChallengeDetails
                 (
