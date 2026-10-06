@@ -16,10 +16,10 @@ public class CachingBadgeService : IBadgeService
     }
 
     public Task<IEnumerable<Badge>> GetRecentAwardedBadges(string userId, DateTimeOffset since) => _badgeService.GetRecentAwardedBadges(userId, since);
-    public Task<BaseResponse> AwardBadge(string userId, int badgeId) => _badgeService.AwardBadge(userId, badgeId);
+    public Task<Result> AwardBadge(string userId, int badgeId) => _badgeService.AwardBadge(userId, badgeId);
     public Task AwardPlatformBuilderBadges(string userId) => _badgeService.AwardPlatformBuilderBadges(userId);
     public Task AwardReviewBadges(string userId, int reviewedProjectsCount) => _badgeService.AwardReviewBadges(userId, reviewedProjectsCount);
-    public Task<BaseResponse> AcknowledgeBadgeNotifications(string userId) => _badgeService.AcknowledgeBadgeNotifications(userId);
+    public Task<Result> AcknowledgeBadgeNotifications(string userId) => _badgeService.AcknowledgeBadgeNotifications(userId);
     public Task AwardMissingBadges(string userId) => _badgeService.AwardMissingBadges(userId);
 
     public async Task<IEnumerable<Badge>> GetUserAwardedBadges(string userId)

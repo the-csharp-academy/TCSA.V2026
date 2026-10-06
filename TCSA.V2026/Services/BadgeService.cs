@@ -10,16 +10,16 @@ public interface IBadgeService
 {
     Task<IEnumerable<Badge>> GetUserAwardedBadges(string userId);
     Task<IEnumerable<Badge>> GetRecentAwardedBadges(string userId, DateTimeOffset since);
-    Task<BaseResponse> AwardBadge(string userId, int badgeId);
+    Task<Result> AwardBadge(string userId, int badgeId);
     Task AwardPlatformBuilderBadges(string userId);
     Task AwardReviewBadges(string userId, int reviewedProjectsCount);
-    Task<BaseResponse> AcknowledgeBadgeNotifications(string userId);
+    Task<Result> AcknowledgeBadgeNotifications(string userId);
     Task AwardMissingBadges(string userId);
 }
 
 public class BadgeService(IDbContextFactory<ApplicationDbContext> _factory, ILogger<BadgeService> _logger) : IBadgeService
 {
-    public async Task<BaseResponse> AwardBadge(string userId, int badgeId)
+    public async Task<Result> AwardBadge(string userId, int badgeId)
     {
         try
         {
@@ -34,28 +34,17 @@ public class BadgeService(IDbContextFactory<ApplicationDbContext> _factory, ILog
 
             await context.SaveChangesAsync();
 
-            return new BaseResponse
-            {
-                Status = ResponseStatus.Success,
-            };
+            return Result.Success();
         }
         catch (DbUpdateException ex)
         {
             _logger.LogError(ex, "Error awarding badge {BadgeId} to user {UserId}", badgeId, userId);
-            return new BaseResponse
-            {
-                Status = ResponseStatus.Fail,
-                Message = $"Badge has already been awarded.",
-            };
+            return Result.Failure(new Error("Badge.AlreadyAwarded", "Badge has already been awarded."));
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unexpected error awarding badge {BadgeId} to user {UserId}", badgeId, userId);
-            return new BaseResponse
-            {
-                Status = ResponseStatus.Fail,
-                Message = $"An unexpected error occurred while awarding the badge.",
-            };
+            return Result.Failure(new Error("Badge.Unexpected", "An unexpected error occurred while awarding the badge."));
         }
     }
 
@@ -139,7 +128,7 @@ public class BadgeService(IDbContextFactory<ApplicationDbContext> _factory, ILog
             .ToHashSetAsync();
     }
 
-    public async Task<BaseResponse> AcknowledgeBadgeNotifications(string userId)
+    public async Task<Result> AcknowledgeBadgeNotifications(string userId)
     {
         try
         {
@@ -148,19 +137,12 @@ public class BadgeService(IDbContextFactory<ApplicationDbContext> _factory, ILog
                 .Where(b => b.UserId == userId && b.IsPendingNotification)
                 .ExecuteUpdateAsync(s => s.SetProperty(b => b.IsPendingNotification, false));
 
-            return new BaseResponse
-            {
-                Status = ResponseStatus.Success,
-            };
+            return Result.Success();
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to acknowledge badge notifications for user {UserId}", userId);
-            return new BaseResponse
-            {
-                Status = ResponseStatus.Fail,
-                Message = ex.Message
-            };
+            return Result.Failure(new Error("Badge.Unexpected", ex.Message));
         }
     }
 
