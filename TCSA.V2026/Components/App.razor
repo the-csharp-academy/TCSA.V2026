@@ -87,6 +87,11 @@
             document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
         }
 
+        function setLayoutState(navOpen, rightDrawerOpen) {
+            document.body.classList.toggle("app-nav-closed", !navOpen);
+            document.body.classList.toggle("app-right-open", rightDrawerOpen);
+        }
+
         function getCookie(name) {
             const cookies = document.cookie.split(';');
             for (let cookie of cookies) {

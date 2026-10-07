@@ -1,0 +1,420 @@
+@using System.Security.Claims
+@using TCSA.V2026.Components.UI
+@using TCSA.V2026.Data.DTOs
+@using TCSA.V2026.Services
+@inject ThemeService ThemeService
+@inject IHttpContextAccessor HttpContextAccessor
+@inject IJSRuntime JS
+@inject NavigationManager Nav
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IUserService UserService
+@inject IDialogService DialogService
+@inject ILogger<LayoutControls> Logger
+@inject ISearchService SearchService
+@inject OnboardingStateService OnboardingState
+@implements IAsyncDisposable
+
+<MudThemeProvider Theme="MyCustomTheme" @bind-IsDarkMode="@ThemeService.IsDarkMode" />
+<MudPopoverProvider />
+<MudSnackbarProvider />
+<MudDialogProvider />
+<GoogleAnalyticsTracker />
+
+<MudLayout>
+    <MudAppBar Elevation="1">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu"
+                       Color="Color.Inherit"
+                       Edge="Edge.Start"
+                       OnClick="@ToggleNavDrawer" />
+        <MudImage Src="/img/logo.png" Width="40" />
+        <MudAutocomplete T="SearchItem"
+                         ShowProgressIndicator="true"
+                         MaxLength="100"
+                         DebounceInterval="200"
+                         ToStringFunc="@(item => _lastSearchQuery)"
+                         Placeholder="Search articles & projects..."
+                         SearchFunc="CaptureAndSearch"
+                         AdornmentIcon="@Icons.Material.Filled.Search"
+                         ValueChanged="NavigateTo"
+                         Clearable
+                         Dense="true"
+                         Margin="Margin.Dense"
+                         Variant="Variant.Outlined"
+                         Class="ml-4 appbar-search"
+                         AdornmentColor="Color.Primary">
+            <ItemTemplate Context="item">
+                <MudStack Spacing="0">
+                    <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+                        <img src="img/icons/@(string.IsNullOrEmpty(item.IconUrl) ? "article-placeholder.png" : item.IconUrl)" style="height:2em;max-width:100%;" />
+                        <MudText Typo="Typo.body2">@item.Title</MudText>
+                    </MudStack>
+                    @if (!string.IsNullOrEmpty(item.Snippet))
+                    {
+                        <MudText Typo="Typo.caption" Class="mud-text-secondary ml-1">@((MarkupString)item.Snippet)</MudText>
+                    }
+                </MudStack>
+            </ItemTemplate>
+            <AfterItemsTemplate>
+                @if (!string.IsNullOrWhiteSpace(_lastSearchQuery))
+                {
+                    <div class="pa-2">
+                        <MudButton FullWidth="true"
+                                   Variant="Variant.Text"
+                                   Color="Color.Primary"
+                                   StartIcon="@Icons.Material.Filled.ManageSearch"
+                                   Href="@($"/search?q={Uri.EscapeDataString(_lastSearchQuery)}")">
+                            See all results
+                        </MudButton>
+                    </div>
+                }
+            </AfterItemsTemplate>
+        </MudAutocomplete>
+        <MudSpacer />
+        <MudSwitch UserAttributes="@(new Dictionary<string, object> { ["id"] = "theme-toggle" })"
+                   ThumbIcon="@Icons.Material.Outlined.ModeNight"
+                   ValueChanged="ToggleTheme"
+                   Value="@ThemeService.IsDarkMode"
+                   Color="Color.Primary"
+                   Class="ma-4"
+                   T="bool"
+                   Label="Toggle Light/Dark Mode" />
+    </MudAppBar>
+    <MudDrawer id="nav-drawer" @bind-Open="_navOpen" Variant="DrawerVariant.Responsive" ClipMode="DrawerClipMode.Always" Elevation="2">
+        <NavMenu />
+    </MudDrawer>
+    @if (IsHome && !_showChecklist)
+    {
+        <MudDrawer id="feed-drawer" Variant="DrawerVariant.Responsive" @bind-Open="_feedOpen" Anchor="Anchor.Right" ClipMode="DrawerClipMode.Always" Elevation="2">
+            <CommunityFeedWidget />
+        </MudDrawer>
+    }
+    @if (_showChecklist && !string.IsNullOrEmpty(UserId))
+    {
+        <MudDrawer id="checklist-drawer" Variant="DrawerVariant.Responsive" @bind-Open="_checklistOpen" Anchor="Anchor.Right" ClipMode="DrawerClipMode.Always" Elevation="2">
+            <GetStartedChecklist Tasks="_checklistTasks"
+                                 UserId="@UserId"
+                                 OnDismissed="HandleChecklistDismissed" />
+        </MudDrawer>
+    }
+</MudLayout>
+
+@if (IsHome && !_showChecklist)
+{
+    <MudHidden Breakpoint="Breakpoint.SmAndDown" Invert="true">
+        @if (!_navOpen)
+        {
+            <MudFab StartIcon="@(_feedOpen? Icons.Material.Filled.Close : Icons.Material.Filled.Feed)"
+                    Color="Color.Primary"
+                    Class="fixed" Style="bottom: 64px; right: 32px; z-index: 1305;"
+                    OnClick="@ToggleFeedDrawer"
+                    aria-label="Toggle News Feed"
+                    Title="@(_feedOpen ? "Close News Feed" : "Open News Feed")" />
+        }
+    </MudHidden>
+    <MudHidden Breakpoint="Breakpoint.SmAndDown">
+        <MudFab StartIcon="@(_feedOpen? Icons.Material.Filled.Close : Icons.Material.Filled.Feed)"
+                Color="Color.Primary"
+                Class="fixed" Style="bottom: 64px; right: 32px; z-index: 1305;"
+                OnClick="@ToggleFeedDrawer"
+                aria-label="Toggle News Feed"
+                Title="@(_feedOpen ? "Close News Feed" : "Open News Feed")" />
+    </MudHidden>
+}
+@if (_showChecklist && !string.IsNullOrEmpty(UserId))
+{
+    <MudHidden Breakpoint="Breakpoint.SmAndDown" Invert="true">
+        @if (!_navOpen)
+        {
+            <MudFab StartIcon="@(_checklistOpen ? Icons.Material.Filled.Close : Icons.Material.Filled.Checklist)"
+                    Color="Color.Primary"
+                    Class="fixed" Style="bottom: 64px; right: 32px; z-index: 1305;"
+                    OnClick="@ToggleChecklistDrawer"
+                    aria-label="Toggle Getting Started Checklist"
+                    Title="@(_checklistOpen ? "Close Checklist" : "Open Getting Started Checklist")" />
+        }
+    </MudHidden>
+    <MudHidden Breakpoint="Breakpoint.SmAndDown">
+        <MudFab StartIcon="@(_checklistOpen ? Icons.Material.Filled.Close : Icons.Material.Filled.Checklist)"
+                Color="Color.Primary"
+                Class="fixed" Style="bottom: 64px; right: 32px; z-index: 1305;"
+                OnClick="@ToggleChecklistDrawer"
+                aria-label="Toggle Getting Started Checklist"
+                Title="@(_checklistOpen ? "Close Checklist" : "Open Getting Started Checklist")" />
+    </MudHidden>
+}
+
+@code {
+    private IJSObjectReference? _scrollModule;
+    private string _lastSearchQuery = string.Empty;
+    private string _lastScrolledUri = string.Empty;
+
+    private bool _navOpen = true;
+    private bool _feedOpen = true;
+    private bool _onboardingChecked;
+    private bool _showChecklist = false;
+    private bool _checklistOpen = true;
+    private List<ChecklistTaskDto> _checklistTasks = new();
+    private string UserId = string.Empty;
+
+    private bool? _pushedNavOpen;
+    private bool? _pushedRightOpen;
+
+    private IJSObjectReference? _onboardingModule;
+    private IJSObjectReference? _tourInstance;
+    private DotNetObjectReference<LayoutControls>? _dotNetRef;
+
+    private bool IsHome => string.IsNullOrEmpty(Nav.ToBaseRelativePath(Nav.Uri));
+
+    private bool RightDrawerOpen =>
+        (IsHome && !_showChecklist && _feedOpen) ||
+        (_showChecklist && !string.IsNullOrEmpty(UserId) && _checklistOpen);
+
+    protected override async Task OnInitializedAsync()
+    {
+        var themeCookie = HttpContextAccessor.HttpContext?.Request.Cookies["theme"];
+        if (themeCookie != null)
+        {
+            ThemeService.IsDarkMode = themeCookie == "dark";
+        }
+
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity?.IsAuthenticated == true)
+        {
+            UserId = authState.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
+        }
+
+        OnboardingState.OnChange += SyncOnboardingStateAsync;
+        Nav.LocationChanged += HandleLocationChanged;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        try
+        {
+            await PushLayoutStateAsync();
+
+            if (Nav.Uri != _lastScrolledUri)
+            {
+                _lastScrolledUri = Nav.Uri;
+                await ScrollToAnchor();
+            }
+        }
+        catch (JSDisconnectedException)
+        {
+        }
+
+        if (!firstRender || _onboardingChecked)
+        {
+            return;
+        }
+
+        try
+        {
+            await SyncOnboardingStateAsync();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to start onboarding welcome dialog.");
+        }
+        finally
+        {
+            _onboardingChecked = true;
+        }
+    }
+
+    // Tells the static layout (via classes on <body>) which drawers are open so it can offset the page content.
+    private async Task PushLayoutStateAsync()
+    {
+        var rightOpen = RightDrawerOpen;
+        if (_pushedNavOpen == _navOpen && _pushedRightOpen == rightOpen) return;
+
+        _pushedNavOpen = _navOpen;
+        _pushedRightOpen = rightOpen;
+        await JS.InvokeVoidAsync("setLayoutState", _navOpen, rightOpen);
+    }
+
+    private void HandleLocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
+    {
+        _ = InvokeAsync(StateHasChanged);
+    }
+
+    private async Task ScrollToAnchor()
+    {
+        var uri = new Uri(Nav.Uri);
+        var fragment = uri.Fragment.StartsWith("#") ? uri.Fragment.Substring(1) : uri.Fragment;
+        if (string.IsNullOrEmpty(fragment)) return;
+
+        _scrollModule = await JS.InvokeAsync<IJSObjectReference>("import", "./js/scroll-anchor.js");
+        await _scrollModule.InvokeVoidAsync("scrollToAnchor", fragment);
+    }
+
+    private void ToggleChecklistDrawer()
+    {
+        _checklistOpen = !_checklistOpen;
+    }
+
+    private void HandleChecklistDismissed()
+    {
+        _showChecklist = false;
+        StateHasChanged();
+    }
+
+    private void ToggleNavDrawer()
+    {
+        _navOpen = !_navOpen;
+    }
+
+    private Task<IEnumerable<SearchItem>> CaptureAndSearch(string value, CancellationToken token)
+    {
+        _lastSearchQuery = value;
+        return SearchService.QuickSearch(value, token);
+    }
+
+    private void NavigateTo(SearchItem? item)
+    {
+        if (item is null) return;
+
+        if (!string.IsNullOrEmpty(_lastSearchQuery))
+        {
+            var parts = item.PageUrl.Split('#', 2);
+            var url = parts.Length == 2
+                ? $"{parts[0]}?q={Uri.EscapeDataString(_lastSearchQuery)}#{parts[1]}"
+                : item.PageUrl;
+            Nav.NavigateTo(url);
+        }
+        else
+        {
+            Nav.NavigateTo(item.PageUrl);
+        }
+    }
+
+    private void ToggleFeedDrawer()
+    {
+        _feedOpen = !_feedOpen;
+    }
+
+    private async Task StartOnboardingAsync()
+    {
+        var options = new DialogOptions
+        {
+            CloseOnEscapeKey = false,
+            BackdropClick = false,
+            NoHeader = true
+        };
+        var parameters = new DialogParameters<TCSAWelcomeDialog>
+        {
+            { p => p.UserId, UserId },
+        };
+
+        var dialog = await DialogService.ShowAsync<TCSAWelcomeDialog>(null, parameters, options);
+        var dialogResult = await dialog.Result;
+
+        if (!dialogResult.Canceled) await StartTour();
+    }
+
+    private async Task ToggleTheme()
+    {
+        ThemeService.ToggleTheme();
+        // Update cookie via JS interop or via server-side endpoint.
+        await JS.InvokeVoidAsync("setCookie", "theme", ThemeService.IsDarkMode ? "dark" : "light", 365);
+    }
+
+    private async Task StartTour()
+    {
+        try
+        {
+            if (_tourInstance != null)
+            {
+                await _tourInstance.DisposeAsync();
+            }
+            _onboardingModule ??= await JS.InvokeAsync<IJSObjectReference>("import", "./js/onboarding-tour.js");
+            _tourInstance = await _onboardingModule.InvokeAsync<IJSObjectReference>("initOnboarding");
+            _dotNetRef = DotNetObjectReference.Create(this);
+
+            await _tourInstance.InvokeVoidAsync("startTour", _dotNetRef);
+        } catch (JSDisconnectedException)
+        {
+
+        }
+    }
+
+    [JSInvokable]
+    public async Task OpenNavDrawer()
+    {
+        _navOpen = true;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    [JSInvokable]
+    public async Task CompleteTour()
+    {
+        await UserService.MarkTourCompleted(UserId);
+    }
+
+    private async Task SyncOnboardingStateAsync()
+    {
+        if (string.IsNullOrWhiteSpace(UserId)) return;
+
+        var status = await UserService.GetOnboardingStatus(UserId);
+        _showChecklist = status.ShowChecklist;
+        _checklistTasks = status.Tasks;
+
+        if (status.ShowWelcome)
+        {
+            await StartOnboardingAsync();
+        }
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    async ValueTask IAsyncDisposable.DisposeAsync()
+    {
+        OnboardingState.OnChange -= SyncOnboardingStateAsync;
+        Nav.LocationChanged -= HandleLocationChanged;
+
+        try
+        {
+            if (_onboardingModule != null)
+            {
+                await _onboardingModule.DisposeAsync();
+            }
+
+            if (_tourInstance != null)
+            {
+                await _tourInstance.DisposeAsync();
+            }
+
+            if (_scrollModule != null)
+            {
+                await _scrollModule.DisposeAsync();
+            }
+        } catch (JSDisconnectedException)
+        {
+
+        }
+
+        _dotNetRef?.Dispose();
+    }
+
+    MudTheme MyCustomTheme = new MudTheme()
+    {
+        PaletteLight = new PaletteLight()
+        {
+            Primary = "#1C236D",
+            Secondary = "#832A77",
+            AppbarBackground = "#C9436E",
+            SuccessLighten = "#E0FFE0",
+        },
+        PaletteDark = new PaletteDark()
+        {
+            Primary = Colors.Blue.Lighten1,
+
+            DrawerText = "#FFFFFF",
+            AppbarText = "#FFFFFF",
+            TextPrimary = "#FFFFFF",
+            TextSecondary = "#FFFFFF",
+            ActionDefault = "#FFFFFF",
+            LinesInputs = "#FFFFFF"
+        },
+    };
+}
