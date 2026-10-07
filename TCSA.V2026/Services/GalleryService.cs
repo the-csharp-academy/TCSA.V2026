@@ -108,7 +108,7 @@ public class GalleryService(IDbContextFactory<ApplicationDbContext> _factory) : 
                 query = query.Where(i => projectIds.Contains(i.DashboardProject.ProjectId));
             }
 
-            var orderedQuery = query.OrderByDescending(i => i.DateCreated);
+            var orderedQuery = query.OrderByDescending(i => i.DateCreated).ThenBy(i => i.Id);
 
             var totalItems = await orderedQuery.CountAsync();
 

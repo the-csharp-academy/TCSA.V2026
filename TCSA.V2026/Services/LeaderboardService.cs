@@ -34,6 +34,7 @@ public class LeaderboardService(IDbContextFactory<ApplicationDbContext> _factory
                         UsersCount = g.Count()
                     })
                     .OrderByDescending(x => x.UsersCount)
+                    .ThenBy(x => x.CountryName)
                     .ToListAsync();
 
                 var index = 1;
@@ -61,8 +62,8 @@ public class LeaderboardService(IDbContextFactory<ApplicationDbContext> _factory
             var users = await context.Users
                 .Where(u => u.ReviewExperiencePoints > 0)
                 .OrderByDescending(u => u.ReviewExperiencePoints)
-                .ThenBy(u => u.FirstName)
-                .ThenBy(u => u.LastName)
+                .ThenBy(x => x.CreatedDate)
+                .ThenBy(x => x.Id)
                 .Take(PagingConstants.LeaderboardPageSize)
                 .Select(u => new
                 {
@@ -110,8 +111,8 @@ public class LeaderboardService(IDbContextFactory<ApplicationDbContext> _factory
             var users = await context.Users
             .Where(x => x.ExperiencePoints > 0)
             .OrderByDescending(x => x.ExperiencePoints)
-            .ThenBy(x => x.FirstName)
-            .ThenBy(x => x.LastName)
+            .ThenBy(x => x.CreatedDate)
+            .ThenBy(x => x.Id)
             .Skip((pageNumber - 1) * PagingConstants.LeaderboardPageSize)
             .Take(PagingConstants.LeaderboardPageSize)
             .Select(u => new
