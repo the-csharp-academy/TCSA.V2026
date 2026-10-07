@@ -16,7 +16,6 @@ public class AppUserActivity
 
     [JsonIgnore]
     public ApplicationUser ApplicationUser { get; set; }
-    public DashboardProject? DashboardProject { get; set; }
 }
 
 public enum ActivityType
