@@ -119,15 +119,17 @@
                 <MudPaper Class="course-article-card" Elevation="3">
                     <div class="course-article-header">
                         <div>
-                            <MudText Typo="Typo.overline" Class="course-eyebrow">@LessonLabel</MudText>
+                            <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.End">
+                                <MudText Typo="Typo.overline" Class="course-eyebrow">@LessonLabel</MudText>
+                                @if (IsLoggedIn && IsCompleted)
+                                {
+                                    <MudChip T="string" Color="Color.Success" Variant="Variant.Filled" Icon="@Icons.Material.Filled.CheckCircle">
+                                        Completed
+                                    </MudChip>
+                                }
+                            </MudStack>
                             <MudText Typo="Typo.h3" Class="course-article-title">@Article.Title</MudText>
                         </div>
-                        @if (IsLoggedIn && IsCompleted)
-                        {
-                            <MudChip T="string" Color="Color.Success" Variant="Variant.Filled" Icon="@Icons.Material.Filled.CheckCircle">
-                                Completed
-                            </MudChip>
-                        }
                     </div>
 
                     <div class="course-content">
@@ -412,10 +414,6 @@
     }
 
     .course-article-header {
-        display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
-        gap: 20px;
         padding: 32px 36px 24px;
         border-bottom: 1px solid var(--mud-palette-lines-default);
     }

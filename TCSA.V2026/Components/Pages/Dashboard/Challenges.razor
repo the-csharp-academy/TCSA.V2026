@@ -50,61 +50,63 @@
     else
     {
         @*  <MudText>LoadTime: @LoadTime.TotalSeconds.ToString()</MudText> *@
-        <MudStack Row Class="mt-6 mb-4" Spacing="4" AlignItems="AlignItems.Center" Breakpoint="Breakpoint.Xs">
-            <MudCheckBox @bind-Value="@ShowCompleted"
-                         @bind-Value:after="HandleShowCompletedChanged"
-                         Label="Show Completed"
-                         CheckedIcon="@Icons.Material.Outlined.CheckBox"
-                         UncheckedIcon="@Icons.Material.Outlined.CheckBoxOutlineBlank" />
-            <MudStack Row Spacing="4">
-                <MudSelect T="Level"
-                           Label="Filter by Level"
-                           Placeholder="Level"
-                           Class="flex-grow-0"
-                           MultiSelection="true"
-                           SelectedValues="SelectedLevels"
-                           SelectedValuesChanged="@((IEnumerable<Level> values) => HandleLevelSelection(values))">
-                    @foreach (Level item in Enum.GetValues(typeof(Level)))
-                    {
-                        <MudSelectItem Value="@item">@item.ToString()</MudSelectItem>
-                    }
-                </MudSelect>
-                <MudSelect T="ChallengeCategory"
-                           Label="Filter by Category"
-                           Placeholder="Category"
-                           Class="flex-grow-0"
-                           MultiSelection="true"
-                           SelectedValues="SelectedCategories"
-                           SelectedValuesChanged="@((IEnumerable<ChallengeCategory> values) => HandleCategorySelection(values))">
-                    @foreach (ChallengeCategory item in Enum.GetValues(typeof(ChallengeCategory)))
-                    {
-                        if (item != ChallengeCategory.Unknown)
+        <MudBreakpointProvider OnBreakpointChanged="FilterBreakpointChanged">
+            <MudStack Class="mt-6 mb-4" Spacing="4" AlignItems="AlignItems.Center" Breakpoint="Breakpoint.MdAndUp">
+                <MudCheckBox @bind-Value="@ShowCompleted"
+                             @bind-Value:after="HandleShowCompletedChanged"
+                             Label="Show Completed"
+                             CheckedIcon="@Icons.Material.Outlined.CheckBox"
+                             UncheckedIcon="@Icons.Material.Outlined.CheckBoxOutlineBlank" />
+                <MudStack Row="@(FilterBreakpoint >= Breakpoint.Sm)" Spacing="4" Class="@(FilterBreakpoint < Breakpoint.Sm ? "w-100" : "")">
+                    <MudSelect T="Level"
+                               Label="Filter by Level"
+                               Placeholder="Level"
+                               Class="@(FilterBreakpoint < Breakpoint.Sm ? "w-100" : "flex-grow-0")"
+                               MultiSelection="true"
+                               SelectedValues="SelectedLevels"
+                               SelectedValuesChanged="@((IEnumerable<Level> values) => HandleLevelSelection(values))">
+                        @foreach (Level item in Enum.GetValues(typeof(Level)))
                         {
                             <MudSelectItem Value="@item">@item.ToString()</MudSelectItem>
                         }
-                    }
-                </MudSelect>
-                <MudSelect T="ChallengePlatform"
-                           Label="Filter by Platform"
-                           Placeholder="Platform"
-                           Class="flex-grow-0"
-                           MultiSelection="true"
-                           SelectedValues="SelectedPlatforms"
-                           SelectedValuesChanged="@((IEnumerable<ChallengePlatform> values) => HandlePlatformSelection(values))">
-                    @foreach (ChallengePlatform item in Enum.GetValues(typeof(ChallengePlatform)))
-                    {
-                        <MudSelectItem Value="@item">@item.ToString()</MudSelectItem>
-                    }
-                </MudSelect>
+                    </MudSelect>
+                    <MudSelect T="ChallengeCategory"
+                               Label="Filter by Category"
+                               Placeholder="Category"
+                               Class="@(FilterBreakpoint < Breakpoint.Sm ? "w-100" : "flex-grow-0")"
+                               MultiSelection="true"
+                               SelectedValues="SelectedCategories"
+                               SelectedValuesChanged="@((IEnumerable<ChallengeCategory> values) => HandleCategorySelection(values))">
+                        @foreach (ChallengeCategory item in Enum.GetValues(typeof(ChallengeCategory)))
+                        {
+                            if (item != ChallengeCategory.Unknown)
+                            {
+                                <MudSelectItem Value="@item">@item.ToString()</MudSelectItem>
+                            }
+                        }
+                    </MudSelect>
+                    <MudSelect T="ChallengePlatform"
+                               Label="Filter by Platform"
+                               Placeholder="Platform"
+                               Class="@(FilterBreakpoint < Breakpoint.Sm ? "w-100" : "flex-grow-0")"
+                               MultiSelection="true"
+                               SelectedValues="SelectedPlatforms"
+                               SelectedValuesChanged="@((IEnumerable<ChallengePlatform> values) => HandlePlatformSelection(values))">
+                        @foreach (ChallengePlatform item in Enum.GetValues(typeof(ChallengePlatform)))
+                        {
+                            <MudSelectItem Value="@item">@item.ToString()</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudStack>
             </MudStack>
-        </MudStack>
+        </MudBreakpointProvider>
         if (PaginatedChallenges != null && PaginatedChallenges.Items.Count > 0)
         {
             <MudStack Spacing="4" Class="mb-4">
                 @foreach (var challenge in PaginatedChallenges.Items)
                 {
                     <MudPaper Elevation="3" Outlined="false" Class="py-2 px-2 px-sm-5" Style="@(challenge.IsCompleted ? "border: 2px solid green;" : "")">
-                        <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+                        <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Breakpoint="Breakpoint.SmAndDown">
                             <MudStack Row Spacing="5">
                                 <MudImage ObjectFit="ObjectFit.Contain" Width="60" Src="@($"img/belts/{challenge.Level}-belt.png")" />
                                 <MudStack Spacing="1">
@@ -121,7 +123,7 @@
                                     </MudStack>
                                 </MudStack>
                             </MudStack>
-                            <MudStack Row Spacing="2" Breakpoint="Breakpoint.Xs">
+                            <MudStack Row Spacing="2" Breakpoint="Breakpoint.Md">
                                 <MudButton Size="@Size.Small"
                                 Variant="@Variant.Filled"
                                 Color="@Color.Warning"
@@ -215,6 +217,7 @@
     private TimeSpan LoadTime = TimeSpan.Zero;
     private int _boundaryCount = 1;
     private Size _paginationSize = Size.Medium;
+    private Breakpoint FilterBreakpoint = Breakpoint.Md;
 
     protected override async Task OnInitializedAsync()
     {
@@ -373,6 +376,11 @@
             _paginationSize = Size.Medium;
             _boundaryCount = 2;
         }
+    }
+
+    private void FilterBreakpointChanged(Breakpoint breakpoint)
+    {
+        FilterBreakpoint = breakpoint;
     }
 
     public void Dispose()
