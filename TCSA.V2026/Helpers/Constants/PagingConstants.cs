@@ -8,4 +8,6 @@ public static class PagingConstants
     public const int GalleryPageSize = 6;
     public const int FeedPageSize = 12;
     public const int SearchPageSize = 20;
+    public const int AdminFeedbackPageSize = 10;
+    public static readonly int[] AdminFeedbackPageSizeOptions = [10, 25, 50];
 }
