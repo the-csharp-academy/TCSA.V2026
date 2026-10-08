@@ -116,6 +116,10 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             .HasIndex(c => new { c.ArticleId, c.IsReviewed, c.Date });
 
         modelBuilder.Entity<FeedbackItem>()
+            .HasIndex(f => new { f.CreatedAt, f.Id })
+            .IsDescending(true, true);
+
+        modelBuilder.Entity<FeedbackItem>()
             .HasOne(f => f.AppUser)
             .WithMany()
             .HasForeignKey(f => f.AppUserId)
