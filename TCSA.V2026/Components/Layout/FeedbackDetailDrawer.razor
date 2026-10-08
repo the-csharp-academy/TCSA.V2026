@@ -1,0 +1,161 @@
+@using TCSA.V2026.Components.UI
+@using TCSA.V2026.Data.DTOs
+@using TCSA.V2026.Helpers
+@using TCSA.V2026.Helpers.Constants
+@using TCSA.V2026.Services
+@inject FeedbackDetailState State
+@inject IFeedbackAdminService FeedbackAdminService
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+@implements IDisposable
+
+<MudDrawer id="feedback-detail-drawer"
+           Open="@(State.Selected is not null)"
+           OpenChanged="OnOpenChanged"
+           Anchor="Anchor.End"
+           Variant="DrawerVariant.Temporary"
+           Width="460px"
+           Elevation="2"
+           Class="feedback-detail-drawer">
+    @if (_item is { } item)
+    {
+        <div class="d-flex align-center justify-space-between pa-4 feedback-detail-header">
+            <MudText Typo="Typo.h6">Feedback #@item.Id</MudText>
+            <MudIconButton Icon="@Icons.Material.Filled.Close" aria-label="Close" OnClick="State.Close" />
+        </div>
+
+        <div class="pa-4">
+            <div class="d-flex flex-wrap gap-2 mb-4">
+                <MudChip T="string" Size="Size.Small" Color="@FeedbackLabelHelper.CategoryColor(item.Category)"
+                         Icon="@FeedbackLabelHelper.CategoryIcon(item.Category)">
+                    @FeedbackLabelHelper.CategoryLabel(item.Category)
+                </MudChip>
+                <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined" Color="@FeedbackLabelHelper.ReviewStateColor(item.ReviewState)">
+                    @FeedbackLabelHelper.ReviewStateLabel(item.ReviewState)
+                </MudChip>
+            </div>
+
+            <div class="feedback-detail-body pa-4 mb-4">@item.Body</div>
+
+            <dl class="feedback-detail-facts">
+                <dt>User</dt>
+                <dd><MudLink Href="@($"/admin/{item.UserId}")">@item.UserLabel</MudLink></dd>
+
+                <dt>Submitted</dt>
+                <dd>@item.CreatedAt.ToLocalTime().ToString("dd MMM yyyy, h:mm tt")</dd>
+
+                @if (item.Area is { } area)
+                {
+                    <dt>Area</dt>
+                    <dd>@FeedbackLabelHelper.AreaLabel(area)</dd>
+                }
+
+                @if (!string.IsNullOrEmpty(item.ReportedPage))
+                {
+                    <dt>Reported page</dt>
+                    <dd>@item.ReportedPage</dd>
+                }
+
+                <dt>Opened from</dt>
+                <dd>@item.OriginUrl</dd>
+            </dl>
+
+            <MudButton Class="mt-4" Color="Color.Error" Variant="Variant.Outlined"
+                       StartIcon="@Icons.Material.Filled.DeleteForever" Disabled="_isDeleting" OnClick="Delete">
+                Delete permanently
+            </MudButton>
+        </div>
+    }
+</MudDrawer>
+
+@code {
+    private FeedbackAdminItemDto? _item;
+    private bool _isDeleting;
+
+    protected override void OnInitialized()
+    {
+        State.OnChange += HandleChange;
+    }
+
+    private void HandleChange()
+    {
+        _ = InvokeAsync(() =>
+        {
+            _item = State.Selected ?? _item;
+            StateHasChanged();
+        });
+    }
+
+    private void OnOpenChanged(bool open)
+    {
+        if (!open) State.Close();
+    }
+
+    private async Task Delete()
+    {
+        if (_item is not { } item) return;
+
+        var parameters = new DialogParameters
+        {
+            ["Title"] = "Delete feedback",
+            ["Message"] = "This permanently removes this feedback item. It cannot be undone.",
+            ["ConfirmLabel"] = "Delete permanently"
+        };
+        var dialog = await DialogService.ShowAsync<TCSADeleteDialog>("Delete feedback", parameters, new DialogOptions { CloseOnEscapeKey = true });
+        var dialogResult = await dialog.Result;
+
+        if (dialogResult is null || dialogResult.Canceled) return;
+
+        _isDeleting = true;
+        var result = await FeedbackAdminService.DeleteItem(item.Id);
+        _isDeleting = false;
+
+        if (result.IsFailure && result.Reason.Code != FeedbackErrorCodes.NotFound)
+        {
+            Snackbar.Add(result.Message, Severity.Error);
+            return;
+        }
+
+        Snackbar.Add(result.IsSuccess ? result.Message : "That feedback was already deleted.", result.IsSuccess ? Severity.Success : Severity.Info);
+        await State.NotifyDeletedAsync(item.Id);
+    }
+
+    public void Dispose()
+    {
+        State.OnChange -= HandleChange;
+    }
+}
+
+<style>
+    .feedback-detail-drawer {
+        max-width: 100vw;
+    }
+
+    .feedback-detail-header {
+        border-bottom: 1px solid var(--mud-palette-lines-default);
+    }
+
+    .feedback-detail-body {
+        border-radius: 14px;
+        border: 1px solid rgba(var(--mud-palette-lines-default-rgb), 0.6);
+        background: rgba(var(--mud-palette-primary-rgb), 0.05);
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+    }
+
+    .feedback-detail-facts {
+        display: grid;
+        grid-template-columns: max-content 1fr;
+        gap: 0.5rem 1rem;
+        margin: 0;
+    }
+
+    .feedback-detail-facts dt {
+        color: var(--mud-palette-text-secondary);
+    }
+
+    .feedback-detail-facts dd {
+        margin: 0;
+        overflow-wrap: anywhere;
+    }
+</style>
