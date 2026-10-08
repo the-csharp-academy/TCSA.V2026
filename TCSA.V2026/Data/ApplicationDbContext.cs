@@ -120,6 +120,16 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             .IsDescending(true, true);
 
         modelBuilder.Entity<FeedbackItem>()
+            .HasIndex(f => new { f.Category, f.ReportedPage, f.OriginUrl })
+            .IncludeProperties(f => new { f.ReviewState, f.CreatedAt });
+
+        // ReviewState is the only column edited after submission. Treating it as the concurrency token makes a
+        // review change fail instead of silently overwriting another admin's change to the same item.
+        modelBuilder.Entity<FeedbackItem>()
+            .Property(f => f.ReviewState)
+            .IsConcurrencyToken();
+
+        modelBuilder.Entity<FeedbackItem>()
             .HasOne(f => f.AppUser)
             .WithMany()
             .HasForeignKey(f => f.AppUserId)
