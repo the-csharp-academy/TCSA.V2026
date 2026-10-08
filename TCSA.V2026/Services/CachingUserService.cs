@@ -21,21 +21,21 @@ public class CachingUserService : IUserService
     public Task<ApplicationUser> GetUserForDashboard(string userId) => _userService.GetUserForDashboard(userId);
     public Task<ApplicationUser> GetDetailedUserById(string userId) => _userService.GetDetailedUserById(userId);
     public Task<ApplicationUser> GetUserProfileById(string userId) => _userService.GetUserProfileById(userId);
-    public Task<BaseResponse> SaveProfile(ApplicationUser user) => _userService.SaveProfile(user);
-    public Task<BaseResponse> ResetAccount(ApplicationUser user) => _userService.ResetAccount(user);
-    public Task<BaseResponse> DeleteAccount(ApplicationUser user) => _userService.DeleteAccount(user);
+    public Task<Result> SaveProfile(ApplicationUser user) => _userService.SaveProfile(user);
+    public Task<Result> ResetAccount(ApplicationUser user) => _userService.ResetAccount(user);
+    public Task<Result> DeleteAccount(ApplicationUser user) => _userService.DeleteAccount(user);
     public Task<ApplicationUser?> GetUserByIdWithShowcaseItems(string? userid) => _userService.GetUserByIdWithShowcaseItems(userid);
     public Task<List<ApplicationUser>> GetRecentlyJoinedUsers(int count) => _userService.GetRecentlyJoinedUsers(count);
-    public Task<BaseResponse> AcknowledgeBeltNotification(string userId) => _userService.AcknowledgeBeltNotification(userId);
+    public Task<Result> AcknowledgeBeltNotification(string userId) => _userService.AcknowledgeBeltNotification(userId);
     public Task<OnboardingStatusDto> GetOnboardingStatus(string userId) => _userService.GetOnboardingStatus(userId);
-    public Task<BaseResponse> MarkWelcomeSeen(string userId) => _userService.MarkWelcomeSeen(userId);
-    public Task<BaseResponse> MarkTourCompleted(string userId) => _userService.MarkTourCompleted(userId);
-    public Task<BaseResponse> MarkChecklistDismissed(string userId) => _userService.MarkChecklistDismissed(userId);
-    public Task<BaseResponse> RestartOnboarding(string userId) => _userService.RestartOnboarding(userId);
-    public Task<BaseResponse> ResumeChecklist(string userId) => _userService.ResumeChecklist(userId);
+    public Task<Result> MarkWelcomeSeen(string userId) => _userService.MarkWelcomeSeen(userId);
+    public Task<Result> MarkTourCompleted(string userId) => _userService.MarkTourCompleted(userId);
+    public Task<Result> MarkChecklistDismissed(string userId) => _userService.MarkChecklistDismissed(userId);
+    public Task<Result> RestartOnboarding(string userId) => _userService.RestartOnboarding(userId);
+    public Task<Result> ResumeChecklist(string userId) => _userService.ResumeChecklist(userId);
     public Task<List<string>> GetUserIdsPendingBackfill(int batchSize) => _userService.GetUserIdsPendingBackfill(batchSize);
 
-    public async Task<BaseResponse> GetPublicProfile(string userId)
+    public async Task<Result<PublicProfileResponse>> GetPublicProfile(string userId)
     {
         var key = $"public-profile-{userId}";
 
@@ -44,7 +44,7 @@ public class CachingUserService : IUserService
             factory: async _ =>
             {
                 var response = await _userService.GetPublicProfile(userId);
-                return response.Status == ResponseStatus.Success ? (PublicProfileResponse)response.Data : null;
+                return response.IsSuccess ? response.Value : null;
             },
             options: new HybridCacheEntryOptions
             {
@@ -53,7 +53,7 @@ public class CachingUserService : IUserService
         );
 
         return profile is not null
-            ? new BaseResponse { Status = ResponseStatus.Success, Data = profile }
-            : new BaseResponse { Status = ResponseStatus.Fail, Message = "User not found." };
+            ? Result.Success(profile)
+            : Result.Failure<PublicProfileResponse>(new Error("User.NotFound", "User not found."));
     }
 }

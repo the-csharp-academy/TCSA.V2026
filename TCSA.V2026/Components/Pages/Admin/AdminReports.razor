@@ -1,6 +1,5 @@
 @page "/adminreports"
 @using Microsoft.AspNetCore.Authorization
-@using System.Text.Json
 @using TCSA.V2026.Services
 
 @attribute [Authorize(Roles = "Admin")]
@@ -77,31 +76,19 @@
     {
         var response = await ReportService.GetCourseCount();
 
-        if (!response.IsSuccessful)
+        _isLoading = false;
+
+        if (response.IsFailure)
         {
             _errorMessage = response.Message;
-            _isLoading = false;
             return;
         }
 
-        try
-        {
-            var counts = JsonSerializer.Deserialize<Dictionary<string, int>>(response.Message) ?? [];
-
-            _courseCounts = counts
-                .Select(course => new CourseCompletionRow(course.Key, course.Value))
-                .OrderByDescending(course => course.ArticlesCompleted)
-                .ThenBy(course => course.CourseName)
-                .ToList();
-        }
-        catch (JsonException)
-        {
-            _errorMessage = "The course report returned data in an unexpected format.";
-        }
-        finally
-        {
-            _isLoading = false;
-        }
+        _courseCounts = response.Value
+            .Select(course => new CourseCompletionRow(course.Key, course.Value))
+            .OrderByDescending(course => course.ArticlesCompleted)
+            .ThenBy(course => course.CourseName)
+            .ToList();
     }
 
     private sealed record CourseCompletionRow(string CourseName, int ArticlesCompleted);

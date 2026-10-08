@@ -1,6 +1,4 @@
 @using TCSA.V2026.Data.Enums
-@using TCSA.V2026.Data.Models
-@using TCSA.V2026.Data.Models.Responses
 @using TCSA.V2026.Helpers
 @using TCSA.V2026.Services
 <MudDialog Style="min-width: 400px;">
@@ -81,7 +79,7 @@
         try
         {
             var result = await CommunityService.SubmitIssueToReview(ProjectId, GithubUrl);
-            MudDialog.Close(DialogResult.Ok(result.Status));
+            MudDialog.Close(DialogResult.Ok(result.IsSuccess));
         }
         finally
         {

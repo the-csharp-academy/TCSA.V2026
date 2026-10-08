@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Moq;
 using TCSA.V2026.Data;
 using TCSA.V2026.Data.Models;
-using TCSA.V2026.Data.Models.Responses;
 using TCSA.V2026.Services;
 
 namespace TCSA.V2026.UnitTests.Services;
@@ -48,7 +47,7 @@ public class ProjectServiceResetCourseTests
 
         var result = await _sut.ResetCourse("user-1", course);
 
-        Assert.That(result.Status, Is.EqualTo(ResponseStatus.Success));
+        Assert.That(result.IsSuccess, Is.True);
         await using var verification = new ApplicationDbContext(_options);
         Assert.Multiple(() =>
         {
@@ -74,7 +73,7 @@ public class ProjectServiceResetCourseTests
 
         var result = await _sut.ResetCourse("user-1", course);
 
-        Assert.That(result.Status, Is.EqualTo(ResponseStatus.Success));
+        Assert.That(result.IsSuccess, Is.True);
         await using var verification = new ApplicationDbContext(_options);
         Assert.That(verification.Users.Single().ExperiencePoints, Is.EqualTo(7));
     }

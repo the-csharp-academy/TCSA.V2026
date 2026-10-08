@@ -89,7 +89,7 @@ public class ProfileTests : BunitContext
     public async Task SaveButton_WhenClickedTwiceWhileProcessing_CallsSaveProfileOnce()
     {
         // Arrange
-        var tcs = new TaskCompletionSource<BaseResponse>();
+        var tcs = new TaskCompletionSource<Result>();
 
         _userServiceMock
             .Setup(s => s.SaveProfile(It.IsAny<ApplicationUser>()))
@@ -103,7 +103,7 @@ public class ProfileTests : BunitContext
         cut.FindAll("button").Single(b => b.TextContent.Contains("Save")).Click();
         cut.FindAll("button").Single(b => b.TextContent.Contains("Save")).Click();
 
-        tcs.SetResult(new BaseResponse { Status = ResponseStatus.Success });
+        tcs.SetResult(Result.Success());
         await cut.InvokeAsync(() => { });
 
         // Assert
@@ -114,7 +114,7 @@ public class ProfileTests : BunitContext
     public void SaveButton_WhileProcessing_IsDisabled()
     {
         // Arrange
-        var tcs = new TaskCompletionSource<BaseResponse>();
+        var tcs = new TaskCompletionSource<Result>();
 
         _userServiceMock
             .Setup(s => s.SaveProfile(It.IsAny<ApplicationUser>()))
@@ -242,7 +242,7 @@ public class ProfileTests : BunitContext
     public async Task RestartOnboardingButton_WhenClickedTwiceWhileProcessing_CallsRestartOnboardingOnce()
     {
         // Arrange
-        var tcs = new TaskCompletionSource<BaseResponse>();
+        var tcs = new TaskCompletionSource<Result>();
 
         _userServiceMock
             .Setup(s => s.RestartOnboarding(TestUserId))
@@ -256,7 +256,7 @@ public class ProfileTests : BunitContext
         cut.FindAll("button").Single(b => b.TextContent.Contains("Restart Onboarding")).Click();
         cut.FindAll("button").Single(b => b.TextContent.Contains("Restart Onboarding")).Click();
 
-        tcs.SetResult(new BaseResponse { Status = ResponseStatus.Success });
+        tcs.SetResult(Result.Success());
         await cut.InvokeAsync(() => { });
 
         // Assert
@@ -267,7 +267,7 @@ public class ProfileTests : BunitContext
     public void RestartOnboardingButton_WhileProcessing_IsDisabled()
     {
         // Arrange
-        var tcs = new TaskCompletionSource<BaseResponse>();
+        var tcs = new TaskCompletionSource<Result>();
 
         _userServiceMock
             .Setup(s => s.RestartOnboarding(TestUserId))
@@ -317,7 +317,7 @@ public class ProfileTests : BunitContext
     public async Task ResumeChecklistButton_WhenClickedTwiceWhileProcessing_CallsResumeChecklistOnce()
     {
         // Arrange
-        var tcs = new TaskCompletionSource<BaseResponse>();
+        var tcs = new TaskCompletionSource<Result>();
 
         _userServiceMock
             .Setup(s => s.ResumeChecklist(TestUserId))
@@ -331,7 +331,7 @@ public class ProfileTests : BunitContext
         cut.FindAll("button").Single(b => b.TextContent.Contains("Resume Checklist")).Click();
         cut.FindAll("button").Single(b => b.TextContent.Contains("Resume Checklist")).Click();
 
-        tcs.SetResult(new BaseResponse { Status = ResponseStatus.Success });
+        tcs.SetResult(Result.Success());
         await cut.InvokeAsync(() => { });
 
         // Assert
@@ -342,7 +342,7 @@ public class ProfileTests : BunitContext
     public void ResumeChecklistButton_WhileProcessing_IsDisabled()
     {
         // Arrange
-        var tcs = new TaskCompletionSource<BaseResponse>();
+        var tcs = new TaskCompletionSource<Result>();
 
         _userServiceMock
             .Setup(s => s.ResumeChecklist(TestUserId))

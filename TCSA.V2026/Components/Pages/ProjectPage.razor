@@ -6,7 +6,6 @@
 @using TCSA.V2026.Data.Curriculum
 @using TCSA.V2026.Data.Models
 @using TCSA.V2026.Data.Models.Options
-@using TCSA.V2026.Data.Models.Responses
 @using TCSA.V2026.Helpers
 @using TCSA.V2026.Helpers.Constants
 @using TCSA.V2026.Models
@@ -425,11 +424,7 @@
 
         if (result.Data is bool noCheckoutNeeded && noCheckoutNeeded)
         {
-            var accountabilityResponse = await AccountabilityBuddyService.GetUserAccountability(UserId, ProjectId);
-            if (accountabilityResponse.IsSuccessful)
-            {
-                AccountabilityBuddyInfo = accountabilityResponse.Data;
-            }
+            AccountabilityBuddyInfo = await AccountabilityBuddyService.GetUserAccountability(UserId, ProjectId);
         }
     }
 
@@ -447,16 +442,16 @@
 
             var challengesResult = await CodewarsService.GetCodeWarsCompletedChallenges(UserId, Project.CodeWarsChallenges);
 
-            Project.CodeWarsChallenges = challengesResult.Challenges;
-
-            if (challengesResult.Status == ResponseStatus.Fail)
+            if (challengesResult.IsFailure)
             {
+                Project.CodeWarsChallenges = new List<CodeWarsChallenge>();
                 CodeWarsNotFoundShowing = true;
+                return;
             }
 
-            if (challengesResult.Status == ResponseStatus.Success
-                && !IsCompleted
-                && !Project.CodeWarsChallenges.Any(x => x.IsCompleted == false))
+            Project.CodeWarsChallenges = challengesResult.Value;
+
+            if (!IsCompleted && !Project.CodeWarsChallenges.Any(x => x.IsCompleted == false))
             {
                 await CodewarsService.MarkSqlProjectAsCompleted(Project.Id, UserId);
             }
@@ -509,11 +504,7 @@
             IsAdmin = claims.IsInRole("Admin");
 
             IsCompleted = await ProjectService.IsProjectCompleted(UserId, ProjectId);
-            var accountabilityResponse = await AccountabilityBuddyService.GetUserAccountability(UserId, ProjectId);
-            if (accountabilityResponse.IsSuccessful)
-            {
-                AccountabilityBuddyInfo = accountabilityResponse.Data;
-            };
+            AccountabilityBuddyInfo = await AccountabilityBuddyService.GetUserAccountability(UserId, ProjectId);
         }
 
         if (!IsCompleted && Project.Area == Area.SQL)

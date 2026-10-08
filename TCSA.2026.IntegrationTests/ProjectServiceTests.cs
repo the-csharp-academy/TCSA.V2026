@@ -1,7 +1,6 @@
 using Microsoft.Extensions.Logging.Abstractions;
 using TCSA.V2026.Data.Enums;
 using TCSA.V2026.Data.Models;
-using TCSA.V2026.Data.Models.Responses;
 using TCSA.V2026.Services;
 
 namespace TCSA.V2026.IntegrationTests;
@@ -206,7 +205,7 @@ public class ProjectServiceTests : IntegrationTestsBase
         using var assertContext = DbContextFactory.CreateDbContext();
         var project = assertContext.DashboardProjects.First(p => p.ProjectId == 12 && p.AppUserId == "user1");
 
-        Assert.That(response.Status, Is.EqualTo(ResponseStatus.Success));
+        Assert.That(response.IsSuccess, Is.True);
         Assert.That(project.GithubUrl, Is.EqualTo("updatedUrl"));
     }
 
@@ -215,7 +214,7 @@ public class ProjectServiceTests : IntegrationTestsBase
     {
         var response = await _service.UpdateDashboardProjectUrl(12, "user1", "updatedUrl");
 
-        Assert.That(response.Status, Is.EqualTo(ResponseStatus.Fail));
+        Assert.That(response.IsFailure, Is.True);
     }
 
     [Test]
@@ -262,7 +261,7 @@ public class ProjectServiceTests : IntegrationTestsBase
         using var assertContext = DbContextFactory.CreateDbContext();
         var list = assertContext.DashboardProjects.Where(p => p.AppUserId == "nonexistent-user").ToList();
 
-        Assert.That(response.Status, Is.EqualTo(ResponseStatus.Success));
+        Assert.That(response.IsSuccess, Is.True);
         Assert.That(list, Is.Empty);
     }
 
@@ -397,7 +396,7 @@ public class ProjectServiceTests : IntegrationTestsBase
         using var assertContext = DbContextFactory.CreateDbContext();
         var badgeCount = assertContext.Badges.Count();
 
-        Assert.That(response.Status, Is.EqualTo(ResponseStatus.Fail));
+        Assert.That(response.IsFailure, Is.True);
         Assert.That(badgeCount, Is.EqualTo(0));
     }
 }

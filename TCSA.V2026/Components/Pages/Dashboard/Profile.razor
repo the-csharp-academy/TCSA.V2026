@@ -3,7 +3,6 @@
 @using System.Security.Claims
 @using TCSA.V2026.Components.UI
 @using TCSA.V2026.Data.Models
-@using TCSA.V2026.Data.Models.Responses
 @using TCSA.V2026.Helpers
 @using TCSA.V2026.Services
 
@@ -110,7 +109,7 @@
         {
             var result = await UserService.SaveProfile(User);
 
-            if (result.Status == ResponseStatus.Success)
+            if (result.IsSuccess)
             {
                 SnackbarService.Add("Profile Updated Successfully", Severity.Success);
                 User = await UserService.GetUserProfileById(UserId);
@@ -142,7 +141,7 @@
             {
                 var apiResult = await UserService.ResetAccount(User);
 
-                if (apiResult.Status == ResponseStatus.Success)
+                if (apiResult.IsSuccess)
                 {
                     SnackbarService.Add("Account Deleted Successfully", Severity.Success);
                     User = await UserService.GetUserById(UserId);
@@ -174,7 +173,7 @@
             {
                 var apiResult = await UserService.DeleteAccount(User);
 
-                if (apiResult.Status == ResponseStatus.Success)
+                if (apiResult.IsSuccess)
                 {
                     var loadingDialog = await DialogService.ShowAsync<TCSADeleteAccountDialog>("", new DialogOptions { CloseButton = false });
                     await Task.Delay(2000); // simulate loading time
@@ -202,7 +201,7 @@
         {
             var result = await UserService.RestartOnboarding(UserId);
 
-            if (result.Status == ResponseStatus.Success)
+            if (result.IsSuccess)
             {
                 User = await UserService.GetUserById(UserId);
                 await OnboardingState.NotifyChangedAsync();
@@ -226,7 +225,7 @@
         {
             var result = await UserService.ResumeChecklist(UserId);
 
-            if (result.Status == ResponseStatus.Success)
+            if (result.IsSuccess)
             {
                 User = await UserService.GetUserById(UserId);
                 await OnboardingState.NotifyChangedAsync();

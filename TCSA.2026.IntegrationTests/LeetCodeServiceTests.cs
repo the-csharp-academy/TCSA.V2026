@@ -5,7 +5,6 @@ using TCSA.V2026.Data.DTOs;
 using TCSA.V2026.Data.DTOs.Challenges;
 using TCSA.V2026.Data.Enums;
 using TCSA.V2026.Data.Models;
-using TCSA.V2026.Data.Models.Responses;
 using TCSA.V2026.Services.Challenges;
 
 namespace TCSA.V2026.IntegrationTests;
@@ -70,7 +69,7 @@ public class LeetCodeServiceTests : IntegrationTestsBase
         ));
 
         // Assert
-        Assert.That(response.Status, Is.EqualTo(ResponseStatus.Fail));
+        Assert.That(response.IsFailure, Is.True);
         Assert.That(response.Message, Is.EqualTo("You haven't integrated your LeetCode account yet. Go to your profile and add your LeetCode username."));
     }
 
@@ -117,7 +116,7 @@ public class LeetCodeServiceTests : IntegrationTestsBase
         ));
 
         // Assert
-        Assert.That(response.Status, Is.EqualTo(ResponseStatus.Success));
+        Assert.That(response.IsSuccess, Is.True);
 
         using var assertContext = DbContextFactory.CreateDbContext();
         var user = assertContext.AspNetUsers.FirstOrDefault(u => u.Id.Equals("user1"));
@@ -153,7 +152,7 @@ public class LeetCodeServiceTests : IntegrationTestsBase
         ));
 
         // Assert
-        Assert.That(response.Status, Is.EqualTo(ResponseStatus.Fail));
+        Assert.That(response.IsFailure, Is.True);
         Assert.That(response.Message, Is.EqualTo("You haven't completed this challenge yet or it is not within the recent 20 submissions."));
     }
 
@@ -170,7 +169,7 @@ public class LeetCodeServiceTests : IntegrationTestsBase
             "user1"
         ));
 
-        Assert.That(response.Status, Is.EqualTo(ResponseStatus.Fail));
+        Assert.That(response.IsFailure, Is.True);
         Assert.That(response.Message, Is.EqualTo("Failed to connect to LeetCode API. Please try again later."));
     }
 
@@ -195,7 +194,7 @@ public class LeetCodeServiceTests : IntegrationTestsBase
             "user1"
         ));
 
-        Assert.That(response.Status, Is.EqualTo(ResponseStatus.Fail));
+        Assert.That(response.IsFailure, Is.True);
         Assert.That(response.Message, Is.EqualTo("Failed to retrieve your recent submissions from LeetCode. Contact support if the issue persists."));
     }
 
@@ -218,7 +217,7 @@ public class LeetCodeServiceTests : IntegrationTestsBase
             "user1"
         ));
 
-        Assert.That(response.Status, Is.EqualTo(ResponseStatus.Fail));
+        Assert.That(response.IsFailure, Is.True);
         Assert.That(response.Message, Is.EqualTo("You haven't completed this challenge yet or it is not within the recent 20 submissions."));
     }
 

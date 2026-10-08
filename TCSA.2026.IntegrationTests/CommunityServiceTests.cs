@@ -1,6 +1,5 @@
 using TCSA.V2026.Data.Enums;
 using TCSA.V2026.Data.Models;
-using TCSA.V2026.Data.Models.Responses;
 using TCSA.V2026.Helpers.Constants;
 using TCSA.V2026.Services;
 
@@ -52,7 +51,7 @@ public class CommunityServiceTests : IntegrationTestsBase
         using var verifyContext = DbContextFactory.CreateDbContext();
         var count = verifyContext.Issues.Count();
 
-        Assert.That(result.Status, Is.EqualTo(ResponseStatus.Fail));
+        Assert.That(result.IsFailure, Is.True);
         Assert.That(count, Is.EqualTo(0));
     }
 
@@ -67,7 +66,7 @@ public class CommunityServiceTests : IntegrationTestsBase
         using var verifyContext = DbContextFactory.CreateDbContext();
         var count = verifyContext.Issues.Count();
 
-        Assert.That(result.Status, Is.EqualTo(ResponseStatus.Success));
+        Assert.That(result.IsSuccess, Is.True);
         Assert.That(count, Is.EqualTo(1));
     }
 }

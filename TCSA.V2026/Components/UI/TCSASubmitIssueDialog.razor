@@ -1,6 +1,5 @@
 @using TCSA.V2026.Data.Enums
 @using TCSA.V2026.Data.Models
-@using TCSA.V2026.Data.Models.Responses
 @using TCSA.V2026.Services
 <MudDialog Style="min-width: 400px;">
     <TitleContent>
@@ -59,14 +58,14 @@
         {
             var result = await CommunityService.CreateIssue(IssueType, IssueUrl, IssueTitle, CommunityProject);
             
-            if (result.Status == ResponseStatus.Fail)
+            if (result.IsFailure)
             {
                 HasError = true;
                 ErrorText = result.Message;
                 return;
             }
             
-            MudDialog.Close(DialogResult.Ok(result.Status));
+            MudDialog.Close(DialogResult.Ok(result.IsSuccess));
         }
         finally
         {

@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using TCSA.V2026.Data.Enums;
 using TCSA.V2026.Data.Models;
-using TCSA.V2026.Data.Models.Responses;
 using TCSA.V2026.Services;
 
 namespace TCSA.V2026.IntegrationTests;
@@ -570,8 +569,8 @@ public class ChallengeServiceTests : IntegrationTestsBase
         var resultDuplicate = await _service.AddChallenge(challenge);
 
         // Assert
-        Assert.That(result.Status, Is.EqualTo(ResponseStatus.Success));
-        Assert.That(resultDuplicate.Status, Is.EqualTo(ResponseStatus.Fail));
+        Assert.That(result.IsSuccess, Is.True);
+        Assert.That(resultDuplicate.IsFailure, Is.True);
         Assert.That(resultDuplicate.Message, Is.EqualTo("Challenge already exists."));
 
         using var assertContext = DbContextFactory.CreateDbContext();
@@ -611,8 +610,8 @@ public class ChallengeServiceTests : IntegrationTestsBase
         var codeWarsResult = await _service.AddChallenge(codeWarsChallenge);
 
         // Assert
-        Assert.That(leetCodeResult.Status, Is.EqualTo(ResponseStatus.Success));
-        Assert.That(codeWarsResult.Status, Is.EqualTo(ResponseStatus.Success));
+        Assert.That(leetCodeResult.IsSuccess, Is.True);
+        Assert.That(codeWarsResult.IsSuccess, Is.True);
 
         using var assertContext = DbContextFactory.CreateDbContext();
         var challenges = await assertContext.Challenges.Where(c => c.ExternalId == "shared-id").ToListAsync();
@@ -651,8 +650,8 @@ public class ChallengeServiceTests : IntegrationTestsBase
         var sqlResult = await _service.AddChallenge(sqlChallenge);
 
         // Assert
-        Assert.That(csharpResult.Status, Is.EqualTo(ResponseStatus.Success));
-        Assert.That(sqlResult.Status, Is.EqualTo(ResponseStatus.Success));
+        Assert.That(csharpResult.IsSuccess, Is.True);
+        Assert.That(sqlResult.IsSuccess, Is.True);
 
         using var assertContext = DbContextFactory.CreateDbContext();
         var challenges = await assertContext.Challenges.Where(c => c.ExternalId == "shared-kata-id").ToListAsync();

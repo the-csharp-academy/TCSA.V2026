@@ -15,16 +15,14 @@ public interface IPeerReviewService
     Task<List<CodeReviewDetail>> GetCodeReviewDetails(string userId);
     Task<ApplicationUser> GetUserForPeerReview(string reviewerId);
     Task<List<PeerReviewDisplay>> GetProjectsForPeerReview(string userId);
-    Task<BaseResponse> AssignUserToCodeReview(string userId, int id);
-    Task<BaseResponse> ReleaseUserFromCodeReview(string userId, int id);
-    Task<BaseResponse> MarkCodeReviewAsCompleted(string reviewerId, int dashboardProjectId);
+    Task<Result> AssignUserToCodeReview(string userId, int id);
+    Task<Result> ReleaseUserFromCodeReview(string userId, int id);
+    Task<Result> MarkCodeReviewAsCompleted(string reviewerId, int dashboardProjectId);
 }
 public class PeerReviewService(IDbContextFactory<ApplicationDbContext> _factory, IBadgeService _badgeService) : IPeerReviewService
 {
-    public async Task<BaseResponse> AssignUserToCodeReview(string userId, int id)
+    public async Task<Result> AssignUserToCodeReview(string userId, int id)
     {
-        var result = new BaseResponse();
-
         try
         {
             using (var context = _factory.CreateDbContext())
@@ -38,20 +36,16 @@ public class PeerReviewService(IDbContextFactory<ApplicationDbContext> _factory,
                 await context.SaveChangesAsync();
             }
 
-            return result;
+            return Result.Success();
         }
         catch (Exception ex)
         {
-            result.Message = ex.Message;
-            result.Status = ResponseStatus.Fail;
-            return result;
+            return Result.Failure(new Error("PeerReview.Unexpected", ex.Message));
         }
     }
 
-    public async Task<BaseResponse> ReleaseUserFromCodeReview(string userId, int id)
+    public async Task<Result> ReleaseUserFromCodeReview(string userId, int id)
     {
-        var result = new BaseResponse();
-
         try
         {
             using (var context = _factory.CreateDbContext())
@@ -62,29 +56,23 @@ public class PeerReviewService(IDbContextFactory<ApplicationDbContext> _factory,
 
                 if (userReview is null)
                 {
-                    result.Message = "User is Null";
-                    result.Status = ResponseStatus.Fail;
-                    return result;
+                    return Result.Failure(new Error("PeerReview.UserReviewNotFound", "User is Null"));
                 }
 
                 if (userReview.DashboardProject.IsCompleted)
                 {
-                    result.Message = "Project is already completed and cannot be released.";
-                    result.Status = ResponseStatus.Fail;
-                    return result;
+                    return Result.Failure(new Error("PeerReview.ProjectAlreadyCompleted", "Project is already completed and cannot be released."));
                 }
 
                 context.UserReviews.Remove(userReview);
                 await context.SaveChangesAsync();
             }
 
-            return result;
+            return Result.Success();
         }
         catch (Exception ex)
         {
-            result.Message = ex.Message;
-            result.Status = ResponseStatus.Fail;
-            return result;
+            return Result.Failure(new Error("PeerReview.Unexpected", ex.Message));
         }
     }
 
@@ -192,9 +180,8 @@ public class PeerReviewService(IDbContextFactory<ApplicationDbContext> _factory,
         }
     }
 
-    public async Task<BaseResponse> MarkCodeReviewAsCompleted(string reviewerId, int dashboardProjectId)
+    public async Task<Result> MarkCodeReviewAsCompleted(string reviewerId, int dashboardProjectId)
     {
-        var result = new BaseResponse();
         int reviewedProjectsCount;
 
         try
@@ -207,9 +194,7 @@ public class PeerReviewService(IDbContextFactory<ApplicationDbContext> _factory,
 
                 if (reviewer is null)
                 {
-                    result.Message = "Reviewer not found.";
-                    result.Status = ResponseStatus.Fail;
-                    return result;
+                    return Result.Failure(new Error("PeerReview.ReviewerNotFound", "Reviewer not found."));
                 }
 
                 var reviewedProjects = reviewer.UserActivity;
@@ -220,16 +205,12 @@ public class PeerReviewService(IDbContextFactory<ApplicationDbContext> _factory,
 
                 if (dashboardProject is null)
                 {
-                    result.Message = "Dashboard project not found.";
-                    result.Status = ResponseStatus.Fail;
-                    return result;
+                    return Result.Failure(new Error("PeerReview.DashboardProjectNotFound", "Dashboard project not found."));
                 }
 
                 if (dashboardProject.IsCompleted)
                 {
-                    result.Message = "Project is already marked as completed.";
-                    result.Status = ResponseStatus.Fail;
-                    return result;
+                    return Result.Failure(new Error("PeerReview.ProjectAlreadyMarkedCompleted", "Project is already marked as completed."));
                 }
 
                 var academyProject = ProjectHelper.GetProjects().FirstOrDefault(x => x.Id == dashboardProject.ProjectId);
@@ -289,9 +270,7 @@ public class PeerReviewService(IDbContextFactory<ApplicationDbContext> _factory,
         }
         catch (Exception ex)
         {
-            result.Message = ex.Message;
-            result.Status = ResponseStatus.Fail;
-            return result;
+            return Result.Failure(new Error("PeerReview.Unexpected", ex.Message));
         }
 
         try
@@ -302,6 +281,6 @@ public class PeerReviewService(IDbContextFactory<ApplicationDbContext> _factory,
         {
         }
 
-        return result;
+        return Result.Success();
     }
 }

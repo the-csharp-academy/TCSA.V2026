@@ -1,4 +1,3 @@
-﻿using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Stripe;
@@ -14,8 +13,8 @@ namespace TCSA.V2026.Services;
 
 public interface IAccountabilityBuddyService
 {
-    Task<ServiceResponse<EnableAccountabilityResponse>> EnableAsync(EnableAccountabilityRequest request);
-    Task<ServiceResponse<UserAccountabilityProject>> GetUserAccountability(string userId, int projectId);
+    Task<Result<EnableAccountabilityResponse>> EnableAsync(EnableAccountabilityRequest request);
+    Task<UserAccountabilityProject?> GetUserAccountability(string userId, int projectId);
 }
 
 public class AccountabilityBuddyService : IAccountabilityBuddyService
@@ -35,31 +34,18 @@ public class AccountabilityBuddyService : IAccountabilityBuddyService
         _factory = factory;
     }
 
-    public async Task<ServiceResponse<UserAccountabilityProject>> GetUserAccountability(string userId, int projectId)
+    public async Task<UserAccountabilityProject?> GetUserAccountability(string userId, int projectId)
     {
-        var response = new ServiceResponse<UserAccountabilityProject>();
-
         using var _context = await _factory.CreateDbContextAsync();
-        var accountability = await _context.UserAccountabilityProjects
+        return await _context.UserAccountabilityProjects
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.AppUserId == userId && x.ProjectId == projectId);
-
-        if (accountability is null)
-        {
-            response.IsSuccessful = true;
-            response.Message = "No accountability found for the specified user and project.";
-            return response;
-        }
-
-        response.IsSuccessful = true;
-        response.Data = accountability;
-        return response;
     }
 
-    public async Task<ServiceResponse<EnableAccountabilityResponse>> EnableAsync(EnableAccountabilityRequest request)
+    public async Task<Result<EnableAccountabilityResponse>> EnableAsync(EnableAccountabilityRequest request)
     {
-        var serviceResponse = ValidateRequest(request);
-        if (!serviceResponse.IsSuccessful) return serviceResponse;
+        var validationError = ValidateRequest(request);
+        if (validationError is not null) return Result.Failure<EnableAccountabilityResponse>(validationError);
 
         using var _context = await _factory.CreateDbContextAsync();
 
@@ -119,17 +105,14 @@ public class AccountabilityBuddyService : IAccountabilityBuddyService
             account.UpdatedUtc = DateTime.UtcNow;
             await _context.SaveChangesAsync();
 
-            return new ServiceResponse<EnableAccountabilityResponse>
-            {
-                IsSuccessful = true,
-                Message = "Accountability Buddy activated.",
-                Data = new EnableAccountabilityResponse
+            return Result.Success(
+                new EnableAccountabilityResponse
                 {
                     StripeCustomerId = account.StripeCustomerId,
                     CheckoutSessionId = null,
                     CheckoutUrl = null
-                }
-            };
+                },
+                new Success("Accountability.Activated", "Accountability Buddy activated."));
         }
 
         var sessionService = new SessionService(_stripeClient);
@@ -170,39 +153,24 @@ public class AccountabilityBuddyService : IAccountabilityBuddyService
         account.UpdatedUtc = DateTime.UtcNow;
         await _context.SaveChangesAsync();
 
-        return new ServiceResponse<EnableAccountabilityResponse>
-        {
-            IsSuccessful = true,
-            Message = "Redirect the user to Stripe Checkout to save a payment method.",
-            Data = new EnableAccountabilityResponse
+        return Result.Success(
+            new EnableAccountabilityResponse
             {
                 StripeCustomerId = account.StripeCustomerId,
                 CheckoutSessionId = session.Id,
                 CheckoutUrl = session.Url
-            }
-        };
+            },
+            new Success("Accountability.CheckoutRequired", "Redirect the user to Stripe Checkout to save a payment method."));
     }
 
-    private ServiceResponse<EnableAccountabilityResponse> ValidateRequest(EnableAccountabilityRequest request)
+    private static Error? ValidateRequest(EnableAccountabilityRequest request)
     {
-        var result = new ServiceResponse<EnableAccountabilityResponse>();
-
         if (request is null)
-        {
-            result.IsSuccessful = false;
-            result.Message = "Request cannot be null.";
-            return result;
-        }
+            return new Error("Accountability.InvalidRequest", "Request cannot be null.");
 
         if (string.IsNullOrWhiteSpace(request.TcsaUserId))
-        {
-            result.IsSuccessful = false;
-            result.Message = "TcsaUserId is required.";
-            return result;
-        }
+            return new Error("Accountability.UserRequired", "TcsaUserId is required.");
 
-        result.IsSuccessful = true;
-
-        return result;
+        return null;
     }
 }

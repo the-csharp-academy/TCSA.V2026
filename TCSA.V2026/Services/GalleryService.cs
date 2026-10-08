@@ -11,20 +11,14 @@ namespace TCSA.V2026.Services;
 public interface IGalleryService
 {
     Task<PaginatedList<ShowcaseItemDTO>?> GetItems(int pageNumber, List<int> projectIds);
-    Task<BaseResponse> AddItem(ShowcaseItemDTO newItem);
-    Task<BaseResponse> DeleteItem(ShowcaseItemDTO itemToDelete);
+    Task<Result> AddItem(ShowcaseItemDTO newItem);
+    Task<Result> DeleteItem(ShowcaseItemDTO itemToDelete);
 }
 
 public class GalleryService(IDbContextFactory<ApplicationDbContext> _factory) : IGalleryService
 {
-    public async Task<BaseResponse> AddItem(ShowcaseItemDTO newItem)
+    public async Task<Result> AddItem(ShowcaseItemDTO newItem)
     {
-        var response = new BaseResponse
-        {
-            Status = ResponseStatus.Success,
-            Message = "Item added successfully"
-        };
-
         var showcaseItem = new ShowcaseItem
         {
             DashboardProjectId = newItem.DashboardProjectId,
@@ -39,35 +33,23 @@ public class GalleryService(IDbContextFactory<ApplicationDbContext> _factory) : 
             await context.ShowcaseItems.AddAsync(showcaseItem);
             var result = await context.SaveChangesAsync();
 
+            newItem.Id = showcaseItem.Id;
+
             if (result == 0)
             {
-                response.Status = ResponseStatus.Fail;
-                response.Message = "Item could not be added (no changes made).";
+                return Result.Failure(new Error("Gallery.ItemNotAdded", "Item could not be added (no changes made)."));
             }
 
-            newItem.Id = showcaseItem.Id;
-            response.Data = newItem;
+            return Result.Success(new Success("Gallery.ItemAdded", "Item added successfully"));
         }
         catch (Exception ex)
         {
-            response = new BaseResponse
-            {
-                Status = ResponseStatus.Fail,
-                Message = $"An error occurred while adding the item: {ex.Message}"
-            };
+            return Result.Failure(new Error("Gallery.Unexpected", $"An error occurred while adding the item: {ex.Message}"));
         }
-
-        return response;
     }
 
-    public async Task<BaseResponse> DeleteItem(ShowcaseItemDTO itemToDelete)
+    public async Task<Result> DeleteItem(ShowcaseItemDTO itemToDelete)
     {
-        var response = new BaseResponse
-        {
-            Status = ResponseStatus.Success,
-            Message = "Project deleted successfully"
-        };
-
         try
         {
             using var context = _factory.CreateDbContext();
@@ -77,20 +59,15 @@ public class GalleryService(IDbContextFactory<ApplicationDbContext> _factory) : 
             var result = await context.SaveChangesAsync();
             if (result == 0)
             {
-                response.Status = ResponseStatus.Fail;
-                response.Message = "Project could not be deleted (not found or no changes).";
+                return Result.Failure(new Error("Gallery.ItemNotDeleted", "Project could not be deleted (not found or no changes)."));
             }
+
+            return Result.Success(new Success("Gallery.ItemDeleted", "Project deleted successfully"));
         }
         catch (Exception ex)
         {
-            response = new BaseResponse
-            {
-                Status = ResponseStatus.Fail,
-                Message = $"An error occurred while deleting the project: {ex.Message}"
-            };
+            return Result.Failure(new Error("Gallery.Unexpected", $"An error occurred while deleting the project: {ex.Message}"));
         }
-
-        return response;
     }
 
     public async Task<PaginatedList<ShowcaseItemDTO>?> GetItems(int pageNumber, List<int> projectIds)

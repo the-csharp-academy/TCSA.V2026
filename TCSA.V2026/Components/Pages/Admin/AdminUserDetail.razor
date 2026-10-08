@@ -309,7 +309,7 @@
     private async Task SubmitPorData()
     {
         var result = await AdminService.PortData(UserId, PortDataInput);
-        if (result.IsSuccessful)
+        if (result.IsSuccess)
         {
             Snackbar.Add("Data Ported!", Severity.Success);
             UserDisplay = await GetUserDisplay();
@@ -359,7 +359,7 @@
     {
         var result = await AdminService.ChangeBelt(UserId, SelectedLevel);
 
-        if (result.IsSuccessful)
+        if (result.IsSuccess)
         {
             Snackbar.Add("Belt Updated!", Severity.Success);
 
@@ -379,7 +379,7 @@
     {
         var result = await AdminService.RequestChanges(adminActivity.DashboardProjectId!.Value);
 
-        if (result.IsSuccessful)
+        if (result.IsSuccess)
         {
             Snackbar.Add("Changes Requested!", Severity.Success);
 
@@ -397,7 +397,7 @@
     {
         var result = await AdminService.ChangePoints(UserId, XpInput);
 
-        if (result.IsSuccessful)
+        if (result.IsSuccess)
         {
             Snackbar.Add("Points Updated!", Severity.Success);
 
@@ -413,7 +413,7 @@
     {
         var result = await AdminService.ChangeReviewPoints(UserId, ReviewsXpInput);
 
-        if (result.IsSuccessful)
+        if (result.IsSuccess)
         {
             Snackbar.Add("Points Updated!", Severity.Success);
 
@@ -562,7 +562,7 @@
         {
             var apiResult = await ProjectService.DeleteProject(dbProjectId, UserId);
 
-            if (apiResult.IsSuccessful)
+            if (apiResult.IsSuccess)
             {
                 Snackbar.Add("Project deleted  successfully!", Severity.Success);
                 UserDisplay = await GetUserDisplay();
@@ -585,7 +585,7 @@
         {
             var apiResult = await ProjectService.Archive(dbProjectId);
 
-            if (apiResult.Status == ResponseStatus.Success)
+            if (apiResult.IsSuccess)
             {
                 Snackbar.Add("Project archived  successfully!", Severity.Success);
                 UserDisplay = await GetUserDisplay();
@@ -626,7 +626,7 @@
 
         var result = await ProjectService.MarkAsCompleted(adminActivity.DashboardProjectId.Value);
 
-        if (result.Status == ResponseStatus.Success)
+        if (result.IsSuccess)
         {
             Snackbar.Add("Project marked!", Severity.Success);
             UserDisplay = await GetUserDisplay();

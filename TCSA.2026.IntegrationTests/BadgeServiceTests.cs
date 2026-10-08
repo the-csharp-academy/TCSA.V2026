@@ -1,7 +1,6 @@
 using Microsoft.Extensions.Logging.Abstractions;
 using TCSA.V2026.Data.Enums;
 using TCSA.V2026.Data.Models;
-using TCSA.V2026.Data.Models.Responses;
 using TCSA.V2026.Services;
 
 namespace TCSA.V2026.IntegrationTests;
@@ -32,7 +31,7 @@ public class BadgeServiceTests : IntegrationTestsBase
         using var context = DbContextFactory.CreateDbContext();
         var badge = context.Badges.FirstOrDefault(b => b.UserId == "user1" && b.BadgeId == (int)BadgeId.PlatformBuilder);
 
-        Assert.That(response.Status, Is.EqualTo(ResponseStatus.Success));
+        Assert.That(response.IsSuccess, Is.True);
         Assert.That(badge, Is.Not.Null);
         Assert.That(badge.IsPendingNotification, Is.True);
     }
@@ -46,7 +45,7 @@ public class BadgeServiceTests : IntegrationTestsBase
         using var context = DbContextFactory.CreateDbContext();
         var count = context.Badges.Count(b => b.UserId == "user1" && b.BadgeId == (int)BadgeId.PlatformBuilder);
 
-        Assert.That(secondResponse.Status, Is.EqualTo(ResponseStatus.Fail));
+        Assert.That(secondResponse.IsFailure, Is.True);
         Assert.That(count, Is.EqualTo(1));
     }
 

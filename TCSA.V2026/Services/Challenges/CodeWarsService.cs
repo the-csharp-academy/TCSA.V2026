@@ -13,7 +13,7 @@ namespace TCSA.V2026.Services.Challenges;
 public interface ICodewarsService
 {
     Task<int> MarkSqlProjectAsCompleted(int projectId, string userId);
-    Task<CodeWarsResponse> GetCodeWarsCompletedChallenges(string? username, List<CodeWarsChallenge> challenges);
+    Task<Result<List<CodeWarsChallenge>>> GetCodeWarsCompletedChallenges(string? username, List<CodeWarsChallenge> challenges);
 }
 
 public class CodewarsService : ICodewarsService, IChallengePlatformService
@@ -28,9 +28,8 @@ public class CodewarsService : ICodewarsService, IChallengePlatformService
     }
 
     // This checks if challenges from the SQL area were completed on CodeWars, it's called from Project Page (provided it's a SQL project). 
-    public async Task<CodeWarsResponse> GetCodeWarsCompletedChallenges(string userId, List<CodeWarsChallenge> challenges)
+    public async Task<Result<List<CodeWarsChallenge>>> GetCodeWarsCompletedChallenges(string userId, List<CodeWarsChallenge> challenges)
     {
-        var codeWarsResponse = new CodeWarsResponse();
         var alias = string.Empty;
 
         using (var context = _factory.CreateDbContext())
@@ -42,10 +41,7 @@ public class CodewarsService : ICodewarsService, IChallengePlatformService
 
             if (string.IsNullOrEmpty(alias))
             {
-                codeWarsResponse.Status = ResponseStatus.Fail;
-                codeWarsResponse.Message = "You haven't integrated your Codewars account yet. Complete your profile with your Codewars username.";
-                codeWarsResponse.Challenges = new List<CodeWarsChallenge>();
-                return codeWarsResponse;
+                return Result.Failure<List<CodeWarsChallenge>>(new Error("CodeWars.AccountNotIntegrated", "You haven't integrated your Codewars account yet. Complete your profile with your Codewars username."));
             }
         }
 
@@ -55,10 +51,7 @@ public class CodewarsService : ICodewarsService, IChallengePlatformService
 
         if (response.StatusCode == HttpStatusCode.NotFound)
         {
-            codeWarsResponse.Status = ResponseStatus.Fail;
-            codeWarsResponse.Message = "Username not found. Go to the dashboard and click on 'Codewars Integration' to update your username.";
-            codeWarsResponse.Challenges = new List<CodeWarsChallenge>();
-            return codeWarsResponse;
+            return Result.Failure<List<CodeWarsChallenge>>(new Error("CodeWars.UsernameNotFound", "Username not found. Go to the dashboard and click on 'Codewars Integration' to update your username."));
         }
 
         string jsonResponse = await response.Content.ReadAsStringAsync();
@@ -71,25 +64,21 @@ public class CodewarsService : ICodewarsService, IChallengePlatformService
             challenge.IsCompleted = completedChallenges.Contains(challenge.Id);
         }
 
-        if (response.StatusCode == HttpStatusCode.OK)
+        if (response.StatusCode != HttpStatusCode.OK)
         {
-            codeWarsResponse.Status = ResponseStatus.Success;
-            codeWarsResponse.Challenges = challenges;
+            return Result.Failure<List<CodeWarsChallenge>>(new Error("CodeWars.UnexpectedResponse", "Could not retrieve your completed challenges from Codewars. Please try again later."));
         }
 
-        return codeWarsResponse;
+        return Result.Success(challenges);
     }
 
-    public async Task<BaseResponse> SyncChallenge(SyncChallengeRequest request)
+    public async Task<Result> SyncChallenge(SyncChallengeRequest request)
     {
-        var result = new BaseResponse();
         var username = request.PlatformCredentials.CodeWarsUsername;
 
         if (username == null)
         {
-            result.Status = ResponseStatus.Fail;
-            result.Message = "You haven't integrated your Codewars account yet. Go to the dashboard and click on 'Codewars Integration'";
-            return result;
+            return Result.Failure(new Error("CodeWars.AccountNotIntegrated", "You haven't integrated your Codewars account yet. Go to the dashboard and click on 'Codewars Integration'"));
         }
 
         string apiUrl = $"https://www.codewars.com/api/v1/users/{username}/code-challenges/completed?";
@@ -98,34 +87,26 @@ public class CodewarsService : ICodewarsService, IChallengePlatformService
 
         if (response.StatusCode == HttpStatusCode.NotFound)
         {
-            result.Status = ResponseStatus.Fail;
-            result.Message = "Username not found. Go to the dashboard and click on 'Codewars Integration' to update your username.";
-            return result;
+            return Result.Failure(new Error("CodeWars.UsernameNotFound", "Username not found. Go to the dashboard and click on 'Codewars Integration' to update your username."));
         }
 
         string jsonResponse = await response.Content.ReadAsStringAsync();
         CodeWarsApiResponse apiResponse = JsonSerializer.Deserialize<CodeWarsApiResponse>(jsonResponse);
 
-        if (apiResponse.data.Any(x => x.id == request.ExternalId))
+        if (!apiResponse.data.Any(x => x.id == request.ExternalId))
         {
-            try
-            {
-                await MarkChallengeAsCompleted(new MarkChallengeCompletedRequest(request.ChallengeId, request.UserId));
-
-                return result;
-            }
-            catch (Exception ex)
-            {
-                result.Message = ex.Message;
-                result.Status = ResponseStatus.Fail;
-                return result;
-            }
+            return Result.Failure(new Error("CodeWars.ChallengeNotCompleted", "You haven't completed this challenge yet."));
         }
-        else
+
+        try
         {
-            result.Status = ResponseStatus.Fail;
-            result.Message = "You haven't completed this challenge yet.";
-            return result;
+            await MarkChallengeAsCompleted(new MarkChallengeCompletedRequest(request.ChallengeId, request.UserId));
+
+            return Result.Success();
+        }
+        catch (Exception ex)
+        {
+            return Result.Failure(new Error("CodeWars.Unexpected", ex.Message));
         }
     }
 

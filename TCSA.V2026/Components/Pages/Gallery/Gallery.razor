@@ -174,7 +174,7 @@
             IsLoading = true;
             var result = await GalleryService.DeleteItem(itemToDelete);
 
-            if (result.Status == ResponseStatus.Success)
+            if (result.IsSuccess)
             {
                 await UpdateCompletedProjectsNotShowcased();
 

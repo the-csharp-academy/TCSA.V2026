@@ -1,5 +1,4 @@
 @using TCSA.V2026.Data.Models
-@using TCSA.V2026.Data.Models.Responses
 @using TCSA.V2026.Services
 <MudDialog Style="min-width: 400px;">
     <TitleContent>
@@ -93,7 +92,7 @@
             var result = IsUpdate
                 ? await ProjectService.UpdateDashboardProjectUrl(ProjectId, User.Id, GithubUrl)
                 : await ProjectService.CreateDashboardProject(ProjectId, User.Id, GithubUrl);
-            MudDialog.Close(DialogResult.Ok(result.Status));
+            MudDialog.Close(DialogResult.Ok(result.IsSuccess));
         }
         finally
         {

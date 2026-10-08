@@ -1,6 +1,4 @@
-﻿@using System.Text.Json
 @using TCSA.V2026.Data.Models
-@using TCSA.V2026.Data.Models.Responses
 @using TCSA.V2026.Services
 
 <MudDialog Style="min-width: 400px;">
@@ -80,14 +78,13 @@
                 DeadlineDays = DeadlineDays
             });
 
-            if (!response.IsSuccessful)
+            if (response.IsFailure)
             {
-                ErrorMessage = response.Message ?? "Could not start Stripe Checkout.";
+                ErrorMessage = response.Message;
                 return;
             }
 
-            var data = response.Data as EnableAccountabilityResponse;
-            var checkoutUrl = data?.CheckoutUrl;
+            var checkoutUrl = response.Value.CheckoutUrl;
 
             if (string.IsNullOrWhiteSpace(checkoutUrl))
             {
@@ -95,7 +92,7 @@
                 return;
             }
 
-            if (response.IsSuccessful && !string.IsNullOrWhiteSpace(checkoutUrl))
+            if (response.IsSuccess && !string.IsNullOrWhiteSpace(checkoutUrl))
             {
                 MudDialog.Close(DialogResult.Ok(true));
                 Snackbar.Add("Accountability Buddy was successfully set for this project", Severity.Success);
