@@ -17,6 +17,9 @@ public static class FeedbackLabelHelper
         [FeedbackCategory.Compliment] = new("Compliment", Icons.Material.Filled.Favorite, Color.Success)
     };
 
+    public static readonly FeedbackReviewState[] HandledStates =
+        [FeedbackReviewState.Reviewed, FeedbackReviewState.Actioned, FeedbackReviewState.Archived];
+
     public static string AreaLabel(FeedbackArea area) => area switch
     {
         FeedbackArea.CoursesArticles => "Courses/Articles",
