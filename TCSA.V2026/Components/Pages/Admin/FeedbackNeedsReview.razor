@@ -1,0 +1,360 @@
+@using TCSA.V2026.Components.UI
+@using TCSA.V2026.Data.DTOs
+@using TCSA.V2026.Data.Enums
+@using TCSA.V2026.Data.Models.Responses
+@using TCSA.V2026.Helpers
+@using TCSA.V2026.Services
+@inject IFeedbackAdminService FeedbackAdminService
+@inject FeedbackDetailState DetailState
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+@inject ILogger<FeedbackNeedsReview> Logger
+
+@if (_loadFailed)
+{
+    <MudAlert Class="mt-4" Severity="Severity.Error" Variant="Variant.Outlined">
+        The review queue could not be loaded.
+        <MudButton Class="ml-2" Color="Color.Error" Size="Size.Small" Variant="Variant.Text" OnClick="Reload">Try again</MudButton>
+    </MudAlert>
+}
+
+@if (_isLoading && _clusters is null)
+{
+    <div class="d-flex justify-center pa-8">
+        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+    </div>
+}
+else if (_clusters is null || _clusters.Count == 0)
+{
+    @if (!_loadFailed) //check if it can be moved to else if condition
+    {
+        <MudAlert Class="mt-4" Severity="Severity.Success" Variant="Variant.Outlined">The queue is clear</MudAlert>
+    }
+}
+else
+{
+    <MudExpansionPanels Class="mt-4" MultiExpansion="true" Outlined Elevation="1">
+        @foreach (var cluster in _clusters)
+        {
+            var key = cluster.Key;
+            <MudExpansionPanel @key="key" Class="needs-review-cluster" Expanded="_expanded.Contains(key)"
+                               ExpandedChanged="(bool open) => OnExpandedChanged(key, open)">
+                <TitleContent>
+                    <div class="needs-review-header">
+                        <div class="needs-review-header-main">
+                            <MudIcon Icon="@FeedbackLabelHelper.CategoryIcon(cluster.Category)"
+                                     Color="@FeedbackLabelHelper.CategoryColor(cluster.Category)" />
+                            <div class="needs-review-title">
+                                <MudText Typo="Typo.subtitle1" Class="needs-review-page">@cluster.Page</MudText>
+                                <MudText Typo="Typo.body2" Color="Color.Secondary" Class="needs-review-sample">
+                                    @FeedbackLabelHelper.Excerpt(cluster.SampleBody)
+                                </MudText>
+                            </div>
+                            <MudChip T="string" Size="Size.Small" Color="Color.Error" Class="needs-review-new">@cluster.NewCount new</MudChip>
+                        </div>
+                        <MudText Typo="Typo.caption" Color="Color.Secondary" Class="needs-review-header-meta">
+                            @cluster.Count total · last seen @cluster.LastSeen.ToLocalTime().ToString("dd MMM yyyy, h:mm tt")
+                        </MudText>
+                    </div>
+                </TitleContent>
+                <ChildContent>
+                    <div class="needs-review-actions mb-3">
+                        <div class="needs-review-actions-group">
+                            <MudText Typo="Typo.body2">Apply to all @cluster.NewCount new:</MudText>
+                            <div class="needs-review-actions-buttons">
+                                @foreach (var state in FeedbackLabelHelper.HandledStates)
+                                {
+                                    <MudButton Size="Size.Small" Variant="Variant.Outlined" Disabled="_isBusy"
+                                               Color="@FeedbackLabelHelper.ReviewStateColor(state)"
+                                               OnClick="() => SetClusterState(cluster, state)">@state</MudButton>
+                                }
+                            </div>
+                        </div>
+                        <div class="needs-review-actions-buttons">
+                            <MudButton Size="Size.Small" Variant="Variant.Text" Disabled="_isBusy"
+                                       OnClick="() => OnShowCluster.InvokeAsync(key)">Show all @cluster.Count in All feedback</MudButton>
+                            <MudButton Size="Size.Small" Variant="Variant.Outlined" Color="Color.Error" Disabled="_isBusy"
+                                       StartIcon="@Icons.Material.Filled.DeleteForever"
+                                       OnClick="() => DeleteCluster(cluster)">Delete all @cluster.Count</MudButton>
+                        </div>
+                    </div>
+
+                    @if (!_items.TryGetValue(key, out var items))
+                    {
+                        <MudProgressLinear Indeterminate="true" Color="Color.Primary" />
+                    }
+                    else
+                    {
+                        <div class="needs-review-items">
+                            @foreach (var item in items)
+                            {
+                                <button type="button" class="needs-review-item" @key="item.Id" @onclick="() => DetailState.Open(item)">
+                                    <span class="needs-review-item-body">@FeedbackLabelHelper.Excerpt(item.Body)</span>
+                                    <span class="needs-review-item-meta">
+                                        <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined"
+                                                 Color="@FeedbackLabelHelper.ReviewStateColor(item.ReviewState)">@FeedbackLabelHelper.ReviewStateLabel(item.ReviewState)</MudChip>
+                                        @item.UserLabel · @item.CreatedAt.ToLocalTime().ToString("dd MMM yyyy, h:mm tt")
+                                    </span>
+                                </button>
+                            }
+                        </div>
+                    }
+                </ChildContent>
+            </MudExpansionPanel>
+        }
+    </MudExpansionPanels>
+}
+
+@code {
+    [Parameter] public EventCallback OnChanged { get; set; }
+    [Parameter] public EventCallback<FeedbackClusterKey> OnShowCluster { get; set; }
+
+    private List<FeedbackClusterDto>? _clusters;
+    private readonly HashSet<FeedbackClusterKey> _expanded = [];
+    private readonly Dictionary<FeedbackClusterKey, List<FeedbackAdminItemDto>> _items = [];
+    private bool _isLoading = true;
+    private bool _loadFailed;
+    private bool _isBusy;
+
+    protected override async Task OnInitializedAsync() => await Reload();
+
+    public async Task Reload()
+    {
+        _isLoading = true;
+        _loadFailed = false;
+
+        try
+        {
+            var clusters = await FeedbackAdminService.GetQueue();
+
+            var keys = clusters.Select(c => c.Key).ToHashSet();
+            _expanded.IntersectWith(keys);
+
+            foreach (var stale in _items.Keys.Where(k => !keys.Contains(k)).ToList())
+            {
+                _items.Remove(stale);
+            }
+
+            foreach (var key in _expanded)
+            {
+                _items[key] = await FeedbackAdminService.GetClusterItems(key);
+            }
+
+            _clusters = clusters;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to load the feedback review queue");
+            _loadFailed = true;
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task OnExpandedChanged(FeedbackClusterKey key, bool open)
+    {
+        if (!open)
+        {
+            _expanded.Remove(key);
+            return;
+        }
+
+        _expanded.Add(key);
+        _items[key] = await FeedbackAdminService.GetClusterItems(key);
+    }
+
+    /// <summary>
+    /// The queue on screen can be stale, so the confirmation is built from the cluster as it is now.
+    /// Returns null, after refreshing the queue, when there is nothing left to act on.
+    /// </summary>
+    private async Task<FeedbackClusterDto?> CurrentCluster(FeedbackClusterDto listed, bool needsNewItems)
+    {
+        var current = await FeedbackAdminService.GetCluster(listed.Key);
+        if (current is not null && (!needsNewItems || current.NewCount > 0))
+        {
+            return current;
+        }
+
+        Snackbar.Add("That cluster has changed. The queue has been refreshed.", Severity.Info);
+        await Reload();
+        await OnChanged.InvokeAsync();
+        return null;
+    }
+
+    private async Task SetClusterState(FeedbackClusterDto listed, FeedbackReviewState state)
+    {
+        if (await CurrentCluster(listed, needsNewItems: true) is not { } cluster) return;
+
+        var parameters = new DialogParameters
+        {
+            ["Title"] = $"Mark as {state}",
+            ["Message"] = $"This marks the {cluster.NewCount} new {(cluster.NewCount == 1 ? "item" : "items")} on {cluster.Page} as {state}. Items already handled are not changed.",
+            ["ConfirmLabel"] = $"Mark {cluster.NewCount} as {state}",
+            ["ConfirmColor"] = Color.Primary
+        };
+
+        if (!await Confirm($"Mark as {state}", parameters)) return;
+
+        _isBusy = true;
+        var result = await FeedbackAdminService.SetClusterState(cluster.Key, state, cluster.NewCount);
+        _isBusy = false;
+
+        await Finish(result);
+    }
+
+    private async Task DeleteCluster(FeedbackClusterDto listed)
+    {
+        if (await CurrentCluster(listed, needsNewItems: false) is not { } cluster) return;
+
+        var parameters = new DialogParameters
+        {
+            ["Title"] = "Delete cluster",
+            ["Message"] = $"This permanently deletes all {cluster.Count} {(cluster.Count == 1 ? "item" : "items")} on {cluster.Page}, including any already handled. It cannot be undone.",
+            ["ConfirmLabel"] = $"Delete {cluster.Count}"
+        };
+
+        if (!await Confirm("Delete cluster", parameters)) return;
+
+        _isBusy = true;
+        var result = await FeedbackAdminService.DeleteCluster(cluster.Key, cluster.Count);
+        _isBusy = false;
+
+        await Finish(result);
+    }
+
+    private async Task<bool> Confirm(string title, DialogParameters parameters)
+    {
+        var dialog = await DialogService.ShowAsync<TCSADeleteDialog>(title, parameters, new DialogOptions { CloseOnEscapeKey = true });
+        var result = await dialog.Result;
+        return result is { Canceled: false };
+    }
+
+    private async Task Finish(Result result)
+    {
+        Snackbar.Add(result.Message, result.IsSuccess ? Severity.Success : Severity.Error);
+
+        await Reload();
+        await OnChanged.InvokeAsync();
+    }
+}
+
+<style>
+    .needs-review-cluster {
+        border-radius: 14px;
+        border: 1px solid rgba(var(--mud-palette-lines-default-rgb), 0.6);
+        margin-bottom: 0.5rem;
+    }
+
+    .needs-review-header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.25rem 1rem;
+        width: 100%;
+        min-width: 0;
+    }
+
+    /* Icon, page/sample and the "N new" chip always share one row; only the meta line moves. */
+    .needs-review-header-main {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex: 1 1 20rem;
+        min-width: 0;
+    }
+
+    .needs-review-title {
+        min-width: 0;
+        flex: 1 1 auto;
+    }
+
+    .needs-review-new {
+        flex-shrink: 0;
+    }
+
+    .needs-review-header-meta {
+        flex: 0 0 auto;
+    }
+
+    @@media (max-width: 599.95px) {
+        .needs-review-header {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .needs-review-header-main {
+            flex-basis: auto;
+        }
+    }
+
+    .needs-review-page,
+    .needs-review-sample {
+        overflow-wrap: anywhere;
+    }
+
+    .needs-review-actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem 1rem;
+    }
+
+    .needs-review-actions-group,
+    .needs-review-actions-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    /* On phones every row stacks: the "Apply to all" text, its buttons, then Show all / Delete. */
+    @@media (max-width: 599.95px) {
+        .needs-review-actions,
+        .needs-review-actions-group {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+
+    .needs-review-items {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .needs-review-item {
+        all: unset;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 0.125rem;
+        padding: 0.5rem 0.75rem;
+        border-radius: 10px;
+        cursor: pointer;
+        overflow-wrap: anywhere;
+    }
+
+    .needs-review-item:hover {
+        background: rgba(var(--mud-palette-primary-rgb), 0.08);
+    }
+
+    .needs-review-item:focus-visible {
+        outline: 2px solid var(--mud-palette-primary);
+        outline-offset: 2px;
+    }
+
+    .needs-review-item-meta {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.75rem;
+        color: var(--mud-palette-text-secondary);
+    }
+</style>
