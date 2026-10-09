@@ -32,6 +32,31 @@ public static class SurveyErrors
 
     public static readonly Error OptionTextTooLong = new(SurveyErrorCodes.OptionTextTooLong, $"An option can be at most {SurveyLimits.OptionMaxLength} characters.");
 
+    public static readonly Error Unavailable = new(SurveyErrorCodes.Unavailable, "This survey is no longer available.");
+
+    public static readonly Error AlreadySubmitted = new(SurveyErrorCodes.AlreadySubmitted, "You have already answered this survey.");
+
+    public static readonly Error AlreadyRefused = new(SurveyErrorCodes.AlreadyRefused, "You chose not to see this survey again.");
+
+    public static readonly Error InvalidRating = new(SurveyErrorCodes.InvalidRating, $"A rating must be a whole number from {SurveyLimits.MinRating} to {SurveyLimits.MaxRating}.");
+
+    public static readonly Error InvalidYesNo = new(SurveyErrorCodes.InvalidYesNo, "A yes/no answer must be yes or no.");
+
+    public static readonly Error AnswerTooLong = new(SurveyErrorCodes.AnswerTooLong, $"An answer can be at most {SurveyLimits.FreeTextAnswerMaxLength} characters.");
+
+    public static readonly Error UnknownQuestion = new(SurveyErrorCodes.UnknownQuestion, "An answer refers to a question that is not part of this survey.");
+
+    public static readonly Error DuplicateAnswer = new(SurveyErrorCodes.DuplicateAnswer, "A question can only be answered once.");
+
+    public static Error RequiredAnswerMissing(string questionText) => new(SurveyErrorCodes.RequiredAnswerMissing, $"\"{questionText}\" needs an answer.");
+
+    public static Error InvalidChoiceCount(string questionText) => new(SurveyErrorCodes.InvalidChoiceCount, $"\"{questionText}\" needs exactly one option.");
+
+    public static Error OptionNotInQuestion(string questionText) => new(SurveyErrorCodes.OptionNotInQuestion, $"An option chosen for \"{questionText}\" does not belong to that question.");
+
+    public static bool IsFinal(Reason reason) =>
+        reason.Code is SurveyErrorCodes.Unavailable or SurveyErrorCodes.AlreadySubmitted or SurveyErrorCodes.AlreadyRefused;
+
     public static Error Unexpected(string action) => new(SurveyErrorCodes.Unexpected, $"Something went wrong while {action}.");
 
     public static Error InvalidTransition(SurveyStatus from, SurveyStatus to) => new(SurveyErrorCodes.InvalidTransition,
