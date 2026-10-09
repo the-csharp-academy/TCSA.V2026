@@ -7,9 +7,12 @@ namespace TCSA.V2026.Helpers.SurveyQuestions;
 
 /// <summary>
 /// Everything the app knows about one question type: how it is presented in the builder, how a draft of it is
-/// validated and turned into a <see cref="SurveyQuestion"/>, and how a stored one is re-checked on activation.
-/// To add a question type, add an enum value, a <see cref="SurveyQuestion"/> subclass with its
-/// <c>HasValue</c> mapping, and a definition registered in <see cref="SurveyQuestionRegistry"/>.
+/// validated and turned into a <see cref="SurveyQuestion"/>, how a stored one is re-checked on activation, and how
+/// an answer is described on the review step.
+/// To add a question type, add an enum value, a <see cref="SurveyQuestion"/> subclass and a
+/// <see cref="SurveyAnswer"/> subclass, each with its <c>HasValue</c> mapping, and a definition registered in
+/// <see cref="SurveyQuestionRegistry"/>. The input control also needs a case in <c>TCSASurveyQuestionInput.razor</c>,
+/// which is also where the rule that a rating of 0 clears the answer lives.
 /// </summary>
 public abstract class SurveyQuestionDefinition
 {
@@ -40,6 +43,27 @@ public abstract class SurveyQuestionDefinition
     /// Builds the question from a draft that has already passed validation.
     /// </summary>
     public abstract SurveyQuestion Create(SurveyQuestionDraftDto draft, int order);
+
+    /// <summary>
+    /// True when nothing was given for this type of question. For an optional question that means it was skipped.
+    /// </summary>
+    public abstract bool IsBlank(SurveyAnswerDto answer);
+
+    /// <summary>
+    /// Checks a non-blank answer to this type of question. Blank answers are handled before this is called.
+    /// </summary>
+    public abstract Error? ValidateAnswer(SurveyQuestion question, SurveyAnswerDto answer);
+
+    /// <summary>
+    /// Builds the stored answer from one that has already passed <see cref="ValidateAnswer"/>, keeping only the
+    /// fields this type uses.
+    /// </summary>
+    public abstract SurveyAnswer CreateAnswer(SurveyQuestion question, SurveyAnswerDto answer);
+
+    /// <summary>
+    /// The human-readable form of a non-blank answer, shown on the review step.
+    /// </summary>
+    public abstract string DescribeAnswer(SurveyQuestionDto question, SurveyAnswerDto answer);
 
     /// <summary>
     /// Re-checks a stored question before its survey is activated.
