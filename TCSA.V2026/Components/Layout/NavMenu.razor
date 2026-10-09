@@ -1,8 +1,15 @@
+@using System.Security.Claims
+@using Humanizer
 @using Microsoft.Extensions.Options
 @using TCSA.V2026.Data.Models.Options
+@using TCSA.V2026.Services
 @implements IDisposable
 
 @inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject ISurveyService SurveyService
+@inject SurveyBadgeState SurveyBadge
+@inject ILogger<NavMenu> Logger
 
 <div style="display: flex; flex-direction: column; height: 100%;">
 <MudNavMenu Dense="true">
@@ -52,6 +59,17 @@
                             UserAttributes="@(new() { ["id"] = "nav-profile" })"
                             IconColor="Color.Primary">
                     Profile
+                    @if (_availableSurveys > 0)
+                    {
+                        <MudTooltip Text="@($"{"surveys".ToQuantity(_availableSurveys)} available")">
+                                <MudChip T="string"
+                                         Size="Size.Small"
+                                         Color="Color.Primary"
+                                         Variant="Variant.Filled"
+                                         Class="ml-2 my-0"
+                                         UserAttributes="@(new() { ["id"] = "nav-profile-badge", ["aria-label"] = $"{"surveys".ToQuantity(_availableSurveys)} available" })">@_availableSurveys</MudChip>
+                        </MudTooltip>
+                    }
                 </MudNavLink>
                 <MudNavLink Href="Dashboard/Roadmap"
                             Match="NavLinkMatch.Prefix"
@@ -162,11 +180,39 @@
     [Inject] private IOptions<LinksOptions> LinkOptions { get; set; }
 
     private string? currentUrl;
+    private string? _userId;
+    private int _availableSurveys;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
         NavigationManager.LocationChanged += OnLocationChanged;
+
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity?.IsAuthenticated == true)
+        {
+            _userId = authState.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            await LoadSurveyCountAsync();
+        }
+
+        SurveyBadge.OnChange += LoadSurveyCountAsync;
+    }
+
+    private async Task LoadSurveyCountAsync()
+    {
+        if (string.IsNullOrEmpty(_userId)) return;
+
+        try
+        {
+            _availableSurveys = await SurveyService.GetAvailableCount(_userId);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to load the available survey count.");
+            _availableSurveys = 0;
+        }
+
+        await InvokeAsync(StateHasChanged);
     }
 
     private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
@@ -178,6 +224,7 @@
     public void Dispose()
     {
         NavigationManager.LocationChanged -= OnLocationChanged;
+        SurveyBadge.OnChange -= LoadSurveyCountAsync;
     }
 }
 
