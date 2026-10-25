@@ -39,7 +39,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         modelBuilder.Entity<AppUserActivity>()
             .HasOne(aua => aua.ApplicationUser)
             .WithMany(u => u.UserActivity)
-            .HasForeignKey(aua => aua.AppUserId);
+            .HasForeignKey(aua => aua.AppUserId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<AppUserActivity>()
             .HasIndex(aua => new { aua.DateSubmitted, aua.AppUserId })
@@ -74,12 +75,14 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         modelBuilder.Entity<UserChallenge>()
             .HasOne(uc => uc.Challenge)
             .WithMany(c => c.UserChallenges)
-            .HasForeignKey(uc => uc.ChallengeId);
+            .HasForeignKey(uc => uc.ChallengeId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<UserChallenge>()
             .HasOne(uc => uc.User)
             .WithMany(u => u.UserChallenges)
-            .HasForeignKey(uc => uc.UserId);
+            .HasForeignKey(uc => uc.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<DailyStreak>()
             .HasKey(ds => ds.AppUserId);
@@ -93,7 +96,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         modelBuilder.Entity<ShowcaseItem>()
             .HasOne(si => si.ApplicationUser)
             .WithMany(au => au.ShowcaseItems)
-            .HasForeignKey(si => si.AppUserId);
+            .HasForeignKey(si => si.AppUserId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<ShowcaseItem>()
             .HasOne(si => si.DashboardProject)
@@ -105,7 +109,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             .HasOne(c => c.AppUser)
             .WithMany(u => u.Comments)
             .HasForeignKey(c => c.AppUserId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<Comments>()
             .HasIndex(c => new { c.ArticleId, c.IsReviewed, c.Date });
