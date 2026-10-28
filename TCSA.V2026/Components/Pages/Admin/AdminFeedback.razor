@@ -169,12 +169,15 @@
     private int _pageSize = PagingConstants.AdminFeedbackPageSize;
     private bool _isLoading = true;
 
+    [SupplyParameterFromQuery(Name = "tab")] private string? Tab { get; set; }
+
     private int _activeTab;
     private int _newCount;
     private FeedbackNeedsReview? _queue;
 
     protected override async Task OnInitializedAsync()
     {
+        _activeTab = string.Equals(Tab, "review", StringComparison.OrdinalIgnoreCase) ? 1 : 0;
         DetailState.OnDeleted += HandleDeleted;
         DetailState.OnStateChanged += HandleDrawerChange;
         DetailState.OnClusterRequested += HandleClusterRequested;
