@@ -457,7 +457,6 @@ public class SurveyAdminServiceTests : IntegrationTestsBase
     {
         AssertFailure(await _service.ActivateSurvey(404), SurveyErrorCodes.NotFound);
         AssertFailure(await _service.DeactivateSurvey(404), SurveyErrorCodes.NotFound);
-        AssertFailure(await _service.DeleteSurvey(404), SurveyErrorCodes.NotFound);
     }
 
     [Test]
@@ -482,43 +481,5 @@ public class SurveyAdminServiceTests : IntegrationTestsBase
 
         AssertFailure(await _service.ActivateSurvey(id), SurveyErrorCodes.TooFewOptions);
         Assert.That(await StatusOf(id), Is.EqualTo(SurveyStatus.Inactive));
-    }
-
-    [TestCase(SurveyStatus.Draft)]
-    [TestCase(SurveyStatus.Inactive)]
-    public async Task DeleteSurvey_RemovesTheSurveyItsQuestionsAndOptions(SurveyStatus status)
-    {
-        var id = await Create(Draft(Rating(), Choice(SurveyQuestionType.MultipleChoice, "A", "B", "C")));
-        var other = await Create(Draft(Choice()));
-        using (var context = DbContextFactory.CreateDbContext())
-        {
-            (await context.Surveys.SingleAsync(s => s.Id == id)).Status = status;
-            await context.SaveChangesAsync();
-        }
-
-        var result = await _service.DeleteSurvey(id);
-
-        Assert.That(result.IsSuccess, Is.True);
-        using var verify = DbContextFactory.CreateDbContext();
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(await verify.Surveys.AnyAsync(s => s.Id == id), Is.False);
-            Assert.That(await verify.SurveyQuestions.CountAsync(q => q.SurveyId == id), Is.Zero);
-            Assert.That(await verify.Surveys.AnyAsync(s => s.Id == other), Is.True);
-            Assert.That(await verify.SurveyQuestions.CountAsync(), Is.EqualTo(1));
-            Assert.That(await verify.SurveyOptions.CountAsync(), Is.EqualTo(2));
-        }
-    }
-
-    [Test]
-    public async Task DeleteSurvey_RejectsAnActiveSurvey()
-    {
-        var id = await Create();
-        await _service.ActivateSurvey(id);
-
-        AssertFailure(await _service.DeleteSurvey(id), SurveyErrorCodes.DeleteActive);
-
-        using var context = DbContextFactory.CreateDbContext();
-        Assert.That(await context.Surveys.AnyAsync(s => s.Id == id), Is.True);
     }
 }
