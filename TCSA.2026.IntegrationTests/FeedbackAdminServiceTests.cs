@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
-using TCSA.V2026.Data;
 using TCSA.V2026.Data.DTOs;
 using TCSA.V2026.Data.Enums;
 using TCSA.V2026.Data.Models;
@@ -947,5 +946,133 @@ public class FeedbackAdminServiceTests : IntegrationTestsBase
             Assert.That(result.Reason.Code, Is.EqualTo(FeedbackErrorCodes.Conflict));
             Assert.That(await TotalItems(), Is.EqualTo(3));
         }
+    }
+
+    private async Task SeedSurveyResponse(int surveyId, DateTimeOffset submittedAt, string userId = "user1")
+    {
+        using var context = DbContextFactory.CreateDbContext();
+        context.SurveyResponses.Add(new SurveyResponse { SurveyId = surveyId, AppUserId = userId, SubmittedAt = submittedAt });
+        await context.SaveChangesAsync();
+    }
+
+    private async Task<int> SeedSurvey(SurveyStatus status)
+    {
+        using var context = DbContextFactory.CreateDbContext();
+        var survey = new Survey { Title = "Seeded", Description = "Seeded survey", Status = status, CreatedAt = DateTimeOffset.UtcNow };
+        context.Surveys.Add(survey);
+        await context.SaveChangesAsync();
+        return survey.Id;
+    }
+
+    [Test]
+    public async Task GetOverview_CountsOnlyResponsesFromTheLastSevenDays()
+    {
+        var survey = await SeedSurvey(SurveyStatus.Active);
+        await SeedSurveyResponse(survey, DateTimeOffset.UtcNow.AddDays(-6).AddHours(-23), "user1");
+        await SeedSurveyResponse(survey, DateTimeOffset.UtcNow.AddHours(-1), "user2");
+        await SeedSurveyResponse(survey, DateTimeOffset.UtcNow.AddDays(-7).AddHours(-1), "user3");
+        await SeedSurveyResponse(survey, DateTimeOffset.UtcNow.AddDays(-30), "user4");
+
+        var overview = await _service.GetOverview();
+
+        Assert.That(overview.ResponsesLastSevenDays, Is.EqualTo(2));
+    }
+
+    [Test]
+    public async Task GetOverview_CountsOnlyActiveSurveys()
+    {
+        await SeedSurvey(SurveyStatus.Active);
+        await SeedSurvey(SurveyStatus.Active);
+        await SeedSurvey(SurveyStatus.Draft);
+        await SeedSurvey(SurveyStatus.Inactive);
+
+        var overview = await _service.GetOverview();
+
+        Assert.That(overview.ActiveSurveys, Is.EqualTo(2));
+    }
+
+    [Test]
+    public async Task GetOverview_ReviewQueueSizeCountsNewItemsOfEveryCategory()
+    {
+        await Seed(FeedbackCategory.Bug, reviewState: FeedbackReviewState.New, reportedPage: "/a", area: FeedbackArea.Other);
+        await Seed(FeedbackCategory.Idea, reviewState: FeedbackReviewState.New);
+        await Seed(FeedbackCategory.Help, reviewState: FeedbackReviewState.New);
+        await Seed(FeedbackCategory.Compliment, reviewState: FeedbackReviewState.New);
+        await Seed(FeedbackCategory.Idea, reviewState: FeedbackReviewState.Reviewed);
+        await Seed(FeedbackCategory.Idea, reviewState: FeedbackReviewState.Actioned);
+        await Seed(FeedbackCategory.Idea, reviewState: FeedbackReviewState.Archived);
+
+        var overview = await _service.GetOverview();
+
+        Assert.That(overview.ReviewQueueSize, Is.EqualTo(4));
+    }
+
+    [Test]
+    public async Task GetOverview_RecentItemsAreTheFiveNewestRegardlessOfState()
+    {
+        var ids = new List<int>();
+        for (var i = 0; i < 7; i++)
+        {
+            var state = i % 2 == 0 ? FeedbackReviewState.New : FeedbackReviewState.Archived;
+            ids.Add(await Seed(createdAt: Now.AddHours(-i), reviewState: state));
+        }
+
+        var overview = await _service.GetOverview();
+
+        Assert.That(overview.RecentItems.Select(i => i.Id), Is.EqualTo(ids.Take(5)));
+    }
+
+    [Test]
+    public async Task GetOverview_TopClustersAreTheThreeLargestByCount()
+    {
+        for (var i = 0; i < 4; i++) await SeedIdea("/four");
+        for (var i = 0; i < 3; i++) await SeedIdea("/three");
+        for (var i = 0; i < 2; i++) await SeedIdea("/two");
+        await SeedIdea("/one");
+
+        var overview = await _service.GetOverview();
+
+        Assert.That(overview.TopClusters.Select(c => (c.Page, c.Count)),
+            Is.EqualTo(new[] { ("/four", 4), ("/three", 3), ("/two", 2) }));
+    }
+
+    [Test]
+    public async Task GetOverview_TopClustersUseTheSameDefinitionAsTheQueue()
+    {
+        for (var i = 0; i < 2; i++) await SeedBug("/dashboard/profile", originUrl: "/dashboard");
+        await SeedBug("/dashboard/profile", originUrl: "/projects");
+        await SeedIdea("/dashboard/profile");
+
+        var overview = await _service.GetOverview();
+        var queue = await _service.GetQueue();
+
+        Assert.That(overview.TopClusters.Select(c => (c.Key, c.Count, c.NewCount)),
+            Is.EquivalentTo(queue.Select(c => (c.Key, c.Count, c.NewCount))));
+    }
+
+    [Test]
+    public async Task GetOverview_WithNoData_ReturnsZerosAndEmptyLists()
+    {
+        var overview = await _service.GetOverview();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(overview.ResponsesLastSevenDays, Is.Zero);
+            Assert.That(overview.ActiveSurveys, Is.Zero);
+            Assert.That(overview.ReviewQueueSize, Is.Zero);
+            Assert.That(overview.RecentItems, Is.Empty);
+            Assert.That(overview.TopClusters, Is.Empty);
+        }
+    }
+
+    [Test]
+    public async Task GetOverview_IsNotCached_ReflectsChangesOnTheNextCall()
+    {
+        await SeedIdea();
+        Assert.That((await _service.GetOverview()).ReviewQueueSize, Is.EqualTo(1));
+
+        await SeedIdea("/other");
+
+        Assert.That((await _service.GetOverview()).ReviewQueueSize, Is.EqualTo(2));
     }
 }
