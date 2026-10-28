@@ -95,6 +95,19 @@ public class AdminSurveysTests : BunitContext
     }
 
     [Test]
+    public void List_LinksEverySurveyToItsResults_IncludingInactiveOnes()
+    {
+        var cut = RenderPage(
+            Survey(1, "Active one", SurveyStatus.Active),
+            Survey(3, "Inactive one", SurveyStatus.Inactive));
+
+        cut.WaitForAssertion(() => Assert.That(cut.FindAll("tbody tr"), Has.Count.EqualTo(2)));
+        var links = cut.FindAll("tbody tr a").Where(a => a.TextContent.Contains("Results")).Select(a => a.GetAttribute("href")).ToList();
+
+        Assert.That(links, Is.EqualTo(new[] { "/admin/surveys/1", "/admin/surveys/3" }));
+    }
+
+    [Test]
     public void Builder_StartsWithOneQuestion_AndOffersEveryQuestionType()
     {
         var cut = OpenBuilder(RenderPage());

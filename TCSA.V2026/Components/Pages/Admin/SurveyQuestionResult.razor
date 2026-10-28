@@ -1,0 +1,210 @@
+@using System.Globalization
+@using TCSA.V2026.Data.DTOs
+@using TCSA.V2026.Data.Enums
+@using TCSA.V2026.Data.Models.Responses
+@using TCSA.V2026.Helpers.SurveyQuestions
+@using TCSA.V2026.Services
+
+<MudPaper Class="pa-4 mb-3 results-surface" Elevation="0">
+    <MudStack Row AlignItems="AlignItems.Start" Justify="Justify.SpaceBetween" Spacing="2">
+        <MudStack Row AlignItems="AlignItems.Start" Spacing="2">
+            <MudAvatar Size="Size.Small" Color="Color.Primary" Variant="Variant.Outlined">@(Index + 1)</MudAvatar>
+            <div>
+                <MudText Typo="Typo.subtitle1"><b>@Question.Text</b></MudText>
+                <MudText Typo="Typo.caption" Color="Color.Secondary">
+                    @Question.AnswerCount @(Question.AnswerCount == 1 ? "answer" : "answers")@(Question.IsRequired ? "" : " · optional")
+                </MudText>
+            </div>
+        </MudStack>
+        <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined" Icon="@Definition.Icon">@Definition.Label</MudChip>
+    </MudStack>
+
+    @if (Question.Type == SurveyQuestionType.Rating)
+    {
+        <MudStack Row AlignItems="AlignItems.Center" Spacing="2" Class="mt-3 mb-2">
+            <MudText Typo="Typo.h3" Class="rating-average">@(Question.Average is { } average ? average.ToString("0.0", CultureInfo.InvariantCulture) : "–")</MudText>
+            <div>
+                <div class="rating-average-stars" aria-hidden="true">
+                    <MudRating ReadOnly="true" SelectedValue="@((int)Math.Round(Question.Average ?? 0, MidpointRounding.AwayFromZero))" />
+                </div>
+                <MudText Typo="Typo.caption" Color="Color.Secondary">average rating</MudText>
+            </div>
+        </MudStack>
+    }
+
+    @if (Question.Type == SurveyQuestionType.FreeText)
+    {
+        @if (_freeText is null)
+        {
+            <div class="d-flex justify-center pa-4">
+                <MudProgressCircular Color="Color.Primary" Size="Size.Small" Indeterminate="true" />
+            </div>
+        }
+        else if (_freeText.TotalItems == 0)
+        {
+            <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mt-3">Nobody answered this question.</MudText>
+        }
+        else
+        {
+            <div class="free-text-list mt-3">
+                @foreach (var answer in _freeText.Items)
+                {
+                    <figure class="free-text-quote">
+                        <blockquote>@answer.Text</blockquote>
+                        <figcaption>
+                            <MudLink Href="@($"/admin/{answer.UserId}")">@answer.AuthorLabel</MudLink>
+                            · @answer.SubmittedAt.ToLocalTime().ToString("dd MMM yyyy")
+                        </figcaption>
+                    </figure>
+                }
+            </div>
+            @if (_freeText.TotalPages > 1)
+            {
+                <div class="d-flex justify-center mt-2">
+                    <MudPagination Count="_freeText.TotalPages" Selected="_freeText.PageNumber" SelectedChanged="LoadPage" Color="Color.Primary" />
+                </div>
+            }
+        }
+    }
+    else
+    {
+        <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mt-3 d-block">
+            Share of the @Question.AnswerCount @(Question.AnswerCount == 1 ? "person" : "people") who answered this question
+        </MudText>
+
+        <div class="result-bars">
+            @foreach (var bucket in Question.Buckets)
+            {
+                var percentage = bucket.Percentage.ToString("0.#", CultureInfo.InvariantCulture);
+                <div class="result-bar-row">
+                    <span class="result-bar-label">@BucketLabel(bucket)</span>
+                    <span class="result-bar-value"><b>@(percentage)%</b> <span class="result-bar-count">@bucket.Count @(bucket.Count == 1 ? "answer" : "answers")</span></span>
+                    <div class="result-bar-track">
+                        <div class="result-bar-fill" style="width: @(percentage)%"></div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        @if (Question.Type == SurveyQuestionType.MultipleChoice && TotalSelections > Question.AnswerCount)
+        {
+            <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mt-2 d-block">
+                People could pick several options, so the percentages add up to more than 100%.
+            </MudText>
+        }
+    }
+</MudPaper>
+
+@code {
+    [Parameter, EditorRequired] public QuestionResultDto Question { get; set; } = null!;
+    [Parameter] public int Index { get; set; }
+
+    [Inject] private ISurveyResultsService ResultsService { get; set; } = null!;
+
+    private PaginatedList<FreeTextResultDto>? _freeText;
+
+    private SurveyQuestionDefinition Definition => SurveyQuestionRegistry.Get(Question.Type);
+
+    private int TotalSelections => Question.Buckets.Sum(b => b.Count);
+
+    private string BucketLabel(ResultBucketDto bucket) =>
+        Question.Type == SurveyQuestionType.Rating ? $"{bucket.Label} {(bucket.Label == "1" ? "star" : "stars")}" : bucket.Label;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Question.Type == SurveyQuestionType.FreeText)
+        {
+            await LoadPage(1);
+        }
+    }
+
+    private async Task LoadPage(int page) => _freeText = await ResultsService.GetFreeTextAnswers(Question.QuestionId, page);
+}
+
+<style>
+    .rating-average {
+        font-weight: 700;
+    }
+
+    .rating-average-stars {
+        pointer-events: none;
+    }
+
+    .result-bars {
+        max-width: 640px;
+    }
+
+    .result-bar-row {
+        display: grid;
+        grid-template-columns: minmax(80px, 200px) minmax(120px, 1fr) max-content;
+        grid-template-areas: "label bar value";
+        align-items: center;
+        gap: 12px;
+        margin-top: 10px;
+    }
+
+    .result-bar-label {
+        grid-area: label;
+        overflow-wrap: anywhere;
+    }
+
+    @@media (max-width: 600px) {
+        .result-bar-row {
+            grid-template-columns: 1fr max-content;
+            grid-template-areas: "label value" "bar bar";
+            gap: 4px 12px;
+        }
+    }
+
+    .result-bar-track {
+        grid-area: bar;
+        height: 10px;
+        border-radius: 999px;
+        background: rgba(var(--mud-palette-primary-rgb), 0.12);
+        overflow: hidden;
+    }
+
+    .result-bar-fill {
+        height: 100%;
+        border-radius: 0 999px 999px 0;
+        background: var(--mud-palette-primary);
+    }
+
+    .result-bar-value {
+        grid-area: value;
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+    }
+
+    .result-bar-count {
+        margin-left: 4px;
+        font-size: 0.8125rem;
+        color: var(--mud-palette-text-secondary);
+    }
+
+    .free-text-list {
+        display: grid;
+        gap: 12px;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    }
+
+    .free-text-quote {
+        margin: 0;
+        padding: 12px 16px;
+        border-radius: 14px;
+        border-left: 4px solid var(--mud-palette-primary);
+        background: rgba(var(--mud-palette-primary-rgb), 0.06);
+    }
+
+    .free-text-quote blockquote {
+        margin: 0 0 8px;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+    }
+
+    .free-text-quote figcaption {
+        font-size: 0.8rem;
+        color: var(--mud-palette-text-secondary);
+    }
+</style>
