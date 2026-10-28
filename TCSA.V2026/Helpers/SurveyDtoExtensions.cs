@@ -24,4 +24,17 @@ public static class SurveyDtoExtensions
             })
         ]
     };
+
+    public static SurveyAnswerDto ToDto(this SurveyAnswer answer) => answer switch
+    {
+        RatingAnswer rating => new SurveyAnswerDto { QuestionId = rating.SurveyQuestionId, NumericValue = rating.Rating },
+        YesNoAnswer yesNo => new SurveyAnswerDto { QuestionId = yesNo.SurveyQuestionId, NumericValue = yesNo.IsYes ? 1 : 0 },
+        FreeTextAnswer text => new SurveyAnswerDto { QuestionId = text.SurveyQuestionId, TextValue = text.Text },
+        ChoiceAnswer choice => new SurveyAnswerDto
+        {
+            QuestionId = choice.SurveyQuestionId,
+            OptionIds = [.. choice.SelectedOptions.Select(o => o.SurveyOptionId)]
+        },
+        _ => new SurveyAnswerDto { QuestionId = answer.SurveyQuestionId }
+    };
 }
