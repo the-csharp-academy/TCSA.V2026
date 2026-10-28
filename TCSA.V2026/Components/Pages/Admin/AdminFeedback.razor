@@ -236,7 +236,6 @@
         await LoadNewCount();
     }
 
-    /// <summary>Drops a selected cluster that no longer exists, so the list is not emptied by a dead filter.</summary>
     private async Task DropMissingCluster()
     {
         if (_filter.Cluster is { } selected && await FeedbackAdminService.GetCluster(selected) is null)
@@ -323,6 +322,7 @@
         max-width: 38ch;
         display: block;
         white-space: normal;
+        overflow-wrap: anywhere;
     }
 
     .feedback-open:focus-visible {
