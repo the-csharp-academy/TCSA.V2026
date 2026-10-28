@@ -120,6 +120,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ThemeService>();
 builder.Services.AddScoped<OnboardingStateService>();
 builder.Services.AddScoped<FeedbackDetailState>();
+builder.Services.AddScoped<SurveyRespondentDetailState>();
 
 builder.Services.AddDiscordGateway(options =>
 {
