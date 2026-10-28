@@ -675,6 +675,8 @@ public static class SeedData
         await SeedBadges(context, user1.Id, user2.Id, user3.Id, user4.Id);
         await SeedResetAccountData(context, user1.Id, user3.Id);
         await SeedDeleteAccountData(context, user2.Id, user3.Id);
+        await SeedSurvey(context, user1.Id, user2.Id, user3.Id, user4.Id);
+        await SeedFeedback(context, user1.Id, user2.Id, user3.Id, user4.Id, user5.Id);
     }
 
     // Separate user with a row in every user-linked table, so DeleteAccount can be tried without losing the ResetAccount data on user1
@@ -864,6 +866,239 @@ public static class SeedData
             DashboardProjectId = reviewedProject.Id,
         });
 
+        await context.SaveChangesAsync();
+    }
+
+    // Widget feedback covering every category and review state, with a few clusters (same category and page) of different sizes.
+    private static async Task SeedFeedback(ApplicationDbContext context, string user1Id, string user2Id, string user3Id, string user4Id, string user5Id)
+    {
+        static DateTimeOffset At(int month, int day, int hour, int minute = 0) =>
+            new(new DateTime(2026, month, day, hour, minute, 0, DateTimeKind.Utc));
+
+        static FeedbackItem Item(
+            string userId, FeedbackCategory category, string body, string originUrl, DateTimeOffset createdAt,
+            FeedbackReviewState state = FeedbackReviewState.New, FeedbackArea? area = null, string? reportedPage = null) =>
+            new()
+            {
+                AppUserId = userId,
+                Category = category,
+                Body = body,
+                OriginUrl = originUrl,
+                ReportedPage = reportedPage,
+                Area = area,
+                ReviewState = state,
+                CreatedAt = createdAt
+            };
+
+        var longBody = """
+            When I open the peer review page on my phone the review cards overflow the screen and I have to scroll sideways to reach the Approve button.
+
+            Steps to reproduce:
+            1. Open /dashboard/peer-reviews on a phone (360px wide)
+            2. Open any assigned review
+            3. Try to tap Approve
+
+            I expected the buttons to wrap under the description instead.
+            """;
+
+        var items = new List<FeedbackItem>
+        {
+            // Bug cluster on the profile page: 4 items, 3 still New.
+            Item(user1Id, FeedbackCategory.Bug, "Saving my profile shows a success message but the GitHub username is not updated.",
+                "/dashboard/profile", At(10, 2, 9, 10), area: FeedbackArea.Profile, reportedPage: "/dashboard/profile"),
+            Item(user2Id, FeedbackCategory.Bug, "Profile save does nothing when I change my display name.",
+                "/dashboard/profile", At(10, 3, 14, 5), area: FeedbackArea.Profile, reportedPage: "/dashboard/profile"),
+            Item(user3Id, FeedbackCategory.Bug, "The avatar does not refresh after saving the profile.",
+                "/dashboard", At(10, 4, 18, 40), FeedbackReviewState.Reviewed, FeedbackArea.Profile, "/dashboard/profile"),
+            Item(user4Id, FeedbackCategory.Bug, "Profile page throws an error when the bio contains an emoji.",
+                "/dashboard/profile", At(10, 6, 7, 55), area: FeedbackArea.Profile, reportedPage: "/dashboard/profile"),
+
+            // Bug cluster on another page, reported from a different page than the one it concerns.
+            Item(user2Id, FeedbackCategory.Bug, "Submit project dialog closes without submitting when I press Enter in the repo URL field.",
+                "/dashboard", At(10, 5, 11, 30), area: FeedbackArea.Projects, reportedPage: "/dashboard/projects"),
+            Item(user5Id, FeedbackCategory.Bug, "The Submit button stays disabled after I fix the repo URL.",
+                "/dashboard/projects", At(10, 7, 20, 15), area: FeedbackArea.Projects, reportedPage: "/dashboard/projects"),
+
+            // Fully handled cluster: it stays in All Feedback but not in Needs Review.
+            Item(user1Id, FeedbackCategory.Bug, "Leaderboard shows the wrong rank for users with equal XP.",
+                "/dashboard/leaderboard", At(9, 20, 10, 0), FeedbackReviewState.Actioned, FeedbackArea.Leaderboard, "/dashboard/leaderboard"),
+            Item(user4Id, FeedbackCategory.Bug, "Ties on the leaderboard are ordered randomly between page loads.",
+                "/dashboard/leaderboard", At(9, 22, 16, 20), FeedbackReviewState.Actioned, FeedbackArea.Leaderboard, "/dashboard/leaderboard"),
+
+            // A bug with a long, multi-line body.
+            Item(user3Id, FeedbackCategory.Bug, longBody,
+                "/dashboard/peer-reviews", At(10, 8, 13, 45), area: FeedbackArea.PeerReviews, reportedPage: "/dashboard/peer-reviews"),
+
+            // Idea cluster from the dashboard.
+            Item(user1Id, FeedbackCategory.Idea, "It would be great to filter the roadmap by technology.",
+                "/dashboard/roadmap", At(10, 1, 8, 30)),
+            Item(user3Id, FeedbackCategory.Idea, "Add a dark theme preview to the theme toggle.",
+                "/dashboard/roadmap", At(10, 3, 19, 0), FeedbackReviewState.Reviewed),
+            Item(user5Id, FeedbackCategory.Idea, "Let me sort the roadmap by the XP I would earn.",
+                "/dashboard/roadmap", At(10, 7, 9, 5)),
+            Item(user2Id, FeedbackCategory.Idea, "Email me when someone finishes reviewing my project.",
+                "/dashboard/peer-reviews", At(10, 5, 22, 10), FeedbackReviewState.Archived),
+
+            // Help / Confusion.
+            Item(user4Id, FeedbackCategory.Help, "I do not understand how belts and XP are connected. Where is this explained?",
+                "/dashboard", At(10, 2, 21, 30)),
+            Item(user5Id, FeedbackCategory.Help, "How do I get a reviewer assigned to my project?",
+                "/dashboard/projects", At(10, 6, 15, 50), FeedbackReviewState.Actioned),
+
+            // Compliments.
+            Item(user2Id, FeedbackCategory.Compliment, "The courses are fantastic. I finished the SQL course in a week.",
+                "/dashboard/courses", At(10, 4, 12, 0)),
+            Item(user1Id, FeedbackCategory.Compliment, "Thank you to everyone who reviewed my first project so quickly!",
+                "/dashboard/peer-reviews", At(10, 8, 17, 25), FeedbackReviewState.Reviewed),
+
+            // User text with markup and an unbroken string: both must render as inert, wrapped plain text.
+            Item(user3Id, FeedbackCategory.Idea, "<script>alert('xss')</script><b>Bold</b> & <img src=x onerror=alert(1)>",
+                "/dashboard/community", At(10, 9, 10, 15)),
+            Item(user4Id, FeedbackCategory.Help, new string('x', 400),
+                "/dashboard/challenges", At(10, 9, 11, 30)),
+        };
+
+        await context.FeedbackItems.AddRangeAsync(items);
+        await context.SaveChangesAsync();
+    }
+
+    // user5 is left without a response so the survey stays available to submit.
+    private static async Task SeedSurvey(ApplicationDbContext context, string user1Id, string user2Id, string user3Id, string user4Id)
+    {
+        var survey = new Survey
+        {
+            Title = "Platform feedback 2026",
+            Description = "Tell us how the Academy is working for you. Twelve questions, most of them optional.",
+            Status = SurveyStatus.Active,
+            CreatedAt = new DateTimeOffset(new DateTime(2026, 9, 1, 9, 0, 0, DateTimeKind.Utc)),
+            Questions =
+            [
+                RatingQuestion.Create("How would you rate your overall experience on the Academy?", true, 0),
+                YesNoQuestion.Create("Would you recommend the Academy to a friend?", true, 1),
+                SingleChoiceQuestion.Create("How often do you work on Academy projects?", true, 2,
+                    ["Daily", "A few times a week", "Weekly", "Less than weekly"]),
+                MultipleChoiceQuestion.Create("Which parts of the platform do you use?", false, 3,
+                    ["Projects", "Peer reviews", "Courses", "Challenges", "Community issues", "Leaderboard"]),
+                FreeTextQuestion.Create("What is the one thing we should improve first?", false, 4),
+                RatingQuestion.Create("How helpful are the peer reviews you receive?", false, 5),
+                FreeTextQuestion.Create("What would make peer reviews more useful?", false, 6),
+                YesNoQuestion.Create("Have you contributed to a community project?", false, 7),
+                SingleChoiceQuestion.Create("How did you hear about the Academy?", false, 8,
+                    ["YouTube", "Search engine", "A friend", "Discord", "Other"]),
+                MultipleChoiceQuestion.Create("Which technologies do you want more content on?", true, 9,
+                    ["ASP.NET Core", "Blazor", "Entity Framework", "Testing", "Cloud and Azure", "Desktop (WPF, MAUI)", "Game development"]),
+                FreeTextQuestion.Create("Think about the last project you completed from start to finish, including the reading, the coding, the submission and the peer review. Which step slowed you down the most, and what would have helped you move through it faster?", false, 10),
+                FreeTextQuestion.Create("Anything else you want to tell us?", false, 11),
+            ]
+        };
+
+        await context.Surveys.AddAsync(survey);
+        await context.SaveChangesAsync();
+
+        var questions = await context.SurveyQuestions
+            .OfType<ChoiceQuestion>()
+            .Include(q => q.Options)
+            .Where(q => q.SurveyId == survey.Id)
+            .ToListAsync();
+        var questionIds = await context.SurveyQuestions
+            .Where(q => q.SurveyId == survey.Id)
+            .ToDictionaryAsync(q => q.Order, q => q.Id);
+
+        int Q(int order) => questionIds[order];
+        int Option(int order, int index) => questions.Single(q => q.Id == Q(order)).Options.OrderBy(o => o.Order).ElementAt(index).Id;
+
+        var longText = """
+            The reading material is great, but the gap between finishing the code and getting a review is where I lose momentum.
+
+            Things that would help:
+            - an estimate of how long a review usually takes
+            - a reminder when a reviewer has not replied after a few days
+            - a way to see which projects are waiting for a reviewer
+
+            I also lost a full evening to a setup problem that was not in the instructions, so a short troubleshooting section on each project page would save a lot of time.
+            """;
+        var unbrokenText = new string('x', 300);
+
+        var responses = new List<SurveyResponse>
+        {
+            // user1: answered everything, with long multi-line text and an unbroken string that must wrap.
+            new()
+            {
+                SurveyId = survey.Id,
+                AppUserId = user1Id,
+                SubmittedAt = new DateTimeOffset(new DateTime(2026, 9, 3, 18, 30, 0, DateTimeKind.Utc)),
+                Answers =
+                [
+                    RatingAnswer.Create(Q(0), 4),
+                    YesNoAnswer.Create(Q(1), true),
+                    SingleChoiceAnswer.Create(Q(2), Option(2, 1)),
+                    MultipleChoiceAnswer.Create(Q(3), [Option(3, 0), Option(3, 1), Option(3, 2), Option(3, 3), Option(3, 4), Option(3, 5)]),
+                    FreeTextAnswer.Create(Q(4), "Faster peer review turnaround."),
+                    RatingAnswer.Create(Q(5), 3),
+                    FreeTextAnswer.Create(Q(6), unbrokenText),
+                    YesNoAnswer.Create(Q(7), true),
+                    SingleChoiceAnswer.Create(Q(8), Option(8, 0)),
+                    MultipleChoiceAnswer.Create(Q(9), [Option(9, 0), Option(9, 1), Option(9, 3)]),
+                    FreeTextAnswer.Create(Q(10), longText),
+                    FreeTextAnswer.Create(Q(11), "Thanks for the Academy."),
+                ]
+            },
+            // user2: only the required questions, so every optional one shows as skipped.
+            new()
+            {
+                SurveyId = survey.Id,
+                AppUserId = user2Id,
+                SubmittedAt = new DateTimeOffset(new DateTime(2026, 9, 4, 8, 15, 0, DateTimeKind.Utc)),
+                Answers =
+                [
+                    RatingAnswer.Create(Q(0), 5),
+                    YesNoAnswer.Create(Q(1), true),
+                    SingleChoiceAnswer.Create(Q(2), Option(2, 0)),
+                    MultipleChoiceAnswer.Create(Q(9), [Option(9, 2)]),
+                ]
+            },
+            // user3: answered everything with short answers.
+            new()
+            {
+                SurveyId = survey.Id,
+                AppUserId = user3Id,
+                SubmittedAt = new DateTimeOffset(new DateTime(2026, 9, 5, 21, 45, 0, DateTimeKind.Utc)),
+                Answers =
+                [
+                    RatingAnswer.Create(Q(0), 2),
+                    YesNoAnswer.Create(Q(1), false),
+                    SingleChoiceAnswer.Create(Q(2), Option(2, 3)),
+                    MultipleChoiceAnswer.Create(Q(3), [Option(3, 0)]),
+                    FreeTextAnswer.Create(Q(4), "Clearer project instructions."),
+                    RatingAnswer.Create(Q(5), 1),
+                    FreeTextAnswer.Create(Q(6), "Reviewers should leave more detail."),
+                    YesNoAnswer.Create(Q(7), false),
+                    SingleChoiceAnswer.Create(Q(8), Option(8, 4)),
+                    MultipleChoiceAnswer.Create(Q(9), [Option(9, 6), Option(9, 5)]),
+                    FreeTextAnswer.Create(Q(10), "Waiting for a review."),
+                    FreeTextAnswer.Create(Q(11), "No."),
+                ]
+            },
+            // user4: required questions plus a scattering of optional ones.
+            new()
+            {
+                SurveyId = survey.Id,
+                AppUserId = user4Id,
+                SubmittedAt = new DateTimeOffset(new DateTime(2026, 9, 6, 12, 0, 0, DateTimeKind.Utc)),
+                Answers =
+                [
+                    RatingAnswer.Create(Q(0), 3),
+                    YesNoAnswer.Create(Q(1), true),
+                    SingleChoiceAnswer.Create(Q(2), Option(2, 2)),
+                    MultipleChoiceAnswer.Create(Q(3), [Option(3, 1), Option(3, 5)]),
+                    YesNoAnswer.Create(Q(7), true),
+                    MultipleChoiceAnswer.Create(Q(9), [Option(9, 1), Option(9, 4)]),
+                    FreeTextAnswer.Create(Q(11), "More Blazor content, please."),
+                ]
+            },
+        };
+
+        await context.SurveyResponses.AddRangeAsync(responses);
         await context.SaveChangesAsync();
     }
 
