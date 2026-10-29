@@ -280,10 +280,5 @@
         }
     }
 
-    private static string AreaLabel(FeedbackArea area) => area switch
-    {
-        FeedbackArea.CoursesArticles => "Courses/Articles",
-        FeedbackArea.PeerReviews => "Peer Reviews",
-        _ => area.ToString()
-    };
+    private static string AreaLabel(FeedbackArea area) => FeedbackLabelHelper.AreaLabel(area);
 }

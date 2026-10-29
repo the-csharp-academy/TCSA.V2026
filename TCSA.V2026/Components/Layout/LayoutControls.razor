@@ -83,6 +83,10 @@
     <MudDrawer id="nav-drawer" @bind-Open="_navOpen" Variant="DrawerVariant.Responsive" ClipMode="DrawerClipMode.Always" Elevation="2">
         <NavMenu />
     </MudDrawer>
+    @if (_isAdmin)
+    {
+        <FeedbackDetailDrawer />
+    }
     @if (IsHome && !_showChecklist)
     {
         <MudDrawer id="feed-drawer" Variant="DrawerVariant.Responsive" @bind-Open="_feedOpen" Anchor="Anchor.Right" ClipMode="DrawerClipMode.Always" Elevation="2">
@@ -156,6 +160,7 @@
     private bool _checklistOpen = true;
     private List<ChecklistTaskDto> _checklistTasks = new();
     private string UserId = string.Empty;
+    private bool _isAdmin;
 
     private bool? _pushedNavOpen;
     private bool? _pushedRightOpen;
@@ -182,6 +187,7 @@
         if (authState.User.Identity?.IsAuthenticated == true)
         {
             UserId = authState.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
+            _isAdmin = authState.User.IsInRole("Admin");
         }
 
         OnboardingState.OnChange += SyncOnboardingStateAsync;

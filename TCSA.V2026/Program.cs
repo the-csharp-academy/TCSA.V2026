@@ -100,6 +100,7 @@ builder.Services.AddScoped<IStatisticsService>(sp =>
 });
 builder.Services.AddScoped<IFeedService, FeedService>();
 builder.Services.AddScoped<IFeedbackService, FeedbackService>();
+builder.Services.AddScoped<IFeedbackAdminService, FeedbackAdminService>();
 builder.Services.AddScoped<IAccountabilityBuddyService, AccountabilityBuddyService>();
 builder.Services.AddScoped<IDonateService, DonateService>();
 builder.Services.AddSingleton<ISearchService>(_ =>
@@ -114,6 +115,7 @@ builder.Services.AddControllers();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ThemeService>();
 builder.Services.AddScoped<OnboardingStateService>();
+builder.Services.AddScoped<FeedbackDetailState>();
 
 builder.Services.AddDiscordGateway(options =>
 {
