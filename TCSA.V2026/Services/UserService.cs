@@ -160,15 +160,29 @@ public class UserService : IUserService
     {
         try
         {
-            using (var context = _factory.CreateDbContext())
-            {
-                var dbUser = await context.AspNetUsers.FirstOrDefaultAsync(x => x.Id.Equals(user.Id));
-                context.AspNetUsers.Remove(dbUser);
+            using var context = _factory.CreateDbContext();
+            using var transaction = await context.Database.BeginTransactionAsync();
 
-                await context.SaveChangesAsync();
+            var dbUser = await context.AspNetUsers.FirstOrDefaultAsync(x => x.Id.Equals(user.Id));
 
-                return Result.Success(new Success("Account.Deleted", "Account deleted successfully."));
-            }
+            if (dbUser == null)
+                return Result.Failure(new Error("User.NotFound", "User not found."));
+
+            // Issues are shared catalog entries, so release them instead of deleting
+            await context.Issues.Where(i => i.AppUserId == user.Id)
+                .ExecuteUpdateAsync(s => s.SetProperty(i => i.AppUserId, (string?)null));
+
+            // Frees the reviewed projects back into the peer review pool
+            var reviews = await context.UserReviews.Where(r => r.AppUserId == user.Id).ToListAsync();
+            context.UserReviews.RemoveRange(reviews);
+
+            context.AspNetUsers.Remove(dbUser);
+
+            await context.SaveChangesAsync();
+
+            await transaction.CommitAsync();
+
+            return Result.Success(new Success("Account.Deleted", "Account deleted successfully."));
         }
         catch (Exception ex)
         {
@@ -181,30 +195,34 @@ public class UserService : IUserService
     {
         try
         {
-            using (var context = _factory.CreateDbContext())
-            {
-                var dbUser = await context.AspNetUsers
-                    .FirstOrDefaultAsync(x => x.Id.Equals(user.Id));
+            using var context = _factory.CreateDbContext();
+            using var transaction = await context.Database.BeginTransactionAsync();
 
-                if (dbUser == null)
-                    return Result.Failure(new Error("User.NotFound", "User not found."));
+            var dbUser = await context.AspNetUsers
+                .FirstOrDefaultAsync(x => x.Id.Equals(user.Id));
 
-                dbUser.ExperiencePoints = 0;
-                dbUser.ReviewedProjects = 0;
-                dbUser.Level = Level.White;
+            if (dbUser == null)
+                return Result.Failure(new Error("User.NotFound", "User not found."));
 
-                context.DailyStreaks.RemoveRange(context.DailyStreaks.Where(ua => ua.AppUserId == user.Id));
-                context.UserChallenges.RemoveRange(context.UserChallenges.Where(ua => ua.UserId == user.Id));
-                context.ShowcaseItems.RemoveRange(context.ShowcaseItems.Where(ua => ua.AppUserId == user.Id));
-                context.UserReviews.RemoveRange(context.UserReviews.Where(ua => ua.AppUserId == user.Id));
-                context.UserActivity.RemoveRange(context.UserActivity.Where(ua => ua.AppUserId == user.Id));
-                context.Issues.RemoveRange(context.Issues.Where(ua => ua.AppUserId == user.Id));
-                context.DashboardProjects.RemoveRange(context.DashboardProjects.Where(ua => ua.AppUserId == user.Id));
+            dbUser.ExperiencePoints = 0;
+            dbUser.ReviewedProjects = 0;
+            dbUser.Level = Level.White;
 
-                await context.SaveChangesAsync();
+            await context.DailyStreaks.Where(ua => ua.AppUserId == user.Id).ExecuteDeleteAsync();
+            await context.UserChallenges.Where(ua => ua.UserId == user.Id).ExecuteDeleteAsync();
+            await context.ShowcaseItems.Where(ua => ua.AppUserId == user.Id).ExecuteDeleteAsync();
+            await context.UserReviews.Where(ua => ua.AppUserId == user.Id).ExecuteDeleteAsync();
+            await context.UserActivity.Where(ua => ua.AppUserId == user.Id).ExecuteDeleteAsync();
+            await context.Issues.Where(ua => ua.AppUserId == user.Id)
+                .ExecuteUpdateAsync(s => s.SetProperty(i => i.AppUserId, (string?)null));
+            await context.DashboardProjects.Where(ua => ua.AppUserId == user.Id).ExecuteDeleteAsync();
+            await context.Badges.Where(ua => ua.UserId == user.Id).ExecuteDeleteAsync();
 
-                return Result.Success(new Success("Account.Reset", "User data reset successfully."));
-            }
+            await context.SaveChangesAsync();
+
+            await transaction.CommitAsync();
+
+            return Result.Success(new Success("Account.Reset", "User data reset successfully."));
         }
         catch (Exception ex)
         {

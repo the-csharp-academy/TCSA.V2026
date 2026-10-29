@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using TCSA.V2026.Data.Enums;
 using TCSA.V2026.Data.Models;
+using TCSA.V2026.Models;
 
 namespace TCSA.V2026.Data;
 
@@ -43,6 +44,12 @@ public static class SeedData
             EmailConfirmed = true,
             GithubLogin = false,
             Level = Level.Orange,
+            DailyStreak = new DailyStreak
+            {
+                CurrentStreak = 3,
+                LongestStreak = 7,
+                LastCompletedDate = DateTime.UtcNow.Date,
+            },
             DashboardProjects = new List<DashboardProject>
             {
                 new DashboardProject
@@ -210,21 +217,21 @@ public static class SeedData
                     ProjectId = 11,
                     ChallengeId = 0,
                     DateSubmitted = new DateTimeOffset(new DateTime(2025, 1, 3, 0, 1, 0, DateTimeKind.Utc)),
-                    ActivityType = ActivityType.ArticleRead,
+                    ActivityType = ActivityType.ProjectCompleted,
                 },
                 new AppUserActivity
                 {
                     ProjectId = 12,
                     ChallengeId = 0,
                     DateSubmitted = new DateTimeOffset(new DateTime(2025, 1, 4, 0, 1, 0, DateTimeKind.Utc)),
-                    ActivityType = ActivityType.ArticleRead,
+                    ActivityType = ActivityType.ProjectSubmitted,
                 },
                 new AppUserActivity
                 {
                     ProjectId = 13,
                     ChallengeId = 0,
                     DateSubmitted = new DateTimeOffset(new DateTime(2025, 1, 4, 0, 1, 0, DateTimeKind.Utc)),
-                    ActivityType = ActivityType.ArticleRead,
+                    ActivityType = ActivityType.ProjectCompleted,
                 }
             },
 
@@ -365,35 +372,35 @@ public static class SeedData
                     ProjectId = 14,
                     ChallengeId = 0,
                     DateSubmitted = new DateTimeOffset(new DateTime(2025, 1, 1, 0, 1, 0, DateTimeKind.Utc)),
-                    ActivityType = ActivityType.ArticleRead,
+                    ActivityType = ActivityType.ProjectCompleted,
                 },
                 new AppUserActivity
                 {
                     ProjectId = 15,
                     ChallengeId = 0,
                     DateSubmitted = new DateTimeOffset(new DateTime(2025, 1, 2, 0, 1, 0, DateTimeKind.Utc)),
-                    ActivityType = ActivityType.ArticleRead,
+                    ActivityType = ActivityType.ProjectCompleted,
                 },
                 new AppUserActivity
                 {
                     ProjectId = 16,
                     ChallengeId = 0,
                     DateSubmitted = new DateTimeOffset(new DateTime(2025, 1, 3, 0, 1, 0, DateTimeKind.Utc)),
-                    ActivityType = ActivityType.ArticleRead,
+                    ActivityType = ActivityType.ProjectCompleted,
                 },
                 new AppUserActivity
                 {
                     ProjectId = 17,
                     ChallengeId = 0,
                     DateSubmitted = new DateTimeOffset(new DateTime(2025, 1, 4, 0, 1, 0, DateTimeKind.Utc)),
-                    ActivityType = ActivityType.ArticleRead,
+                    ActivityType = ActivityType.ProjectCompleted,
                 },
                 new AppUserActivity
                 {
                     ProjectId = 18,
                     ChallengeId = 0,
                     DateSubmitted = new DateTimeOffset(new DateTime(2025, 1, 4, 0, 1, 0, DateTimeKind.Utc)),
-                    ActivityType = ActivityType.ArticleRead,
+                    ActivityType = ActivityType.ProjectCompleted,
                 }
             },
 
@@ -666,6 +673,198 @@ public static class SeedData
 
         await SeedCommunityIssues(context, user1.Id);
         await SeedBadges(context, user1.Id, user2.Id, user3.Id, user4.Id);
+        await SeedResetAccountData(context, user1.Id, user3.Id);
+        await SeedDeleteAccountData(context, user2.Id, user3.Id);
+    }
+
+    // Separate user with a row in every user-linked table, so DeleteAccount can be tried without losing the ResetAccount data on user1
+    private static async Task SeedDeleteAccountData(ApplicationDbContext context, string reviewerId, string reviewedUserId)
+    {
+        var hasher = new PasswordHasher<ApplicationUser>();
+
+        var user = new ApplicationUser
+        {
+            Id = Guid.NewGuid().ToString(),
+            UserName = "delete@example.com",
+            NormalizedUserName = "DELETE@EXAMPLE.COM",
+            Email = "delete@example.com",
+            NormalizedEmail = "DELETE@EXAMPLE.COM",
+            FirstName = "Delete",
+            LastName = "Me",
+            Country = "USA",
+            ExperiencePoints = 300,
+            ReviewExperiencePoints = 100,
+            ReviewedProjects = 1,
+            EmailConfirmed = true,
+            GithubLogin = false,
+            Level = Level.Yellow,
+            DailyStreak = new DailyStreak
+            {
+                CurrentStreak = 2,
+                LongestStreak = 4,
+                LastCompletedDate = DateTime.UtcNow.Date,
+            },
+            DashboardProjects = new List<DashboardProject>
+            {
+                new DashboardProject
+                {
+                    ProjectId = 5,
+                    GithubUrl = string.Empty,
+                    IsCompleted = true,
+                    DateSubmitted = new DateTimeOffset(new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc)),
+                    DateCompleted = new DateTimeOffset(new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc)),
+                    DateRequestedChange = DateTimeOffset.MinValue,
+                },
+                new DashboardProject
+                {
+                    ProjectId = 6,
+                    GithubUrl = "https://github.com/TheCSharpAcademy/CodeReviews.Console.Calculator/pull/500",
+                    IsPendingReview = true,
+                    DateSubmitted = new DateTimeOffset(new DateTime(2025, 1, 2, 0, 0, 0, DateTimeKind.Utc)),
+                },
+            },
+            UserActivity = new List<AppUserActivity>
+            {
+                new AppUserActivity
+                {
+                    ProjectId = 5,
+                    ChallengeId = 0,
+                    DateSubmitted = new DateTimeOffset(new DateTime(2025, 1, 1, 0, 1, 0, DateTimeKind.Utc)),
+                    ActivityType = ActivityType.ArticleRead,
+                },
+            },
+            Issues = new List<CommunityIssue>
+            {
+                new CommunityIssue
+                {
+                    Title = "Add dark mode to the Statistics page",
+                    ProjectId = 207,
+                    CommunityProjectId = (int)CommunityProject.TCSA,
+                    ExperiencePoints = 10,
+                    Type = IssueType.Feature,
+                    GithubUrl = "https://github.com/TheCSharpAcademy/TCSA.V2/issues/510",
+                    IconUrl = "icons8-construction-64.png",
+                    IsClosed = true,
+                },
+            },
+            Comments = new List<Comments>
+            {
+                new Comments
+                {
+                    ArticleId = 5,
+                    Comment = "Great article, thanks!",
+                    Date = new DateTimeOffset(new DateTime(2025, 1, 1, 0, 2, 0, DateTimeKind.Utc)),
+                    IsReviewed = true,
+                },
+            },
+        };
+        user.PasswordHash = hasher.HashPassword(user, "Password123!");
+
+        await context.Users.AddAsync(user);
+        await context.SaveChangesAsync();
+
+        var challengeId = await context.Challenges.OrderBy(c => c.Id).Select(c => c.Id).FirstAsync();
+        var ownProject = user.DashboardProjects.First(dp => dp.IsCompleted);
+        var ownPendingProject = user.DashboardProjects.First(dp => dp.IsPendingReview);
+        var reviewedProject = await context.DashboardProjects
+            .FirstAsync(dp => dp.AppUserId == reviewedUserId && dp.IsPendingReview);
+
+        await context.Badges.AddAsync(new Badge
+        {
+            BadgeId = (int)BadgeId.CodeReviewer,
+            UserId = user.Id,
+            DateAwarded = new DateTimeOffset(new DateTime(2025, 1, 10, 0, 0, 0, DateTimeKind.Utc)),
+        });
+        await context.UserChallenges.AddAsync(new UserChallenge
+        {
+            ChallengeId = challengeId,
+            UserId = user.Id,
+            CompletedAt = new DateTime(2025, 1, 5, 0, 0, 0, DateTimeKind.Utc),
+        });
+        await context.ShowcaseItems.AddAsync(new ShowcaseItem
+        {
+            AppUserId = user.Id,
+            DashboardProjectId = ownProject.Id,
+            VideoUrl = "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+            GithubUrl = "https://github.com/TheCSharpAcademy/CodeReviews.Console.Calculator/pull/2",
+        });
+        // One review done by the user and one done on the user's project
+        await context.UserReviews.AddRangeAsync(
+            new UserReview { AppUserId = user.Id, DashboardProjectId = reviewedProject.Id },
+            new UserReview { AppUserId = reviewerId, DashboardProjectId = ownPendingProject.Id });
+
+        await context.UserStripe.AddAsync(new UserStripe
+        {
+            AppUserId = user.Id,
+            StripeCustomerId = "cus_seed_delete",
+            StripePaymentMethodId = "pm_seed_delete",
+            Status = AccountabilityStatus.Active,
+        });
+        await context.UserAccountabilityProjects.AddAsync(new UserAccountabilityProject
+        {
+            AppUserId = user.Id,
+            ProjectId = 6,
+            DeadLineUtc = DateTime.UtcNow.AddDays(14),
+            PledgeCents = 1000,
+            StripePaymentIntentId = "pi_seed_delete_pledge",
+        });
+        await context.UserDonations.AddAsync(new UserDonation
+        {
+            AppUserId = user.Id,
+            AmountCents = 500,
+            Status = DonationStatus.Succeeded,
+            PaidUtc = DateTime.UtcNow,
+            StripeCheckoutSessionId = "cs_seed_delete",
+            StripePaymentIntentId = "pi_seed_delete_donation",
+        });
+        // Not linked to a user, seeded only so every DbSet has a row
+        await context.WebhookDebugLog.AddAsync(new WebhookDebugLog
+        {
+            Log = "Seed webhook log",
+            DateTime = DateTime.UtcNow,
+            LogType = LogType.Success,
+        });
+
+        await context.SaveChangesAsync();
+    }
+
+    // Gives user1 a row in every table ResetAccount clears that isn't seeded elsewhere
+    private static async Task SeedResetAccountData(ApplicationDbContext context, string userId, string reviewedUserId)
+    {
+        var challengeIds = await context.Challenges
+            .OrderBy(c => c.Id)
+            .Take(2)
+            .Select(c => c.Id)
+            .ToListAsync();
+
+        var userChallenges = challengeIds.Select(challengeId => new UserChallenge
+        {
+            ChallengeId = challengeId,
+            UserId = userId,
+            CompletedAt = new DateTime(2025, 1, 5, 0, 0, 0, DateTimeKind.Utc),
+        });
+
+        var showcasedProject = await context.DashboardProjects
+            .FirstAsync(dp => dp.AppUserId == userId && dp.ProjectId == 5);
+
+        var reviewedProject = await context.DashboardProjects
+            .FirstAsync(dp => dp.AppUserId == reviewedUserId && dp.IsPendingReview);
+
+        await context.UserChallenges.AddRangeAsync(userChallenges);
+        await context.ShowcaseItems.AddAsync(new ShowcaseItem
+        {
+            AppUserId = userId,
+            DashboardProjectId = showcasedProject.Id,
+            VideoUrl = "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+            GithubUrl = "https://github.com/TheCSharpAcademy/CodeReviews.Console.Calculator/pull/1",
+        });
+        await context.UserReviews.AddAsync(new UserReview
+        {
+            AppUserId = userId,
+            DashboardProjectId = reviewedProject.Id,
+        });
+
+        await context.SaveChangesAsync();
     }
 
     private static async Task SeedBadges(ApplicationDbContext context, string user1Id, string user2Id, string user3Id, string user4Id)

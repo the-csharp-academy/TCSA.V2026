@@ -42,6 +42,12 @@ public class ChallengeService(IDbContextFactory<ApplicationDbContext> _factory, 
 
             var streak = data.Streak;
 
+            // No streak row yet (new or reset account)
+            if (streak == null)
+            {
+                return new ChallengeStatistics(new DailyStreakDetails(0, 0, default), data.ChallengeCount);
+            }
+
             if (streak.CurrentStreak > 0 && streak.LastCompletedDate < DateTime.UtcNow.Date.AddDays(-1))
             {
                 streak.CurrentStreak = 0;
