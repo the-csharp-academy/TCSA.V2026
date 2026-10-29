@@ -1,0 +1,186 @@
+@using TCSA.V2026.Data.DTOs
+@using TCSA.V2026.Services
+@inject SurveyRespondentDetailState State
+@inject ISurveyResultsService ResultsService
+@implements IDisposable
+
+<MudDrawer id="survey-respondent-drawer"
+           Open="@(State.Selected is not null)"
+           OpenChanged="OnOpenChanged"
+           Anchor="Anchor.End"
+           Variant="DrawerVariant.Temporary"
+           Width="460px"
+           Elevation="2"
+           Class="survey-respondent-drawer">
+    @if (_respondent is { } respondent)
+    {
+        <div class="d-flex align-center justify-space-between pa-4 survey-respondent-header">
+            <MudText Typo="Typo.h6">@respondent.Label</MudText>
+            <MudIconButton Icon="@Icons.Material.Filled.Close" aria-label="Close" OnClick="State.Close" />
+        </div>
+
+        <div class="survey-respondent-scroll pa-4">
+            <dl class="survey-respondent-facts mb-4">
+                <dt>User</dt>
+                <dd><MudLink Href="@($"/admin/{respondent.UserId}")">@respondent.Email</MudLink></dd>
+
+                <dt>Submitted</dt>
+                <dd>@respondent.SubmittedAt.ToLocalTime().ToString("dd MMM yyyy, h:mm tt")</dd>
+
+                @if (_answers is not null)
+                {
+                    <dt>Answered</dt>
+                    <dd>@_answered.Count of @_answers.Answers.Count questions</dd>
+                }
+            </dl>
+
+            @if (_isLoading)
+            {
+                <div class="d-flex justify-center pa-8">
+                    <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+                </div>
+            }
+            else if (_answers is null)
+            {
+                <MudAlert Severity="Severity.Warning" Variant="Variant.Outlined">These answers no longer exist.</MudAlert>
+            }
+            else
+            {
+                @foreach (var (answer, index) in _answers.Answers.Select((a, i) => (a, i + 1)))
+                {
+                    <div class="mb-3">
+                        <div class="survey-respondent-question">
+                            <span class="survey-respondent-number">@index</span>
+                            <span>@answer.QuestionText</span>
+                        </div>
+                        @if (answer.Skipped)
+                        {
+                            <div class="survey-respondent-answer survey-respondent-skipped pa-4">Skipped</div>
+                        }
+                        else
+                        {
+                            <div class="survey-respondent-answer pa-4">@answer.Answer</div>
+                        }
+                    </div>
+                }
+            }
+        </div>
+    }
+</MudDrawer>
+
+@code {
+    private SurveyRespondentDto? _respondent;
+    private RespondentAnswersDto? _answers;
+    private List<RespondentAnswerDto> _answered = [];
+    private bool _isLoading;
+
+    protected override void OnInitialized()
+    {
+        State.OnChange += HandleChange;
+    }
+
+    private void HandleChange()
+    {
+        _ = InvokeAsync(async () =>
+        {
+            var selected = State.Selected;
+            if (selected is null)
+            {
+                StateHasChanged();
+                return;
+            }
+
+            _respondent = selected;
+            _answers = null;
+            _answered = [];
+            _isLoading = true;
+            StateHasChanged();
+
+            var answers = await ResultsService.GetRespondentAnswers(selected.ResponseId);
+
+            if (State.Selected?.ResponseId != selected.ResponseId) return;
+
+            _answers = answers;
+            _answered = answers?.Answers.Where(a => !a.Skipped).ToList() ?? [];
+            _isLoading = false;
+            StateHasChanged();
+        });
+    }
+
+    private void OnOpenChanged(bool open)
+    {
+        if (!open) State.Close();
+    }
+
+    public void Dispose()
+    {
+        State.OnChange -= HandleChange;
+    }
+}
+
+<style>
+    .survey-respondent-drawer {
+        max-width: 100vw;
+    }
+
+    .survey-respondent-header {
+        border-bottom: 1px solid var(--mud-palette-lines-default);
+    }
+
+    .survey-respondent-scroll {
+        overflow-y: auto;
+        overscroll-behavior: contain;
+    }
+
+    .survey-respondent-facts {
+        display: grid;
+        grid-template-columns: max-content 1fr;
+        gap: 0.5rem 1rem;
+        margin: 0;
+    }
+
+    .survey-respondent-facts dt {
+        color: var(--mud-palette-text-secondary);
+    }
+
+    .survey-respondent-facts dd {
+        margin: 0;
+        overflow-wrap: anywhere;
+    }
+
+    .survey-respondent-question {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+        font-size: 0.875rem;
+        color: var(--mud-palette-text-secondary);
+    }
+
+    .survey-respondent-number {
+        flex: 0 0 auto;
+        display: grid;
+        place-items: center;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--mud-palette-primary);
+        background: rgba(var(--mud-palette-primary-rgb), 0.12);
+    }
+
+    .survey-respondent-answer {
+        border-radius: 14px;
+        border: 1px solid rgba(var(--mud-palette-lines-default-rgb), 0.6);
+        background: rgba(var(--mud-palette-primary-rgb), 0.05);
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+    }
+
+    .survey-respondent-skipped {
+        background: transparent;
+        font-style: italic;
+        color: var(--mud-palette-text-secondary);
+    }
+</style>
