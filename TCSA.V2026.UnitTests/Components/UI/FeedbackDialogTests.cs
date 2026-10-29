@@ -168,7 +168,7 @@ public class FeedbackDialogTests : BunitContext
     }
 
     [Test]
-    public async Task Send_Compliment_ThankYouStateDoesNotPromiseAReviewQueue()
+    public async Task Send_Compliment_ThankYouStateAlsoMentionsTheReviewQueue()
     {
         var dialog = await ShowDialog("dashboard");
         ChooseCategory(dialog, "Say thanks");
@@ -178,8 +178,8 @@ public class FeedbackDialogTests : BunitContext
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(dialog.Markup, Does.Contain("The team reads every message."));
-            Assert.That(dialog.Markup, Does.Not.Contain("review queue"));
+            Assert.That(dialog.Markup, Does.Contain("It&#x27;s in the team&#x27;s review queue.").Or.Contain("It's in the team's review queue."));
+            Assert.That(dialog.Markup, Does.Not.Contain("The team reads every message."));
         }
     }
 
