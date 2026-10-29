@@ -7,6 +7,7 @@ using MudBlazor.Services;
 using System.Security.Claims;
 using TCSA.V2026.Components.Pages.Dashboard;
 using TCSA.V2026.Components.UI;
+using TCSA.V2026.Data.Enums;
 using TCSA.V2026.Data.Helpers;
 using TCSA.V2026.Data.Models;
 using TCSA.V2026.Data.Models.Responses;
@@ -358,5 +359,105 @@ public class ProfileTests : BunitContext
         // Assert
         var button = cut.FindAll("button").Single(b => b.TextContent.Contains("Resume Checklist"));
         Assert.That(button.HasAttribute("disabled"), Is.True);
+    }
+
+    [Test]
+    public void SaveButton_WhenSaveProfileReturnsValidationError_ShowsErrorUnderLinkedInUrlField()
+    {
+        // Arrange
+        const string errorMessage = "LinkedIn URL must be a valid profile URL.";
+
+        _userServiceMock
+            .Setup(s => s.SaveProfile(It.IsAny<ApplicationUser>()))
+            .ReturnsAsync(Result.ValidationFailure(ValidationError.FromErrors(
+            [
+                new Error(UserErrorCodes.InvalidLinkedInUrl, errorMessage, ErrorType.Validation)
+            ])));
+
+        AuthorizeAs(TestUserId);
+        Render<MudPopoverProvider>();
+        var cut = RenderProfile();
+
+        // Act
+        cut.FindAll("button").Single(b => b.TextContent.Contains("Save")).Click();
+
+        // Assert
+        cut.WaitForAssertion(() =>
+            Assert.That(
+                cut.FindAll(".mud-input-helper-text").Any(e => e.TextContent.Contains(errorMessage)),
+                Is.True));
+    }
+
+    [Test]
+    public async Task SaveButton_WhenSaveProfileSucceeds_DoesNotShowLinkedInUrlError()
+    {
+        // Arrange
+        _userServiceMock
+            .Setup(s => s.SaveProfile(It.IsAny<ApplicationUser>()))
+            .ReturnsAsync(Result.Success());
+
+        AuthorizeAs(TestUserId);
+        Render<MudPopoverProvider>();
+        var cut = RenderProfile();
+
+        // Act
+        cut.FindAll("button").Single(b => b.TextContent.Contains("Save")).Click();
+        await cut.InvokeAsync(() => { });
+
+        // Assert
+        Assert.That(cut.FindAll(".mud-input-helper-text").Any(), Is.False);
+    }
+
+    [Test]
+    public void SaveButton_WhenSaveProfileReturnsValidationError_DoesNotShowSnackbar()
+    {
+        // Arrange
+        var snackbarMock = new Mock<ISnackbar>();
+        Services.AddSingleton(snackbarMock.Object);
+
+        _userServiceMock
+            .Setup(s => s.SaveProfile(It.IsAny<ApplicationUser>()))
+            .ReturnsAsync(Result.ValidationFailure(ValidationError.FromErrors(
+            [
+                new Error(UserErrorCodes.InvalidLinkedInUrl, "LinkedIn URL must be a valid profile URL.", ErrorType.Validation)
+            ])));
+
+        AuthorizeAs(TestUserId);
+        Render<MudPopoverProvider>();
+        var cut = RenderProfile();
+
+        // Act
+        cut.FindAll("button").Single(b => b.TextContent.Contains("Save")).Click();
+        cut.WaitForAssertion(() =>
+            Assert.That(cut.FindAll(".mud-input-helper-text").Any(), Is.True));
+
+        // Assert
+        snackbarMock.Verify(s => s.Add(It.IsAny<string>(), It.IsAny<Severity>()), Times.Never);
+    }
+
+    [Test]
+    public void SaveButton_WhenSaveProfileReturnsNonValidationError_ShowsSnackbarAndNoFieldError()
+    {
+        // Arrange
+        const string errorMessage = "Something went wrong.";
+
+        var snackbarMock = new Mock<ISnackbar>();
+        Services.AddSingleton(snackbarMock.Object);
+
+        _userServiceMock
+            .Setup(s => s.SaveProfile(It.IsAny<ApplicationUser>()))
+            .ReturnsAsync(Result.Failure(new Error("User.Unexpected", errorMessage)));
+
+        AuthorizeAs(TestUserId);
+        Render<MudPopoverProvider>();
+        var cut = RenderProfile();
+
+        // Act
+        cut.FindAll("button").Single(b => b.TextContent.Contains("Save")).Click();
+
+        // Assert
+        cut.WaitForAssertion(() =>
+            snackbarMock.Verify(s => s.Add($"Error: {errorMessage}", Severity.Error), Times.Once));
+        Assert.That(cut.FindAll(".mud-input-helper-text").Any(), Is.False);
     }
 }

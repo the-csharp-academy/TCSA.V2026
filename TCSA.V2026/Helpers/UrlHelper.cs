@@ -39,4 +39,15 @@ public static class UrlHelper
             $@"^{escapedCommunityProjectRepositoryPullUrl}/\d+$",
             RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
     }
+
+    public static bool IsValidLinkedInProfileUrl(string? url)
+    {
+        if (string.IsNullOrWhiteSpace(url))
+            return false;
+
+        return Regex.IsMatch(
+            url,
+            @"^https://(www\.)?linkedin\.com/in/[a-z0-9_%-]{3,100}/?\z",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+    }
 }

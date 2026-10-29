@@ -3,6 +3,7 @@
 @using System.Security.Claims
 @using TCSA.V2026.Components.UI
 @using TCSA.V2026.Data.Models
+@using TCSA.V2026.Data.Models.Responses
 @using TCSA.V2026.Helpers
 @using TCSA.V2026.Services
 
@@ -33,7 +34,7 @@
                 <MudTextField @bind-Value="User.GithubUsername" Label="Github Username" Required="true" />
                 <MudTextField @bind-Value="User.CodeWarsUsername" Label="CodeWars Username" Required="true" />
                 <MudTextField @bind-Value="User.LeetCodeUsername" Label="LeetCode Username" Required="true" />
-                <MudTextField @bind-Value="User.LinkedInUrl" Label="Linkedin Url" Required="true" />
+                <MudTextField @bind-Value="User.LinkedInUrl" Label="Linkedin Url" Error="@(!string.IsNullOrEmpty(LinkedInUrlError))" ErrorText="@LinkedInUrlError" />
                 <MudSelect T="string" @bind-Value="User.Country" Label="Country" Required="true">
                     @foreach (var country in Countries)
                     {
@@ -74,6 +75,7 @@
     private bool IsLoggedIn = false;
     private bool _isProcessing = false;
     private string UserId;
+    private string? LinkedInUrlError;
 
     private bool ShowResumeChecklist =>
         User != null &&
@@ -104,6 +106,7 @@
     private async Task Save()
     {
         _isProcessing = true;
+        LinkedInUrlError = null;
 
         try
         {
@@ -114,6 +117,11 @@
                 SnackbarService.Add("Profile Updated Successfully", Severity.Success);
                 User = await UserService.GetUserProfileById(UserId);
                 await OnboardingState.NotifyChangedAsync();
+            }
+            else if (result.Reason is ValidationError validationError)
+            {
+                LinkedInUrlError = validationError.Errors
+                    .FirstOrDefault(e => e.Code == UserErrorCodes.InvalidLinkedInUrl)?.Description;
             }
             else
             {

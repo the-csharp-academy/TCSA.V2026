@@ -9,6 +9,11 @@ using TCSA.V2026.Helpers;
 
 namespace TCSA.V2026.Services;
 
+public static class UserErrorCodes
+{
+    public const string InvalidLinkedInUrl = "User.InvalidLinkedInUrl";
+}
+
 public interface IUserService
 {
     Task<ApplicationUser> GetUserById(string userId);
@@ -131,6 +136,14 @@ public class UserService : IUserService
 
     public async Task<Result> SaveProfile(ApplicationUser user)
     {
+        if (!string.IsNullOrWhiteSpace(user.LinkedInUrl) && !UrlHelper.IsValidLinkedInProfileUrl(user.LinkedInUrl))
+        {
+            return Result.ValidationFailure(ValidationError.FromErrors(
+            [
+                new Error(UserErrorCodes.InvalidLinkedInUrl, "LinkedIn URL must be a valid profile URL, such as https://www.linkedin.com/in/your-name.", ErrorType.Validation)
+            ]));
+        }
+
         try
         {
             using (var context = _factory.CreateDbContext())

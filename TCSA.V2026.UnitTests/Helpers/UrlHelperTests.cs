@@ -60,4 +60,32 @@ public class UrlHelperTests
         Assert.Throws<ArgumentException>(() =>
             UrlHelper.IsValidCommunityProjectPrUrl("https://github.com/any/repo/pull/1", (CommunityProject)9999));
     }
+
+    [TestCase("https://www.linkedin.com/in/some-user", true)]
+    [TestCase("https://linkedin.com/in/some-user", true)]
+    [TestCase("https://www.linkedin.com/in/some-user/", true)]
+    [TestCase("https://www.linkedin.com/in/abc", true)]
+    [TestCase("https://www.linkedin.com/in/user_name%2B1", true)]
+    [TestCase("HTTPS://WWW.LINKEDIN.COM/IN/SOME-USER", true)]
+    [TestCase("http://www.linkedin.com/in/some-user", false)]
+    [TestCase("www.linkedin.com/in/some-user", false)]
+    [TestCase("linkedin.com/in/some-user", false)]
+    [TestCase("https://uk.linkedin.com/in/some-user", false)]
+    [TestCase("https://www.linkedin.com/company/some-company", false)]
+    [TestCase("https://www.linkedin.com/in/", false)]
+    [TestCase("https://www.linkedin.com/in/ab", false)]
+    [TestCase("https://www.linkedin.com/in/some-user/extra", false)]
+    [TestCase("https://www.linkedin.com/in/some user", false)]
+    [TestCase("https://www.linkedin.com.evil.com/in/some-user", false)]
+    [TestCase("https://example.com/linkedin.com/in/some-user", false)]
+    [TestCase("not-a-url", false)]
+    [TestCase("", false)]
+    [TestCase("   ", false)]
+    [TestCase(null, false)]
+    public void IsValidLinkedInProfileUrl_ShouldReturnExpected(string? url, bool expected)
+    {
+        var result = UrlHelper.IsValidLinkedInProfileUrl(url);
+
+        Assert.That(result, Is.EqualTo(expected));
+    }
 }

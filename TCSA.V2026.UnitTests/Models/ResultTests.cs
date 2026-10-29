@@ -1,3 +1,4 @@
+using TCSA.V2026.Data.Enums;
 using TCSA.V2026.Data.Models.Responses;
 
 namespace TCSA.V2026.UnitTests.Models;
@@ -168,6 +169,57 @@ public class ResultTests
         {
             Assert.That(error, Is.EqualTo(new Error("A", "b")));
             Assert.That((Reason)error, Is.Not.EqualTo(new Success("A", "b")));
+        });
+    }
+
+    [Test]
+    public void Error_WithoutType_ShouldDefaultToFailure()
+    {
+        var error = new Error("A", "b");
+
+        Assert.That(error.Type, Is.EqualTo(ErrorType.Failure));
+    }
+
+    [Test]
+    public void ValidationError_ShouldExposeErrorsAndValidationType()
+    {
+        var fieldError = new Error("User.InvalidLinkedInUrl", "Invalid.", ErrorType.Validation);
+
+        var validationError = ValidationError.FromErrors([fieldError]);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(validationError.Code, Is.EqualTo("Validation.General"));
+            Assert.That(validationError.Type, Is.EqualTo(ErrorType.Validation));
+            Assert.That(validationError.Errors, Is.EqualTo(new[] { fieldError }));
+        });
+    }
+
+    [Test]
+    public void ValidationFailure_ShouldBeFailureWithValidationError()
+    {
+        var fieldError = new Error("User.InvalidLinkedInUrl", "Invalid.", ErrorType.Validation);
+
+        var result = Result.ValidationFailure(ValidationError.FromErrors([fieldError]));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.IsFailure, Is.True);
+            Assert.That(result.Reason, Is.InstanceOf<ValidationError>());
+            Assert.That(((ValidationError)result.Reason).Errors, Is.EqualTo(new[] { fieldError }));
+        });
+    }
+
+    [Test]
+    public void ValidationFailureOfT_ShouldBeFailureAndThrowWhenValueIsAccessed()
+    {
+        var result = Result.ValidationFailure<int>(ValidationError.FromErrors([]));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.IsFailure, Is.True);
+            Assert.That(result.Reason, Is.InstanceOf<ValidationError>());
+            Assert.Throws<InvalidOperationException>(() => _ = result.Value);
         });
     }
 }

@@ -33,6 +33,9 @@ public class Result
 
     public static Result Failure(Error error) => new(error);
     public static Result<TValue> Failure<TValue>(Error error) => new(default, error);
+
+    public static Result ValidationFailure(ValidationError error) => new(error);
+    public static Result<TValue> ValidationFailure<TValue>(ValidationError error) => new(default, error);
 }
 
 public class Result<TValue> : Result
