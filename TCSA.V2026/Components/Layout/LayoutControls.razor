@@ -70,12 +70,13 @@
             </AfterItemsTemplate>
         </MudAutocomplete>
         <MudSpacer />
+        <FeedbackWidget />
         <MudSwitch UserAttributes="@(new Dictionary<string, object> { ["id"] = "theme-toggle" })"
                    ThumbIcon="@Icons.Material.Outlined.ModeNight"
                    ValueChanged="ToggleTheme"
                    Value="@ThemeService.IsDarkMode"
                    Color="Color.Primary"
-                   Class="ma-4"
+                   Class="ma-0 ma-sm-4"
                    T="bool"
                    Label="Toggle Light/Dark Mode" />
     </MudAppBar>

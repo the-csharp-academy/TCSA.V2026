@@ -1,0 +1,289 @@
+@using TCSA.V2026.Data.DTOs
+@using TCSA.V2026.Data.Enums
+@using TCSA.V2026.Helpers
+@using TCSA.V2026.Helpers.Constants
+@using TCSA.V2026.Services
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.Feedback" Class="mr-3 mb-n1" />
+            Send feedback
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        @if (_step == Step.Category)
+        {
+            <MudText Typo="Typo.subtitle1" Class="mb-3">What would you like to share?</MudText>
+            <MudGrid Spacing="2">
+                @foreach (var option in CategoryOptions)
+                {
+                    <MudItem xs="12" sm="6">
+                        <button type="button" class="feedback-card" @onclick="() => ChooseCategory(option.Category)">
+                            <MudAvatar Variant="Variant.Outlined" Color="@option.Color" Size="Size.Medium">
+                                <MudIcon Icon="@option.Icon" />
+                            </MudAvatar>
+                            <span class="feedback-card-text">
+                                <span class="feedback-card-title">@option.Title</span>
+                                <span class="feedback-card-hint">@option.Hint</span>
+                            </span>
+                        </button>
+                    </MudItem>
+                }
+            </MudGrid>
+        }
+        else if (_step == Step.Details)
+        {
+            var selected = Selected;
+            <MudStack Row AlignItems="AlignItems.Center" Class="mb-3">
+                <MudAvatar Variant="Variant.Outlined" Color="@selected.Color" Size="Size.Small">
+                    <MudIcon Icon="@selected.Icon" Size="Size.Small" />
+                </MudAvatar>
+                <MudText Typo="Typo.subtitle1"><b>@selected.Title</b></MudText>
+                <MudSpacer />
+                <MudButton Variant="Variant.Text" Size="Size.Small" OnClick="ChangeCategory">Change</MudButton>
+            </MudStack>
+
+            <MudTextField T="string"
+                          @bind-Value="_description"
+                          Label="Description"
+                          Variant="Variant.Outlined"
+                          Lines="5"
+                          AutoGrow="false"
+                          Immediate="true"
+                          MaxLength="@FeedbackLimits.DescriptionMaxLength"
+                          Counter="@FeedbackLimits.DescriptionMaxLength"
+                          Error="@(_showValidation && !DescriptionIsValid)"
+                          Class="mb-3" />
+            @if (_showValidation && !DescriptionIsValid)
+            {
+                <MudText Typo="Typo.caption" Color="Color.Error" Class="mt-n2 mb-3 px-2">
+                    Please write at least @FeedbackLimits.DescriptionMinLength characters.
+                </MudText>
+            }
+
+            @if (_category == FeedbackCategory.Bug)
+            {
+                <MudGrid Spacing="2">
+                    <MudItem xs="12" sm="6">
+                        <MudSelect T="FeedbackArea"
+                                   @bind-Value="_area"
+                                   Label="Area"
+                                   Variant="Variant.Outlined"
+                                   Dense="true">
+                            @foreach (var area in Enum.GetValues<FeedbackArea>())
+                            {
+                                <MudSelectItem T="FeedbackArea" Value="@area">@AreaLabel(area)</MudSelectItem>
+                            }
+                        </MudSelect>
+                    </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <MudTextField T="string"
+                                      @bind-Value="_page"
+                                      Label="Page"
+                                      Variant="Variant.Outlined"
+                                      Immediate="true"
+                                      Margin="Margin.Dense"
+                                      MaxLength="@FeedbackLimits.PageMaxLength"
+                                      Error="@(_showValidation && !PageIsValid)"
+                                      ErrorText="Please tell us which page the bug is on." />
+                    </MudItem>
+                </MudGrid>
+                <MudText Typo="Typo.caption" Class="mud-text-secondary">
+                    Prefilled from where you opened this. Change them if the problem is somewhere else.
+                </MudText>
+            }
+
+            @if (_error is not null)
+            {
+                <MudAlert Severity="@(_errorIsRateLimit ? Severity.Warning : Severity.Error)" Dense="true" Class="mt-3">@_error</MudAlert>
+            }
+
+            <MudText Typo="Typo.caption" Class="mud-text-secondary d-block mt-3">
+                Sent with your account and the page you were on.
+            </MudText>
+        }
+        else
+        {
+            <MudStack AlignItems="AlignItems.Center" Class="py-4">
+                <MudAvatar Color="Color.Success" Size="Size.Large">
+                    <MudIcon Icon="@Icons.Material.Filled.Check" />
+                </MudAvatar>
+                <MudText Typo="Typo.h6">Thanks for your feedback!</MudText>
+                <MudText Typo="Typo.body2" Class="mud-text-secondary">@ThankYouLine</MudText>
+            </MudStack>
+        }
+    </DialogContent>
+    <DialogActions>
+        @if (_step == Step.Details)
+        {
+            <MudButton OnClick="ChangeCategory">Back</MudButton>
+            <MudButton Color="Color.Primary" Variant="Variant.Filled" Disabled="@_isSubmitting" OnClick="Send">Send</MudButton>
+        }
+        else if (_step == Step.Sent)
+        {
+            <MudButton OnClick="SendAnother">Send another</MudButton>
+            <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Done">Done</MudButton>
+        }
+    </DialogActions>
+</MudDialog>
+
+<style>
+    .feedback-card {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        width: 100%;
+        height: 100%;
+        padding: 12px;
+        text-align: left;
+        cursor: pointer;
+        color: inherit;
+        background: transparent;
+        border: 1px solid var(--mud-palette-lines-default);
+        border-radius: 14px;
+        transition: transform 120ms ease, background-color 120ms ease, border-color 120ms ease;
+    }
+
+    .feedback-card:hover {
+        transform: translateY(-2px);
+        background-color: var(--mud-palette-action-default-hover);
+        border-color: var(--mud-palette-primary);
+    }
+
+    .feedback-card:focus-visible {
+        outline: 2px solid var(--mud-palette-primary);
+        outline-offset: 2px;
+    }
+
+    .feedback-card-text {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .feedback-card-title {
+        font-weight: 600;
+    }
+
+    .feedback-card-hint {
+        font-size: 0.8rem;
+        opacity: 0.75;
+    }
+</style>
+
+@code {
+    [Inject] private IFeedbackService FeedbackService { get; set; } = null!;
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = null!;
+
+    [Parameter] public string UserId { get; set; } = string.Empty;
+
+    [Parameter] public string OriginUrl { get; set; } = string.Empty;
+
+    private enum Step { Category, Details, Sent }
+
+    private sealed record CategoryOption(FeedbackCategory Category, string Title, string Hint, string Icon, Color Color);
+
+    private static readonly CategoryOption[] CategoryOptions =
+    [
+        new(FeedbackCategory.Bug, "Report a bug", "Something isn't working", Icons.Material.Filled.BugReport, Color.Error),
+        new(FeedbackCategory.Idea, "Share an idea", "Suggest an improvement", Icons.Material.Filled.Lightbulb, Color.Warning),
+        new(FeedbackCategory.Help, "I'm confused", "Something is hard to find or understand", Icons.Material.Filled.HelpOutline, Color.Info),
+        new(FeedbackCategory.Compliment, "Say thanks", "Tell us what's working", Icons.Material.Filled.Favorite, Color.Success),
+    ];
+
+    private Step _step = Step.Category;
+    private FeedbackCategory _category;
+    private string _description = string.Empty;
+    private FeedbackArea _area = FeedbackArea.Other;
+    private string _page = string.Empty;
+    private string? _error;
+    private bool _errorIsRateLimit;
+    private bool _showValidation;
+    private bool _isSubmitting;
+
+    private CategoryOption Selected => CategoryOptions.Single(o => o.Category == _category);
+
+    private bool DescriptionIsValid => (_description?.Trim().Length ?? 0) >= FeedbackLimits.DescriptionMinLength;
+
+    private bool PageIsValid => !string.IsNullOrWhiteSpace(_page);
+
+    private string ThankYouLine => _category is FeedbackCategory.Bug or FeedbackCategory.Idea
+        ? "It's in the team's review queue."
+        : "The team reads every message.";
+
+    protected override void OnInitialized()
+    {
+        _area = FeedbackAreaHelper.FromPath(OriginUrl);
+        _page = FeedbackPageHelper.Normalize(OriginUrl);
+    }
+
+    private void ChooseCategory(FeedbackCategory category)
+    {
+        _category = category;
+        _error = null;
+        _showValidation = false;
+        _step = Step.Details;
+    }
+
+    private void ChangeCategory()
+    {
+        _error = null;
+        _step = Step.Category;
+    }
+
+    private void SendAnother()
+    {
+        _description = string.Empty;
+        _error = null;
+        _showValidation = false;
+        _step = Step.Category;
+    }
+
+    private void Done() => MudDialog.Close(DialogResult.Ok(true));
+
+    private async Task Send()
+    {
+        _showValidation = true;
+        _error = null;
+
+        if (!DescriptionIsValid || (_category == FeedbackCategory.Bug && !PageIsValid))
+        {
+            return;
+        }
+
+        _isSubmitting = true;
+
+        try
+        {
+            var submission = new FeedbackSubmissionDto
+            {
+                Category = _category,
+                Description = _description,
+                OriginUrl = OriginUrl,
+                Area = _category == FeedbackCategory.Bug ? _area : null,
+                Page = _category == FeedbackCategory.Bug ? _page : null
+            };
+
+            var result = await FeedbackService.Submit(UserId, submission);
+
+            if (result.IsFailure)
+            {
+                _error = result.Message;
+                _errorIsRateLimit = result.Reason.Code == FeedbackErrorCodes.RateLimited;
+                return;
+            }
+
+            _step = Step.Sent;
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
+    }
+
+    private static string AreaLabel(FeedbackArea area) => area switch
+    {
+        FeedbackArea.CoursesArticles => "Courses/Articles",
+        FeedbackArea.PeerReviews => "Peer Reviews",
+        _ => area.ToString()
+    };
+}

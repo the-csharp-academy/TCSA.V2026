@@ -22,6 +22,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public virtual DbSet<WebhookDebugLog> WebhookDebugLog { get; set; }
     public virtual DbSet<Comments> Comments { get; set; }
     public virtual DbSet<Badge> Badges { get; set; }
+    public virtual DbSet<FeedbackItem> FeedbackItems { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -113,5 +114,11 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
         modelBuilder.Entity<Comments>()
             .HasIndex(c => new { c.ArticleId, c.IsReviewed, c.Date });
+
+        modelBuilder.Entity<FeedbackItem>()
+            .HasOne(f => f.AppUser)
+            .WithMany()
+            .HasForeignKey(f => f.AppUserId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }
