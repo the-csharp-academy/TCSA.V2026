@@ -17,7 +17,7 @@
 
         </MudSelect>
         <MudSelect T="CommunityProject" Label="Select Open Source Project" @bind-Value="CommunityProject" Class="my-2" Dense="true" Required>
-            @foreach (CommunityProject project in Enum.GetValues(typeof(CommunityProject)))
+            @foreach (CommunityProject project in Enum.GetValues<CommunityProject>().Where(c => c is not (CommunityProject.AcademyV2 or CommunityProject.PointOfSale)))
             {
                 <MudSelectItem T="CommunityProject" Value="@project">@project</MudSelectItem>
             }

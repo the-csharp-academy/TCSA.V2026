@@ -465,6 +465,7 @@ public class UserService : IUserService
                     i => i.ProjectId,
                     (dp, i) => new { dp, i }
                 )
+                .Where(x => x.i.CommunityProjectId != (int)CommunityProject.AcademyV2)
                 .OrderByDescending(x => x.dp.DateCompleted)
                 .ThenBy(x => x.i.Id)
                 .Select(x => new PublicProfilePullRequestDetailsResponse
