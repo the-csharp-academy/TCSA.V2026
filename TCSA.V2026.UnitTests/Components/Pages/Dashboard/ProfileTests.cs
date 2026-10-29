@@ -7,6 +7,7 @@ using MudBlazor.Services;
 using System.Security.Claims;
 using TCSA.V2026.Components.Pages.Dashboard;
 using TCSA.V2026.Components.UI;
+using TCSA.V2026.Data.DTOs;
 using TCSA.V2026.Data.Enums;
 using TCSA.V2026.Data.Helpers;
 using TCSA.V2026.Data.Models;
@@ -22,6 +23,7 @@ public class ProfileTests : BunitContext
     private readonly Mock<IProjectService> _projectServiceMock = new();
     private readonly Mock<IUserService> _userServiceMock = new();
     private readonly Mock<IBadgeService> _badgeServiceMock = new();
+    private readonly Mock<ISurveyService> _surveyServiceMock = new();
 
     private const string TestUserId = "test-user-id";
 
@@ -56,9 +58,15 @@ public class ProfileTests : BunitContext
         Services.AddSingleton(_badgeServiceMock.Object);
         Services.AddSingleton(_projectServiceMock.Object);
         Services.AddSingleton(_userServiceMock.Object);
+        Services.AddSingleton(_surveyServiceMock.Object);
         Services.AddSingleton(new HttpClient());
         Services.AddScoped<OnboardingStateService>();
+        Services.AddScoped<SurveyBadgeState>();
         Services.AddMudServices();
+
+        _surveyServiceMock
+            .Setup(s => s.GetAvailableSurveys(It.IsAny<string>()))
+            .ReturnsAsync([]);
     }
 
     private void AuthorizeAs(string userId)
@@ -84,6 +92,52 @@ public class ProfileTests : BunitContext
             .ReturnsAsync(_onboardingUser);
 
         return Render<Profile>();
+    }
+
+    [Test]
+    public void SurveysCard_ShowsTheEmptyState_WhenNoSurveysAreAvailable()
+    {
+        AuthorizeAs(TestUserId);
+        Render<MudPopoverProvider>();
+
+        var cut = RenderProfile();
+
+        Assert.That(cut.Markup, Does.Contain("No surveys right now"));
+    }
+
+    [Test]
+    public void SurveysCard_ListsEachAvailableSurvey_AboveTheProfileForm()
+    {
+        _surveyServiceMock
+            .Setup(s => s.GetAvailableSurveys(TestUserId))
+            .ReturnsAsync(
+            [
+                new AvailableSurveyDto
+                {
+                    Id = 1,
+                    Title = "Course feedback",
+                    Description = "Tell us how it went",
+                    Questions =
+                    [
+                        new() { Id = 1, Text = "Clear?", Type = SurveyQuestionType.YesNo, IsRequired = true },
+                        new() { Id = 2, Text = "More?", Type = SurveyQuestionType.FreeText }
+                    ]
+                }
+            ]);
+        AuthorizeAs(TestUserId);
+        Render<MudPopoverProvider>();
+
+        var cut = RenderProfile();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(cut.Markup, Does.Contain("Course feedback"));
+            Assert.That(cut.Markup, Does.Contain("Tell us how it went"));
+            Assert.That(cut.Markup, Does.Contain("2 questions"));
+            Assert.That(cut.Markup, Does.Not.Contain("No surveys right now"));
+            Assert.That(cut.FindAll("button").Any(b => b.TextContent.Trim() == "Start"), Is.True);
+            Assert.That(cut.Markup.IndexOf("Course feedback"), Is.LessThan(cut.Markup.IndexOf("Edit User Profile")));
+        }
     }
 
     [Test]

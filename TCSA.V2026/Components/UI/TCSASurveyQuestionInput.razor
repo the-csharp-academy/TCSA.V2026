@@ -1,0 +1,101 @@
+@using TCSA.V2026.Data.DTOs
+@using TCSA.V2026.Data.Enums
+@using TCSA.V2026.Helpers.Constants
+
+<div>
+    @switch (Question.Type)
+    {
+        case SurveyQuestionType.Rating:
+            <MudRating SelectedValue="@(Answer.NumericValue ?? 0)"
+                       SelectedValueChanged="SetNumber"
+                       MaxValue="@SurveyLimits.MaxRating"
+                       Size="Size.Large" />
+            break;
+
+        case SurveyQuestionType.YesNo:
+            <MudStack Row Spacing="2">
+                <MudButton Variant="@(Answer.NumericValue == 1 ? Variant.Filled : Variant.Outlined)"
+                           Color="Color.Primary"
+                           OnClick="() => SetNumber(1)">Yes</MudButton>
+                <MudButton Variant="@(Answer.NumericValue == 0 ? Variant.Filled : Variant.Outlined)"
+                           Color="Color.Primary"
+                           OnClick="() => SetNumber(0)">No</MudButton>
+            </MudStack>
+            break;
+
+        case SurveyQuestionType.SingleChoice:
+            <MudRadioGroup T="int" Value="@(Answer.OptionIds.FirstOrDefault())" ValueChanged="SelectOption">
+                @foreach (var option in Question.Options)
+                {
+                    <MudRadio T="int" Value="@option.Id" Color="Color.Primary">@option.Text</MudRadio>
+                }
+            </MudRadioGroup>
+            break;
+
+        case SurveyQuestionType.MultipleChoice:
+            <MudStack Spacing="0">
+                @foreach (var option in Question.Options)
+                {
+                    var optionId = option.Id;
+                    <MudCheckBox T="bool"
+                                 Value="@Answer.OptionIds.Contains(optionId)"
+                                 ValueChanged="@((bool selected) => ToggleOption(optionId, selected))"
+                                 Label="@option.Text"
+                                 Color="Color.Primary" />
+                }
+            </MudStack>
+            break;
+
+        case SurveyQuestionType.FreeText:
+            <MudTextField T="string"
+                          Value="@Answer.TextValue"
+                          ValueChanged="SetText"
+                          Lines="4"
+                          MaxLength="@SurveyLimits.FreeTextAnswerMaxLength"
+                          Counter="@SurveyLimits.FreeTextAnswerMaxLength"
+                          Immediate="true"
+                          Variant="Variant.Outlined"
+                          Placeholder="Type your answer..." />
+            break;
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public SurveyDialogState State { get; set; } = default!;
+    [Parameter, EditorRequired] public SurveyQuestionDto Question { get; set; } = default!;
+    [Parameter] public EventCallback OnChanged { get; set; }
+
+    private SurveyAnswerDto Answer => State.AnswerOrBlank(Question.Id);
+
+    private Task SetNumber(int value)
+    {
+        if (Question.Type == SurveyQuestionType.Rating && value == 0)
+        {
+            State.ClearNumber(Question.Id);
+        }
+        else
+        {
+            State.SetNumber(Question.Id, value);
+        }
+
+        return OnChanged.InvokeAsync();
+    }
+
+    private Task SelectOption(int optionId)
+    {
+        State.SelectOption(Question.Id, optionId);
+        return OnChanged.InvokeAsync();
+    }
+
+    private Task ToggleOption(int optionId, bool selected)
+    {
+        State.ToggleOption(Question.Id, optionId, selected);
+        return OnChanged.InvokeAsync();
+    }
+
+    private Task SetText(string? value)
+    {
+        State.SetText(Question.Id, value);
+        return OnChanged.InvokeAsync();
+    }
+}

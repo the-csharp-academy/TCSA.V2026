@@ -362,6 +362,32 @@ public class SurveyAdminServiceTests : IntegrationTestsBase
     }
 
     [Test]
+    public async Task GetSurveys_CountsEachSurveysResponsesSeparately()
+    {
+        var busy = await Create();
+        var quiet = await Create();
+        var empty = await Create();
+        using (var context = DbContextFactory.CreateDbContext())
+        {
+            context.SurveyResponses.AddRange(
+                new SurveyResponse { SurveyId = busy, AppUserId = "user1", SubmittedAt = DateTimeOffset.UtcNow },
+                new SurveyResponse { SurveyId = busy, AppUserId = "user2", SubmittedAt = DateTimeOffset.UtcNow },
+                new SurveyResponse { SurveyId = quiet, AppUserId = "user1", SubmittedAt = DateTimeOffset.UtcNow });
+            context.SurveyRefusals.Add(new SurveyRefusal { SurveyId = empty, AppUserId = "user1", RefusedAt = DateTimeOffset.UtcNow });
+            await context.SaveChangesAsync();
+        }
+
+        var counts = (await _service.GetSurveys()).ToDictionary(s => s.Id, s => s.ResponseCount);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(counts[busy], Is.EqualTo(2));
+            Assert.That(counts[quiet], Is.EqualTo(1));
+            Assert.That(counts[empty], Is.Zero);
+        }
+    }
+
+    [Test]
     public async Task ActivateSurvey_MovesDraftToActive()
     {
         var id = await Create();

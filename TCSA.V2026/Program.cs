@@ -102,6 +102,8 @@ builder.Services.AddScoped<IFeedService, FeedService>();
 builder.Services.AddScoped<IFeedbackService, FeedbackService>();
 builder.Services.AddScoped<IFeedbackAdminService, FeedbackAdminService>();
 builder.Services.AddScoped<ISurveyAdminService, SurveyAdminService>();
+builder.Services.AddScoped<ISurveyService, SurveyService>();
+builder.Services.AddScoped<SurveyBadgeState>();
 builder.Services.AddScoped<IAccountabilityBuddyService, AccountabilityBuddyService>();
 builder.Services.AddScoped<IDonateService, DonateService>();
 builder.Services.AddSingleton<ISearchService>(_ =>

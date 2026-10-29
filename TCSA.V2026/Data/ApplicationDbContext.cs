@@ -27,6 +27,10 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public virtual DbSet<Survey> Surveys { get; set; }
     public virtual DbSet<SurveyQuestion> SurveyQuestions { get; set; }
     public virtual DbSet<SurveyOption> SurveyOptions { get; set; }
+    public virtual DbSet<SurveyResponse> SurveyResponses { get; set; }
+    public virtual DbSet<SurveyAnswer> SurveyAnswers { get; set; }
+    public virtual DbSet<SurveyAnswerOption> SurveyAnswerOptions { get; set; }
+    public virtual DbSet<SurveyRefusal> SurveyRefusals { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -174,5 +178,71 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         modelBuilder.Entity<SurveyOption>()
             .HasIndex(o => new { o.SurveyQuestionId, o.Order })
             .IsUnique();
+
+        modelBuilder.Entity<SurveyResponse>(response =>
+        {
+            response.HasIndex(r => new { r.SurveyId, r.AppUserId }).IsUnique();
+
+            response.HasOne(r => r.Survey)
+                .WithMany()
+                .HasForeignKey(r => r.SurveyId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            response.HasOne(r => r.AppUser)
+                .WithMany()
+                .HasForeignKey(r => r.AppUserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            response.HasMany(r => r.Answers)
+                .WithOne(a => a.Response)
+                .HasForeignKey(a => a.SurveyResponseId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<SurveyAnswer>(answer =>
+        {
+            answer.HasDiscriminator(a => a.Type)
+                .HasValue<RatingAnswer>(SurveyQuestionType.Rating)
+                .HasValue<SingleChoiceAnswer>(SurveyQuestionType.SingleChoice)
+                .HasValue<MultipleChoiceAnswer>(SurveyQuestionType.MultipleChoice)
+                .HasValue<FreeTextAnswer>(SurveyQuestionType.FreeText)
+                .HasValue<YesNoAnswer>(SurveyQuestionType.YesNo);
+
+            answer.Property(a => a.Type)
+                .HasConversion<string>()
+                .HasMaxLength(30);
+
+            answer.HasOne(a => a.Question)
+                .WithMany()
+                .HasForeignKey(a => a.SurveyQuestionId)
+                .OnDelete(DeleteBehavior.NoAction);
+        });
+
+        modelBuilder.Entity<ChoiceAnswer>()
+            .HasMany(a => a.SelectedOptions)
+            .WithOne(o => o.Answer)
+            .HasForeignKey(o => o.SurveyAnswerId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<SurveyAnswerOption>()
+            .HasOne(o => o.Option)
+            .WithMany()
+            .HasForeignKey(o => o.SurveyOptionId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        modelBuilder.Entity<SurveyRefusal>(refusal =>
+        {
+            refusal.HasIndex(r => new { r.SurveyId, r.AppUserId }).IsUnique();
+
+            refusal.HasOne(r => r.Survey)
+                .WithMany()
+                .HasForeignKey(r => r.SurveyId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            refusal.HasOne(r => r.AppUser)
+                .WithMany()
+                .HasForeignKey(r => r.AppUserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
     }
 }
