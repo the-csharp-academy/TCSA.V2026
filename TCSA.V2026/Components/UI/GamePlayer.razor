@@ -1,15 +1,23 @@
 @using TCSA.V2026.Helpers
+@using TCSA.V2026.Services
 @implements IAsyncDisposable
 @inject IJSRuntime JS
+@inject IGameScoreService GameScoreService
 
     <MudText Typo="Typo.h3" HtmlTag="h1" Class="mb-2">@Game.Title</MudText>
     <MudText Typo="Typo.body1" Class="mb-6">@Game.Description</MudText>
 
+    <GameLeaderboard GameId="@Game.Slug" ScoreVersion="scoreVersion" />
+
     @if (receivedScore.HasValue)
     {
-        <MudAlert Severity="Severity.Info" Class="mb-4" role="status">
-            Round score received: @receivedScore.Value. This score has not been saved yet.
+        <MudAlert Severity="scoreStatusSeverity" Class="mb-4" role="status">
+            @scoreStatus
         </MudAlert>
+        @if (saveFailed)
+        {
+            <MudButton OnClick="RetrySave" Color="Color.Primary" Class="mb-4">Retry saving score</MudButton>
+        }
     }
 
     <MudPaper Class="pa-4" Outlined="true">
@@ -37,6 +45,11 @@
     private IJSObjectReference? scoreReceiver;
     private DotNetObjectReference<GamePlayer>? componentReference;
     private int? receivedScore;
+    private string scoreStatus = string.Empty;
+    private Severity scoreStatusSeverity = Severity.Info;
+    private bool saveFailed;
+    private int scoreVersion;
+    private readonly SemaphoreSlim saveLock = new(1, 1);
     private bool disposed;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -60,8 +73,52 @@
             return;
         }
 
-        receivedScore = score;
-        await InvokeAsync(StateHasChanged);
+        await saveLock.WaitAsync();
+
+        try
+        {
+            if (disposed)
+            {
+                return;
+            }
+
+            receivedScore = score;
+            saveFailed = false;
+            scoreStatusSeverity = Severity.Info;
+            scoreStatus = $"Saving round score: {score}…";
+            await InvokeAsync(StateHasChanged);
+
+            var result = await GameScoreService.SaveBestScore(Game.Slug, score);
+
+            if (disposed)
+            {
+                return;
+            }
+
+            saveFailed = result.IsFailure;
+            if (result.IsSuccess)
+            {
+                scoreVersion++;
+            }
+
+            scoreStatusSeverity = result.IsSuccess ? Severity.Success : Severity.Error;
+            scoreStatus = result.IsSuccess
+                ? $"Round score: {score}. Your personal best: {result.Value}."
+                : result.Message;
+            await InvokeAsync(StateHasChanged);
+        }
+        finally
+        {
+            saveLock.Release();
+        }
+    }
+
+    private async Task RetrySave()
+    {
+        if (receivedScore.HasValue)
+        {
+            await ReceiveScore(Game.Slug, receivedScore.Value);
+        }
     }
 
     public async ValueTask DisposeAsync()

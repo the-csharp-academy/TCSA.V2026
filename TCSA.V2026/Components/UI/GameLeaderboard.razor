@@ -1,0 +1,135 @@
+@using System.Security.Claims
+@using TCSA.V2026.Data.DTOs
+@using TCSA.V2026.Data.Models.Responses
+@using TCSA.V2026.Helpers
+@using TCSA.V2026.Services
+@inject IGameScoreService GameScoreService
+@inject AuthenticationStateProvider AuthenticationState
+
+<MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mb-4"
+           StartIcon="@Icons.Material.Filled.Leaderboard" OnClick="ToggleLeaderboard">
+    @(visible ? "Hide leaderboard" : "Show leaderboard")
+</MudButton>
+
+@if (visible)
+{
+    <section class="mb-6" aria-label="Game leaderboard">
+        <MudText Typo="Typo.h5" HtmlTag="h2" Class="mb-3">Leaderboard</MudText>
+        @if (loading)
+        {
+            <MudProgressCircular Indeterminate="true" Color="Color.Primary" aria-label="Loading leaderboard" />
+        }
+        else if (error is not null)
+        {
+            <MudAlert Severity="Severity.Error">@error</MudAlert>
+            <MudButton OnClick="@(() => LoadPage(currentPage))">Retry</MudButton>
+        }
+        else if (leaderboard is null || leaderboard.TotalItems == 0)
+        {
+            <MudText>No scores yet. Finish a round to join the leaderboard.</MudText>
+        }
+        else
+        {
+            @if (leaderboard.TotalPages > 1)
+            {
+                <MudPagination Count="leaderboard.TotalPages" Selected="currentPage" SelectedChanged="LoadPage" />
+            }
+            <MudDataGrid T="GameLeaderboardEntry" Class="mt-2" Dense="true" Items="leaderboard.Items" Breakpoint="Breakpoint.None">
+                <Columns>
+                    <TemplateColumn T="GameLeaderboardEntry" Title="Pos" Sortable="false" HeaderStyle="font-weight:bold" HeaderClass="pa-2 pa-md-3" CellClassFunc="CellClass">
+                        <CellTemplate>
+                            <MudText Style="font-weight:bold" Typo="Typo.subtitle1">@context.Item.Ranking</MudText>
+                        </CellTemplate>
+                    </TemplateColumn>
+                    <TemplateColumn T="GameLeaderboardEntry" Title="Score" Sortable="false" HeaderStyle="font-weight:bold" HeaderClass="pa-2 pa-md-3" CellClassFunc="CellClass">
+                        <CellTemplate>
+                            <MudText Style="font-weight:bold" Typo="Typo.subtitle2">@context.Item.Score</MudText>
+                        </CellTemplate>
+                    </TemplateColumn>
+                    <TemplateColumn T="GameLeaderboardEntry" Title="Name" Sortable="false" HeaderStyle="font-weight:bold" HeaderClass="pa-2 pa-md-3" CellClassFunc="CellClass">
+                        <CellTemplate>
+                            <MudLink Href="@($"/profile/{context.Item.UserId}")" Style="font-weight:bold" Typo="Typo.subtitle1" Color="Color.Inherit">@context.Item.DisplayName</MudLink>
+                            <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center">
+                                <MudImage ObjectFit="ObjectFit.Contain" Width="20" Src="@($"img/belts/{context.Item.Level}-belt.png")" Alt="@($"{context.Item.Level} belt")" />
+                                <MudText Typo="Typo.subtitle2">@context.Item.Level Belt</MudText>
+                            </MudStack>
+                        </CellTemplate>
+                    </TemplateColumn>
+                    <TemplateColumn T="GameLeaderboardEntry" Title="Country" Sortable="false" HeaderStyle="font-weight:bold" HeaderClass="pa-2 pa-md-3" CellClassFunc="CellClass">
+                        <CellTemplate>
+                            <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center">
+                                <MudImage ObjectFit="ObjectFit.Contain" Width="30" Src="@FlagHelper.GetFlag(context.Item.Country)" Alt="@context.Item.Country" />
+                                <MudText Class="d-none d-sm-inline" Style="font-weight:bold" Typo="Typo.subtitle1">@context.Item.Country</MudText>
+                            </MudStack>
+                        </CellTemplate>
+                    </TemplateColumn>
+                </Columns>
+            </MudDataGrid>
+        }
+    </section>
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public string GameId { get; set; } = string.Empty;
+
+    [Parameter]
+    public int ScoreVersion { get; set; }
+
+    private PaginatedList<GameLeaderboardEntry>? leaderboard;
+    private string? userId;
+    private string? error;
+    private bool visible;
+    private bool loading;
+    private int currentPage = 1;
+    private int loadedVersion;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authentication = await AuthenticationState.GetAuthenticationStateAsync();
+        userId = authentication.User.FindFirstValue(ClaimTypes.NameIdentifier);
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (visible && loadedVersion != ScoreVersion)
+        {
+            await LoadPage(currentPage);
+        }
+    }
+
+    private async Task ToggleLeaderboard()
+    {
+        visible = !visible;
+
+        if (visible)
+        {
+            await LoadPage(currentPage);
+        }
+    }
+
+    private async Task LoadPage(int page)
+    {
+        loading = true;
+        error = null;
+        loadedVersion = ScoreVersion;
+        var result = await GameScoreService.GetLeaderboard(GameId, page);
+
+        if (result.IsSuccess)
+        {
+            leaderboard = result.Value;
+            currentPage = leaderboard.PageNumber;
+        }
+        else
+        {
+            error = result.Message;
+        }
+
+        loading = false;
+    }
+
+    private string CellClass(GameLeaderboardEntry player)
+    {
+        return player.UserId == userId ? "pa-2 pa-md-3 mud-theme-primary" : "pa-2 pa-md-3";
+    }
+}
