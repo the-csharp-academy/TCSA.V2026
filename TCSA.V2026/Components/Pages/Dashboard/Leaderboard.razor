@@ -16,15 +16,18 @@
         <DashboardToolBar User=@User></DashboardToolBar>
     }
     <h1 class="visually-hidden">@(IsReviews ? "Reviews Leaderboard" : "All Time Leaderboard")</h1>
-    <MudButton FullWidth="true" Variant="Variant.Filled" Color="Color.Primary" Class="mb-4" OnClick="FilterReviews">
-        Click to see @(IsReviews ? "All Time" : "Reviews") Leaderboard
-    </MudButton>
-
-    @if (Ranking > PagingConstants.LeaderboardPageSize && !IsReviews) {
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="() => LoadPagination(((Ranking - 1) / PagingConstants.LeaderboardPageSize) + 1)">
-            Click to See Your Ranking
+    <div class="leaderboard-actions">
+        <MudButton FullWidth="true" Variant="Variant.Filled" Color="Color.Primary" Class="mb-4" OnClick="FilterReviews">
+            Click to see @(IsReviews ? "All Time" : "Reviews") Leaderboard
         </MudButton>
-    }
+
+        @if (Ranking > PagingConstants.LeaderboardPageSize && !IsReviews)
+        {
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="() => LoadPagination(((Ranking - 1) / PagingConstants.LeaderboardPageSize) + 1)">
+                Click to See Your Ranking
+            </MudButton>
+        }
+    </div>
 
     @if (IsLoading)
     {
@@ -121,6 +124,24 @@
         }
     }
 </MudContainer>
+
+<style>
+    @@media (max-width: 600px) {
+        .leaderboard-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 16px;
+            margin-bottom: 16px;
+        }
+
+        .leaderboard-actions .mud-button-root {
+            width: 100%;
+            min-height: 36px;
+            margin: 0 !important;
+        }
+    }
+</style>
 
 @code {
     [Inject] private AuthenticationStateProvider AuthenticationState { get; set; }

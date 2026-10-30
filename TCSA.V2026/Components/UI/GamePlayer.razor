@@ -1,5 +1,6 @@
 @using TCSA.V2026.Helpers
 @using TCSA.V2026.Services
+@using TCSA.V2026.Components.Ads
 @implements IAsyncDisposable
 @inject IJSRuntime JS
 @inject IGameScoreService GameScoreService
@@ -20,6 +21,13 @@
         }
     }
 
+    <div class="game-play-layout">
+        <aside class="game-ad-rail" aria-label="Advertisement">
+            <div class="game-sidebar-ad">
+                <AdSenseAd Slot="1458388952" @key="Game.Slug" />
+            </div>
+        </aside>
+        <div class="game-play-content">
     <MudPaper Class="pa-4" Outlined="true">
         <MudText Typo="Typo.body2" Class="mb-4">
             If the game does not load,
@@ -36,6 +44,51 @@
                 allowfullscreen>
         </iframe>
     </MudPaper>
+        </div>
+    </div>
+
+<style>
+    .game-play-layout {
+        display: grid;
+        grid-template-columns: minmax(200px, 280px) minmax(0, 1fr);
+        grid-template-areas: "ad game";
+        gap: 2rem;
+        align-items: start;
+    }
+
+    .game-ad-rail {
+        grid-area: ad;
+        min-width: 0;
+        padding: 2rem 0;
+    }
+
+    .game-sidebar-ad {
+        width: 100%;
+        min-width: 0;
+        min-height: 600px;
+    }
+
+    .game-play-content {
+        grid-area: game;
+        min-width: 0;
+    }
+
+    @@media (max-width: 960px) {
+        .game-play-layout {
+            grid-template-columns: minmax(0, 1fr);
+            grid-template-areas: "game" "ad";
+            gap: 1rem;
+        }
+
+        .game-ad-rail {
+            padding: 1rem 0;
+        }
+
+        .game-sidebar-ad {
+            min-height: 250px;
+        }
+    }
+</style>
 
 @code {
     [Parameter, EditorRequired]
