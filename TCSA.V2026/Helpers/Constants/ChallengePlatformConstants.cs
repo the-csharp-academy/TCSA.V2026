@@ -32,6 +32,13 @@ public static class ChallengePlatformConstants
         public const string ProblemsUrl = $"{BaseUrl}problems/";
         public const string GraphQLEndpoint = $"{BaseUrl}graphql";
 
+        public static readonly IReadOnlyDictionary<ChallengeCategory, string[]> AcceptedLanguages =
+            new Dictionary<ChallengeCategory, string[]>
+            {
+                [ChallengeCategory.CSharp] = ["csharp"],
+                [ChallengeCategory.SQL] = ["mysql", "mssql", "postgresql", "oraclesql"]
+            };
+
         public static class Queries
         {
             public const string GetRecentSubmissions = """
@@ -40,6 +47,7 @@ public static class ChallengePlatformConstants
                         title
                         titleSlug
                         statusDisplay
+                        lang
                     }
                 }
                 """;
