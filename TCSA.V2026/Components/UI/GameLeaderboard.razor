@@ -7,14 +7,15 @@
 @inject AuthenticationStateProvider AuthenticationState
 
 <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mb-4"
-           StartIcon="@Icons.Material.Filled.Leaderboard" OnClick="ToggleLeaderboard">
-    @(visible ? "Hide leaderboard" : "Show leaderboard")
+           StartIcon="@Icons.Material.Filled.Leaderboard" OnClick="ShowLeaderboard">
+    Show leaderboard
 </MudButton>
 
-@if (visible)
-{
-    <section class="mb-6" aria-label="Game leaderboard">
-        <MudText Typo="Typo.h5" HtmlTag="h2" Class="mb-3">Leaderboard</MudText>
+<MudDialog @bind-Visible="visible" Options="dialogOptions">
+    <TitleContent>
+        <MudText Typo="Typo.h6">Leaderboard</MudText>
+    </TitleContent>
+    <DialogContent>
         @if (loading)
         {
             <MudProgressCircular Indeterminate="true" Color="Color.Primary" aria-label="Loading leaderboard" />
@@ -66,8 +67,11 @@
                 </Columns>
             </MudDataGrid>
         }
-    </section>
-}
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="CloseLeaderboard" Color="Color.Primary">Close</MudButton>
+    </DialogActions>
+</MudDialog>
 
 @code {
     [Parameter, EditorRequired]
@@ -83,6 +87,13 @@
     private bool loading;
     private int currentPage = 1;
     private int loadedVersion;
+    private readonly DialogOptions dialogOptions = new()
+    {
+        FullWidth = true,
+        MaxWidth = MaxWidth.Medium,
+        CloseButton = true,
+        CloseOnEscapeKey = true
+    };
 
     protected override async Task OnInitializedAsync()
     {
@@ -98,14 +109,16 @@
         }
     }
 
-    private async Task ToggleLeaderboard()
+    private async Task ShowLeaderboard()
     {
-        visible = !visible;
+        visible = true;
 
-        if (visible)
-        {
-            await LoadPage(currentPage);
-        }
+        await LoadPage(currentPage);
+    }
+
+    private void CloseLeaderboard()
+    {
+        visible = false;
     }
 
     private async Task LoadPage(int page)
