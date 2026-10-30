@@ -6,6 +6,7 @@ using TCSA.V2026.Data.DTOs.Challenges;
 using TCSA.V2026.Data.Helpers.ProjectsSubHelpers;
 using TCSA.V2026.Data.Models;
 using TCSA.V2026.Data.Models.Responses;
+using TCSA.V2026.Helpers.Constants;
 using TCSA.V2026.Models.Responses;
 
 namespace TCSA.V2026.Services.Challenges;
@@ -54,19 +55,19 @@ public class CodewarsService : ICodewarsService, IChallengePlatformService
             return Result.Failure<List<CodeWarsChallenge>>(new Error("CodeWars.UsernameNotFound", "Username not found. Go to the dashboard and click on 'Codewars Integration' to update your username."));
         }
 
-        string jsonResponse = await response.Content.ReadAsStringAsync();
-        CodeWarsApiResponse apiResponse = JsonSerializer.Deserialize<CodeWarsApiResponse>(jsonResponse);
-
-        var completedChallenges = apiResponse.data.Select(x => x.id).ToList();
-
-        foreach (var challenge in challenges)
-        {
-            challenge.IsCompleted = completedChallenges.Contains(challenge.Id);
-        }
-
         if (response.StatusCode != HttpStatusCode.OK)
         {
             return Result.Failure<List<CodeWarsChallenge>>(new Error("CodeWars.UnexpectedResponse", "Could not retrieve your completed challenges from Codewars. Please try again later."));
+        }
+
+        string jsonResponse = await response.Content.ReadAsStringAsync();
+        CodeWarsApiResponse apiResponse = JsonSerializer.Deserialize<CodeWarsApiResponse>(jsonResponse);
+
+        var sqlLanguages = ChallengePlatformConstants.CodeWars.AcceptedLanguages[ChallengeCategory.SQL];
+
+        foreach (var challenge in challenges)
+        {
+            challenge.IsCompleted = apiResponse.data.Any(x => x.id == challenge.Id && x.completedLanguages.Intersect(sqlLanguages).Any());
         }
 
         return Result.Success(challenges);
@@ -79,6 +80,11 @@ public class CodewarsService : ICodewarsService, IChallengePlatformService
         if (username == null)
         {
             return Result.Failure(new Error("CodeWars.AccountNotIntegrated", "You haven't integrated your Codewars account yet. Go to the dashboard and click on 'Codewars Integration'"));
+        }
+
+        if (!ChallengePlatformConstants.CodeWars.AcceptedLanguages.TryGetValue(request.Category, out var acceptedLanguages))
+        {
+            return Result.Failure(new Error("CodeWars.UnsupportedCategory", $"Challenges in the '{request.Category}' category can't be synced with Codewars."));
         }
 
         string apiUrl = $"https://www.codewars.com/api/v1/users/{username}/code-challenges/completed?";
@@ -98,7 +104,7 @@ public class CodewarsService : ICodewarsService, IChallengePlatformService
         string jsonResponse = await response.Content.ReadAsStringAsync();
         CodeWarsApiResponse apiResponse = JsonSerializer.Deserialize<CodeWarsApiResponse>(jsonResponse);
 
-        if (!apiResponse.data.Any(x => x.id == request.ExternalId))
+        if (!apiResponse.data.Any(x => x.id == request.ExternalId && x.completedLanguages.Intersect(acceptedLanguages).Any()))
         {
             return Result.Failure(new Error("CodeWars.ChallengeNotCompleted", "You haven't completed this challenge yet."));
         }

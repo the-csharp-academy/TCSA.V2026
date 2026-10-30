@@ -17,6 +17,13 @@ public static class ChallengePlatformConstants
             ChallengeCategory.CSharp,
             ChallengeCategory.SQL
         ];
+
+        public static readonly IReadOnlyDictionary<ChallengeCategory, string[]> AcceptedLanguages =
+            new Dictionary<ChallengeCategory, string[]>
+            {
+                [ChallengeCategory.CSharp] = ["csharp"],
+                [ChallengeCategory.SQL] = ["sql"]
+            };
     }
 
     public static class LeetCode

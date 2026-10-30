@@ -65,7 +65,8 @@ public class LeetCodeServiceTests : IntegrationTestsBase
             new UserPlatformCredentials(null, null),
             1,
             "two-sum",
-            "user1"
+            "user1",
+            ChallengeCategory.CSharp
         ));
 
         // Assert
@@ -112,7 +113,8 @@ public class LeetCodeServiceTests : IntegrationTestsBase
             new UserPlatformCredentials(null, "test-user"),
             1,
             "two-sum",
-            "user1"
+            "user1",
+            ChallengeCategory.CSharp
         ));
 
         // Assert
@@ -148,7 +150,8 @@ public class LeetCodeServiceTests : IntegrationTestsBase
             new UserPlatformCredentials(null, "test-user"),
             1,
             "some-very-obscure-challenge-12345",
-            "user1"
+            "user1",
+            ChallengeCategory.CSharp
         ));
 
         // Assert
@@ -166,7 +169,8 @@ public class LeetCodeServiceTests : IntegrationTestsBase
             new UserPlatformCredentials(null, "test-user"),
             1,
             "two-sum",
-            "user1"
+            "user1",
+            ChallengeCategory.CSharp
         ));
 
         Assert.That(response.IsFailure, Is.True);
@@ -191,7 +195,8 @@ public class LeetCodeServiceTests : IntegrationTestsBase
             new UserPlatformCredentials(null, "missing-user"),
             1,
             "two-sum",
-            "user1"
+            "user1",
+            ChallengeCategory.CSharp
         ));
 
         Assert.That(response.IsFailure, Is.True);
@@ -214,7 +219,8 @@ public class LeetCodeServiceTests : IntegrationTestsBase
             new UserPlatformCredentials(null, "leetcode"),
             1,
             "not-a-real-leetcode-challenge",
-            "user1"
+            "user1",
+            ChallengeCategory.CSharp
         ));
 
         Assert.That(response.IsFailure, Is.True);
