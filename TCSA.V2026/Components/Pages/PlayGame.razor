@@ -1,0 +1,33 @@
+@page "/games/{Slug}"
+@using Microsoft.AspNetCore.Authorization
+@using TCSA.V2026.Helpers
+@using TCSA.V2026.Components.UI
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>@(game?.Title ?? "Game not found") | The C# Academy</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="py-6">
+    <MudButton Href="/games" StartIcon="@Icons.Material.Filled.ArrowBack" Class="mb-4">Back to games</MudButton>
+
+    @if (game is null)
+    {
+        <MudText Typo="Typo.h3" HtmlTag="h1">Game not found</MudText>
+        <MudText Class="mt-2">Choose a game from the gallery.</MudText>
+    }
+    else
+    {
+        <GamePlayer Game="game" @key="game.Slug" />
+    }
+</MudContainer>
+
+@code {
+    [Parameter]
+    public string Slug { get; set; } = string.Empty;
+
+    private GameInfo? game;
+
+    protected override void OnParametersSet()
+    {
+        game = GameCatalog.Games.FirstOrDefault(item => item.Slug == Slug);
+    }
+}

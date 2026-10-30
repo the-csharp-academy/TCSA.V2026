@@ -22,10 +22,24 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public virtual DbSet<WebhookDebugLog> WebhookDebugLog { get; set; }
     public virtual DbSet<Comments> Comments { get; set; }
     public virtual DbSet<Badge> Badges { get; set; }
+    public virtual DbSet<GameScore> GameScores { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<GameScore>()
+            .HasKey(gs => new { gs.GameId, gs.UserId });
+
+        modelBuilder.Entity<GameScore>()
+            .Property(gs => gs.GameId)
+            .HasMaxLength(100);
+
+        modelBuilder.Entity<GameScore>()
+            .HasOne<ApplicationUser>()
+            .WithMany()
+            .HasForeignKey(gs => gs.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<Badge>()
             .HasKey(b => new { b.BadgeId, b.UserId });
