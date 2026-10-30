@@ -1,28 +1,51 @@
 @page "/games"
 @using Microsoft.AspNetCore.Authorization
+@using TCSA.V2026.Helpers
 @attribute [Authorize(Roles = "Admin")]
 
 <PageTitle>Games | The C# Academy</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.Medium" Class="py-6">
-    <MudText Typo="Typo.h3" HtmlTag="h1" Class="mb-2">Games</MudText>
-    <MudText Typo="Typo.body1" Class="mb-6">Try a browser game inside the academy. This preview is available to admins.</MudText>
+<MudContainer Class="py-6">
+    <h1 class="mud-primary-text mt-3">Games</h1>
+    <p class="mb-4 text-secondary mud-typography-body1">Explore games created by our community. Select a game to play. This preview is available to admins.</p>
 
-    <MudPaper Class="pa-4" Outlined="true">
-        <MudText Typo="Typo.h5" HtmlTag="h2" Class="mb-2">Button Challenge</MudText>
-        <MudText Typo="Typo.body2" Class="mb-2">Click as many target buttons as you can within 30 seconds. Each hit earns a point.</MudText>
-        <MudText Typo="Typo.body2" Class="mb-4">
-            If the game does not load,
-            <a href="https://the-csharp-academy.github.io/Games.Unity.ButtonGame/Web/" target="_blank" rel="noopener noreferrer">open it in a new tab</a>.
-        </MudText>
-        <iframe src="https://the-csharp-academy.github.io/Games.Unity.ButtonGame/Web/"
-                title="Button Challenge by The C# Academy"
-                class="game-frame"
-                height="1000"
-                style="display: block; width: 100%; height: 1000px; border: 0;"
-                sandbox="allow-scripts allow-same-origin"
-                referrerpolicy="no-referrer"
-                allowfullscreen>
-        </iframe>
-    </MudPaper>
+    @if (TotalPages > 1)
+    {
+        <MudPagination Count="TotalPages" Selected="pageNumber" SelectedChanged="OnPageChanged" Class="mb-4" />
+    }
+
+    <MudGrid Spacing="6" Class="my-2">
+        @foreach (var game in GamesOnPage)
+        {
+            <MudItem xs="12" sm="6" md="4" @key="game.Slug">
+                <a href="@($"/games/{game.Slug}")" class="game-card-link">
+                    <MudPaper Class="pa-3 rounded-lg elevation-3 game-card">
+                        <div class="game-preview">
+                            <MudIcon Icon="@Icons.Material.Filled.SportsEsports" Style="font-size: 64px;" />
+                        </div>
+                        <MudText Typo="Typo.h6" HtmlTag="h2" Color="Color.Primary" Class="mt-3">@game.Title</MudText>
+                        <MudText Typo="Typo.body2" Class="mt-2">@game.Description</MudText>
+                        <MudText Typo="Typo.button" Color="Color.Primary" Class="mt-4">Play game →</MudText>
+                    </MudPaper>
+                </a>
+            </MudItem>
+        }
+    </MudGrid>
 </MudContainer>
+
+@code {
+    private const int PageSize = 9;
+    private int pageNumber = 1;
+
+    private int TotalPages => (int)Math.Ceiling(GameCatalog.Games.Count / (double)PageSize);
+
+    private IEnumerable<GameInfo> GamesOnPage => GameCatalog.Games
+        .Skip((pageNumber - 1) * PageSize)
+        .Take(PageSize);
+
+    private void OnPageChanged(int page)
+    {
+        pageNumber = Math.Clamp(page, 1, Math.Max(1, TotalPages));
+    }
+
+}

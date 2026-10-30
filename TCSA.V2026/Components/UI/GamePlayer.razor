@@ -1,0 +1,60 @@
+@using TCSA.V2026.Helpers
+@implements IAsyncDisposable
+@inject IJSRuntime JS
+
+    <MudText Typo="Typo.h3" HtmlTag="h1" Class="mb-2">@Game.Title</MudText>
+    <MudText Typo="Typo.body1" Class="mb-6">@Game.Description</MudText>
+
+    <MudPaper Class="pa-4" Outlined="true">
+        <MudText Typo="Typo.body2" Class="mb-4">
+            If the game does not load,
+            <a href="@Game.Url" target="_blank" rel="noopener noreferrer">open it in a new tab</a>.
+        </MudText>
+        <iframe src="@Game.Url"
+                @ref="gameFrame"
+                title="@Game.Title"
+                class="game-frame"
+                height="1000"
+                style="display: block; width: 100%; height: 1000px; border: 0;"
+                sandbox="allow-scripts allow-same-origin"
+                referrerpolicy="no-referrer"
+                allowfullscreen>
+        </iframe>
+    </MudPaper>
+
+@code {
+    [Parameter, EditorRequired]
+    public GameInfo Game { get; set; } = default!;
+
+    private ElementReference gameFrame;
+    private IJSObjectReference? scoreReceiver;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            return;
+        }
+
+        scoreReceiver = await JS.InvokeAsync<IJSObjectReference>("import", "./js/game-score-receiver.js");
+        await scoreReceiver.InvokeVoidAsync("start", gameFrame, Game.Slug, new Uri(Game.Url).GetLeftPart(UriPartial.Authority));
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (scoreReceiver is null)
+        {
+            return;
+        }
+
+        try
+        {
+            await scoreReceiver.InvokeVoidAsync("stop", gameFrame);
+            await scoreReceiver.DisposeAsync();
+        }
+        catch (JSDisconnectedException)
+        {
+            // The browser is no longer connected to this circuit.
+        }
+    }
+}
