@@ -1,4 +1,4 @@
-﻿using TCSA.V2026.Data.Models;
+using TCSA.V2026.Data.Models;
 
 using static TCSA.V2026.Helpers.CourseContentHelper;
 
@@ -61,11 +61,10 @@ public class OopCourse
                                 Title = "Video Course",
                                 Paragraphs = new List<Paragraph>
                                 {
-                                    new Paragraph { Body = "We also have a paid video version of this tutorial. You have three options to access this course:" },
+                                    new Paragraph { Body = "We also have a paid video version of this tutorial. You have two options to access this course:" },
                                     new Paragraph { Body = RedDotList(
                                         "<b>Option 1</b>: Purchase the course <a href='https://thecsharpschool.getlearnworlds.com/payment?product_id=cshasp-object-oriented-programming-crash-course' target='_blank'><b><u>individually for $4.99</u></b></a>.",
-                                        "<b>Option 2</b>: Subscribe to the <b>VIP Membership</b> and access <a href='https://thecsharpschool.getlearnworlds.com/payment?product_id=the-c-academy-membership&type=subscription' target='_blank'><b><u>all our courses for $4.99/month</u></b></a>.",
-                                        "<b>Option 3</b>: Subscribe to the <b>VIP Mentorship</b> for <a href='https://thecsharpschool.getlearnworlds.com/payment?product_id=net-accelerator-mentorship&type=subscription' target='_blank'><b><u>all courses and one-to-one mentorship for $39.99/month</u></b></a>.") },
+                                        "<b>Option 2</b>: Subscribe to the <b>VIP Mentorship</b> for <a href='https://thecsharpschool.getlearnworlds.com/payment?product_id=net-accelerator-mentorship&type=subscription' target='_blank'><b><u>all courses and one-to-one mentorship for $39.99/month</u></b></a>.") },
                                 }
                             },
                             new Block
@@ -2468,11 +2467,10 @@ public class OopCourse
                                 Title = "Video Course",
                                 Paragraphs = new List<Paragraph>
                                 {
-                                    new Paragraph { Body = "We also have a paid video version of this tutorial. You have three options to access this course:" },
+                                    new Paragraph { Body = "We also have a paid video version of this tutorial. You have two options to access this course:" },
                                     new Paragraph { Body = RedDotList(
                                         "<b>Option 1</b>: Purchase the course <a href='https://thecsharpschool.getlearnworlds.com/payment?product_id=cshasp-object-oriented-programming-crash-course' target='_blank'><b><u>individually for $4.99</u></b></a>.",
-                                        "<b>Option 2</b>: Subscribe to the <b>VIP Membership</b> and access <a href='https://thecsharpschool.getlearnworlds.com/payment?product_id=the-c-academy-membership&type=subscription' target='_blank'><b><u>all our courses for $4.99/month</u></b></a>.",
-                                        "<b>Option 3</b>: Subscribe to the <b>VIP Mentorship</b> for <a href='https://thecsharpschool.getlearnworlds.com/payment?product_id=net-accelerator-mentorship&type=subscription' target='_blank'><b><u>all courses and one-to-one mentorship for $39.99/month</u></b></a>.") },
+                                        "<b>Option 2</b>: Subscribe to the <b>VIP Mentorship</b> for <a href='https://thecsharpschool.getlearnworlds.com/payment?product_id=net-accelerator-mentorship&type=subscription' target='_blank'><b><u>all courses and one-to-one mentorship for $39.99/month</u></b></a>.") },
                                 }
                             },
                         }
