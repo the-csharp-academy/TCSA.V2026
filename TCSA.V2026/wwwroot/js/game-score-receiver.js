@@ -1,6 +1,6 @@
 const receivers = new Map();
 
-export function start(frame, gameId, gameOrigin) {
+export function start(frame, gameId, gameOrigin, receiver) {
     stop(frame);
 
     const receiveScore = (event) => {
@@ -14,7 +14,8 @@ export function start(frame, gameId, gameOrigin) {
         if (message === null || typeof message !== "object" ||
             message.type !== "academy:game-score" ||
             message.gameId !== gameId ||
-            !Number.isSafeInteger(message.score) || message.score < 0) {
+            !Number.isSafeInteger(message.score) || message.score < 0 ||
+            message.score > 2147483647) {
             return;
         }
 
@@ -22,6 +23,11 @@ export function start(frame, gameId, gameOrigin) {
             gameId: message.gameId,
             score: message.score
         });
+
+        receiver.invokeMethodAsync("ReceiveScore", gameId, message.score)
+            .catch((error) => {
+                console.error("Could not deliver game score to the academy:", error);
+            });
     };
 
     window.addEventListener("message", receiveScore);

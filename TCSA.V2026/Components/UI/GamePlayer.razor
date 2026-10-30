@@ -5,6 +5,13 @@
     <MudText Typo="Typo.h3" HtmlTag="h1" Class="mb-2">@Game.Title</MudText>
     <MudText Typo="Typo.body1" Class="mb-6">@Game.Description</MudText>
 
+    @if (receivedScore.HasValue)
+    {
+        <MudAlert Severity="Severity.Info" Class="mb-4" role="status">
+            Round score received: @receivedScore.Value. This score has not been saved yet.
+        </MudAlert>
+    }
+
     <MudPaper Class="pa-4" Outlined="true">
         <MudText Typo="Typo.body2" Class="mb-4">
             If the game does not load,
@@ -28,6 +35,9 @@
 
     private ElementReference gameFrame;
     private IJSObjectReference? scoreReceiver;
+    private DotNetObjectReference<GamePlayer>? componentReference;
+    private int? receivedScore;
+    private bool disposed;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -37,11 +47,27 @@
         }
 
         scoreReceiver = await JS.InvokeAsync<IJSObjectReference>("import", "./js/game-score-receiver.js");
-        await scoreReceiver.InvokeVoidAsync("start", gameFrame, Game.Slug, new Uri(Game.Url).GetLeftPart(UriPartial.Authority));
+        componentReference = DotNetObjectReference.Create(this);
+        await scoreReceiver.InvokeVoidAsync("start", gameFrame, Game.Slug,
+            new Uri(Game.Url).GetLeftPart(UriPartial.Authority), componentReference);
+    }
+
+    [JSInvokable]
+    public async Task ReceiveScore(string gameId, int score)
+    {
+        if (disposed || gameId != Game.Slug || score < 0)
+        {
+            return;
+        }
+
+        receivedScore = score;
+        await InvokeAsync(StateHasChanged);
     }
 
     public async ValueTask DisposeAsync()
     {
+        disposed = true;
+
         if (scoreReceiver is null)
         {
             return;
@@ -55,6 +81,10 @@
         catch (JSDisconnectedException)
         {
             // The browser is no longer connected to this circuit.
+        }
+        finally
+        {
+            componentReference?.Dispose();
         }
     }
 }
