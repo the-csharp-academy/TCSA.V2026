@@ -1,13 +1,11 @@
 @page "/games"
-@using Microsoft.AspNetCore.Authorization
 @using TCSA.V2026.Helpers
-@attribute [Authorize(Roles = "Admin")]
 
 <PageTitle>Games | The C# Academy</PageTitle>
 
 <MudContainer Class="py-6">
     <h1 class="mud-primary-text mt-3">Games</h1>
-    <p class="mb-4 text-secondary mud-typography-body1">Explore games created by our community. Select a game to play. This preview is available to admins.</p>
+    <p class="mb-4 text-secondary mud-typography-body1">Explore games created by our community. Select a game to play.</p>
 
     @if (TotalPages > 1)
     {

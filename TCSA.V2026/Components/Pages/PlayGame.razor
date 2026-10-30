@@ -1,12 +1,10 @@
 @page "/games/{Slug}"
-@using Microsoft.AspNetCore.Authorization
 @using TCSA.V2026.Helpers
 @using TCSA.V2026.Components.UI
-@attribute [Authorize(Roles = "Admin")]
 
 <PageTitle>@(game?.Title ?? "Game not found") | The C# Academy</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.Medium" Class="py-6">
+<MudContainer MaxWidth="MaxWidth.Large" Class="py-6">
     <MudButton Href="/games" StartIcon="@Icons.Material.Filled.ArrowBack" Class="mb-4">Back to games</MudButton>
 
     @if (game is null)

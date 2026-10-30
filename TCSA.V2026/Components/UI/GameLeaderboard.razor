@@ -11,7 +11,7 @@
     Show leaderboard
 </MudButton>
 
-<MudDialog @bind-Visible="visible" Options="dialogOptions">
+<MudDialog @bind-Visible="visible" Options="dialogOptions" Class="game-leaderboard-dialog">
     <TitleContent>
         <MudText Typo="Typo.h6">Leaderboard</MudText>
     </TitleContent>
@@ -35,24 +35,24 @@
             {
                 <MudPagination Count="leaderboard.TotalPages" Selected="currentPage" SelectedChanged="LoadPage" />
             }
-            <MudDataGrid T="GameLeaderboardEntry" Class="mt-2" Dense="true" Items="leaderboard.Items" Breakpoint="Breakpoint.None">
+            <MudDataGrid T="GameLeaderboardEntry" Class="mt-2 game-leaderboard-table" Dense="true" Items="leaderboard.Items" Breakpoint="Breakpoint.None">
                 <Columns>
                     <TemplateColumn T="GameLeaderboardEntry" Title="Pos" Sortable="false" HeaderStyle="font-weight:bold" HeaderClass="pa-2 pa-md-3" CellClassFunc="CellClass">
                         <CellTemplate>
-                            <MudText Style="font-weight:bold" Typo="Typo.subtitle1">@context.Item.Ranking</MudText>
+                            <MudText Style="font-weight:bold" Typo="Typo.body2">@context.Item.Ranking</MudText>
                         </CellTemplate>
                     </TemplateColumn>
                     <TemplateColumn T="GameLeaderboardEntry" Title="Score" Sortable="false" HeaderStyle="font-weight:bold" HeaderClass="pa-2 pa-md-3" CellClassFunc="CellClass">
                         <CellTemplate>
-                            <MudText Style="font-weight:bold" Typo="Typo.subtitle2">@context.Item.Score</MudText>
+                            <MudText Style="font-weight:bold" Typo="Typo.body2">@context.Item.Score</MudText>
                         </CellTemplate>
                     </TemplateColumn>
                     <TemplateColumn T="GameLeaderboardEntry" Title="Name" Sortable="false" HeaderStyle="font-weight:bold" HeaderClass="pa-2 pa-md-3" CellClassFunc="CellClass">
                         <CellTemplate>
-                            <MudLink Href="@($"/profile/{context.Item.UserId}")" Style="font-weight:bold" Typo="Typo.subtitle1" Color="Color.Inherit">@context.Item.DisplayName</MudLink>
+                            <MudLink Href="@($"/profile/{context.Item.UserId}")" Style="font-weight:bold" Typo="Typo.body2" Color="Color.Inherit">@context.Item.DisplayName</MudLink>
                             <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center">
                                 <MudImage ObjectFit="ObjectFit.Contain" Width="20" Src="@($"img/belts/{context.Item.Level}-belt.png")" Alt="@($"{context.Item.Level} belt")" />
-                                <MudText Typo="Typo.subtitle2">@context.Item.Level Belt</MudText>
+                                <MudText Typo="Typo.caption">@context.Item.Level Belt</MudText>
                             </MudStack>
                         </CellTemplate>
                     </TemplateColumn>
@@ -60,7 +60,7 @@
                         <CellTemplate>
                             <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center">
                                 <MudImage ObjectFit="ObjectFit.Contain" Width="30" Src="@FlagHelper.GetFlag(context.Item.Country)" Alt="@context.Item.Country" />
-                                <MudText Class="d-none d-sm-inline" Style="font-weight:bold" Typo="Typo.subtitle1">@context.Item.Country</MudText>
+                                <MudText Class="d-none d-sm-inline" Style="font-weight:bold" Typo="Typo.body2">@context.Item.Country</MudText>
                             </MudStack>
                         </CellTemplate>
                     </TemplateColumn>
@@ -72,6 +72,67 @@
         <MudButton OnClick="CloseLeaderboard" Color="Color.Primary">Close</MudButton>
     </DialogActions>
 </MudDialog>
+
+<style>
+    .game-leaderboard-dialog .game-leaderboard-table .mud-table-cell {
+        font-size: 0.875rem;
+    }
+
+    .game-leaderboard-dialog .game-leaderboard-table .mud-link {
+        overflow-wrap: anywhere;
+    }
+
+    @@media (max-width: 600px) {
+        .mud-dialog.game-leaderboard-dialog {
+            width: calc(100% - 16px);
+            max-width: calc(100% - 16px);
+            margin: 8px;
+        }
+
+        .game-leaderboard-dialog .mud-dialog-title {
+            padding: 16px 16px 8px;
+        }
+
+        .game-leaderboard-dialog .mud-dialog-content {
+            padding: 8px 12px 16px;
+        }
+
+        .game-leaderboard-dialog .mud-dialog-actions {
+            padding: 8px 12px;
+        }
+
+        .game-leaderboard-dialog .game-leaderboard-table table {
+            table-layout: fixed;
+            width: 100%;
+        }
+
+        .game-leaderboard-dialog .game-leaderboard-table .mud-table-cell {
+            padding: 8px 6px !important;
+            font-size: 0.8125rem;
+        }
+
+        .game-leaderboard-dialog .game-leaderboard-table .mud-table-cell:nth-child(1) {
+            width: 38px;
+        }
+
+        .game-leaderboard-dialog .game-leaderboard-table .mud-table-cell:nth-child(2) {
+            width: 48px;
+        }
+
+        .game-leaderboard-dialog .game-leaderboard-table .mud-table-cell:nth-child(4) {
+            width: 64px;
+        }
+
+        .game-leaderboard-dialog .game-leaderboard-table .mud-typography-body2 {
+            font-size: 0.8125rem;
+        }
+
+        .game-leaderboard-dialog .game-leaderboard-table .mud-typography-caption {
+            white-space: nowrap;
+            font-size: 0.75rem;
+        }
+    }
+</style>
 
 @code {
     [Parameter, EditorRequired]
