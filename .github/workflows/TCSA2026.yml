@@ -1,5 +1,7 @@
 name: Build and deploy TCSA to Linux
 on:
+  push:
+    branches: [ master ]
   workflow_dispatch:
 env:
   AZURE_WEBAPP_NAME: tcsa-linux
