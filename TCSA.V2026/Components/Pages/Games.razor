@@ -38,6 +38,7 @@
                         </div>
                         <MudText Typo="Typo.h6" HtmlTag="h2" Color="Color.Primary" Class="mt-3">@game.Title</MudText>
                         <MudText Typo="Typo.body2" Class="mt-2">@game.Description</MudText>
+                        <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mt-2">Played @game.TimesPlayed.ToString("N0") @(game.TimesPlayed == 1 ? "time" : "times")</MudText>
                         <MudText Typo="Typo.button" Color="Color.Primary" Class="mt-4">Play game →</MudText>
                     </MudPaper>
                 </a>
