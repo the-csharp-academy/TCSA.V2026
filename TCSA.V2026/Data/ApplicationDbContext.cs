@@ -23,10 +23,24 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public virtual DbSet<Comments> Comments { get; set; }
     public virtual DbSet<Badge> Badges { get; set; }
     public virtual DbSet<GameScore> GameScores { get; set; }
+    public virtual DbSet<Game> Games { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<Game>().HasKey(game => game.Slug);
+        modelBuilder.Entity<Game>().Property(game => game.Slug).HasMaxLength(100);
+        modelBuilder.Entity<Game>().Property(game => game.Title).HasMaxLength(200).IsRequired();
+        modelBuilder.Entity<Game>().Property(game => game.Description).IsRequired();
+        modelBuilder.Entity<Game>().Property(game => game.Url).HasMaxLength(2048).IsRequired();
+        modelBuilder.Entity<Game>().Property(game => game.TimesPlayed).IsConcurrencyToken();
+
+        modelBuilder.Entity<GameScore>()
+            .HasOne<Game>()
+            .WithMany()
+            .HasForeignKey(score => score.GameId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<GameScore>()
             .HasKey(gs => new { gs.GameId, gs.UserId });

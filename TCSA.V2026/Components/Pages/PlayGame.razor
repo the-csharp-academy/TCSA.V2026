@@ -1,5 +1,7 @@
 @page "/games/{Slug}"
-@using TCSA.V2026.Helpers
+@using TCSA.V2026.Data.Models
+@using TCSA.V2026.Services
+@inject IGameService GameService
 @using TCSA.V2026.Components.UI
 
 <PageTitle>@(game?.Title ?? "Game not found") | The C# Academy</PageTitle>
@@ -7,7 +9,15 @@
 <MudContainer MaxWidth="MaxWidth.Large" Class="py-6">
     <MudButton Href="/games" StartIcon="@Icons.Material.Filled.ArrowBack" Class="mb-4">Back to games</MudButton>
 
-    @if (game is null)
+    @if (loading)
+    {
+        <MudProgressCircular Indeterminate="true" />
+    }
+    else if (loadError is not null)
+    {
+        <MudAlert Severity="Severity.Error">@loadError</MudAlert>
+    }
+    else if (game is null)
     {
         <MudText Typo="Typo.h3" HtmlTag="h1">Game not found</MudText>
         <MudText Class="mt-2">Choose a game from the gallery.</MudText>
@@ -22,10 +32,32 @@
     [Parameter]
     public string Slug { get; set; } = string.Empty;
 
-    private GameInfo? game;
+    private Game? game;
+    private bool loading = true;
+    private string? loadError;
 
-    protected override void OnParametersSet()
+    protected override async Task OnParametersSetAsync()
     {
-        game = GameCatalog.Games.FirstOrDefault(item => item.Slug == Slug);
+        loading = true;
+        loadError = null;
+        game = null;
+        var requestedSlug = Slug;
+        var result = await GameService.GetGame(requestedSlug);
+
+        if (requestedSlug != Slug)
+        {
+            return;
+        }
+
+        loading = false;
+
+        if (result.IsSuccess)
+        {
+            game = result.Value;
+        }
+        else if (result.Reason.Code != "Game.NotFound")
+        {
+            loadError = result.Message;
+        }
     }
 }

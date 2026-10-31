@@ -10,28 +10,111 @@ using TCSA.V2026.Helpers.Constants;
 
 namespace TCSA.V2026.Services;
 
-public interface IGameScoreService
+public interface IGameService
 {
+    Task<Result<List<Game>>> GetGames();
+    Task<Result<Game>> GetGame(string slug);
+    Task<Result> RecordPlay(string slug);
     Task<Result<int>> SaveBestScore(string gameId, int score);
     Task<Result<PaginatedList<GameLeaderboardEntry>>> GetLeaderboard(string gameId, int pageNumber);
 }
 
-public class GameScoreService(
+public class GameService(
     IDbContextFactory<ApplicationDbContext> factory,
     AuthenticationStateProvider authenticationState,
-    ILogger<GameScoreService> logger) : IGameScoreService
+    ILogger<GameService> logger) : IGameService
 {
-    public async Task<Result<PaginatedList<GameLeaderboardEntry>>> GetLeaderboard(string gameId, int pageNumber)
+    public async Task<Result> RecordPlay(string slug)
     {
-        if (!GameCatalog.Games.Any(game => game.Slug == gameId))
+        // Each retry reloads the shared counter after a concurrent update.
+        for (var attempt = 0; attempt < 3; attempt++)
         {
-            return Result.Failure<PaginatedList<GameLeaderboardEntry>>(
-                new Error("GameScore.InvalidGame", "This game was not found."));
+
+            try
+            {
+                await using var context = await factory.CreateDbContextAsync();
+                var gameQuery = context.Games.Where(game => game.Slug == slug);
+                var game = await gameQuery.SingleOrDefaultAsync();
+
+                if (game is null)
+                {
+                    return Result.Failure(new Error("Game.NotFound", "This game was not found."));
+                }
+
+                game.TimesPlayed++;
+                await context.SaveChangesAsync();
+
+                return Result.Success();
+            }
+            catch (DbUpdateConcurrencyException) when (attempt < 2)
+            {
+                // The next attempt uses the latest counter value.
+            }
+            catch (Exception exception)
+            {
+                logger.LogError(exception, "Could not record play for game {Slug}", slug);
+
+                return Result.Failure(new Error("Game.RecordPlayFailed", "Your play could not be recorded. Please try again."));
+            }
         }
 
+        return Result.Failure(new Error("Game.RecordPlayFailed", "Your play could not be recorded. Please try again."));
+    }
+
+    public async Task<Result<List<Game>>> GetGames()
+    {
         try
         {
             await using var context = await factory.CreateDbContextAsync();
+            var gamesQuery = context.Games.AsNoTracking().OrderBy(game => game.Title).ThenBy(game => game.Slug);
+            var games = await gamesQuery.ToListAsync();
+
+            return Result.Success(games);
+        }
+        catch (Exception exception)
+        {
+            logger.LogError(exception, "Could not load games");
+
+            return Result.Failure<List<Game>>(new Error("Game.LoadFailed", "Games could not be loaded. Please try again."));
+        }
+    }
+
+    public async Task<Result<Game>> GetGame(string slug)
+    {
+        try
+        {
+            await using var context = await factory.CreateDbContextAsync();
+            var gameQuery = context.Games.AsNoTracking().Where(game => game.Slug == slug);
+            var game = await gameQuery.SingleOrDefaultAsync();
+
+            if (game is null)
+            {
+                return Result.Failure<Game>(new Error("Game.NotFound", "This game was not found."));
+            }
+
+            return Result.Success(game);
+        }
+        catch (Exception exception)
+        {
+            logger.LogError(exception, "Could not load game {Slug}", slug);
+
+            return Result.Failure<Game>(new Error("Game.LoadFailed", "The game could not be loaded. Please try again."));
+        }
+    }
+
+    public async Task<Result<PaginatedList<GameLeaderboardEntry>>> GetLeaderboard(string gameId, int pageNumber)
+    {
+        try
+        {
+            await using var context = await factory.CreateDbContextAsync();
+            var gameExists = await context.Games.AnyAsync(game => game.Slug == gameId);
+
+            if (!gameExists)
+            {
+                return Result.Failure<PaginatedList<GameLeaderboardEntry>>(
+                    new Error("GameScore.InvalidGame", "This game was not found."));
+            }
+
             var leaderboardQuery = from score in context.GameScores.AsNoTracking()
                                    join user in context.Users.AsNoTracking() on score.UserId equals user.Id
                                    where score.GameId == gameId
@@ -91,7 +174,7 @@ public class GameScoreService(
             return Result.Failure<int>(new Error("GameScore.Unauthorized", "Sign in to save your score."));
         }
 
-        if (score < 0 || !GameCatalog.Games.Any(game => game.Slug == gameId))
+        if (score < 0 || string.IsNullOrWhiteSpace(gameId))
         {
             return Result.Failure<int>(new Error("GameScore.Invalid", "This game score is invalid."));
         }
@@ -99,6 +182,13 @@ public class GameScoreService(
         try
         {
             await using var context = await factory.CreateDbContextAsync();
+            var gameExists = await context.Games.AnyAsync(game => game.Slug == gameId);
+
+            if (!gameExists)
+            {
+                return Result.Failure<int>(new Error("GameScore.Invalid", "This game score is invalid."));
+            }
+
             var existingScoreQuery = context.GameScores
                 .Where(gameScore => gameScore.GameId == gameId && gameScore.UserId == userId);
             var existingScore = await existingScoreQuery.SingleOrDefaultAsync();

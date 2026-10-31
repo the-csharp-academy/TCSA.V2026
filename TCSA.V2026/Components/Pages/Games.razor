@@ -1,11 +1,26 @@
 @page "/games"
-@using TCSA.V2026.Helpers
+@using TCSA.V2026.Data.Models
+@using TCSA.V2026.Services
+@inject IGameService GameService
 
 <PageTitle>Games | The C# Academy</PageTitle>
 
 <MudContainer Class="py-6">
     <h1 class="mud-primary-text mt-3">Games</h1>
     <p class="mb-4 text-secondary mud-typography-body1">Explore games created by our community. Select a game to play.</p>
+
+    @if (loading)
+    {
+        <MudProgressCircular Indeterminate="true" />
+    }
+    else if (loadError is not null)
+    {
+        <MudAlert Severity="Severity.Error">@loadError</MudAlert>
+    }
+    else if (games.Count == 0)
+    {
+        <MudText>No games are available yet.</MudText>
+    }
 
     @if (TotalPages > 1)
     {
@@ -34,12 +49,30 @@
 @code {
     private const int PageSize = 9;
     private int pageNumber = 1;
+    private List<Game> games = [];
+    private bool loading = true;
+    private string? loadError;
 
-    private int TotalPages => (int)Math.Ceiling(GameCatalog.Games.Count / (double)PageSize);
+    private int TotalPages => (int)Math.Ceiling(games.Count / (double)PageSize);
 
-    private IEnumerable<GameInfo> GamesOnPage => GameCatalog.Games
+    private IEnumerable<Game> GamesOnPage => games
         .Skip((pageNumber - 1) * PageSize)
         .Take(PageSize);
+
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await GameService.GetGames();
+        loading = false;
+
+        if (result.IsFailure)
+        {
+            loadError = result.Message;
+
+            return;
+        }
+
+        games = result.Value;
+    }
 
     private void OnPageChanged(int page)
     {

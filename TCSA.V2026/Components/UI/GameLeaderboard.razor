@@ -3,7 +3,7 @@
 @using TCSA.V2026.Data.Models.Responses
 @using TCSA.V2026.Helpers
 @using TCSA.V2026.Services
-@inject IGameScoreService GameScoreService
+@inject IGameService GameService
 @inject AuthenticationStateProvider AuthenticationState
 
 <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mb-4"
@@ -187,7 +187,7 @@
         loading = true;
         error = null;
         loadedVersion = ScoreVersion;
-        var result = await GameScoreService.GetLeaderboard(GameId, page);
+        var result = await GameService.GetLeaderboard(GameId, page);
 
         if (result.IsSuccess)
         {
