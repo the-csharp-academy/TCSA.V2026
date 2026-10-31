@@ -1,9 +1,9 @@
-@using TCSA.V2026.Helpers
+@using TCSA.V2026.Data.Models
 @using TCSA.V2026.Services
 @using TCSA.V2026.Components.Ads
 @implements IAsyncDisposable
 @inject IJSRuntime JS
-@inject IGameScoreService GameScoreService
+@inject IGameService GameService
 
     <MudText Typo="Typo.h3" HtmlTag="h1" Class="mb-2">@Game.Title</MudText>
     <MudText Typo="Typo.body1" Class="mb-6">@Game.Description</MudText>
@@ -92,7 +92,7 @@
 
 @code {
     [Parameter, EditorRequired]
-    public GameInfo Game { get; set; } = default!;
+    public Game Game { get; set; } = default!;
 
     private ElementReference gameFrame;
     private IJSObjectReference? scoreReceiver;
@@ -101,6 +101,7 @@
     private string scoreStatus = string.Empty;
     private Severity scoreStatusSeverity = Severity.Info;
     private bool saveFailed;
+    private bool playRecorded;
     private int scoreVersion;
     private readonly SemaphoreSlim saveLock = new(1, 1);
     private bool disposed;
@@ -121,6 +122,11 @@
     [JSInvokable]
     public async Task ReceiveScore(string gameId, int score)
     {
+        await SaveRound(gameId, score, isNewRound: true);
+    }
+
+    private async Task SaveRound(string gameId, int score, bool isNewRound)
+    {
         if (disposed || gameId != Game.Slug || score < 0)
         {
             return;
@@ -136,19 +142,43 @@
             }
 
             receivedScore = score;
+
+            if (isNewRound)
+            {
+                playRecorded = false;
+            }
+
             saveFailed = false;
             scoreStatusSeverity = Severity.Info;
             scoreStatus = $"Saving round score: {score}…";
             await InvokeAsync(StateHasChanged);
 
-            var result = await GameScoreService.SaveBestScore(Game.Slug, score);
+            if (!playRecorded)
+            {
+                var playResult = await GameService.RecordPlay(Game.Slug);
+
+                if (playResult.IsFailure)
+                {
+                    saveFailed = true;
+                    scoreStatusSeverity = Severity.Error;
+                    scoreStatus = playResult.Message;
+                    await InvokeAsync(StateHasChanged);
+
+                    return;
+                }
+
+                playRecorded = true;
+            }
+
+            var result = await GameService.SaveBestScore(Game.Slug, score);
 
             if (disposed)
             {
                 return;
             }
 
-            saveFailed = result.IsFailure;
+            saveFailed = result.IsFailure && result.Reason.Code != "GameScore.Unauthorized";
+
             if (result.IsSuccess)
             {
                 scoreVersion++;
@@ -170,7 +200,7 @@
     {
         if (receivedScore.HasValue)
         {
-            await ReceiveScore(Game.Slug, receivedScore.Value);
+            await SaveRound(Game.Slug, receivedScore.Value, isNewRound: false);
         }
     }
 

@@ -90,7 +90,7 @@ builder.Services.AddScoped<DailyChallengeJob>();
 builder.Services.AddScoped<IDiscordService, DiscordService>();
 builder.Services.AddScoped<IActivityService, ActivityService>();
 builder.Services.AddScoped<IGalleryService, GalleryService>();
-builder.Services.AddScoped<IGameScoreService, GameScoreService>();
+builder.Services.AddScoped<IGameService, GameService>();
 builder.Services.AddScoped<StatisticsService>();
 builder.Services.AddScoped<IStatisticsService>(sp =>
 {
