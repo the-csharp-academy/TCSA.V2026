@@ -49,7 +49,7 @@ public class FeedbackService(IDbContextFactory<ApplicationDbContext> _factory, I
                 OriginUrl = Truncate(FeedbackPageHelper.Normalize(submission.OriginUrl), FeedbackLimits.OriginUrlMaxLength),
                 Area = isBug ? submission.Area : null,
                 ReportedPage = isBug ? FeedbackPageHelper.Normalize(submission.Page) : null,
-                ReviewState = EntersReviewQueue(submission.Category) ? FeedbackReviewState.New : null,
+                ReviewState = FeedbackReviewState.New,
                 CreatedAt = now
             };
 
@@ -106,9 +106,6 @@ public class FeedbackService(IDbContextFactory<ApplicationDbContext> _factory, I
 
         return null;
     }
-
-    private static bool EntersReviewQueue(FeedbackCategory category) =>
-        category is FeedbackCategory.Bug or FeedbackCategory.Idea;
 
     private static string Truncate(string value, int maxLength) =>
         value.Length <= maxLength ? value : value[..maxLength];

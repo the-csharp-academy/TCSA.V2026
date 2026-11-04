@@ -26,12 +26,38 @@ public class FeedbackAdminDtosTests
         yield return new TestCaseData(new FeedbackAdminFilter { Search = "save" }).SetName("Search");
         yield return new TestCaseData(new FeedbackAdminFilter { From = DateTimeOffset.UnixEpoch }).SetName("From");
         yield return new TestCaseData(new FeedbackAdminFilter { To = DateTimeOffset.UnixEpoch }).SetName("To");
+        yield return new TestCaseData(new FeedbackAdminFilter { Cluster = new FeedbackClusterKey(FeedbackCategory.Bug, "/") }).SetName("Cluster");
     }
 
     [TestCaseSource(nameof(ActiveFilters))]
     public void Filter_WithAnyCriterion_IsActive(FeedbackAdminFilter filter)
     {
         Assert.That(filter.IsActive, Is.True);
+    }
+
+    [Test]
+    public void ClusterKey_ForABug_UsesTheReportedPage()
+    {
+        var item = new FeedbackAdminItemDto { Category = FeedbackCategory.Bug, ReportedPage = "/dashboard/profile", OriginUrl = "/dashboard" };
+
+        Assert.That(item.ClusterKey, Is.EqualTo(new FeedbackClusterKey(FeedbackCategory.Bug, "/dashboard/profile")));
+    }
+
+    [Test]
+    public void ClusterKey_ForAnIdea_UsesTheOriginPath()
+    {
+        var item = new FeedbackAdminItemDto { Category = FeedbackCategory.Idea, OriginUrl = "/dashboard" };
+
+        Assert.That(item.ClusterKey, Is.EqualTo(new FeedbackClusterKey(FeedbackCategory.Idea, "/dashboard")));
+    }
+
+    [TestCase(FeedbackCategory.Compliment)]
+    [TestCase(FeedbackCategory.Help)]
+    public void ClusterKey_ForHelpAndCompliment_UsesTheOriginPath(FeedbackCategory category)
+    {
+        var item = new FeedbackAdminItemDto { Category = category, OriginUrl = "/dashboard" };
+
+        Assert.That(item.ClusterKey, Is.EqualTo(new FeedbackClusterKey(category, "/dashboard")));
     }
 
     [Test]
