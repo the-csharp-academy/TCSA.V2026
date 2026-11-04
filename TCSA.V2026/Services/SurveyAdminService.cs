@@ -69,7 +69,7 @@ public class SurveyAdminService(IDbContextFactory<ApplicationDbContext> _factory
                 Description = s.Description,
                 Status = s.Status,
                 QuestionCount = s.Questions.Count,
-                ResponseCount = 0,
+                ResponseCount = context.SurveyResponses.Count(r => r.SurveyId == s.Id),
                 CreatedAt = s.CreatedAt
             })
             .ToListAsync();
@@ -170,6 +170,16 @@ public class SurveyAdminService(IDbContextFactory<ApplicationDbContext> _factory
                 return Result.Failure(SurveyErrors.DeleteActive);
             }
 
+            var responses = await context.SurveyResponses
+                .Include(r => r.Answers).ThenInclude(a => ((ChoiceAnswer)a).SelectedOptions)
+                .Where(r => r.SurveyId == id)
+                .ToListAsync();
+            var answers = responses.SelectMany(r => r.Answers).ToList();
+
+            context.SurveyAnswerOptions.RemoveRange(answers.OfType<ChoiceAnswer>().SelectMany(a => a.SelectedOptions));
+            context.SurveyAnswers.RemoveRange(answers);
+            context.SurveyResponses.RemoveRange(responses);
+            context.SurveyRefusals.RemoveRange(await context.SurveyRefusals.Where(r => r.SurveyId == id).ToListAsync());
             context.SurveyOptions.RemoveRange(survey.Questions.OfType<ChoiceQuestion>().SelectMany(q => q.Options));
             context.SurveyQuestions.RemoveRange(survey.Questions);
             context.Surveys.Remove(survey);
