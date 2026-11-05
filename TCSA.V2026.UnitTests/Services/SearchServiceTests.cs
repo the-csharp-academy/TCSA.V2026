@@ -1,3 +1,4 @@
+using TCSA.V2026.Data.Curriculum;
 using TCSA.V2026.Data.Models;
 using TCSA.V2026.Helpers.Constants;
 using TCSA.V2026.Services;
@@ -137,6 +138,61 @@ public class SearchServiceTests
 
         var hit = results.First(r => r.Title == "Introduction to C#");
         Assert.That(hit.PageUrl, Does.StartWith("/article/1/intro-to-csharp"));
+    }
+
+    [Test]
+    public async Task QuickSearch_UsesCourseArticleUrl_ForCourseArticleResults()
+    {
+        var sut = new SearchService([
+            new Article { Id = 1, Title = "Introduction to C#", Slug = "intro-to-csharp", CourseId = 5, CourseDisplayId = 2, Blocks = null }
+        ]);
+
+        var results = (await sut.QuickSearch("introduction", CancellationToken.None)).ToList();
+
+        var hit = results.First(r => r.Title == "Introduction to C#");
+        Assert.That(hit.PageUrl, Does.StartWith("/course/5/article/2/1/false"));
+    }
+
+    [Test]
+    public async Task QuickSearch_CourseArticleUrl_ContainsArticleTitleAnchor()
+    {
+        var course = CourseHelper.GetCourses().First();
+        var sut = new SearchService([
+            new Article { Id = 1, Title = "Introduction to C#", Slug = "intro-to-csharp", CourseId = course.Id, CourseDisplayId = 2, Blocks = null }
+        ]);
+
+        var results = (await sut.QuickSearch("introduction", CancellationToken.None)).ToList();
+
+        Assert.That(results.Any(r => r.PageUrl == $"/course/{course.Id}/article/2/1/false#{ContentAnchors.ArticleTitleId}"), Is.True);
+    }
+
+    [Test]
+    public async Task QuickSearch_CourseArticle_UsesCourseImage_ForIconUrl()
+    {
+        var course = CourseHelper.GetCourses().First();
+        var sut = new SearchService([
+            new Article { Id = 1, Title = "Introduction to C#", Slug = "intro-to-csharp", CourseId = course.Id, IconUrl = "article-icon.png", Blocks = null }
+        ]);
+
+        var results = (await sut.QuickSearch("introduction", CancellationToken.None)).ToList();
+
+        var hit = results.First(r => r.Title == "Introduction to C#");
+        Assert.That(hit.IconUrl, Is.EqualTo(course.ImgUrl));
+    }
+
+    [Test]
+    public async Task PagedSearch_CourseArticle_HasCourseUrlAndCourseIcon()
+    {
+        var course = CourseHelper.GetCourses().First();
+        var sut = new SearchService([
+            new Article { Id = 1, Title = "Introduction to C#", Slug = "intro-to-csharp", CourseId = course.Id, CourseDisplayId = 2, IconUrl = "article-icon.png", Blocks = null }
+        ]);
+
+        var result = await sut.PagedSearch("introduction", 1, CancellationToken.None);
+
+        var hit = result.Items.First(r => r.Title == "Introduction to C#");
+        Assert.That(hit.PageUrl, Does.StartWith($"/course/{course.Id}/article/2/1/false"));
+        Assert.That(hit.IconUrl, Is.EqualTo(course.ImgUrl));
     }
 
     [Test]
