@@ -6,7 +6,9 @@ namespace TCSA.V2026.Data.Curriculum;
 
 public class OopCourse
 {
-    public static Course GetOopCourse()
+    public static readonly Course Instance = BuildCourse();
+
+    private static Course BuildCourse()
     {
         return new Course
         {
@@ -19,6 +21,7 @@ public class OopCourse
                     new Article
                     {
                         Id = 500025,
+                        CourseId = 1,
                         CourseDisplayId = 1,
                         Title = "Introduction",
                         Slug = "oop-introduction",
@@ -80,6 +83,7 @@ public class OopCourse
                     new Article
                     {
                         Id = 500000,
+                        CourseId = 1,
                         CourseDisplayId = 2,
                         Title = "What Is OOP?",
                         Slug = "getting-started-with-csharp",
@@ -120,6 +124,7 @@ public class OopCourse
                     new Article
                     {
                         Id = 500001,
+                        CourseId = 1,
                         CourseDisplayId = 3,
                         Title = "About This Course",
                         Slug = "getting-started-with-csharp",
@@ -172,6 +177,7 @@ public class OopCourse
                     new Article
                     {
                         Id = 500002,
+                        CourseId = 1,
                         CourseDisplayId = 4,
                         Title = "Creating the Course Project",
                         Slug = "oop-course-project",
@@ -262,6 +268,7 @@ public class OopCourse
                     new Article
                     {
                         Id = 500003,
+                        CourseId = 1,
                         CourseDisplayId = 5,
                         Title = "Basic Functionality",
                         Slug = "oop-course-project-functionality",
@@ -361,6 +368,7 @@ public class OopCourse
                     new Article
                     {
                         Id = 500004,
+                        CourseId = 1,
                         CourseDisplayId = 6,
                         Title = "Enumerations",
                         Slug = "object-oriented-enums",
@@ -447,6 +455,7 @@ public class OopCourse
                     new Article
                     {
                         Id = 500005,
+                        CourseId = 1,
                         CourseDisplayId = 7,
                         Title = "Methods",
                         Slug = "object-oriented-methods",
@@ -526,6 +535,7 @@ public class OopCourse
                     new Article
                     {
                         Id = 500006,
+                        CourseId = 1,
                         CourseDisplayId = 8,
                         Title = "Classes",
                         Slug = "object-oriented-classes",
@@ -626,6 +636,7 @@ public class OopCourse
                     new Article
                     {
                         Id = 500007,
+                        CourseId = 1,
                         CourseDisplayId = 9,
                         Title = "Top-level Statements",
                         Slug = "c-sharp-top-level-statements",
@@ -672,6 +683,7 @@ public class OopCourse
                     new Article
                     {
                         Id = 500008,
+                        CourseId = 1,
                         CourseDisplayId = 10,
                         Title = "Access Modifiers",
                         Slug = "object-oriented-access-modifiers",
@@ -736,6 +748,7 @@ public class OopCourse
                     new Article
                     {
                         Id = 500009,
+                        CourseId = 1,
                         CourseDisplayId = 11,
                         Title = "Creating More Classes",
                         Slug = "object-oriented-more-classes",
@@ -837,6 +850,7 @@ public class OopCourse
                     new Article
                     {
                         Id = 500010,
+                        CourseId = 1,
                         CourseDisplayId = 12,
                         Title = "Objects",
                         Slug = "object-oriented-objects",
@@ -898,6 +912,7 @@ public class OopCourse
                     new Article
                     {
                         Id = 500011,
+                        CourseId = 1,
                         CourseDisplayId = 13,
                         Title = "Static",
                         Slug = "object-oriented-static",
@@ -944,6 +959,7 @@ public class OopCourse
                     new Article
                     {
                         Id = 500012,
+                        CourseId = 1,
                         CourseDisplayId = 14,
                         Title = "Practicing With Objects",
                         Slug = "object-oriented-practice",
@@ -1075,6 +1091,7 @@ public class OopCourse
                     new Article
                     {
                         Id = 500013,
+                        CourseId = 1,
                         CourseDisplayId = 15,
                         Title = "Tuples",
                         Slug = "object-oriented-tuples",
@@ -1131,6 +1148,7 @@ public class OopCourse
                     new Article
                     {
                         Id = 500014,
+                        CourseId = 1,
                         CourseDisplayId = 16,
                         Title = "Constructors",
                         Slug = "object-oriented-constructors",
@@ -1223,6 +1241,7 @@ public class OopCourse
                     new Article
                     {
                         Id = 500015,
+                        CourseId = 1,
                         CourseDisplayId = 17,
                         Title = "Properties",
                         Slug = "object-oriented-properties",
@@ -1278,6 +1297,7 @@ public class OopCourse
                     new Article
                     {
                         Id = 500016,
+                        CourseId = 1,
                         CourseDisplayId = 18,
                         Title = "Models",
                         Slug = "object-oriented-models",
@@ -1428,6 +1448,7 @@ public class OopCourse
                     new Article
                     {
                         Id = 500017,
+                        CourseId = 1,
                         CourseDisplayId = 19,
                         Title = "Abstract Classes",
                         Slug = "object-oriented-abstract-classes",
@@ -1488,6 +1509,7 @@ public class OopCourse
                     new Article
                     {
                         Id = 500018,
+                        CourseId = 1,
                         CourseDisplayId = 20,
                         Title = "Applying Abstract Classes",
                         Slug = "applying-abstract-classes",
@@ -1618,6 +1640,7 @@ public class OopCourse
                     new Article
                     {
                         Id = 500019,
+                        CourseId = 1,
                         CourseDisplayId = 21,
                         Title = "Refactoring",
                         Slug = "oop-refactoring",
@@ -1784,6 +1807,7 @@ public class OopCourse
                     new Article
                     {
                         Id = 500020,
+                        CourseId = 1,
                         CourseDisplayId = 22,
                         Title = "Interfaces",
                         Slug = "interfaces",
@@ -1811,6 +1835,7 @@ public class OopCourse
                     new Article
                     {
                         Id = 500021,
+                        CourseId = 1,
                         CourseDisplayId = 23,
                         Title = "Applying Interfaces",
                         Slug = "applying-interfaces",
@@ -2021,6 +2046,7 @@ public class OopCourse
                     new Article
                     {
                         Id = 500022,
+                        CourseId = 1,
                         CourseDisplayId = 24,
                         Title = "Modifying the Menu",
                         Slug = "oop-modifying-menu",
@@ -2231,6 +2257,7 @@ public class OopCourse
                     new Article
                     {
                         Id = 500023,
+                        CourseId = 1,
                         CourseDisplayId = 25,
                         Title = "Complex Inheritance",
                         Slug = "oop-complex-inheritance",
@@ -2436,6 +2463,7 @@ public class OopCourse
                     new Article
                     {
                         Id = 500024,
+                        CourseId = 1,
                         CourseDisplayId = 26,
                         Title = "Conclusion",
                         Slug = "oop-conclusion",

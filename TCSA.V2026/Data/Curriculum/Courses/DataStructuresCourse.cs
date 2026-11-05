@@ -5,7 +5,9 @@ namespace TCSA.V2026.Data.Curriculum;
 
 public class DataStructuresCourse
 {
-    public static Course GetDataStructuresCourse()
+    public static readonly Course Instance = BuildCourse();
+
+    private static Course BuildCourse()
     {
         return new Course
         {
@@ -18,6 +20,7 @@ public class DataStructuresCourse
                 new Article
                 {
                     Id = 500300,
+                    CourseId = 9,
                     CourseDisplayId = 1,
                     Title = "About This Course",
                     Slug = "about-this-data-structures-course",
@@ -99,6 +102,7 @@ public class DataStructuresCourse
                 new Article
                 {
                     Id = 500301,
+                    CourseId = 9,
                     CourseDisplayId = 2,
                     Title = "A Brief History of Data Structures",
                     Slug = "a-brief-history-of-data-structures",
@@ -156,6 +160,7 @@ public class DataStructuresCourse
                 new Article
                 {
                     Id = 500302,
+                    CourseId = 9,
                     CourseDisplayId = 3,
                     Title = "Who This Course Is For",
                     Slug = "who-this-data-structures-course-is-for",
@@ -225,6 +230,7 @@ public class DataStructuresCourse
                 new Article
                 {
                     Id = 500303,
+                    CourseId = 9,
                     CourseDisplayId = 4,
                     Title = "Set Up the Store Application",
                     Slug = "set-up-the-data-structures-store-application",
@@ -365,6 +371,7 @@ public class DataStructuresCourse
                 new Article
                 {
                     Id = 500304,
+                    CourseId = 9,
                     CourseDisplayId = 5,
                     Title = "Arrays",
                     Slug = "data-structures-arrays",
@@ -846,6 +853,7 @@ public class DataStructuresCourse
                 new Article
                 {
                     Id = 500305,
+                    CourseId = 9,
                     CourseDisplayId = 6,
                     Title = "List<T> Fundamentals",
                     Slug = "data-structures-list-t",
@@ -1085,6 +1093,7 @@ public class DataStructuresCourse
                 new Article
                 {
                     Id = 500306,
+                    CourseId = 9,
                     CourseDisplayId = 7,
                     Title = "Applying List<T>",
                     Slug = "apply-list-t-product-management",
@@ -1348,6 +1357,7 @@ public class DataStructuresCourse
                 new Article
                 {
                     Id = 500307,
+                    CourseId = 9,
                     CourseDisplayId = 8,
                     Title = "Dictionary<TKey, TValue>",
                     Slug = "dictionary-tkey-tvalue",
@@ -1758,6 +1768,7 @@ public class DataStructuresCourse
                 new Article
                 {
                     Id = 500308,
+                    CourseId = 9,
                     CourseDisplayId = 9,
                     Title = "HashSet<T>",
                     Slug = "hashset-t",
@@ -2123,6 +2134,7 @@ public class DataStructuresCourse
                 new Article
                 {
                     Id = 500309,
+                    CourseId = 9,
                     CourseDisplayId = 10,
                     Title = "Stack<T>",
                     Slug = "stack-t",
@@ -2494,6 +2506,7 @@ public class DataStructuresCourse
                 new Article
                 {
                     Id = 500310,
+                    CourseId = 9,
                     CourseDisplayId = 11,
                     Title = "Queue<T>",
                     Slug = "queue-t",
@@ -2888,6 +2901,7 @@ public class DataStructuresCourse
                 new Article
                 {
                     Id = 500311,
+                    CourseId = 9,
                     CourseDisplayId = 12,
                     Title = "Choosing the Right Data Structure",
                     Slug = "choosing-right-data-structure",
@@ -3252,6 +3266,7 @@ public class DataStructuresCourse
                 new Article
                 {
                     Id = 500312,
+                    CourseId = 9,
                     CourseDisplayId = 13,
                     Title = "Final Project",
                     Slug = "final-project",
@@ -3368,6 +3383,7 @@ public class DataStructuresCourse
                 new Article
                 {
                     Id = 500313,
+                    CourseId = 9,
                     CourseDisplayId = 14,
                     Title = "More Practice",
                     Slug = "more-data-structures-practice",

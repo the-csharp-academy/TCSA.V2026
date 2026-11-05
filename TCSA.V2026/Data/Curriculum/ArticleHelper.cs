@@ -2669,6 +2669,7 @@ git push</code>"
     }
 
     public static Article IntroChapter(
+        int courseId,
         int number,
         string title,
         string slug,
@@ -2678,6 +2679,7 @@ git push</code>"
         return new Article
         {
             Id = 500399 + number,
+            CourseId = courseId,
             CourseDisplayId = number,
             Title = title,
             Slug = slug,

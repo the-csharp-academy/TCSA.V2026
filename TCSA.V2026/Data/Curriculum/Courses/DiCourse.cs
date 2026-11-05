@@ -4,7 +4,9 @@ namespace TCSA.V2026.Data.Curriculum;
 
 public class DiCourse
 {
-    public static Course GetDiCourse()
+    public static readonly Course Instance = BuildCourse();
+
+    private static Course BuildCourse()
     {
         return new Course
         {
@@ -18,6 +20,7 @@ public class DiCourse
                     new Article
                     {
                         Id = 500150,
+                        CourseId = 6,
                         CourseDisplayId = 1,
                         Title = "Introduction",
                         Slug = "intro-to-dependency-injection",
@@ -115,6 +118,7 @@ public class DiCourse
                     new Article
                     {
                         Id = 500151,
+                        CourseId = 6,
                         CourseDisplayId = 2,
                         Title = "Tight Coupling",
                         Slug = "tight-coupling",
@@ -202,6 +206,7 @@ public class DiCourse
                     new Article
                     {
                         Id = 500152,
+                        CourseId = 6,
                         CourseDisplayId = 3,
                         Title = "Loose Coupling",
                         Slug = "loose-coupling",
@@ -381,6 +386,7 @@ public class DiCourse
                     new Article
                     {
                         Id = 500153,
+                        CourseId = 6,
                         CourseDisplayId = 4,
                         Title = "Dependency Injection Techniques",
                         Slug = "dependency-injection-techniques",
@@ -472,6 +478,7 @@ public class DiCourse
                     new Article
                     {
                         Id = 500154,
+                        CourseId = 6,
                         CourseDisplayId = 5,
                         Title = "TeamPulse WebApi",
                         Slug = "teampulse-webapi",
@@ -626,6 +633,7 @@ public class DiCourse
                     new Article
                     {
                         Id = 500155,
+                        CourseId = 6,
                         CourseDisplayId = 6,
                         Title = "Dependency Injection in ASP.NET Core",
                         Slug = "di-in-asp-net-core",
@@ -814,6 +822,7 @@ public class DiCourse
                     new Article
                     {
                         Id = 500156,
+                        CourseId = 6,
                         CourseDisplayId = 7,
                         Title = "Dependency Injection Container",
                         Slug = "dependency-injection-container",
@@ -997,6 +1006,7 @@ public class DiCourse
                     new Article
                     {
                         Id = 500157,
+                        CourseId = 6,
                         CourseDisplayId = 8,
                         Title = "Service Lifetimes",
                         Slug = "service-lifetimes",
@@ -1237,6 +1247,7 @@ public class DiCourse
                     new Article
                     {
                         Id = 500158,
+                        CourseId = 6,
                         CourseDisplayId = 9,
                         Title = "Dependency Injection in Console Applications",
                         Slug = "di-in-console-apps",
@@ -1460,6 +1471,7 @@ public class DiCourse
                     new Article
                     {
                         Id = 500159,
+                        CourseId = 6,
                         CourseDisplayId = 10,
                         Title = "Service Collection Extension Pattern",
                         Slug = "service-colletion-extension-pattern",
@@ -1532,6 +1544,7 @@ public class DiCourse
                     new Article
                     {
                         Id = 500160,
+                        CourseId = 6,
                         CourseDisplayId = 11,
                         Title = "Frequently Asked Questions",
                         Slug = "faq",
@@ -1669,6 +1682,7 @@ public class DiCourse
                     new Article
                     {
                         Id = 500161,
+                        CourseId = 6,
                         CourseDisplayId = 12,
                         Title = "Conclusion",
                         Slug = "conclusion",
