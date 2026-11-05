@@ -17,6 +17,13 @@ public static class ChallengePlatformConstants
             ChallengeCategory.CSharp,
             ChallengeCategory.SQL
         ];
+
+        public static readonly IReadOnlyDictionary<ChallengeCategory, string[]> AcceptedLanguages =
+            new Dictionary<ChallengeCategory, string[]>
+            {
+                [ChallengeCategory.CSharp] = ["csharp"],
+                [ChallengeCategory.SQL] = ["sql"]
+            };
     }
 
     public static class LeetCode
@@ -24,6 +31,13 @@ public static class ChallengePlatformConstants
         public const string BaseUrl = "https://leetcode.com/";
         public const string ProblemsUrl = $"{BaseUrl}problems/";
         public const string GraphQLEndpoint = $"{BaseUrl}graphql";
+
+        public static readonly IReadOnlyDictionary<ChallengeCategory, string[]> AcceptedLanguages =
+            new Dictionary<ChallengeCategory, string[]>
+            {
+                [ChallengeCategory.CSharp] = ["csharp"],
+                [ChallengeCategory.SQL] = ["mysql", "mssql", "postgresql", "oraclesql"]
+            };
 
         public static class Queries
         {
@@ -33,6 +47,7 @@ public static class ChallengePlatformConstants
                         title
                         titleSlug
                         statusDisplay
+                        lang
                     }
                 }
                 """;

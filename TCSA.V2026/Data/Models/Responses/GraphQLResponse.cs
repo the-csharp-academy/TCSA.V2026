@@ -6,4 +6,4 @@ public record GraphQLError(string? Message);
 
 public record RecentSubmissionResult(IReadOnlyCollection<RecentSubmission> RecentAcSubmissionList);
 
-public record RecentSubmission(string Title, string TitleSlug, string StatusDisplay);
+public record RecentSubmission(string Title, string TitleSlug, string StatusDisplay, string Lang);

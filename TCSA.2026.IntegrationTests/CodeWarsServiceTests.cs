@@ -1,6 +1,7 @@
 using Moq;
 using System.Net;
 using System.Text;
+using TCSA.V2026.Data.DTOs;
 using TCSA.V2026.Data.DTOs.Challenges;
 using TCSA.V2026.Data.Enums;
 using TCSA.V2026.Data.Models;
@@ -122,6 +123,126 @@ public class CodeWarsServiceTests : IntegrationTestsBase
         }
     }
 
+    [Test]
+    public async Task GetCompletedChallenges_SolvedInDifferentLanguage_IsNotMarkedCompleted()
+    {
+        await SetCodeWarsUsername("user1", "some-user");
+        var service = CreateService(HttpStatusCode.OK, CompletedChallengesJson("abc", "rust"));
+
+        var result = await service.GetCodeWarsCompletedChallenges("user1", CreateChallenges());
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.IsSuccess, Is.True);
+            Assert.That(result.Value.Single(c => c.Id == "abc").IsCompleted, Is.False);
+        }
+    }
+
+    [Test]
+    public async Task SyncChallenge_SolvedInRequiredLanguage_AwardsXp()
+    {
+        await SeedChallenge(1, "abc", ChallengeCategory.SQL, 10);
+        var service = CreateService(HttpStatusCode.OK, CompletedChallengesJson("abc", "rust", "sql"));
+
+        var result = await service.SyncChallenge(CreateSyncRequest("abc", ChallengeCategory.SQL));
+
+        Assert.That(result.IsSuccess, Is.True);
+        Assert.That(GetUserXp("user1"), Is.EqualTo(10));
+    }
+
+    [Test]
+    public async Task SyncChallenge_CSharpChallengeSolvedInCSharp_AwardsXp()
+    {
+        await SeedChallenge(1, "abc", ChallengeCategory.CSharp, 10);
+        var service = CreateService(HttpStatusCode.OK, CompletedChallengesJson("abc", "csharp"));
+
+        var result = await service.SyncChallenge(CreateSyncRequest("abc", ChallengeCategory.CSharp));
+
+        Assert.That(result.IsSuccess, Is.True);
+        Assert.That(GetUserXp("user1"), Is.EqualTo(10));
+    }
+
+    [Test]
+    public async Task SyncChallenge_SolvedInDifferentLanguage_FailsAndAwardsNoXp()
+    {
+        await SeedChallenge(1, "abc", ChallengeCategory.SQL, 10);
+        var service = CreateService(HttpStatusCode.OK, CompletedChallengesJson("abc", "rust"));
+
+        var result = await service.SyncChallenge(CreateSyncRequest("abc", ChallengeCategory.SQL));
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.IsFailure, Is.True);
+            Assert.That(result.Reason.Code, Is.EqualTo("CodeWars.ChallengeNotCompleted"));
+            Assert.That(GetUserXp("user1"), Is.EqualTo(0));
+        }
+    }
+
+    [Test]
+    public async Task SyncChallenge_UnknownCategory_FailsAndAwardsNoXp()
+    {
+        await SeedChallenge(1, "abc", ChallengeCategory.Unknown, 10);
+        var service = CreateService(HttpStatusCode.OK, CompletedChallengesJson("abc", "sql"));
+
+        var result = await service.SyncChallenge(CreateSyncRequest("abc", ChallengeCategory.Unknown));
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.IsFailure, Is.True);
+            Assert.That(result.Reason.Code, Is.EqualTo("CodeWars.UnsupportedCategory"));
+            Assert.That(GetUserXp("user1"), Is.EqualTo(0));
+        }
+    }
+
+    [Test]
+    public async Task SyncChallenge_KataNotInCompletedList_Fails()
+    {
+        await SeedChallenge(1, "abc", ChallengeCategory.SQL, 10);
+        var service = CreateService(HttpStatusCode.OK, CompletedChallengesJson("other", "sql"));
+
+        var result = await service.SyncChallenge(CreateSyncRequest("abc", ChallengeCategory.SQL));
+
+        Assert.That(result.Reason.Code, Is.EqualTo("CodeWars.ChallengeNotCompleted"));
+    }
+
+    [Test]
+    public async Task SyncChallenge_WithoutUsername_Fails()
+    {
+        var service = CreateService(HttpStatusCode.OK, "{}");
+
+        var result = await service.SyncChallenge(new SyncChallengeRequest(
+            new UserPlatformCredentials(null, null), 1, "abc", "user1", ChallengeCategory.SQL));
+
+        Assert.That(result.Reason.Code, Is.EqualTo("CodeWars.AccountNotIntegrated"));
+    }
+
+    private static SyncChallengeRequest CreateSyncRequest(string externalId, ChallengeCategory category) =>
+        new(new UserPlatformCredentials("some-user", null), 1, externalId, "user1", category);
+
+    private async Task SeedChallenge(int id, string externalId, ChallengeCategory category, int xp)
+    {
+        using var context = DbContextFactory.CreateDbContext();
+        context.Challenges.Add(new Challenge
+        {
+            Id = id,
+            ExternalId = externalId,
+            Description = "desc",
+            Keywords = "kw",
+            Name = "challenge",
+            ExperiencePoints = xp,
+            Platform = ChallengePlatform.CodeWars,
+            Level = Level.Green,
+            Category = category
+        });
+        await context.SaveChangesAsync();
+    }
+
+    private int GetUserXp(string userId)
+    {
+        using var context = DbContextFactory.CreateDbContext();
+        return context.AspNetUsers.First(u => u.Id == userId).ExperiencePoints;
+    }
+
     private async Task SetCodeWarsUsername(string userId, string username)
     {
         using var context = DbContextFactory.CreateDbContext();
@@ -136,8 +257,11 @@ public class CodeWarsServiceTests : IntegrationTestsBase
         new CodeWarsChallenge { Id = "def", Name = "Second" }
     ];
 
-    private static string CompletedChallengesJson(string completedId) =>
-        $$"""{"totalPages":1,"totalItems":1,"data":[{"id":"{{completedId}}","name":"First","slug":"first","completedLanguages":["sql"],"completedAt":"2024-01-01T00:00:00Z"}]}""";
+    private static string CompletedChallengesJson(string completedId, params string[] languages)
+    {
+        var langs = string.Join(",", (languages.Length == 0 ? ["sql"] : languages).Select(l => $"\"{l}\""));
+        return $$"""{"totalPages":1,"totalItems":1,"data":[{"id":"{{completedId}}","name":"First","slug":"first","completedLanguages":[{{langs}}],"completedAt":"2024-01-01T00:00:00Z"}]}""";
+    }
 
     private CodewarsService CreateService(HttpStatusCode statusCode, string responseBody)
     {

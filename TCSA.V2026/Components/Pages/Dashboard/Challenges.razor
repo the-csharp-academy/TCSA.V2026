@@ -136,7 +136,7 @@
                                     Variant="@Variant.Filled"
                                     Color="@Color.Primary"
                                     Disabled="@(ProcessingChallenges.Contains(challenge.Id) || IsInCooldown(challenge.Id))"
-                                    OnClick="@(() => Sync(challenge.Id, challenge.ExternalId, challenge.Platform))">
+                                    OnClick="@(() => Sync(challenge.Id, challenge.ExternalId, challenge.Platform, challenge.Category))">
                                         @if (ProcessingChallenges.Contains(challenge.Id))
                                         {
                                             <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
@@ -288,7 +288,7 @@
             DateTime.UtcNow.AddSeconds(CooldownSeconds);
     }
 
-    private async Task Sync(int challengeId, string externalId, ChallengePlatform platform)
+    private async Task Sync(int challengeId, string externalId, ChallengePlatform platform, ChallengeCategory category)
     {
         if (!ProcessingChallenges.Add(challengeId))
             return;
@@ -304,7 +304,8 @@
             new UserPlatformCredentials(User.CodeWarsUsername, User.LeetCodeUsername),
             challengeId,
             externalId,
-            UserId
+            UserId,
+            category
         ), platform);
 
         if (result.IsSuccess)
