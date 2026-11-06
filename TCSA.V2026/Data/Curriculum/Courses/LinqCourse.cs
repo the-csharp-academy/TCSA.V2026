@@ -5,7 +5,9 @@ namespace TCSA.V2026.Data.Curriculum;
 
 public class LinqCourse
 {
-    public static Course GetLinqCourse()
+    public static readonly Course Instance = BuildCourse();
+
+    private static Course BuildCourse()
     {
         return new Course
         {
@@ -18,6 +20,7 @@ public class LinqCourse
                 new Article
                 {
                         Id = 500249,
+                        CourseId = 8,
                         CourseDisplayId = 1,
                         Title = "About This Course",
                         Slug = "about-this-linq-course",
@@ -124,6 +127,7 @@ public class LinqCourse
                 new Article
                 {
                         Id = 500250,
+                        CourseId = 8,
                         CourseDisplayId = 2,
                         Title = "What Is LINQ?",
                         Slug = "what-is-linq",
@@ -224,6 +228,7 @@ public class LinqCourse
                 new Article
                 {
                         Id = 500251,
+                        CourseId = 8,
                         CourseDisplayId = 3,
                         Title = "Why Did Microsoft Create LINQ?",
                         Slug = "why-did-microsoft-create-linq",
@@ -356,6 +361,7 @@ public class LinqCourse
                 new Article
                 {
                         Id = 500252,
+                        CourseId = 8,
                         CourseDisplayId = 4,
                         Title = "LINQ vs Loops",
                         Slug = "linq-vs-loops",
@@ -453,6 +459,7 @@ public class LinqCourse
                 new Article
                 {
                         Id = 500253,
+                        CourseId = 8,
                         CourseDisplayId = 5,
                         Title = "The Course Project",
                         Slug = "the-course-project",
@@ -599,6 +606,7 @@ public class LinqCourse
                 new Article
                 {
                         Id = 500254,
+                        CourseId = 8,
                         CourseDisplayId = 6,
                         Title = "Filtering Data With Where",
                         Slug = "filtering-data-with-where",
@@ -916,6 +924,7 @@ public class LinqCourse
                 new Article
                 {
                         Id = 500256,
+                        CourseId = 8,
                         CourseDisplayId = 7,
                         Title = "Transforming Data With Select",
                         Slug = "transforming-data-with-select",
@@ -1301,6 +1310,7 @@ public class LinqCourse
                 new Article
                 {
                         Id = 500255,
+                        CourseId = 8,
                         CourseDisplayId = 8,
                         Title = "Asking Questions With Any, All, and Contains",
                         Slug = "asking-questions-with-any-all-and-contains",
@@ -1600,6 +1610,7 @@ public class LinqCourse
                 new Article
                 {
                         Id = 500257,
+                        CourseId = 8,
                         CourseDisplayId = 9,
                         Title = "Working With Nested Collections",
                         Slug = "working-with-nested-collections",
@@ -1936,6 +1947,7 @@ public class LinqCourse
                 new Article
                 {
                         Id = 500258,
+                        CourseId = 8,
                         CourseDisplayId = 10,
                         Title = "Sorting Data With OrderBy",
                         Slug = "sorting-data-with-orderby",
@@ -2125,6 +2137,7 @@ public class LinqCourse
                 new Article
                 {
                         Id = 500259,
+                        CourseId = 8,
                         CourseDisplayId = 11,
                         Title = "Multi-Level Sorting With ThenBy",
                         Slug = "multi-level-sorting-with-thenby",
@@ -2280,6 +2293,7 @@ public class LinqCourse
                 new Article
                 {
                     Id = 500260,
+                    CourseId = 8,
                     CourseDisplayId = 12,
                     Title = "Counting Items With Count",
                     Slug = "counting-items-with-count",
@@ -2510,6 +2524,7 @@ public class LinqCourse
                 new Article
                 {
                     Id = 500261,
+                    CourseId = 8,
                     CourseDisplayId = 13,
                     Title = "Calculating Totals and Averages",
                     Slug = "calculating-totals-and-averages",
@@ -2759,6 +2774,7 @@ public class LinqCourse
                 new Article
                 {
                     Id = 500262,
+                    CourseId = 8,
                     CourseDisplayId = 14,
                     Title = "Finding Smallest and Largest Values",
                     Slug = "finding-smallest-and-largest-values",
@@ -2968,6 +2984,7 @@ public class LinqCourse
                 new Article
                 {
                     Id = 500263,
+                    CourseId = 8,
                     CourseDisplayId = 15,
                     Title = "Getting the First Matching Item",
                     Slug = "getting-the-first-matching-item",
@@ -3139,6 +3156,7 @@ public class LinqCourse
                 new Article
                 {
                     Id = 500264,
+                    CourseId = 8,
                     CourseDisplayId = 16,
                     Title = "Getting Exactly One Item",
                     Slug = "getting-exactly-one-item",
@@ -3304,6 +3322,7 @@ public class LinqCourse
                 new Article
                 {
                     Id = 500265,
+                    CourseId = 8,
                     CourseDisplayId = 17,
                     Title = "Removing Duplicate Values With Distinct",
                     Slug = "removing-duplicate-values-with-distinct",
@@ -3480,6 +3499,7 @@ public class LinqCourse
                 new Article
                 {
                     Id = 500266,
+                    CourseId = 8,
                     CourseDisplayId = 18,
                     Title = "Course Project: Stock Insights Reporter",
                     Slug = "course-project-stock-insights-reporter",

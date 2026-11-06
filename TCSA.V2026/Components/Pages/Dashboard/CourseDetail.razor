@@ -4,6 +4,7 @@
 @using TCSA.V2026.Components.UI
 @using TCSA.V2026.Data.Curriculum
 @using TCSA.V2026.Data.Models
+@using TCSA.V2026.Helpers.Constants
 @using TCSA.V2026.Services
 @inject IJSRuntime JSRuntime
 
@@ -133,16 +134,19 @@
                     </div>
 
                     <div class="course-content">
-                        @foreach (var block in BlocksToShow)
+                        @foreach (var (blockIndex, block) in BlocksToShow)
                         {
+                            var capturedBlockIndex = blockIndex;
                             <div class="@GetBlockClass(block)" style="@GetBlockStyle(block)">
                                 @if (!string.IsNullOrEmpty(block.Title))
                                 {
-                                    <h2 class="course-block-title">@block.Title</h2>
+                                    <h2 class="course-block-title" id="@ContentAnchors.ArticleBlockTitleId(capturedBlockIndex)">@block.Title</h2>
                                 }
 
-                                @foreach (var paragraph in block.Paragraphs)
+                                @for (var paragraphIndex = 0; paragraphIndex < block.Paragraphs.Count; paragraphIndex++)
                                 {
+                                    var paragraph = block.Paragraphs[paragraphIndex];
+                                    var capturedParagraphIndex = paragraphIndex;
                                     if (paragraph.IsCode)
                                     {
                                         <MudPaper Class="course-code-block overflow-auto line-numbers" Elevation="0">
@@ -170,14 +174,16 @@
                                             var textStyle = $"color: {paragraph.FontColor};";
 
                                             <MudPaper Style="@bgStyle" Elevation="1" Class="course-callout">
-                                                <MudText Style="@textStyle" Typo="Typo.body1">
+                                                <MudText Style="@textStyle" Typo="Typo.body1"
+                                                         UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ArticleBlockParagraphId(capturedBlockIndex, capturedParagraphIndex) })">
                                                     @((MarkupString)paragraph.Body)
                                                 </MudText>
                                             </MudPaper>
                                         }
                                         else
                                         {
-                                            <MudText Class="course-paragraph" Typo="Typo.body1">
+                                            <MudText Class="course-paragraph" Typo="Typo.body1"
+                                                     UserAttributes="@(new Dictionary<string, object> { ["id"] = ContentAnchors.ArticleBlockParagraphId(capturedBlockIndex, capturedParagraphIndex) })">
                                                 @((MarkupString)paragraph.Body)
                                             </MudText>
                                         }
@@ -782,7 +788,7 @@
     [Parameter] public int ArticleDisplayId { get; set; }
     [Parameter] public bool IsCode { get; set; } = false;
 
-    private List<Data.Models.Block> BlocksToShow = new();
+    private List<(int Index, Data.Models.Block Block)> BlocksToShow = new();
     private Course Course { get; set; }
     private Article Article { get; set; }
     private List<int> CompletedProjects = new();
@@ -906,9 +912,10 @@
         Article = Course?.Articles.FirstOrDefault(a => a.Id == ArticleId)
             ?? Course?.Articles.FirstOrDefault(a => a.CourseDisplayId == ArticleDisplayId);
 
-        BlocksToShow = IsCode
-            ? Article?.Blocks.Where(x => x.IsCourseCodePage).ToList() ?? []
-            : Article?.Blocks.Where(x => !x.IsCourseCodePage).ToList() ?? [];
+        BlocksToShow = Article?.Blocks
+            .Select((block, index) => (Index: index, Block: block))
+            .Where(x => x.Block.IsCourseCodePage == IsCode)
+            .ToList() ?? [];
 
         if (Course is null || Article is null)
         {

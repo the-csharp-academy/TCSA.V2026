@@ -4,20 +4,24 @@ namespace TCSA.V2026.Data.Curriculum;
 
 public class CourseHelper
 {
-    public static List<Course> GetCourses()
+    private static readonly List<Course> _allCourses = BuildCourses();
+
+    private static List<Course> BuildCourses()
     {
-        return new List<Course>
-        {
-            OopCourse.GetOopCourse(),
-            WebApiCourse.GetWebApiCourse(),
-            SqlCourse.GetSqlCourse(),
-            WpfCourse.GetWpfCourse(),
-            DiCourse.GetDiCourse(),
+        return
+        [
+            OopCourse.Instance,
+            WebApiCourse.Instance,
+            SqlCourse.Instance,
+            WpfCourse.Instance,
+            DiCourse.Instance,
             //ReactCourse.GetReactCourse(),
-            LinqCourse.GetLinqCourse(),
-            DataStructuresCourse.GetDataStructuresCourse(),
-            UnityMovingObjectCourse.GetUnityMovingObjectCourse(),
+            LinqCourse.Instance,
+            DataStructuresCourse.Instance,
+            UnityMovingObjectCourse.Instance,
             //UnityCSharpCourse.GetUnityCSharpCourse()
-        };
+        ];
     }
+
+    public static List<Course> GetCourses() => _allCourses;
 }

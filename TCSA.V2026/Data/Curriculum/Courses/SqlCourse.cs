@@ -4,7 +4,9 @@ namespace TCSA.V2026.Data.Curriculum;
 
 public class SqlCourse
 {
-    public static Course GetSqlCourse()
+    public static readonly Course Instance = BuildCourse();
+
+    private static Course BuildCourse()
     {
         return new Course
         {
@@ -17,6 +19,7 @@ public class SqlCourse
                     new Article
                     {
                         Id = 500070,
+                        CourseId = 4,
                         CourseDisplayId = 1,
                         Title = "Introduction",
                         Slug = "intro-to-sql-intro",
@@ -72,6 +75,7 @@ public class SqlCourse
                     new Article
                     {
                         Id = 500071,
+                        CourseId = 4,
                         CourseDisplayId = 2,
                         Title = "Working With Sqlite",
                         Slug = "intro-to-sql-sqlite",
@@ -138,6 +142,7 @@ public class SqlCourse
                     new Article
                     {
                         Id = 500072,
+                        CourseId = 4,
                         CourseDisplayId = 3,
                         Title = "SQL Data Types",
                         Slug = "intro-to-sql-data-types",
@@ -203,6 +208,7 @@ public class SqlCourse
                     new Article
                     {
                         Id = 500073,
+                        CourseId = 4,
                         CourseDisplayId = 4,
                         Title = "Table Creation",
                         Slug = "intro-to-sql-data-types-table-creation",
@@ -283,6 +289,7 @@ public class SqlCourse
                     new Article
                     {
                         Id = 500074,
+                        CourseId = 4,
                         CourseDisplayId = 5,
                         Title = "Practice Creating a Table",
                         Slug = "intro-to-sql-practice-create",
@@ -341,6 +348,7 @@ public class SqlCourse
                     new Article
                     {
                         Id = 500075,
+                        CourseId = 4,
                         CourseDisplayId = 6,
                         Title = "Inserting Data",
                         Slug = "intro-to-sql-insert",
@@ -434,6 +442,7 @@ public class SqlCourse
                     new Article
                     {
                         Id = 500076,
+                        CourseId = 4,
                         CourseDisplayId = 7,
                         Title = "Querying Data",
                         Slug = "intro-to-sql-querying",
@@ -484,6 +493,7 @@ public class SqlCourse
                     new Article
                     {
                         Id = 500077,
+                        CourseId = 4,
                         CourseDisplayId = 8,
                         Title = "Filtering and Ordering Data",
                         Slug = "intro-to-sql-filtering",
@@ -580,6 +590,7 @@ public class SqlCourse
                     new Article
                     {
                         Id = 500078,
+                        CourseId = 4,
                         CourseDisplayId = 9,
                         Title = "Aggregate Functions",
                         Slug = "intro-to-sql-aggregate-functions",
@@ -679,6 +690,7 @@ public class SqlCourse
                     new Article
                     {
                         Id = 500079,
+                        CourseId = 4,
                         CourseDisplayId = 10,
                         Title = "Deleting Data",
                         Slug = "intro-to-sql-deleting",
@@ -745,6 +757,7 @@ public class SqlCourse
                     new Article
                     {
                         Id = 500080,
+                        CourseId = 4,
                         CourseDisplayId = 11,
                         Title = "Updating Data",
                         Slug = "intro-to-sql-updating",
@@ -827,6 +840,7 @@ public class SqlCourse
                     new Article
                     {
                         Id = 500081,
+                        CourseId = 4,
                         CourseDisplayId = 12,
                         Title = "Relational Data",
                         Slug = "intro-to-sql-relational-data",
@@ -912,6 +926,7 @@ public class SqlCourse
                     new Article
                     {
                         Id = 500082,
+                        CourseId = 4,
                         CourseDisplayId = 13,
                         Title = "Joins",
                         Slug = "intro-to-sql-joins",
@@ -1029,6 +1044,7 @@ public class SqlCourse
                     new Article
                     {
                         Id = 500083,
+                        CourseId = 4,
                         CourseDisplayId = 14,
                         Title = "Relationships",
                         Slug = "intro-to-sql-relationships",
@@ -1122,6 +1138,7 @@ public class SqlCourse
                     new Article
                     {
                         Id = 500084,
+                        CourseId = 4,
                         CourseDisplayId = 15,
                         Title = "Group By",
                         Slug = "intro-to-sql-groupby",
@@ -1223,6 +1240,7 @@ public class SqlCourse
                     new Article
                     {
                         Id = 500085,
+                        CourseId = 4,
                         CourseDisplayId = 16,
                         Title = "Database Design",
                         Slug = "intro-to-sql-design",
@@ -1313,6 +1331,7 @@ public class SqlCourse
                     new Article
                     {
                         Id = 500086,
+                        CourseId = 4,
                         CourseDisplayId = 17,
                         Title = "Conclusion",
                         Slug = "intro-to-sql-conclusion",

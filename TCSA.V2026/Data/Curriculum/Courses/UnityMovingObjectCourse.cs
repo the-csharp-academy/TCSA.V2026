@@ -6,7 +6,9 @@ namespace TCSA.V2026.Data.Curriculum;
 
 public class UnityMovingObjectCourse
 {
-    public static Course GetUnityMovingObjectCourse()
+    public static readonly Course Instance = BuildCourse();
+
+    private static Course BuildCourse()
     {
         return new Course
         {
@@ -18,6 +20,7 @@ public class UnityMovingObjectCourse
             Articles = new List<Article>
             {
                 IntroChapter(
+                    10,
                     1,
                     "About This Course",
                     "about-build-your-first-2d-unity-game",
@@ -95,6 +98,7 @@ public class UnityMovingObjectCourse
                         }
                     }),
                 IntroChapter(
+                    10,
                     2,
                     "Unity in Game Development: Context and History",
                     "unity-game-development-context-and-history",
@@ -167,6 +171,7 @@ public class UnityMovingObjectCourse
                         }
                     }),
                 IntroChapter(
+                    10,
                     3,
                     "Install Unity",
                     "install-unity-on-windows-macos-and-linux",

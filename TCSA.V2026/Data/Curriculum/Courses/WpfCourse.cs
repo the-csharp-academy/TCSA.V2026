@@ -4,7 +4,9 @@ namespace TCSA.V2026.Data.Curriculum;
 
 public class WpfCourse
 {
-    public static Course GetWpfCourse()
+    public static readonly Course Instance = BuildCourse();
+
+    private static Course BuildCourse()
     {
         return new Course
         {
@@ -17,6 +19,7 @@ public class WpfCourse
                     new Article
                     {
                         Id = 500100,
+                        CourseId = 5,
                         CourseDisplayId = 1,
                         Title = "Introduction",
                         Slug = "intro-to-wpf-intro",
@@ -99,6 +102,7 @@ public class WpfCourse
                     new Article
                     {
                         Id = 500101,
+                        CourseId = 5,
                         CourseDisplayId = 2,
                         Title = "About the Course",
                         Slug = "intro-to-wpf-about",
@@ -175,6 +179,7 @@ public class WpfCourse
                     new Article
                     {
                         Id = 500102,
+                        CourseId = 5,
                         CourseDisplayId = 3,
                         Title = "Project Creation",
                         Slug = "intro-to-wpf-project-creation",
@@ -257,6 +262,7 @@ public class WpfCourse
                     new Article
                     {
                         Id = 500103,
+                        CourseId = 5,
                         CourseDisplayId = 4,
                         Title = "Exploring the Template",
                         Slug = "intro-to-wpf-exploring",
@@ -313,6 +319,7 @@ public class WpfCourse
                     new Article
                     {
                         Id = 500104,
+                        CourseId = 5,
                         CourseDisplayId = 5,
                         Title = "Visual Studio Components",
                         Slug = "intro-to-wpf-vs-components",
@@ -396,6 +403,7 @@ public class WpfCourse
                     new Article
                     {
                         Id = 500105,
+                        CourseId = 5,
                         CourseDisplayId = 6,
                         Title = "Main Window",
                         Slug = "intro-to-wpf-main-window",
@@ -483,6 +491,7 @@ public class WpfCourse
                     new Article
                     {
                         Id = 500106,
+                        CourseId = 5,
                         CourseDisplayId = 7,
                         Title = "Adding Some Text",
                         Slug = "intro-to-wpf-adding-some-text",
@@ -563,6 +572,7 @@ public class WpfCourse
                     new Article
                     {
                         Id = 500107,
+                        CourseId = 5,
                         CourseDisplayId = 8,
                         Title = "Using Grids",
                         Slug = "intro-to-wpf-using-grids",
@@ -633,6 +643,7 @@ public class WpfCourse
                     new Article
                     {
                         Id = 500108,
+                        CourseId = 5,
                         CourseDisplayId = 9,
                         Title = "List of Recipes",
                         Slug = "intro-to-wpf-list-of-recipes",
@@ -743,6 +754,7 @@ public class WpfCourse
                     new Article
                     {
                         Id = 500109,
+                        CourseId = 5,
                         CourseDisplayId = 10,
                         Title = "Selecting a Recipe",
                         Slug = "intro-to-wpf-selecting-recipe",
@@ -836,6 +848,7 @@ public class WpfCourse
                     new Article
                     {
                         Id = 500110,
+                        CourseId = 5,
                         CourseDisplayId = 11,
                         Title = "Adding a Recipe",
                         Slug = "intro-to-wpf-adding-recipe",
@@ -951,6 +964,7 @@ public class WpfCourse
                     new Article
                     {
                         Id = 500111,
+                        CourseId = 5,
                         CourseDisplayId = 12,
                         Title = "Editing a Recipe",
                         Slug = "intro-to-wpf-editing-recipe",
@@ -1035,6 +1049,7 @@ public class WpfCourse
                     new Article
                     {
                         Id = 500112,
+                        CourseId = 5,
                         CourseDisplayId = 13,
                         Title = "Deleting a Recipe",
                         Slug = "intro-to-wpf-deleting-recipe",
@@ -1107,6 +1122,7 @@ public class WpfCourse
                     new Article
                     {
                         Id = 500113,
+                        CourseId = 5,
                         CourseDisplayId = 14,
                         Title = "Connecting to a Database",
                         Slug = "intro-to-wpf-database",
@@ -1201,6 +1217,7 @@ public class WpfCourse
                     new Article
                     {
                         Id = 500114,
+                        CourseId = 5,
                         CourseDisplayId = 15,
                         Title = "Resource Dictionaries",
                         Slug = "intro-to-wpf-dictionaries",
@@ -1304,6 +1321,7 @@ public class WpfCourse
                     new Article
                     {
                         Id = 500115,
+                        CourseId = 5,
                         CourseDisplayId = 16,
                         Title = "Applying Styles",
                         Slug = "intro-to-wpf-styling",
@@ -1375,6 +1393,7 @@ public class WpfCourse
                     new Article
                     {
                         Id = 500116,
+                        CourseId = 5,
                         CourseDisplayId = 17,
                         Title = "Where to Go From Here",
                         Slug = "intro-to-wpf-from-here",
