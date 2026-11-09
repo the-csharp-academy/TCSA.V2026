@@ -1,0 +1,60 @@
+@using System.Security.Claims
+@using TCSA.V2026.Components.UI
+@using TCSA.V2026.Helpers
+@inject NavigationManager Nav
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IDialogService DialogService
+@implements IDisposable
+
+@if (!string.IsNullOrEmpty(_userId) && !IsAdminPage)
+{
+    <MudIconButton Icon="@Icons.Material.Filled.Feedback"
+                   Color="Color.Inherit"
+                   aria-label="Send feedback"
+                   Title="Send feedback"
+                   OnClick="OpenDialog" />
+}
+
+@code {
+    private string? _userId;
+
+    private bool IsAdminPage => FeedbackPageHelper.IsAdminPath(Nav.Uri);
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity?.IsAuthenticated == true)
+        {
+            _userId = authState.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        }
+
+        Nav.LocationChanged += HandleLocationChanged;
+    }
+
+    private void HandleLocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
+    {
+        _ = InvokeAsync(StateHasChanged);
+    }
+
+    private async Task OpenDialog()
+    {
+        var options = new DialogOptions
+        {
+            MaxWidth = MaxWidth.Small,
+            FullWidth = true,
+            CloseButton = true
+        };
+        var parameters = new DialogParameters<TCSAFeedbackDialog>
+        {
+            { p => p.UserId, _userId },
+            { p => p.OriginUrl, Nav.ToBaseRelativePath(Nav.Uri) }
+        };
+
+        await DialogService.ShowAsync<TCSAFeedbackDialog>(null, parameters, options);
+    }
+
+    public void Dispose()
+    {
+        Nav.LocationChanged -= HandleLocationChanged;
+    }
+}
