@@ -3,6 +3,7 @@
 @using Microsoft.AspNetCore.Authorization
 @using TCSA.V2026.Data.DTOs
 @using TCSA.V2026.Data.Models
+@using TCSA.V2026.Helpers
 @using TCSA.V2026.Services
 
 @attribute [Authorize(Roles = "Admin")]
@@ -39,6 +40,95 @@
             </MudPaper>
         </div>
     </MudPaper>
+
+    @if (overview is not null)
+    {
+        <MudStack Row Class="mt-4" Spacing="4" Breakpoint="Breakpoint.Xs">
+            <a href="/admin/surveys" class="overview-link flex-grow-1" aria-label="Survey responses in the last 7 days">
+                <MudPaper Class="pb-3 overview-card" Elevation="3">
+                    <MudStack AlignItems="AlignItems.Center" Spacing="2" Class="py-3 px-4" Style="@($"background-color:{Colors.Blue.Default}")">
+                        <i class="fas fa-comments fa-3x" style="color: white;" aria-hidden="true" />
+                        <MudText Typo="Typo.subtitle1" Style="font-weight: bold; color: white;">RESPONSES</MudText>
+                    </MudStack>
+                    <MudStack Spacing="0" AlignItems="AlignItems.Center" Class="px-4">
+                        <MudText Style="font-size: 2.5rem; font-weight: bolder;">@overview.ResponsesLastSevenDays</MudText>
+                        <MudText Style="font-size: 1.25rem;">Last 7 days</MudText>
+                    </MudStack>
+                </MudPaper>
+            </a>
+            <a href="/admin/surveys" class="overview-link flex-grow-1" aria-label="Active surveys">
+                <MudPaper Class="pb-3 overview-card" Elevation="3">
+                    <MudStack AlignItems="AlignItems.Center" Spacing="2" Class="py-3 px-4" Style="@($"background-color:{Colors.Green.Lighten1}")">
+                        <i class="fas fa-poll fa-3x" style="color: white;" aria-hidden="true" />
+                        <MudText Typo="Typo.subtitle1" Style="font-weight: bold; color: white;">SURVEYS</MudText>
+                    </MudStack>
+                    <MudStack Spacing="0" AlignItems="AlignItems.Center" Class="px-4">
+                        <MudText Style="font-size: 2.5rem; font-weight: bolder;">@overview.ActiveSurveys</MudText>
+                        <MudText Style="font-size: 1.25rem;">Active</MudText>
+                    </MudStack>
+                </MudPaper>
+            </a>
+            <a href="/admin/feedback?tab=review" class="overview-link flex-grow-1" aria-label="Feedback waiting for review">
+                <MudPaper Class="pb-3 overview-card" Elevation="3">
+                    <MudStack AlignItems="AlignItems.Center" Spacing="2" Class="py-3 px-4" Style="@($"background-color:{Colors.Red.Default}")">
+                        <i class="fas fa-inbox fa-3x" style="color: white;" aria-hidden="true" />
+                        <MudText Typo="Typo.subtitle1" Style="font-weight: bold; color: white;">NEEDS REVIEW</MudText>
+                    </MudStack>
+                    <MudStack Spacing="0" AlignItems="AlignItems.Center" Class="px-4">
+                        <MudText Style="font-size: 2.5rem; font-weight: bolder;">@overview.ReviewQueueSize</MudText>
+                        <MudText Style="font-size: 1.25rem;">New reports</MudText>
+                    </MudStack>
+                </MudPaper>
+            </a>
+        </MudStack>
+
+        <MudGrid Class="mt-2" Spacing="4">
+            <MudItem xs="12" md="6">
+                <MudPaper Elevation="3" Class="overview-list">
+                    <div class="overview-list-header">Latest feedback</div>
+                    @if (overview.RecentItems.Count == 0)
+                    {
+                        <MudText Typo="Typo.body2" Class="pa-4 text-secondary">No feedback yet.</MudText>
+                    }
+                    @foreach (var item in overview.RecentItems)
+                    {
+                        <a href="/admin/feedback" class="overview-row">
+                            <MudIcon Icon="@FeedbackLabelHelper.CategoryIcon(item.Category)"
+                                     Color="@FeedbackLabelHelper.CategoryColor(item.Category)" />
+                            <span class="overview-row-text">
+                                <span class="overview-row-title">@FeedbackLabelHelper.Excerpt(item.Body)</span>
+                                <span class="overview-row-meta">@item.UserLabel · @item.CreatedAt.ToLocalTime().ToString("dd MMM yyyy, h:mm tt")</span>
+                            </span>
+                        </a>
+                    }
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudPaper Elevation="3" Class="overview-list">
+                    <div class="overview-list-header">Top clusters</div>
+                    @if (overview.TopClusters.Count == 0)
+                    {
+                        <MudText Typo="Typo.body2" Class="pa-4 text-secondary">No clusters yet.</MudText>
+                    }
+                    @foreach (var cluster in overview.TopClusters)
+                    {
+                        <a href="@(cluster.NewCount > 0 ? "/admin/feedback?tab=review" : "/admin/feedback")" class="overview-row">
+                            <MudIcon Icon="@FeedbackLabelHelper.CategoryIcon(cluster.Category)"
+                                     Color="@FeedbackLabelHelper.CategoryColor(cluster.Category)" />
+                            <span class="overview-row-text">
+                                <span class="overview-row-title">@FeedbackLabelHelper.CategoryLabel(cluster.Category) · @cluster.Page</span>
+                                <span class="overview-row-meta">@cluster.Count total · last seen @cluster.LastSeen.ToLocalTime().ToString("dd MMM yyyy, h:mm tt")</span>
+                            </span>
+                            @if (cluster.NewCount > 0)
+                            {
+                                <MudChip T="string" Size="Size.Small" Color="Color.Error">@cluster.NewCount new</MudChip>
+                            }
+                        </a>
+                    }
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+    }
 
     @if (IsLoading)
     {
@@ -118,14 +208,17 @@
 @code {
     [Inject] protected IAdminService UserService { get; set; }
     [Inject] private NavigationManager Navigation { get; set; }
+    [Inject] private IFeedbackAdminService FeedbackAdminService { get; set; } = null!;
 
     private List<AdminEventDisplay>? adminEvents { get; set; } = new();
+    private FeedbackOverviewDto? overview;
 
     private bool IsLoading = true;
     private int TotalEvents => adminEvents?.Count ?? 0;
 
     protected override async Task OnInitializedAsync()
     {
+        overview = await FeedbackAdminService.GetOverview();
         adminEvents = await UserService.GetAdminEvents();
         IsLoading = false;
     }
@@ -184,6 +277,66 @@
         border-radius: 14px;
         border: 1px solid rgba(var(--mud-palette-lines-default-rgb), 0.6);
         background: linear-gradient(165deg, rgba(var(--mud-palette-surface-rgb), 1) 0%, rgba(var(--mud-palette-primary-rgb), 0.05) 100%);
+    }
+
+    .overview-link {
+        text-decoration: none;
+        color: inherit;
+        display: block;
+    }
+
+    .overview-card {
+        overflow: hidden;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .overview-link:hover .overview-card,
+    .overview-link:focus-visible .overview-card {
+        transform: translateY(-3px);
+    }
+
+    .overview-list {
+        overflow: hidden;
+    }
+
+    .overview-list-header {
+        padding: 0.6rem 1rem;
+        font-weight: 600;
+        color: var(--mud-palette-primary-text);
+        background-color: var(--mud-palette-primary);
+    }
+
+    .overview-row {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.65rem 1rem;
+        text-decoration: none;
+        color: inherit;
+        border-bottom: 1px solid rgba(var(--mud-palette-lines-default-rgb), 0.6);
+    }
+
+    .overview-row:hover,
+    .overview-row:focus-visible {
+        background-color: rgba(var(--mud-palette-primary-rgb), 0.08);
+    }
+
+    .overview-row-text {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-width: 0;
+    }
+
+    .overview-row-title {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .overview-row-meta {
+        font-size: 0.75rem;
+        color: var(--mud-palette-text-secondary);
     }
 
     .loading-state {
