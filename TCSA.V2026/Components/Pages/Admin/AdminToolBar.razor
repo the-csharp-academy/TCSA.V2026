@@ -1,9 +1,10 @@
-﻿<MudPaper Elevation="25">
-    <MudToolBar>
+﻿<MudPaper Elevation="25" Class="admin-toolbar-scroll">
+    <MudToolBar Class="admin-toolbar-inner">
         <MudIconButton Icon="@Icons.Material.Outlined.List" OnClick="NavigateToMain"/>
         <MudIconButton Icon="@Icons.Material.Outlined.Search" OnClick="NavigateToSearch" />
         <MudIconButton Icon="@Icons.Material.Outlined.PendingActions" OnClick="NavigateToPending" />
         <MudIconButton Icon="@Icons.Material.Outlined.Comment" OnClick="NavigateToComments" />
+        <MudIconButton Icon="@Icons.Material.Outlined.Feedback" OnClick="NavigateToFeedback" />
         <MudIconButton Icon="@Icons.Material.Outlined.Assessment" OnClick="NavigateToReports" />
         <MudIcon Icon="@Icons.Material.Outlined.Numbers" /> 
         <MudText Style="font-weight: 600; font-size:large">@Count</MudText>
@@ -35,8 +36,30 @@
         Navigation.NavigateTo("/admin/comments");
     }
 
+    private void NavigateToFeedback()
+    {
+        Navigation.NavigateTo("/admin/feedback");
+    }
+
     private void NavigateToReports()
     {
         Navigation.NavigateTo("/adminreports");
     }
 }
+
+<style>
+    /* Scrolls sideways instead of overflowing the page on narrow screens. */
+    .admin-toolbar-scroll {
+        overflow-x: auto;
+        scrollbar-width: thin;
+    }
+
+    .admin-toolbar-inner {
+        width: max-content;
+        min-width: 100%;
+    }
+
+    .admin-toolbar-inner > * {
+        flex-shrink: 0;
+    }
+</style>
