@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
 using TCSA.V2026.Data;
 using TCSA.V2026.Data.DTOs;
 using TCSA.V2026.Data.Enums;
@@ -43,7 +42,7 @@ public class FeedbackAdminService(IDbContextFactory<ApplicationDbContext> _facto
             .ThenByDescending(f => f.Id)
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
-            .Select(ToDto)
+            .ToDto()
             .ToListAsync();
 
         return new PaginatedList<FeedbackAdminItemDto>(items, totalItems, pageNumber, pageSize);
@@ -56,7 +55,7 @@ public class FeedbackAdminService(IDbContextFactory<ApplicationDbContext> _facto
         var item = await context.FeedbackItems
             .AsNoTracking()
             .Where(f => f.Id == id)
-            .Select(ToDto)
+            .ToDto()
             .FirstOrDefaultAsync();
 
         return item is null ? Result.Failure<FeedbackAdminItemDto>(NotFound) : Result.Success(item);
@@ -113,7 +112,7 @@ public class FeedbackAdminService(IDbContextFactory<ApplicationDbContext> _facto
                 .OrderByDescending(f => f.CreatedAt)
                 .ThenByDescending(f => f.Id)
                 .Take(OverviewRecentItemCount)
-                .Select(ToDto)
+                .ToDto()
                 .ToListAsync(),
 
             TopClusters = await Clusters(items)
@@ -180,7 +179,7 @@ public class FeedbackAdminService(IDbContextFactory<ApplicationDbContext> _facto
             .OrderByDescending(f => f.ReviewState == FeedbackReviewState.New)
             .ThenByDescending(f => f.CreatedAt)
             .ThenByDescending(f => f.Id)
-            .Select(ToDto)
+            .ToDto()
             .ToListAsync();
     }
 
@@ -420,19 +419,4 @@ public class FeedbackAdminService(IDbContextFactory<ApplicationDbContext> _facto
 
         return query;
     }
-
-    private static readonly Expression<Func<FeedbackItem, FeedbackAdminItemDto>> ToDto = f => new FeedbackAdminItemDto
-    {
-        Id = f.Id,
-        Category = f.Category,
-        Area = f.Area,
-        ReportedPage = f.ReportedPage,
-        OriginUrl = f.OriginUrl,
-        Body = f.Body,
-        ReviewState = f.ReviewState,
-        CreatedAt = f.CreatedAt,
-        UserId = f.AppUserId,
-        UserName = f.AppUser.UserName ?? string.Empty,
-        UserDisplayName = f.AppUser.DisplayName
-    };
 }
