@@ -12,5 +12,8 @@ public static class FeedbackErrorCodes
     public const string RateLimited = "Feedback.RateLimited";
     public const string NotFound = "Feedback.NotFound";
     public const string Deleted = "Feedback.Deleted";
+    public const string Updated = "Feedback.Updated";
+    public const string StateInvalid = "Feedback.StateInvalid";
+    public const string Conflict = "Feedback.Conflict";
     public const string Unexpected = "Feedback.Unexpected";
 }

@@ -1,5 +1,6 @@
 @using TCSA.V2026.Components.UI
 @using TCSA.V2026.Data.DTOs
+@using TCSA.V2026.Data.Enums
 @using TCSA.V2026.Helpers
 @using TCSA.V2026.Helpers.Constants
 @using TCSA.V2026.Services
@@ -58,10 +59,36 @@
 
                 <dt>Opened from</dt>
                 <dd>@item.OriginUrl</dd>
+
+                @if (_cluster is { } cluster)
+                {
+                    <dt>Cluster</dt>
+                    <dd class="feedback-detail-cluster">
+                        <span>@cluster.Count @(cluster.Count == 1 ? "item" : "items") on <strong>@cluster.Page</strong></span>
+                        <span>First seen @cluster.FirstSeen.ToLocalTime().ToString("dd MMM yyyy, h:mm tt")</span>
+                        <span>Last seen @cluster.LastSeen.ToLocalTime().ToString("dd MMM yyyy, h:mm tt")</span>
+                        <MudLink Typo="Typo.body2" OnClick="() => State.RequestClusterAsync(cluster.Key)">Show cluster in All feedback</MudLink>
+                    </dd>
+                }
             </dl>
 
+            @if (item.ReviewState is { } current)
+            {
+                <MudText Class="mt-4 mb-2" Typo="Typo.subtitle2">Mark as</MudText>
+                <div class="d-flex flex-wrap gap-2 feedback-detail-states">
+                    @foreach (var target in FeedbackLabelHelper.HandledStates)
+                    {
+                        <MudButton Size="Size.Small" Color="@FeedbackLabelHelper.ReviewStateColor(target)"
+                                   Variant="@(current == target ? Variant.Filled : Variant.Outlined)"
+                                   Disabled="_isBusy" OnClick="() => SetState(target)">
+                            @target
+                        </MudButton>
+                    }
+                </div>
+            }
+
             <MudButton Class="mt-4" Color="Color.Error" Variant="Variant.Outlined"
-                       StartIcon="@Icons.Material.Filled.DeleteForever" Disabled="_isDeleting" OnClick="Delete">
+                       StartIcon="@Icons.Material.Filled.DeleteForever" Disabled="_isBusy" OnClick="Delete">
                 Delete permanently
             </MudButton>
         </div>
@@ -70,7 +97,8 @@
 
 @code {
     private FeedbackAdminItemDto? _item;
-    private bool _isDeleting;
+    private FeedbackClusterDto? _cluster;
+    private bool _isBusy;
 
     protected override void OnInitialized()
     {
@@ -79,11 +107,36 @@
 
     private void HandleChange()
     {
-        _ = InvokeAsync(() =>
+        _ = InvokeAsync(async () =>
         {
             _item = State.Selected ?? _item;
+            _cluster = State.Selected?.ClusterKey is { } key ? await FeedbackAdminService.GetCluster(key) : null;
             StateHasChanged();
         });
+    }
+
+    private async Task SetState(FeedbackReviewState state)
+    {
+        if (_item is not { } item) return;
+
+        _isBusy = true;
+        var result = await FeedbackAdminService.SetItemState(item.Id, state);
+        _isBusy = false;
+
+        if (result.IsFailure)
+        {
+            Snackbar.Add(result.Message, Severity.Error);
+            if (result.Reason.Code == FeedbackErrorCodes.NotFound) await State.NotifyDeletedAsync(item.Id);
+            if (result.Reason.Code == FeedbackErrorCodes.Conflict && await FeedbackAdminService.GetItem(item.Id) is { IsSuccess: true } latest)
+            {
+                await State.NotifyStateChangedAsync(latest.Value);
+            }
+            return;
+        }
+
+        var updated = await FeedbackAdminService.GetItem(item.Id);
+        Snackbar.Add(result.Message, Severity.Success);
+        await State.NotifyStateChangedAsync(updated.IsSuccess ? updated.Value : item);
     }
 
     private void OnOpenChanged(bool open)
@@ -106,9 +159,9 @@
 
         if (dialogResult is null || dialogResult.Canceled) return;
 
-        _isDeleting = true;
+        _isBusy = true;
         var result = await FeedbackAdminService.DeleteItem(item.Id);
-        _isDeleting = false;
+        _isBusy = false;
 
         if (result.IsFailure && result.Reason.Code != FeedbackErrorCodes.NotFound)
         {
@@ -157,5 +210,11 @@
     .feedback-detail-facts dd {
         margin: 0;
         overflow-wrap: anywhere;
+    }
+
+    .feedback-detail-cluster {
+        display: flex;
+        flex-direction: column;
+        gap: 0.125rem;
     }
 </style>
