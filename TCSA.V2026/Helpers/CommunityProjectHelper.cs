@@ -8,6 +8,8 @@ public static class CommunityProjectHelper
     {
         (int)CommunityProject.TCSA => "Academy 2026",
         (int)CommunityProject.KnowTheCity => "Know The City",
+        (int)CommunityProject.AcademyV2 => "Academy V2",
+        (int)CommunityProject.PointOfSale => "Point of Sale",
         _ => throw new ArgumentException("Invalid community project.", nameof(communityProjectId))
     };
 }

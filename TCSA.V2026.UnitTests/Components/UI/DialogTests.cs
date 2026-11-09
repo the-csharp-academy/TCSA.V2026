@@ -166,6 +166,24 @@ public class DialogTests : BunitContext
         Assert.That(submitButton.HasAttribute("disabled"), Is.True);
     }
 
+    [Test]
+    public async Task SubmitIssueDialog_ProjectDropdown_ExcludesAcademyV2AndPointOfSale()
+    {
+        // Arrange
+        var providerCut = await ShowDialog(new DialogParameters<TCSASubmitIssueDialog>());
+
+        // Act
+        var options = providerCut.FindComponents<MudSelectItem<CommunityProject>>()
+            .Select(item => item.Instance.Value)
+            .ToList();
+
+        // Assert
+        Assert.That(options, Does.Contain(CommunityProject.TCSA));
+        Assert.That(options, Does.Contain(CommunityProject.KnowTheCity));
+        Assert.That(options, Does.Not.Contain(CommunityProject.AcademyV2));
+        Assert.That(options, Does.Not.Contain(CommunityProject.PointOfSale));
+    }
+
     private async Task<IRenderedComponent<MudDialogProvider>> ShowShowcaseDialog()
     {
         var testProjects = new List<ShowcaseProjectInfo>
