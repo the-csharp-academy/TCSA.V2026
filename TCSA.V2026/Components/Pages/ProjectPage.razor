@@ -383,6 +383,9 @@
     private ProjectStatus Status { get; set; } = ProjectStatus.None;
     private UserAccountabilityProject AccountabilityBuddyInfo = null;
 
+    private CancellationTokenSource? _cts;
+    private CancellationToken _token;
+
     private string UserId = string.Empty;
     private string UserEmail = string.Empty;
     private bool CodeWarsNotFoundShowing = false;
@@ -395,8 +398,10 @@
     protected async override Task OnInitializedAsync()
     {
         await OnParametersSetAsync();
-        CompletionCount = await ProjectService.GetCompletionCount(ProjectId, false);
 
+        _cts = new CancellationTokenSource();
+        _token = _cts.Token;
+        CompletionCount = await ProjectService.GetCompletionCount(ProjectId, false, _token);
     }
 
     private async Task OpenAccountabilityDialog()
@@ -439,9 +444,7 @@
     {
         try
         {
-            IsCompleted = await ProjectService.IsProjectCompleted(UserId, ProjectId);
-
-            var challengesResult = await CodewarsService.GetCodeWarsCompletedChallenges(UserId, Project.CodeWarsChallenges);
+            var challengesResult = await CodewarsService.GetCodeWarsCompletedChallenges(UserId, Project.CodeWarsChallenges, _token);
 
             if (challengesResult.IsFailure)
             {
@@ -504,7 +507,7 @@
             UserEmail = claims.FindFirstValue(ClaimTypes.Email);
             IsAdmin = claims.IsInRole("Admin");
 
-            IsCompleted = await ProjectService.IsProjectCompleted(UserId, ProjectId);
+            IsCompleted = await ProjectService.IsProjectCompleted(UserId, ProjectId, _token);
             AccountabilityBuddyInfo = await AccountabilityBuddyService.GetUserAccountability(UserId, ProjectId);
         }
 
