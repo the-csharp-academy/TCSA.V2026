@@ -5,6 +5,6 @@ namespace TCSA.V2026.Services.Challenges;
 
 public interface IChallengePlatformService
 {
-    public Task<Result> SyncChallenge(SyncChallengeRequest request);
+    public Task<Result> SyncChallenge(SyncChallengeRequest request, CancellationToken cancellationToken = default);
     public Task MarkChallengeAsCompleted(MarkChallengeCompletedRequest request);
 }

@@ -13,9 +13,9 @@ public class ChallengeManager
         _challengePlatformFactory = challengePlatformFactory;
     }
 
-    public async Task<Result> Sync(SyncChallengeRequest request, ChallengePlatform platform)
+    public async Task<Result> Sync(SyncChallengeRequest request, ChallengePlatform platform, CancellationToken cancellationToken = default)
     {
         var platformService = _challengePlatformFactory.GetCodingPlatformService(platform);
-        return await platformService.SyncChallenge(request);
+        return await platformService.SyncChallenge(request, cancellationToken);
     }
 }

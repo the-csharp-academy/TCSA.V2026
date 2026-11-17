@@ -60,7 +60,7 @@ public class CodewarsService : ICodewarsService, IChallengePlatformService
         return Result.Success(challenges);
     }
 
-    public async Task<Result> SyncChallenge(SyncChallengeRequest request)
+    public async Task<Result> SyncChallenge(SyncChallengeRequest request, CancellationToken cancellationToken = default)
     {
         var username = request.PlatformCredentials.CodeWarsUsername;
 
@@ -74,7 +74,7 @@ public class CodewarsService : ICodewarsService, IChallengePlatformService
             return Result.Failure(new Error("CodeWars.UnsupportedCategory", $"Challenges in the '{request.Category}' category can't be synced with Codewars."));
         }
 
-        var result = await GetCompletedIdsAcrossPagesAsync(username, [request.ExternalId], acceptedLanguages, default);
+        var result = await GetCompletedIdsAcrossPagesAsync(username, [request.ExternalId], acceptedLanguages, cancellationToken);
 
         if (result.IsFailure)
         {

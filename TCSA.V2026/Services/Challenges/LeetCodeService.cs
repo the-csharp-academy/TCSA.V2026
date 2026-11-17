@@ -45,7 +45,7 @@ public class LeetCodeService : IChallengePlatformService
         }
     }
 
-    public async Task<Result> SyncChallenge(SyncChallengeRequest request)
+    public async Task<Result> SyncChallenge(SyncChallengeRequest request, CancellationToken cancellationToken = default)
     {
         var username = request.PlatformCredentials.LeetCodeUsername;
 
@@ -70,7 +70,8 @@ public class LeetCodeService : IChallengePlatformService
 
         var response = await _httpClient.PostAsJsonAsync(
             ChallengePlatformConstants.LeetCode.GraphQLEndpoint,
-            apiRequest
+            apiRequest,
+            cancellationToken
         );
 
         if (response.StatusCode != HttpStatusCode.OK)
@@ -78,7 +79,7 @@ public class LeetCodeService : IChallengePlatformService
             return Result.Failure(new Error("LeetCode.ApiUnavailable", "Failed to connect to LeetCode API. Please try again later."));
         }
 
-        string jsonResponse = await response.Content.ReadAsStringAsync();
+        string jsonResponse = await response.Content.ReadAsStringAsync(cancellationToken);
 
         GraphQLResponse<RecentSubmissionResult>? apiResponse = JsonSerializer
             .Deserialize<GraphQLResponse<RecentSubmissionResult>>(
