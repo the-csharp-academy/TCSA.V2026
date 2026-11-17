@@ -258,7 +258,7 @@
                         </MudStack>
                     }
 
-                    @if (IsLoggedIn && Project.Area == Area.SQL && !IsCompleted)
+                    @if (IsLoggedIn && Project.Area == Area.SQL && !IsCompleted && Project.CodeWarsChallenges is { Count: > 0 })
                     {
                         @if (CodeWarsNotFoundShowing)
                         {
@@ -363,6 +363,7 @@
     [Inject] private IAccountabilityBuddyService AccountabilityBuddyService { get; set; }
     [Inject] private ICodewarsService CodewarsService { get; set; }
     [Inject] private ISnackbar SnackbarService { get; set; }
+    [Inject] private ILogger<ProjectPage> Logger { get; set; }
 
     [Inject] private IDialogService DialogService { get; set; }
     [Inject] private IJSRuntime JS { get; set; }
@@ -442,6 +443,9 @@
 
     private async Task CheckCodeWars()
     {
+        if (Project.CodeWarsChallenges is not { Count: > 0 })
+            return;
+
         try
         {
             var challengesResult = await CodewarsService.GetCodeWarsCompletedChallenges(UserId, Project.CodeWarsChallenges, _token);
@@ -455,14 +459,15 @@
 
             Project.CodeWarsChallenges = challengesResult.Value;
 
-            if (!IsCompleted && Project.CodeWarsChallenges.Any() && !Project.CodeWarsChallenges.Any(x => x.IsCompleted == false))
+            if (Project.CodeWarsChallenges.Any() && !Project.CodeWarsChallenges.Any(x => x.IsCompleted == false))
             {
                 await CodewarsService.MarkSqlProjectAsCompleted(Project.Id, UserId);
             }
         }
         catch (Exception ex)
         {
-            SnackbarService.Add(ex.Message, Severity.Error);
+            Logger.LogError(ex, "Unexpected error checking Codewars for project {ProjectId}", Project.Id);
+            SnackbarService.Add("Something went wrong while checking Codewars. Please try again.", Severity.Error);
         }
     }
 
