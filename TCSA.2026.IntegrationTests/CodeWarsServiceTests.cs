@@ -459,7 +459,7 @@ public class CodeWarsServiceTests : IntegrationTestsBase
     }
 
     private static SyncChallengeRequest CreateSyncRequest(string? username) =>
-        new(new UserPlatformCredentials(username, null), ChallengeId: 1, ExternalId: "abc", UserId: "user1");
+        new(new UserPlatformCredentials(username, null), ChallengeId: 1, ExternalId: "abc", UserId: "user1", Category: ChallengeCategory.SQL);
 
     private async Task SetCodeWarsUsername(string userId, string username)
     {

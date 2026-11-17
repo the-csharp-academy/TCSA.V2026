@@ -48,7 +48,9 @@ public class CodewarsService : ICodewarsService, IChallengePlatformService
             return Result.Failure<List<CodeWarsChallenge>>(new Error("CodeWars.AccountNotIntegrated", "You haven't integrated your Codewars account yet. Complete your profile with your Codewars username."));
         }
 
-        var result = await GetCompletedIdsAcrossPagesAsync(alias, challenges.Select(c => c.Id), cancellationToken);
+        var sqlLanguages = ChallengePlatformConstants.CodeWars.AcceptedLanguages[ChallengeCategory.SQL];
+
+        var result = await GetCompletedIdsAcrossPagesAsync(alias, challenges.Select(c => c.Id), sqlLanguages, cancellationToken);
 
         if (result.IsFailure) return Result.Failure<List<CodeWarsChallenge>>((Error)result.Reason);
 
@@ -67,7 +69,12 @@ public class CodewarsService : ICodewarsService, IChallengePlatformService
             return Result.Failure(new Error("CodeWars.AccountNotIntegrated", "You haven't integrated your Codewars account yet. Go to the dashboard and click on 'Codewars Integration'"));
         }
 
-        var result = await GetCompletedIdsAcrossPagesAsync(username, [request.ExternalId], default);
+        if (!ChallengePlatformConstants.CodeWars.AcceptedLanguages.TryGetValue(request.Category, out var acceptedLanguages))
+        {
+            return Result.Failure(new Error("CodeWars.UnsupportedCategory", $"Challenges in the '{request.Category}' category can't be synced with Codewars."));
+        }
+
+        var result = await GetCompletedIdsAcrossPagesAsync(username, [request.ExternalId], acceptedLanguages, default);
 
         if (result.IsFailure)
         {
@@ -158,9 +165,10 @@ public class CodewarsService : ICodewarsService, IChallengePlatformService
         }
     }
 
-    private async Task<Result<HashSet<string>>> GetCompletedIdsAcrossPagesAsync(string username, IEnumerable<string> idsToFind, CancellationToken cancellationToken)
+    private async Task<Result<HashSet<string>>> GetCompletedIdsAcrossPagesAsync(string username, IEnumerable<string> idsToFind, IEnumerable<string> acceptedLanguages, CancellationToken cancellationToken)
     {
         var pending = idsToFind.ToHashSet();
+        var languages = acceptedLanguages.ToHashSet();
         var completed = new HashSet<string>();
         int page = 0;
         int totalPages;
@@ -216,7 +224,7 @@ public class CodewarsService : ICodewarsService, IChallengePlatformService
 
             foreach (var item in apiResponse.data)
             {
-                if (pending.Remove(item.id))
+                if (item.completedLanguages.Intersect(languages).Any() && pending.Remove(item.id))
                     completed.Add(item.id);
             }
 
