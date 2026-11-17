@@ -12,6 +12,8 @@
 @using TCSA.V2026.Services
 @using TCSA.V2026.Services.Challenges
 
+@implements IDisposable
+
 @rendermode @(new InteractiveServerRenderMode(prerender: false))
 
 <PageTitle>@Project.Title</PageTitle>
@@ -385,7 +387,7 @@
     private ProjectStatus Status { get; set; } = ProjectStatus.None;
     private UserAccountabilityProject AccountabilityBuddyInfo = null;
 
-    private CancellationTokenSource? _cts;
+    private CancellationTokenSource _cts = new();
     private CancellationToken _token;
 
     private string UserId = string.Empty;
@@ -399,10 +401,10 @@
 
     protected async override Task OnInitializedAsync()
     {
+        _token = _cts.Token;
+
         await OnParametersSetAsync();
 
-        _cts = new CancellationTokenSource();
-        _token = _cts.Token;
         CompletionCount = await ProjectService.GetCompletionCount(ProjectId, false, _token);
     }
 
@@ -462,6 +464,9 @@
             {
                 await CodewarsService.MarkSqlProjectAsCompleted(Project.Id, UserId);
             }
+        }
+        catch (OperationCanceledException) when (_token.IsCancellationRequested)
+        {
         }
         catch (Exception ex)
         {
@@ -525,6 +530,12 @@
         }
 
         IsLoading = false;
+    }
+
+    public void Dispose()
+    {
+        _cts.Cancel();
+        _cts.Dispose();
     }
 }
 
