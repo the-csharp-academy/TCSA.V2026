@@ -13,18 +13,20 @@ namespace TCSA.V2026.Services.Challenges;
 public interface ICodewarsService
 {
     Task<int> MarkSqlProjectAsCompleted(int projectId, string userId);
-    Task<Result<List<CodeWarsChallenge>>> GetCodeWarsCompletedChallenges(string? username, List<CodeWarsChallenge> challenges, CancellationToken cancellationToken = default);
+    Task<Result<List<CodeWarsChallenge>>> GetCodeWarsCompletedChallenges(string userId, List<CodeWarsChallenge> challenges, CancellationToken cancellationToken = default);
 }
 
 public class CodewarsService : ICodewarsService, IChallengePlatformService
 {
     private readonly IDbContextFactory<ApplicationDbContext> _factory;
     private readonly HttpClient _httpClient;
+    private readonly ILogger<CodewarsService> _logger;
 
-    public CodewarsService(IDbContextFactory<ApplicationDbContext> factory, IHttpClientFactory httpClientFactory)
+    public CodewarsService(IDbContextFactory<ApplicationDbContext> factory, IHttpClientFactory httpClientFactory, ILogger<CodewarsService> logger)
     {
         _factory = factory;
         _httpClient = httpClientFactory.CreateClient();
+        _logger = logger;
     }
 
     // This checks if challenges from the SQL area were completed on CodeWars, it's called from Project Page (provided it's a SQL project). 
@@ -84,7 +86,8 @@ public class CodewarsService : ICodewarsService, IChallengePlatformService
         }
         catch (Exception ex)
         {
-            return Result.Failure(new Error("CodeWars.Unexpected", ex.Message));
+            _logger.LogError(ex, "Failed to mark Codewars challenge {ChallengeId} as completed for user {UserId}", request.ChallengeId, request.UserId);
+            return Result.Failure(new Error("CodeWars.Unexpected", "Something went wrong while saving your progress. Please try again."));
         }
     }
 
@@ -163,20 +166,52 @@ public class CodewarsService : ICodewarsService, IChallengePlatformService
 
         do
         {
-            var response = await _httpClient.GetAsync($"https://www.codewars.com/api/v1/users/{username}/code-challenges/completed?page={page}", cancellationToken);
+            string jsonResponse;
 
-            if (response.StatusCode == HttpStatusCode.NotFound)
+            try
             {
-                return Result.Failure<HashSet<string>>(new Error("CodeWars.UsernameNotFound", "Username not found. Go to the dashboard and click on 'Codewars Integration' to update your username."));
+                var response = await _httpClient.GetAsync($"https://www.codewars.com/api/v1/users/{Uri.EscapeDataString(username)}/code-challenges/completed?page={page}", cancellationToken);
+
+                if (response.StatusCode == HttpStatusCode.NotFound)
+                {
+                    return Result.Failure<HashSet<string>>(new Error("CodeWars.UsernameNotFound", "Username not found. Go to the dashboard and click on 'Codewars Integration' to update your username."));
+                }
+
+                if (response.StatusCode != HttpStatusCode.OK)
+                {
+                    _logger.LogWarning("Codewars returned {StatusCode} for user {Username}", (int)response.StatusCode, username);
+                    return Result.Failure<HashSet<string>>(new Error("CodeWars.UnexpectedResponse", "Could not retrieve your completed challenges from Codewars. Please try again later."));
+                }
+
+                jsonResponse = await response.Content.ReadAsStringAsync(cancellationToken);
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
+            {
+                _logger.LogWarning(ex, "Could not reach Codewars for user {Username}", username);
+                return Result.Failure<HashSet<string>>(new Error("CodeWars.Unavailable", "Codewars could not be reached. Please try again later."));
             }
 
-            if (response.StatusCode != HttpStatusCode.OK)
+            CodeWarsApiResponse? apiResponse;
+
+            try
             {
+                apiResponse = JsonSerializer.Deserialize<CodeWarsApiResponse>(jsonResponse);
+            }
+            catch (JsonException ex)
+            {
+                _logger.LogWarning(ex, "Invalid JSON returned by Codewars for user {Username}", username);
                 return Result.Failure<HashSet<string>>(new Error("CodeWars.UnexpectedResponse", "Could not retrieve your completed challenges from Codewars. Please try again later."));
             }
 
-            string jsonResponse = await response.Content.ReadAsStringAsync(cancellationToken);
-            var apiResponse = JsonSerializer.Deserialize<CodeWarsApiResponse>(jsonResponse);
+            if (apiResponse?.data is null)
+            {
+                _logger.LogWarning("Codewars response had no data for user {Username}", username);
+                return Result.Failure<HashSet<string>>(new Error("CodeWars.UnexpectedResponse", "Could not retrieve your completed challenges from Codewars. Please try again later."));
+            }
 
             foreach (var item in apiResponse.data)
             {

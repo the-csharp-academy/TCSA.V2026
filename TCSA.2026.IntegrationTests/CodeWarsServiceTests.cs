@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using System.Net;
 using System.Text;
@@ -22,7 +23,7 @@ public class CodeWarsServiceTests : IntegrationTestsBase
         httpClientFactoryMock
             .Setup(f => f.CreateClient(It.IsAny<string>()))
             .Returns(new HttpClient());
-        _service = new CodewarsService(DbContextFactory, httpClientFactoryMock.Object);
+        _service = new CodewarsService(DbContextFactory, httpClientFactoryMock.Object, NullLogger<CodewarsService>.Instance);
     }
 
     [TearDown]
@@ -382,7 +383,7 @@ public class CodeWarsServiceTests : IntegrationTestsBase
             .Setup(factory => factory.CreateClient(It.IsAny<string>()))
             .Returns(new HttpClient(handler));
 
-        return new CodewarsService(DbContextFactory, httpClientFactory.Object);
+        return new CodewarsService(DbContextFactory, httpClientFactory.Object, NullLogger<CodewarsService>.Instance);
     }
 
     private sealed class PagedHttpMessageHandler(Func<int, (HttpStatusCode StatusCode, string Body)> responder) : HttpMessageHandler
