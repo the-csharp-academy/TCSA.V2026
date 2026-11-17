@@ -103,7 +103,7 @@ builder.Services.AddScoped<IFeedService, FeedService>();
 builder.Services.AddScoped<IAccountabilityBuddyService, AccountabilityBuddyService>();
 builder.Services.AddScoped<IDonateService, DonateService>();
 builder.Services.AddSingleton<ISearchService>(_ =>
-    new SearchService([.. ArticleHelper.GetArticles(), .. ProjectHelper.GetProjects()]));
+    new SearchService([.. ArticleHelper.GetArticles(), .. ProjectHelper.GetProjects(), .. CourseHelper.GetCourses().SelectMany(c => c.Articles)]));
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<ICustomEmailSender, EmailSender>();
 builder.Services.AddSingleton<IPeerReviewPublisher, PeerReviewPublisher>();

@@ -54,6 +54,11 @@ public class LeetCodeService : IChallengePlatformService
             return Result.Failure(new Error("LeetCode.AccountNotIntegrated", "You haven't integrated your LeetCode account yet. Go to your profile and add your LeetCode username."));
         }
 
+        if (!ChallengePlatformConstants.LeetCode.AcceptedLanguages.TryGetValue(request.Category, out var acceptedLanguages))
+        {
+            return Result.Failure(new Error("LeetCode.UnsupportedCategory", $"Challenges in the '{request.Category}' category can't be synced with LeetCode."));
+        }
+
         var apiRequest = new
         {
             query = ChallengePlatformConstants.LeetCode.Queries.GetRecentSubmissions,
@@ -89,9 +94,19 @@ public class LeetCodeService : IChallengePlatformService
             return Result.Failure(new Error("LeetCode.SubmissionsUnavailable", "Failed to retrieve your recent submissions from LeetCode. Contact support if the issue persists."));
         }
 
-        if (!apiResponse.Data.RecentAcSubmissionList.Any(s => s.TitleSlug == request.ExternalId && s.StatusDisplay == "Accepted"))
+        var submissions = apiResponse.Data.RecentAcSubmissionList
+            .Where(s => s.TitleSlug == request.ExternalId && s.StatusDisplay == "Accepted")
+            .ToList();
+
+        if (submissions.Count == 0)
         {
             return Result.Failure(new Error("LeetCode.ChallengeNotCompleted", "You haven't completed this challenge yet or it is not within the recent 20 submissions."));
+        }
+
+        if (!submissions.Any(s => acceptedLanguages.Contains(s.Lang)))
+        {
+            var expected = request.Category == ChallengeCategory.SQL ? "SQL" : "C#";
+            return Result.Failure(new Error("LeetCode.WrongLanguage", $"This challenge was accepted in a different language. Solve it in {expected} to earn the XP."));
         }
 
         try

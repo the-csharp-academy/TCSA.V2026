@@ -273,7 +273,7 @@
                         {
                             <h2 class="project-section-title">Your Progress</h2>
                             <MudList T="MarkupString" Color="Color.Default">
-                                @foreach (var challenge in Project.CodeWarsChallenges)
+                                @foreach (var challenge in _challenges)
                                 {
                                     <MudListItem>
                                         <div style="display: flex;">
@@ -376,6 +376,7 @@
     [Parameter] public int ProjectId { get; set; }
 
     private Project Project { get; set; }
+    private List<CodeWarsChallenge> _challenges = new();
 
     private bool IsLoggedIn = false;
     private bool IsCompleted = false;
@@ -448,18 +449,16 @@
 
         try
         {
-            var challengesResult = await CodewarsService.GetCodeWarsCompletedChallenges(UserId, Project.CodeWarsChallenges, _token);
+            var challengesResult = await CodewarsService.GetCodeWarsCompletedChallenges(UserId, _challenges, _token);
 
             if (challengesResult.IsFailure)
             {
-                Project.CodeWarsChallenges = new List<CodeWarsChallenge>();
                 CodeWarsNotFoundShowing = true;
                 return;
             }
 
-            Project.CodeWarsChallenges = challengesResult.Value;
 
-            if (Project.CodeWarsChallenges.Any() && !Project.CodeWarsChallenges.Any(x => x.IsCompleted == false))
+            if (_challenges.Count > 0 && !_challenges.Any(x => x.IsCompleted == false))
             {
                 await CodewarsService.MarkSqlProjectAsCompleted(Project.Id, UserId);
             }
@@ -518,6 +517,10 @@
 
         if (!IsCompleted && Project.Area == Area.SQL)
         {
+            _challenges = Project.CodeWarsChallenges?
+                .Select(c => new CodeWarsChallenge { Id = c.Id, Name = c.Name })
+                .ToList() ?? new();
+
             await CheckCodeWars();
         }
 

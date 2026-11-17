@@ -4,7 +4,9 @@ namespace TCSA.V2026.Data.Curriculum;
 
 public class WebApiCourse
 {
-    public static Course GetWebApiCourse()
+    public static readonly Course Instance = BuildCourse();
+
+    private static Course BuildCourse()
     {
         return new Course
         {
@@ -17,6 +19,7 @@ public class WebApiCourse
                     new Article
                     {
                         Id = 500050,
+                        CourseId = 3,
                         CourseDisplayId = 1,
                         Title = "Introduction",
                         Slug = "asp-net-core-webapi-introduction",
@@ -111,6 +114,7 @@ public class WebApiCourse
                     new Article
                     {
                         Id = 500051,
+                        CourseId = 3,
                         CourseDisplayId = 2,
                         Title = "Creating the Project",
                         Slug = "asp-net-core-webapi-project",
@@ -213,6 +217,7 @@ public class WebApiCourse
                     new Article
                     {
                         Id = 500052,
+                        CourseId = 3,
                         CourseDisplayId = 3,
                         Title = "Minimal APIs",
                         Slug = "asp-net-core-minimal-apis",
@@ -267,6 +272,7 @@ public class WebApiCourse
                     new Article
                     {
                         Id = 500053,
+                        CourseId = 3,
                         CourseDisplayId = 4,
                         Title = "Installing Entity Framework",
                         Slug = "asp-net-core-minimal-ef-core",
@@ -374,6 +380,7 @@ public class WebApiCourse
                     new Article
                     {
                         Id = 500054,
+                        CourseId = 3,
                         CourseDisplayId = 5,
                         Title = "Code-First Approach",
                         Slug = "ef-core-code-first",
@@ -443,6 +450,7 @@ public class WebApiCourse
                     new Article
                     {
                         Id = 500055,
+                        CourseId = 3,
                         CourseDisplayId = 6,
                         Title = "First Migration",
                         Slug = "ef-core-first-migration",
@@ -545,6 +553,7 @@ public class WebApiCourse
                     new Article
                     {
                         Id = 500056,
+                        CourseId = 3,
                         CourseDisplayId = 7,
                         Title = "Flight Service",
                         Slug = "web-api-flight-service",
@@ -643,6 +652,7 @@ public class WebApiCourse
                     new Article
                     {
                         Id = 500057,
+                        CourseId = 3,
                         CourseDisplayId = 8,
                         Title = "Service Implementation",
                         Slug = "web-api-service-implementation",
@@ -729,6 +739,7 @@ public class WebApiCourse
                     new Article
                     {
                         Id = 500058,
+                        CourseId = 3,
                         CourseDisplayId = 9,
                         Title = "Flights Controller",
                         Slug = "web-api-controller",
@@ -806,6 +817,7 @@ public class WebApiCourse
                     new Article
                     {
                         Id = 500059,
+                        CourseId = 3,
                         CourseDisplayId = 10,
                         Title = "Endpoints",
                         Slug = "web-api-endpoints",
@@ -869,6 +881,7 @@ public class WebApiCourse
                     new Article
                     {
                         Id = 500060,
+                        CourseId = 3,
                         CourseDisplayId = 11,
                         Title = "Response Codes",
                         Slug = "web-api-response-codes",
@@ -1020,6 +1033,7 @@ public class WebApiCourse
                     new Article
                     {
                         Id = 500061,
+                        CourseId = 3,
                         CourseDisplayId = 12,
                         Title = "Testing With Swagger",
                         Slug = "web-api-test-swaggeron",
@@ -1104,6 +1118,7 @@ public class WebApiCourse
                     new Article
                     {
                         Id = 500062,
+                        CourseId = 3,
                         CourseDisplayId = 13,
                         Title = "Testing With Postman",
                         Slug = "web-api-test-postman",
@@ -1212,6 +1227,7 @@ public class WebApiCourse
                     new Article
                     {
                         Id = 500063,
+                        CourseId = 3,
                         CourseDisplayId = 14,
                         Title = "Conclusion",
                         Slug = "oop-conclusion",

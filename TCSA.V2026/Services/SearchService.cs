@@ -1,6 +1,7 @@
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
+using TCSA.V2026.Data.Curriculum;
 using TCSA.V2026.Data.DTOs;
 using TCSA.V2026.Data.Models;
 using TCSA.V2026.Data.Models.Responses;
@@ -228,13 +229,19 @@ public class SearchService : ISearchService
     private SearchItem BuildSearchItem(SearchLocation location, string query)
     {
         var article = _allArticles.First(a => a.Id == location.ArticleId);
-        var baseUrl = article is Project p
-            ? $"/project/{p.Id}/{p.Slug}"
-            : $"/article/{article.Id}/{article.Slug}";
+
+        var baseUrl = article switch
+        {
+            Project p => $"/project/{p.Id}/{p.Slug}",
+            _ when article.CourseId.HasValue => $"/course/{article.CourseId}/article/{article.CourseDisplayId}/{article.Id}/false",
+            _ => $"/article/{article.Id}/{article.Slug}"
+        };
+
+        var iconUrl = article.CourseId.HasValue ? CourseHelper.GetCourses().FirstOrDefault(c => c.Id == article.CourseId)?.ImgUrl : article.IconUrl;
 
         _snippetLookup.TryGetValue(location, out var text);
         var snippet = text != null ? ExtractSnippet(text, query) : null;
-        return new SearchItem(article.Title, $"{baseUrl}#{location.AnchorId}", article.IconUrl, snippet);
+        return new SearchItem(article.Title, $"{baseUrl}#{location.AnchorId}", iconUrl, snippet);
     }
 
     private IReadOnlyCollection<string> GetHighlightTerms(string query)
