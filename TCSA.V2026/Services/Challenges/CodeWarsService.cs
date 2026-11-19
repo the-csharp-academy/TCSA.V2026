@@ -14,22 +14,24 @@ namespace TCSA.V2026.Services.Challenges;
 public interface ICodewarsService
 {
     Task<int> MarkSqlProjectAsCompleted(int projectId, string userId);
-    Task<Result<List<CodeWarsChallenge>>> GetCodeWarsCompletedChallenges(string? username, List<CodeWarsChallenge> challenges);
+    Task<Result<List<CodeWarsChallenge>>> GetCodeWarsCompletedChallenges(string userId, List<CodeWarsChallenge> challenges, CancellationToken cancellationToken = default);
 }
 
 public class CodewarsService : ICodewarsService, IChallengePlatformService
 {
     private readonly IDbContextFactory<ApplicationDbContext> _factory;
     private readonly HttpClient _httpClient;
+    private readonly ILogger<CodewarsService> _logger;
 
-    public CodewarsService(IDbContextFactory<ApplicationDbContext> factory, IHttpClientFactory httpClientFactory)
+    public CodewarsService(IDbContextFactory<ApplicationDbContext> factory, IHttpClientFactory httpClientFactory, ILogger<CodewarsService> logger)
     {
         _factory = factory;
         _httpClient = httpClientFactory.CreateClient();
+        _logger = logger;
     }
 
     // This checks if challenges from the SQL area were completed on CodeWars, it's called from Project Page (provided it's a SQL project). 
-    public async Task<Result<List<CodeWarsChallenge>>> GetCodeWarsCompletedChallenges(string userId, List<CodeWarsChallenge> challenges)
+    public async Task<Result<List<CodeWarsChallenge>>> GetCodeWarsCompletedChallenges(string userId, List<CodeWarsChallenge> challenges, CancellationToken cancellationToken = default)
     {
         var alias = string.Empty;
 
@@ -38,42 +40,27 @@ public class CodewarsService : ICodewarsService, IChallengePlatformService
             alias = await context.AspNetUsers
                 .Where(x => x.Id == userId)
                 .Select(x => x.CodeWarsUsername)
-                .FirstOrDefaultAsync();
-
-            if (string.IsNullOrEmpty(alias))
-            {
-                return Result.Failure<List<CodeWarsChallenge>>(new Error("CodeWars.AccountNotIntegrated", "You haven't integrated your Codewars account yet. Complete your profile with your Codewars username."));
-            }
+                .FirstOrDefaultAsync(cancellationToken: cancellationToken);
         }
 
-        string apiUrl = $"https://www.codewars.com/api/v1/users/{alias}/code-challenges/completed?";
-
-        HttpResponseMessage response = await _httpClient.GetAsync(apiUrl);
-
-        if (response.StatusCode == HttpStatusCode.NotFound)
+        if (string.IsNullOrEmpty(alias))
         {
-            return Result.Failure<List<CodeWarsChallenge>>(new Error("CodeWars.UsernameNotFound", "Username not found. Go to the dashboard and click on 'Codewars Integration' to update your username."));
+            return Result.Failure<List<CodeWarsChallenge>>(new Error("CodeWars.AccountNotIntegrated", "You haven't integrated your Codewars account yet. Complete your profile with your Codewars username."));
         }
-
-        if (response.StatusCode != HttpStatusCode.OK)
-        {
-            return Result.Failure<List<CodeWarsChallenge>>(new Error("CodeWars.UnexpectedResponse", "Could not retrieve your completed challenges from Codewars. Please try again later."));
-        }
-
-        string jsonResponse = await response.Content.ReadAsStringAsync();
-        CodeWarsApiResponse apiResponse = JsonSerializer.Deserialize<CodeWarsApiResponse>(jsonResponse);
 
         var sqlLanguages = ChallengePlatformConstants.CodeWars.AcceptedLanguages[ChallengeCategory.SQL];
 
+        var result = await GetCompletedIdsAcrossPagesAsync(alias, challenges.Select(c => c.Id), sqlLanguages, cancellationToken);
+
+        if (result.IsFailure) return Result.Failure<List<CodeWarsChallenge>>((Error)result.Reason);
+
         foreach (var challenge in challenges)
-        {
-            challenge.IsCompleted = apiResponse.data.Any(x => x.id == challenge.Id && x.completedLanguages.Intersect(sqlLanguages).Any());
-        }
+            challenge.IsCompleted = result.Value.Contains(challenge.Id);
 
         return Result.Success(challenges);
     }
 
-    public async Task<Result> SyncChallenge(SyncChallengeRequest request)
+    public async Task<Result> SyncChallenge(SyncChallengeRequest request, CancellationToken cancellationToken = default)
     {
         var username = request.PlatformCredentials.CodeWarsUsername;
 
@@ -87,24 +74,14 @@ public class CodewarsService : ICodewarsService, IChallengePlatformService
             return Result.Failure(new Error("CodeWars.UnsupportedCategory", $"Challenges in the '{request.Category}' category can't be synced with Codewars."));
         }
 
-        string apiUrl = $"https://www.codewars.com/api/v1/users/{username}/code-challenges/completed?";
+        var result = await GetCompletedIdsAcrossPagesAsync(username, [request.ExternalId], acceptedLanguages, cancellationToken);
 
-        HttpResponseMessage response = await _httpClient.GetAsync(apiUrl);
-
-        if (response.StatusCode == HttpStatusCode.NotFound)
+        if (result.IsFailure)
         {
-            return Result.Failure(new Error("CodeWars.UsernameNotFound", "Username not found. Go to the dashboard and click on 'Codewars Integration' to update your username."));
+            return Result.Failure((Error)result.Reason);
         }
 
-        if (response.StatusCode != HttpStatusCode.OK)
-        {
-            return Result.Failure<List<CodeWarsChallenge>>(new Error("CodeWars.UnexpectedResponse", $"Codewars returned HTTP {(int)response.StatusCode} ({response.StatusCode})."));
-        }
-
-        string jsonResponse = await response.Content.ReadAsStringAsync();
-        CodeWarsApiResponse apiResponse = JsonSerializer.Deserialize<CodeWarsApiResponse>(jsonResponse);
-
-        if (!apiResponse.data.Any(x => x.id == request.ExternalId && x.completedLanguages.Intersect(acceptedLanguages).Any()))
+        if (!result.Value.Contains(request.ExternalId))
         {
             return Result.Failure(new Error("CodeWars.ChallengeNotCompleted", "You haven't completed this challenge yet."));
         }
@@ -117,7 +94,8 @@ public class CodewarsService : ICodewarsService, IChallengePlatformService
         }
         catch (Exception ex)
         {
-            return Result.Failure(new Error("CodeWars.Unexpected", ex.Message));
+            _logger.LogError(ex, "Failed to mark Codewars challenge {ChallengeId} as completed for user {UserId}", request.ChallengeId, request.UserId);
+            return Result.Failure(new Error("CodeWars.Unexpected", "Something went wrong while saving your progress. Please try again."));
         }
     }
 
@@ -185,5 +163,75 @@ public class CodewarsService : ICodewarsService, IChallengePlatformService
 
             return await context.SaveChangesAsync();
         }
+    }
+
+    private async Task<Result<HashSet<string>>> GetCompletedIdsAcrossPagesAsync(string username, IEnumerable<string> idsToFind, IEnumerable<string> acceptedLanguages, CancellationToken cancellationToken)
+    {
+        var pending = idsToFind.ToHashSet();
+        var languages = acceptedLanguages.ToHashSet();
+        var completed = new HashSet<string>();
+        int page = 0;
+        int totalPages;
+
+        do
+        {
+            string jsonResponse;
+
+            try
+            {
+                var response = await _httpClient.GetAsync($"https://www.codewars.com/api/v1/users/{Uri.EscapeDataString(username)}/code-challenges/completed?page={page}", cancellationToken);
+
+                if (response.StatusCode == HttpStatusCode.NotFound)
+                {
+                    return Result.Failure<HashSet<string>>(new Error("CodeWars.UsernameNotFound", "Username not found. Go to the dashboard and click on 'Codewars Integration' to update your username."));
+                }
+
+                if (response.StatusCode != HttpStatusCode.OK)
+                {
+                    _logger.LogWarning("Codewars returned {StatusCode} for user {Username}", (int)response.StatusCode, username);
+                    return Result.Failure<HashSet<string>>(new Error("CodeWars.UnexpectedResponse", "Could not retrieve your completed challenges from Codewars. Please try again later."));
+                }
+
+                jsonResponse = await response.Content.ReadAsStringAsync(cancellationToken);
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
+            {
+                _logger.LogWarning(ex, "Could not reach Codewars for user {Username}", username);
+                return Result.Failure<HashSet<string>>(new Error("CodeWars.Unavailable", "Codewars could not be reached. Please try again later."));
+            }
+
+            CodeWarsApiResponse? apiResponse;
+
+            try
+            {
+                apiResponse = JsonSerializer.Deserialize<CodeWarsApiResponse>(jsonResponse);
+            }
+            catch (JsonException ex)
+            {
+                _logger.LogWarning(ex, "Invalid JSON returned by Codewars for user {Username}", username);
+                return Result.Failure<HashSet<string>>(new Error("CodeWars.UnexpectedResponse", "Could not retrieve your completed challenges from Codewars. Please try again later."));
+            }
+
+            if (apiResponse?.data is null)
+            {
+                _logger.LogWarning("Codewars response had no data for user {Username}", username);
+                return Result.Failure<HashSet<string>>(new Error("CodeWars.UnexpectedResponse", "Could not retrieve your completed challenges from Codewars. Please try again later."));
+            }
+
+            foreach (var item in apiResponse.data)
+            {
+                if (item.completedLanguages.Intersect(languages).Any() && pending.Remove(item.id))
+                    completed.Add(item.id);
+            }
+
+            totalPages = apiResponse.totalPages;
+            page++;
+        } while (pending.Count > 0 && page < totalPages);
+
+        return Result.Success(completed);
     }
 }

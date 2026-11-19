@@ -12,6 +12,8 @@
 @using TCSA.V2026.Services
 @using TCSA.V2026.Services.Challenges
 
+@implements IDisposable
+
 @rendermode @(new InteractiveServerRenderMode(prerender: false))
 
 <PageTitle>@Project.Title</PageTitle>
@@ -258,7 +260,7 @@
                         </MudStack>
                     }
 
-                    @if (IsLoggedIn && Project.Area == Area.SQL && !IsCompleted)
+                    @if (IsLoggedIn && Project.Area == Area.SQL && !IsCompleted && Project.CodeWarsChallenges is { Count: > 0 })
                     {
                         @if (CodeWarsNotFoundShowing)
                         {
@@ -363,6 +365,7 @@
     [Inject] private IAccountabilityBuddyService AccountabilityBuddyService { get; set; }
     [Inject] private ICodewarsService CodewarsService { get; set; }
     [Inject] private ISnackbar SnackbarService { get; set; }
+    [Inject] private ILogger<ProjectPage> Logger { get; set; }
 
     [Inject] private IDialogService DialogService { get; set; }
     [Inject] private IJSRuntime JS { get; set; }
@@ -384,6 +387,9 @@
     private ProjectStatus Status { get; set; } = ProjectStatus.None;
     private UserAccountabilityProject AccountabilityBuddyInfo = null;
 
+    private CancellationTokenSource _cts = new();
+    private CancellationToken _token;
+
     private string UserId = string.Empty;
     private string UserEmail = string.Empty;
     private bool CodeWarsNotFoundShowing = false;
@@ -395,9 +401,11 @@
 
     protected async override Task OnInitializedAsync()
     {
-        await OnParametersSetAsync();
-        CompletionCount = await ProjectService.GetCompletionCount(ProjectId, false);
+        _token = _cts.Token;
 
+        await OnParametersSetAsync();
+
+        CompletionCount = await ProjectService.GetCompletionCount(ProjectId, false, _token);
     }
 
     private async Task OpenAccountabilityDialog()
@@ -438,11 +446,12 @@
 
     private async Task CheckCodeWars()
     {
+        if (Project.CodeWarsChallenges is not { Count: > 0 })
+            return;
+
         try
         {
-            IsCompleted = await ProjectService.IsProjectCompleted(UserId, ProjectId);
-
-            var challengesResult = await CodewarsService.GetCodeWarsCompletedChallenges(UserId, _challenges);
+            var challengesResult = await CodewarsService.GetCodeWarsCompletedChallenges(UserId, _challenges, _token);
 
             if (challengesResult.IsFailure)
             {
@@ -450,16 +459,19 @@
                 return;
             }
 
-            if (!IsCompleted
-                && _challenges.Count > 0
-                && !_challenges.Any(x => x.IsCompleted == false))
+
+            if (_challenges.Count > 0 && !_challenges.Any(x => x.IsCompleted == false))
             {
                 await CodewarsService.MarkSqlProjectAsCompleted(Project.Id, UserId);
             }
         }
+        catch (OperationCanceledException) when (_token.IsCancellationRequested)
+        {
+        }
         catch (Exception ex)
         {
-            SnackbarService.Add(ex.Message, Severity.Error);
+            Logger.LogError(ex, "Unexpected error checking Codewars for project {ProjectId}", Project.Id);
+            SnackbarService.Add("Something went wrong while checking Codewars. Please try again.", Severity.Error);
         }
     }
 
@@ -504,7 +516,7 @@
             UserEmail = claims.FindFirstValue(ClaimTypes.Email);
             IsAdmin = claims.IsInRole("Admin");
 
-            IsCompleted = await ProjectService.IsProjectCompleted(UserId, ProjectId);
+            IsCompleted = await ProjectService.IsProjectCompleted(UserId, ProjectId, _token);
             AccountabilityBuddyInfo = await AccountabilityBuddyService.GetUserAccountability(UserId, ProjectId);
         }
 
@@ -518,6 +530,12 @@
         }
 
         IsLoading = false;
+    }
+
+    public void Dispose()
+    {
+        _cts.Cancel();
+        _cts.Dispose();
     }
 }
 

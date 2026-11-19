@@ -209,7 +209,7 @@
     private Dictionary<int, DateTime> ChallengeCooldowns = new();
     private const int CooldownSeconds = 3;
     private PeriodicTimer? CooldownTimer;
-    private CancellationTokenSource CooldownCts = new();
+    private readonly CancellationTokenSource _cts = new();
 
     private bool IsLoading = true;
     private string UserId = string.Empty;
@@ -248,9 +248,11 @@
 
     private async Task RunCooldownLoop()
     {
+        var token = _cts.Token;
+
         try
         {
-            while (await CooldownTimer!.WaitForNextTickAsync(CooldownCts.Token))
+            while (await CooldownTimer!.WaitForNextTickAsync(token))
             {
                 if (ChallengeCooldowns.Count == 0)
                     continue;
@@ -299,14 +301,24 @@
             return;
         }
 
-        var result = await ChallengeManager.Sync(new SyncChallengeRequest
-        (
-            new UserPlatformCredentials(User.CodeWarsUsername, User.LeetCodeUsername),
-            challengeId,
-            externalId,
-            UserId,
-            category
-        ), platform);
+        Result result;
+
+        try
+        {
+            result = await ChallengeManager.Sync(new SyncChallengeRequest
+            (
+                new UserPlatformCredentials(User.CodeWarsUsername, User.LeetCodeUsername),
+                challengeId,
+                externalId,
+                UserId,
+                category
+            ), platform, _cts.Token);
+        }
+        catch (OperationCanceledException)
+        {
+            ProcessingChallenges.Remove(challengeId);
+            return;
+        }
 
         if (result.IsSuccess)
         {
@@ -385,7 +397,8 @@
 
     public void Dispose()
     {
-        CooldownCts.Cancel();
+        _cts.Cancel();
+        _cts.Dispose();
         CooldownTimer?.Dispose();
     }
 }
