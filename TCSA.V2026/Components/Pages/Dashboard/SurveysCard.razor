@@ -1,0 +1,140 @@
+@using TCSA.V2026.Components.UI
+@using TCSA.V2026.Data.DTOs
+@using TCSA.V2026.Data.Models.Responses
+@using TCSA.V2026.Helpers
+@using TCSA.V2026.Services
+
+@inject ISurveyService SurveyService
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+@inject SurveyBadgeState BadgeState
+
+<MudPaper Class="pa-4 mt-5 surveys-card" Elevation="4">
+    <MudStack Row AlignItems="AlignItems.Center" Class="mb-2">
+        <MudIcon Icon="@Icons.Material.Filled.Poll" Color="Color.Primary" />
+        <h2 class="mud-typography-h6">Surveys</h2>
+        @if (Surveys is { Count: > 0 })
+        {
+            <MudChip T="string" Size="Size.Small" Color="Color.Primary" Variant="Variant.Filled">@Surveys.Count</MudChip>
+        }
+    </MudStack>
+
+    @if (Surveys is null)
+    {
+        <MudProgressCircular Color="Color.Default" Size="Size.Small" Indeterminate="true" />
+    }
+    else if (Surveys.Count == 0)
+    {
+        <div class="surveys-empty">
+            <MudIcon Icon="@Icons.Material.Filled.Inbox" Color="Color.Secondary" />
+            <MudText Typo="Typo.body2" Class="text-secondary">No surveys right now</MudText>
+        </div>
+    }
+    else
+    {
+        @foreach (var survey in Surveys)
+        {
+            <div class="surveys-row">
+                <div class="surveys-row-text">
+                    <MudText Typo="Typo.subtitle1"><b>@survey.Title</b></MudText>
+                    <MudText Typo="Typo.body2" Class="text-secondary">@survey.Description</MudText>
+                    <MudText Typo="Typo.caption" Class="text-secondary">
+                        @survey.QuestionCountLabel &middot; about @survey.EstimatedMinutes min
+                    </MudText>
+                </div>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => Start(survey)">Start</MudButton>
+            </div>
+        }
+    }
+</MudPaper>
+
+<style>
+    .surveys-card {
+        border-radius: 16px;
+    }
+
+    .surveys-empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        padding: 18px;
+        text-align: center;
+    }
+
+    .surveys-row {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 12px 0;
+        border-top: 1px solid var(--mud-palette-lines-default);
+    }
+
+    .surveys-row-text {
+        flex: 1;
+        min-width: 0;
+    }
+</style>
+
+@code {
+    [Parameter, EditorRequired] public string UserId { get; set; } = string.Empty;
+
+    [PersistentState]
+    public List<AvailableSurveyDto>? Surveys { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Surveys ??= await SurveyService.GetAvailableSurveys(UserId);
+    }
+
+    private async Task Start(AvailableSurveyDto survey)
+    {
+        var options = new DialogOptions
+        {
+            MaxWidth = MaxWidth.Small,
+            FullWidth = true,
+            CloseButton = true,
+            CloseOnEscapeKey = true,
+            BackdropClick = false
+        };
+
+        var parameters = new DialogParameters<TCSASurveyDialog>
+        {
+            { p => p.Survey, survey },
+            { p => p.OnSubmit, dto => SubmitAsync(dto) },
+            { p => p.OnRefuse, () => RefuseAsync(survey.Id) }
+        };
+
+        await DialogService.ShowAsync<TCSASurveyDialog>(null, parameters, options);
+    }
+
+    private async Task<Result> SubmitAsync(SurveySubmissionDto submission)
+    {
+        var result = await SurveyService.SubmitSurvey(UserId, submission);
+
+        if (result.IsSuccess)
+        {
+            Snackbar.Add(result.Message, Severity.Success);
+        }
+
+        await RefreshIfChangedAsync(result);
+        return result;
+    }
+
+    private async Task<Result> RefuseAsync(int surveyId)
+    {
+        var result = await SurveyService.RefuseSurvey(UserId, surveyId);
+
+        await RefreshIfChangedAsync(result);
+        return result;
+    }
+
+    private async Task RefreshIfChangedAsync(Result result)
+    {
+        if (!result.IsSuccess && !SurveyErrors.IsFinal(result.Reason)) return;
+
+        Surveys = await SurveyService.GetAvailableSurveys(UserId);
+        await BadgeState.NotifyChangedAsync();
+        await InvokeAsync(StateHasChanged);
+    }
+}

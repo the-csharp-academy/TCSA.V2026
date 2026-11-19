@@ -16,6 +16,19 @@ public sealed class RatingQuestionDefinition : SurveyQuestionDefinition
 
     public override SurveyQuestion Create(SurveyQuestionDraftDto draft, int order) =>
         RatingQuestion.Create(draft.NormalizedText, draft.IsRequired, order);
+
+    public override bool IsBlank(SurveyAnswerDto answer) => answer.NumericValue is null;
+
+    public override Error? ValidateAnswer(SurveyQuestion question, SurveyAnswerDto answer) =>
+        answer.NumericValue is >= SurveyLimits.MinRating and <= SurveyLimits.MaxRating
+            ? null
+            : SurveyErrors.InvalidRating;
+
+    public override SurveyAnswer CreateAnswer(SurveyQuestion question, SurveyAnswerDto answer) =>
+        RatingAnswer.Create(question.Id, answer.NumericValue!.Value);
+
+    public override string DescribeAnswer(SurveyQuestionDto question, SurveyAnswerDto answer) =>
+        $"{answer.NumericValue} of {SurveyLimits.MaxRating}";
 }
 
 public sealed class YesNoQuestionDefinition : SurveyQuestionDefinition
@@ -27,6 +40,17 @@ public sealed class YesNoQuestionDefinition : SurveyQuestionDefinition
 
     public override SurveyQuestion Create(SurveyQuestionDraftDto draft, int order) =>
         YesNoQuestion.Create(draft.NormalizedText, draft.IsRequired, order);
+
+    public override bool IsBlank(SurveyAnswerDto answer) => answer.NumericValue is null;
+
+    public override Error? ValidateAnswer(SurveyQuestion question, SurveyAnswerDto answer) =>
+        answer.NumericValue is 0 or 1 ? null : SurveyErrors.InvalidYesNo;
+
+    public override SurveyAnswer CreateAnswer(SurveyQuestion question, SurveyAnswerDto answer) =>
+        YesNoAnswer.Create(question.Id, answer.NumericValue == 1);
+
+    public override string DescribeAnswer(SurveyQuestionDto question, SurveyAnswerDto answer) =>
+        answer.NumericValue == 1 ? "Yes" : "No";
 }
 
 public sealed class FreeTextQuestionDefinition : SurveyQuestionDefinition
@@ -38,6 +62,17 @@ public sealed class FreeTextQuestionDefinition : SurveyQuestionDefinition
 
     public override SurveyQuestion Create(SurveyQuestionDraftDto draft, int order) =>
         FreeTextQuestion.Create(draft.NormalizedText, draft.IsRequired, order);
+
+    public override bool IsBlank(SurveyAnswerDto answer) => string.IsNullOrWhiteSpace(answer.TextValue);
+
+    public override Error? ValidateAnswer(SurveyQuestion question, SurveyAnswerDto answer) =>
+        answer.TextValue?.Length > SurveyLimits.FreeTextAnswerMaxLength ? SurveyErrors.AnswerTooLong : null;
+
+    public override SurveyAnswer CreateAnswer(SurveyQuestion question, SurveyAnswerDto answer) =>
+        FreeTextAnswer.Create(question.Id, answer.TextValue!);
+
+    public override string DescribeAnswer(SurveyQuestionDto question, SurveyAnswerDto answer) =>
+        answer.TextValue!;
 }
 
 public abstract class ChoiceQuestionDefinition : SurveyQuestionDefinition
@@ -81,6 +116,26 @@ public abstract class ChoiceQuestionDefinition : SurveyQuestionDefinition
         question is ChoiceQuestion { Options.Count: < SurveyLimits.MinOptions }
             ? SurveyErrors.TooFewOptions(question.Text)
             : null;
+
+    public override bool IsBlank(SurveyAnswerDto answer) => answer.OptionIds is null or { Count: 0 };
+
+    public override Error? ValidateAnswer(SurveyQuestion question, SurveyAnswerDto answer)
+    {
+        var chosen = answer.OptionIds;
+
+        if (!AllowsSeveralOptions && chosen.Count != 1)
+        {
+            return SurveyErrors.InvalidChoiceCount(question.Text);
+        }
+
+        var own = ((ChoiceQuestion)question).Options.Select(o => o.Id).ToHashSet();
+        return chosen.All(own.Contains) ? null : SurveyErrors.OptionNotInQuestion(question.Text);
+    }
+
+    public override string DescribeAnswer(SurveyQuestionDto question, SurveyAnswerDto answer) =>
+        string.Join(", ", question.Options.Where(o => answer.OptionIds.Contains(o.Id)).Select(o => o.Text));
+
+    protected abstract bool AllowsSeveralOptions { get; }
 }
 
 public sealed class SingleChoiceQuestionDefinition : ChoiceQuestionDefinition
@@ -90,8 +145,13 @@ public sealed class SingleChoiceQuestionDefinition : ChoiceQuestionDefinition
     public override string Icon => Icons.Material.Outlined.RadioButtonChecked;
     public override string? OptionIcon => Icons.Material.Outlined.RadioButtonUnchecked;
 
+    protected override bool AllowsSeveralOptions => false;
+
     public override SurveyQuestion Create(SurveyQuestionDraftDto draft, int order) =>
         SingleChoiceQuestion.Create(draft.NormalizedText, draft.IsRequired, order, draft.NonBlankOptions());
+
+    public override SurveyAnswer CreateAnswer(SurveyQuestion question, SurveyAnswerDto answer) =>
+        SingleChoiceAnswer.Create(question.Id, answer.OptionIds.Single());
 }
 
 public sealed class MultipleChoiceQuestionDefinition : ChoiceQuestionDefinition
@@ -101,6 +161,11 @@ public sealed class MultipleChoiceQuestionDefinition : ChoiceQuestionDefinition
     public override string Icon => Icons.Material.Outlined.CheckBox;
     public override string? OptionIcon => Icons.Material.Outlined.CheckBoxOutlineBlank;
 
+    protected override bool AllowsSeveralOptions => true;
+
     public override SurveyQuestion Create(SurveyQuestionDraftDto draft, int order) =>
         MultipleChoiceQuestion.Create(draft.NormalizedText, draft.IsRequired, order, draft.NonBlankOptions());
+
+    public override SurveyAnswer CreateAnswer(SurveyQuestion question, SurveyAnswerDto answer) =>
+        MultipleChoiceAnswer.Create(question.Id, answer.OptionIds);
 }

@@ -22,4 +22,17 @@ public static class SurveyErrorCodes
     public const string DeleteActive = "Survey.DeleteActive";
     public const string Conflict = "Survey.Conflict";
     public const string Unexpected = "Survey.Unexpected";
+    public const string Submitted = "Survey.Submitted";
+    public const string Refused = "Survey.Refused";
+    public const string Unavailable = "Survey.Unavailable";
+    public const string AlreadySubmitted = "Survey.AlreadySubmitted";
+    public const string AlreadyRefused = "Survey.AlreadyRefused";
+    public const string RequiredAnswerMissing = "Survey.RequiredAnswerMissing";
+    public const string InvalidRating = "Survey.InvalidRating";
+    public const string InvalidYesNo = "Survey.InvalidYesNo";
+    public const string InvalidChoiceCount = "Survey.InvalidChoiceCount";
+    public const string OptionNotInQuestion = "Survey.OptionNotInQuestion";
+    public const string AnswerTooLong = "Survey.AnswerTooLong";
+    public const string UnknownQuestion = "Survey.UnknownQuestion";
+    public const string DuplicateAnswer = "Survey.DuplicateAnswer";
 }

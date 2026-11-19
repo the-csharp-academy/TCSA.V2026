@@ -1,0 +1,280 @@
+@using TCSA.V2026.Data.DTOs
+@using TCSA.V2026.Data.Models.Responses
+@using TCSA.V2026.Helpers
+
+<MudDialog>
+    <TitleContent>
+        <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+            <MudIcon Icon="@Icons.Material.Filled.Poll" Color="Color.Primary" />
+            <MudText Typo="Typo.h6">@Survey.Title</MudText>
+            <MudSpacer />
+            @if (_state.Step == SurveyStep.Question)
+            {
+                <MudText Typo="Typo.caption" Class="text-secondary">@_state.ProgressLabel</MudText>
+            }
+        </MudStack>
+    </TitleContent>
+
+    <DialogContent>
+        @if (_state.Step == SurveyStep.Question)
+        {
+            <MudProgressLinear Value="@_state.ProgressPercent" Color="Color.Primary" Rounded="true" Class="mb-4" />
+        }
+
+        <div class="survey-step">
+            @switch (_state.Step)
+            {
+                case SurveyStep.Intro:
+                    <MudText Typo="Typo.h5" Class="mb-2">@Survey.Title</MudText>
+                    <MudText Typo="Typo.body1" Class="text-secondary mb-4">@Survey.Description</MudText>
+                    <MudStack Row Spacing="2" Class="mb-2">
+                        <MudChip T="string" Size="Size.Small" Icon="@Icons.Material.Filled.HelpOutline">@Survey.QuestionCountLabel</MudChip>
+                        <MudChip T="string" Size="Size.Small" Icon="@Icons.Material.Filled.Timer">about @Survey.EstimatedMinutes min</MudChip>
+                    </MudStack>
+                    <MudText Typo="Typo.caption" Class="text-secondary">Your answers are linked to your account and visible to the TCSA team.</MudText>
+                    break;
+
+                case SurveyStep.Question:
+                    var question = _state.CurrentQuestion!;
+                    <MudText Typo="Typo.overline" Class="text-secondary">
+                        Question @_state.QuestionNumber
+                        @if (!question.IsRequired)
+                        {
+                            <span> &middot; optional</span>
+                        }
+                    </MudText>
+                    <MudText Typo="Typo.h6" Class="mb-4">@question.Text</MudText>
+                    <TCSASurveyQuestionInput @key="question.Id" State="_state" Question="question" OnChanged="StateHasChanged" />
+                    @if (_state.NeedsAnswer)
+                    {
+                        <MudText Typo="Typo.caption" Color="Color.Warning" Class="mt-3">Answer required to continue.</MudText>
+                    }
+                    break;
+
+                case SurveyStep.Review:
+                    <MudText Typo="Typo.h5" Class="mb-1">Ready to submit?</MudText>
+                    <MudText Typo="Typo.body2" Class="text-secondary mb-3">You can't change your answers after submitting. Select an answer to edit it.</MudText>
+                    <div class="survey-summary">
+                        @for (var i = 0; i < _state.QuestionCount; i++)
+                        {
+                            var index = i;
+                            var reviewed = Survey.Questions[index];
+                            <button type="button" class="survey-summary-row" @onclick="() => _state.GoTo(index)">
+                                <span class="survey-summary-question">@(index + 1). @reviewed.Text</span>
+                                <span class="@(_state.IsAnswered(reviewed) ? "survey-summary-answer" : "survey-summary-answer survey-summary-skipped")">@_state.DescribeAnswer(reviewed)</span>
+                            </button>
+                        }
+                    </div>
+                    break;
+
+                case SurveyStep.Thanks:
+                    <div class="survey-thanks">
+                        <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Color="Color.Success" Style="font-size: 4rem" />
+                        <MudText Typo="Typo.h5" Class="mt-2">Thank you!</MudText>
+                        <MudText Typo="Typo.body2" Class="text-secondary">Your feedback helps shape the academy.</MudText>
+                    </div>
+                    break;
+            }
+
+            @if (_error is not null)
+            {
+                <MudAlert Severity="Severity.Warning" Dense="true" Class="mt-4">@_error</MudAlert>
+            }
+        </div>
+    </DialogContent>
+
+    <DialogActions>
+        @if (_isFinal || _state.Step == SurveyStep.Thanks)
+        {
+            <MudSpacer />
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Close">Close</MudButton>
+        }
+        else if (_state.Step == SurveyStep.Intro)
+        {
+            <MudButton Variant="Variant.Text" Size="Size.Small" Disabled="@_busy" OnClick="NeverShowAgain">Never show again</MudButton>
+            <MudSpacer />
+            <MudButton Variant="Variant.Text" Disabled="@_busy" OnClick="MaybeLater">Maybe later</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="@_busy" OnClick="Start">Start</MudButton>
+        }
+        else if (_state.Step == SurveyStep.Question)
+        {
+            <MudButton Variant="Variant.Text" StartIcon="@Icons.Material.Filled.ArrowBack" OnClick="Back">Back</MudButton>
+            <MudSpacer />
+            @if (_state.CanSkip)
+            {
+                <MudButton Variant="Variant.Text" OnClick="Skip">Skip</MudButton>
+            }
+            else
+            {
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="@(!_state.CanAdvance)" EndIcon="@Icons.Material.Filled.ArrowForward" OnClick="Next">Next</MudButton>
+            }
+        }
+        else
+        {
+            <MudButton Variant="Variant.Text" StartIcon="@Icons.Material.Filled.ArrowBack" Disabled="@_busy" OnClick="Back">Back</MudButton>
+            <MudSpacer />
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="@(_busy || !_state.CanSubmit)" StartIcon="@Icons.Material.Filled.Send" OnClick="Submit">Submit</MudButton>
+        }
+    </DialogActions>
+</MudDialog>
+
+<style>
+    .survey-step {
+        min-height: 190px;
+    }
+
+    .survey-thanks {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 24px 8px;
+    }
+
+    .survey-summary {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .survey-summary-row {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        width: 100%;
+        padding: 8px 12px;
+        text-align: left;
+        cursor: pointer;
+        color: inherit;
+        background: transparent;
+        border: 1px solid transparent;
+        border-radius: 8px;
+        transition: background-color 120ms ease, border-color 120ms ease;
+    }
+
+    .survey-summary-row:hover {
+        background-color: var(--mud-palette-action-default-hover);
+        border-color: var(--mud-palette-lines-default);
+    }
+
+    .survey-summary-row:focus-visible {
+        outline: 2px solid var(--mud-palette-primary);
+        outline-offset: 2px;
+    }
+
+    .survey-summary-question {
+        font-size: 0.75rem;
+        color: var(--mud-palette-text-secondary);
+    }
+
+    .survey-summary-answer {
+        font-size: 0.875rem;
+        overflow-wrap: anywhere;
+    }
+
+    .survey-summary-skipped {
+        font-style: italic;
+        color: var(--mud-palette-text-secondary);
+    }
+</style>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter, EditorRequired] public AvailableSurveyDto Survey { get; set; } = default!;
+
+    [Parameter, EditorRequired] public Func<SurveySubmissionDto, Task<Result>> OnSubmit { get; set; } = default!;
+
+    [Parameter, EditorRequired] public Func<Task<Result>> OnRefuse { get; set; } = default!;
+
+    private SurveyDialogState _state = default!;
+    private bool _busy;
+    private bool _isFinal;
+    private string? _error;
+    private string _titleProgress = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        _state = new SurveyDialogState(Survey);
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (_titleProgress == _state.ProgressLabel) return;
+
+        _titleProgress = _state.ProgressLabel;
+        MudDialog.StateHasChanged();
+    }
+
+    private void Start() => _state.Start();
+
+    private void Next() => _state.Next();
+
+    private void Skip() => _state.Skip();
+
+    private void Back()
+    {
+        _error = null;
+        _state.Back();
+    }
+
+    private void MaybeLater() => MudDialog.Cancel();
+
+    private void Close() => MudDialog.Close();
+
+    private async Task Submit()
+    {
+        if (!_state.CanSubmit) return;
+
+        _busy = true;
+        _error = null;
+
+        try
+        {
+            var result = await OnSubmit(_state.BuildSubmission());
+
+            if (result.IsSuccess)
+            {
+                _state.MarkSubmitted();
+            }
+            else
+            {
+                Fail(result);
+            }
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    private async Task NeverShowAgain()
+    {
+        _busy = true;
+        _error = null;
+
+        try
+        {
+            var result = await OnRefuse();
+
+            if (result.IsSuccess)
+            {
+                MudDialog.Close();
+            }
+            else
+            {
+                Fail(result);
+            }
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    private void Fail(Result result)
+    {
+        _error = result.Message;
+        _isFinal = SurveyErrors.IsFinal(result.Reason);
+    }
+}
