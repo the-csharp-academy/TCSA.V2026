@@ -1,0 +1,125 @@
+@page "/admin/surveys/{SurveyId:int}"
+
+@using Microsoft.AspNetCore.Authorization
+@using TCSA.V2026.Data.DTOs
+@using TCSA.V2026.Helpers
+@using TCSA.V2026.Services
+
+@attribute [Authorize(Roles = "Admin")]
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+
+<PageTitle>@(_results?.Title ?? "Survey results")</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="py-6">
+    <AdminToolBar Count="_results?.ResponseCount" />
+
+    @if (_isLoading)
+    {
+        <div class="d-flex justify-center pa-8">
+            <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+        </div>
+    }
+    else if (_results is null)
+    {
+        <MudAlert Class="mt-4" Severity="Severity.Warning" Variant="Variant.Outlined">
+            That survey no longer exists. <MudLink Href="/admin/surveys">Back to surveys</MudLink>
+        </MudAlert>
+    }
+    else
+    {
+        <MudPaper Class="pa-6 mt-3 results-hero" Elevation="4">
+            <MudStack Row AlignItems="AlignItems.Start" Spacing="2">
+                <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Href="/admin/surveys" aria-label="Back to surveys" />
+                <div>
+                    <MudStack Row AlignItems="AlignItems.Center" Class="flex-wrap" Spacing="2">
+                        <MudText Typo="Typo.h4">@_results.Title</MudText>
+                        <MudChip T="string" Size="Size.Small" Variant="Variant.Filled" Color="@SurveyLabelHelper.StatusColor(_results.Status)">@_results.Status</MudChip>
+                    </MudStack>
+                    @if (!string.IsNullOrWhiteSpace(_results.Description))
+                    {
+                        <MudText Typo="Typo.body1" Color="Color.Secondary">@_results.Description</MudText>
+                    }
+                </div>
+            </MudStack>
+
+            <MudGrid Spacing="2" Class="mt-3">
+                <MudItem xs="12" sm="4">
+                    <div class="results-stat">
+                        <MudText Typo="Typo.caption" Color="Color.Secondary">Responses</MudText>
+                        <MudText Typo="Typo.h5" id="response-count">@_results.ResponseCount</MudText>
+                    </div>
+                </MudItem>
+                <MudItem xs="12" sm="4">
+                    <div class="results-stat">
+                        <MudText Typo="Typo.caption" Color="Color.Secondary">Questions</MudText>
+                        <MudText Typo="Typo.h5">@_results.Questions.Count</MudText>
+                    </div>
+                </MudItem>
+                <MudItem xs="12" sm="4">
+                    <div class="results-stat">
+                        <MudText Typo="Typo.caption" Color="Color.Secondary">Required questions</MudText>
+                        <MudText Typo="Typo.h5">@_results.RequiredQuestionCount</MudText>
+                    </div>
+                </MudItem>
+            </MudGrid>
+        </MudPaper>
+
+        @if (_results.ResponseCount == 0)
+        {
+            <MudPaper Class="pa-8 mt-4 results-surface text-center" Elevation="0">
+                <MudIcon Icon="@Icons.Material.Outlined.Inbox" Size="Size.Large" Color="Color.Secondary" />
+                <MudText Typo="Typo.h6">No responses yet</MudText>
+                <MudText Typo="Typo.body2" Color="Color.Secondary">Results and respondents appear here once someone answers.</MudText>
+            </MudPaper>
+        }
+        else
+        {
+            <MudTabs Class="mt-4" Rounded="true" PanelClass="pt-2">
+                <MudTabPanel Text="Questions">
+                    @for (var i = 0; i < _results.Questions.Count; i++)
+                    {
+                        <SurveyQuestionResult @key="_results.Questions[i].QuestionId" Question="_results.Questions[i]" Index="i" />
+                    }
+                </MudTabPanel>
+                <MudTabPanel Text="Respondents">
+                    <SurveyRespondents SurveyId="SurveyId" />
+                </MudTabPanel>
+            </MudTabs>
+        }
+    }
+</MudContainer>
+
+@code {
+    [Parameter] public int SurveyId { get; set; }
+
+    [Inject] private ISurveyResultsService ResultsService { get; set; } = null!;
+
+    private SurveyResultsDto? _results;
+    private bool _isLoading = true;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _isLoading = true;
+        _results = await ResultsService.GetResults(SurveyId);
+        _isLoading = false;
+    }
+}
+
+<style>
+    .results-hero {
+        border-radius: 20px;
+        border: 1px solid rgba(var(--mud-palette-primary-rgb), 0.2);
+        background: linear-gradient(140deg, rgba(var(--mud-palette-surface-rgb), 0.98) 0%, rgba(var(--mud-palette-primary-rgb), 0.08) 100%);
+    }
+
+    .results-surface {
+        border-radius: 16px;
+        border: 1px solid rgba(var(--mud-palette-lines-default-rgb), 0.6);
+    }
+
+    .results-stat {
+        border-radius: 14px;
+        border: 1px solid rgba(var(--mud-palette-lines-default-rgb), 0.6);
+        padding: 12px 16px;
+    }
+</style>

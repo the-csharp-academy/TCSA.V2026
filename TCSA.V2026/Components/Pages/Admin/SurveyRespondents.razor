@@ -1,0 +1,64 @@
+@using TCSA.V2026.Data.DTOs
+@using TCSA.V2026.Data.Models.Responses
+@using TCSA.V2026.Services
+
+<MudPaper Class="pa-2 results-surface" Elevation="0">
+    @if (_page is null)
+    {
+        <div class="d-flex justify-center pa-8">
+            <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+        </div>
+    }
+    else
+    {
+        <MudTable T="SurveyRespondentDto" Items="_page.Items" Hover="true" Dense="true" Breakpoint="Breakpoint.Sm"
+                  RowClass="respondent-row" OnRowClick="args => OpenAnswers(args.Item)">
+            <HeaderContent>
+                <MudTh>Name</MudTh>
+                <MudTh>Email</MudTh>
+                <MudTh>Submitted</MudTh>
+                <MudTh>Answers</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Name">
+                    <a class="mud-link mud-link-underline-hover mud-primary-text" href="@($"/admin/{context.UserId}")" @onclick:stopPropagation="true">@context.Label</a>
+                </MudTd>
+                <MudTd DataLabel="Email">@context.Email</MudTd>
+                <MudTd DataLabel="Submitted">@context.SubmittedAt.ToLocalTime().ToString("dd MMM yyyy, h:mm tt")</MudTd>
+                <MudTd DataLabel="Answers">
+                    <span @onclick:stopPropagation="true">
+                        <MudButton Size="Size.Small" Variant="Variant.Outlined" OnClick="() => OpenAnswers(context)">View answers</MudButton>
+                    </span>
+                </MudTd>
+            </RowTemplate>
+        </MudTable>
+
+        @if (_page.TotalPages > 1)
+        {
+            <div class="d-flex justify-center pa-2">
+                <MudPagination Count="_page.TotalPages" Selected="_page.PageNumber" SelectedChanged="Load" Color="Color.Primary" />
+            </div>
+        }
+    }
+</MudPaper>
+
+@code {
+    [Parameter, EditorRequired] public int SurveyId { get; set; }
+
+    [Inject] private ISurveyResultsService ResultsService { get; set; } = null!;
+    [Inject] private SurveyRespondentDetailState DetailState { get; set; } = null!;
+
+    private PaginatedList<SurveyRespondentDto>? _page;
+
+    protected override async Task OnInitializedAsync() => await Load(1);
+
+    private async Task Load(int page) => _page = await ResultsService.GetRespondents(SurveyId, page);
+
+    private void OpenAnswers(SurveyRespondentDto respondent) => DetailState.Open(respondent);
+}
+
+<style>
+    .respondent-row {
+        cursor: pointer;
+    }
+</style>

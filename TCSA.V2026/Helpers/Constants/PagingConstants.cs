@@ -10,4 +10,6 @@ public static class PagingConstants
     public const int SearchPageSize = 20;
     public const int AdminFeedbackPageSize = 10;
     public static readonly int[] AdminFeedbackPageSizeOptions = [10, 25, 50];
+    public const int SurveyFreeTextPageSize = 4;
+    public const int SurveyRespondentsPageSize = 10;
 }

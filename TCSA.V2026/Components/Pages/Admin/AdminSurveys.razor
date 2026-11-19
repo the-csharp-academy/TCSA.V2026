@@ -128,6 +128,8 @@
                         <MudTd DataLabel="Created">@context.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")</MudTd>
                         <MudTd DataLabel="Actions">
                             <MudStack Row Spacing="1" AlignItems="AlignItems.Center">
+                                <MudButton Size="Size.Small" Variant="Variant.Outlined" Color="Color.Primary"
+                                           StartIcon="@Icons.Material.Filled.BarChart" Href="@($"/admin/surveys/{context.Id}")">Results</MudButton>
                                 @if (context.CanDeactivate)
                                 {
                                     <MudButton Size="Size.Small" Variant="Variant.Outlined" Disabled="_isBusy"
