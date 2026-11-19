@@ -112,6 +112,33 @@ public static class SeedData
                     DateCompleted = new DateTimeOffset(new DateTime(2025, 8, 16, 12, 0, 0, DateTimeKind.Utc)),
                     DateRequestedChange = DateTimeOffset.MinValue,
                 },
+                // Archived community project: Point Of Sale (public, should appear on public profile)
+                new DashboardProject
+                {
+                    ProjectId = 54,
+                    // Placeholder URL: replace with the real Point Of Sale repository pull request
+                    GithubUrl = "https://github.com/TheCSharpAcademy/PointOfSale/pull/1",
+                    IsCompleted = true,
+                    IsArchived = false,
+                    IsPendingNotification = false,
+                    IsPendingReview = false,
+                    DateSubmitted = new DateTimeOffset(new DateTime(2025, 9, 1, 10, 0, 0, DateTimeKind.Utc)),
+                    DateCompleted = new DateTimeOffset(new DateTime(2025, 9, 2, 12, 0, 0, DateTimeKind.Utc)),
+                    DateRequestedChange = DateTimeOffset.MinValue,
+                },
+                // Archived community project: Academy V2 (previous platform, should be hidden from public profile)
+                new DashboardProject
+                {
+                    ProjectId = 87,
+                    GithubUrl = "https://github.com/TheCSharpAcademy/TCSA.V2/pull/470",
+                    IsCompleted = true,
+                    IsArchived = false,
+                    IsPendingNotification = false,
+                    IsPendingReview = false,
+                    DateSubmitted = new DateTimeOffset(new DateTime(2025, 9, 3, 10, 0, 0, DateTimeKind.Utc)),
+                    DateCompleted = new DateTimeOffset(new DateTime(2025, 9, 4, 12, 0, 0, DateTimeKind.Utc)),
+                    DateRequestedChange = DateTimeOffset.MinValue,
+                },
                 // Freestyle project
                 new DashboardProject
                 {
@@ -939,6 +966,31 @@ public static class SeedData
                 ExperiencePoints = 15,
                 Type = IssueType.Translation,
                 GithubUrl = "https://github.com/TheCSharpAcademy/TCSA.V2/issues/462",
+                IconUrl = "icons8-construction-64.png",
+                IsClosed = true,
+            },
+            new CommunityIssue
+            {
+                Title = "Add product search to the Point Of Sale checkout",
+                AppUserId = userId,
+                ProjectId = 54,
+                CommunityProjectId = (int)CommunityProject.PointOfSale,
+                ExperiencePoints = 20,
+                Type = IssueType.Feature,
+                // Placeholder URL: replace with the real Point Of Sale repository issue
+                GithubUrl = "https://github.com/TheCSharpAcademy/PointOfSale/issues/1",
+                IconUrl = "icons8-point-of-sale-64.png",
+                IsClosed = true,
+            },
+            new CommunityIssue
+            {
+                Title = "Fix layout of the Academy V2 landing page",
+                AppUserId = userId,
+                ProjectId = 87,
+                CommunityProjectId = (int)CommunityProject.AcademyV2,
+                ExperiencePoints = 10,
+                Type = IssueType.Bugfix,
+                GithubUrl = "https://github.com/TheCSharpAcademy/TCSA.V2/issues/470",
                 IconUrl = "icons8-construction-64.png",
                 IsClosed = true,
             },
