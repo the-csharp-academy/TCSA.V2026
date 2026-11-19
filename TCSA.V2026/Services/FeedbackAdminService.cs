@@ -16,6 +16,7 @@ public interface IFeedbackAdminService
     Task<Result<FeedbackAdminItemDto>> GetItem(int id);
     Task<Result> DeleteItem(int id);
     Task<int> GetNewCount();
+    Task<FeedbackOverviewDto> GetOverview();
     Task<List<FeedbackClusterDto>> GetQueue();
     Task<List<FeedbackClusterKey>> SearchClusterKeys(string? search, int take = 20);
     Task<List<FeedbackAdminItemDto>> GetClusterItems(FeedbackClusterKey cluster);
@@ -94,6 +95,36 @@ public class FeedbackAdminService(IDbContextFactory<ApplicationDbContext> _facto
         using var context = _factory.CreateDbContext();
 
         return await context.FeedbackItems.CountAsync(f => f.ReviewState == FeedbackReviewState.New);
+    }
+
+    public async Task<FeedbackOverviewDto> GetOverview()
+    {
+        using var context = _factory.CreateDbContext();
+
+        var since = DateTimeOffset.UtcNow.AddDays(-OverviewResponseWindowDays);
+        var items = context.FeedbackItems.AsNoTracking();
+
+        var overview = new FeedbackOverviewDto
+        {
+            ResponsesLastSevenDays = await context.SurveyResponses.CountAsync(r => r.SubmittedAt >= since),
+            ActiveSurveys = await context.Surveys.CountAsync(s => s.Status == SurveyStatus.Active),
+            ReviewQueueSize = await items.CountAsync(f => f.ReviewState == FeedbackReviewState.New),
+            RecentItems = await items
+                .OrderByDescending(f => f.CreatedAt)
+                .ThenByDescending(f => f.Id)
+                .Take(OverviewRecentItemCount)
+                .Select(ToDto)
+                .ToListAsync(),
+
+            TopClusters = await Clusters(items)
+                .OrderByDescending(c => c.Count)
+                .ThenByDescending(c => c.LastSeen)
+                .ThenBy(c => c.Page)
+                .Take(OverviewTopClusterCount)
+                .ToListAsync()
+        };
+
+        return overview;
     }
 
     public async Task<List<FeedbackClusterDto>> GetQueue()
@@ -275,6 +306,10 @@ public class FeedbackAdminService(IDbContextFactory<ApplicationDbContext> _facto
             return Result.Failure<int>(new Error(FeedbackErrorCodes.Unexpected, "Something went wrong while deleting the feedback."));
         }
     }
+
+    private const int OverviewResponseWindowDays = 7;
+    private const int OverviewRecentItemCount = 5;
+    private const int OverviewTopClusterCount = 3;
 
     private static readonly Error InvalidState = new(FeedbackErrorCodes.StateInvalid, "That is not a valid review state.");
 
