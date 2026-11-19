@@ -1,8 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
+using TCSA.V2026.Data;
 using TCSA.V2026.Data.DTOs;
 using TCSA.V2026.Data.Enums;
 using TCSA.V2026.Data.Models;
+using TCSA.V2026.Helpers;
 using TCSA.V2026.Helpers.Constants;
 using TCSA.V2026.Services;
 
@@ -335,6 +337,615 @@ public class FeedbackAdminServiceTests : IntegrationTestsBase
             Assert.That(result.Reason.Code, Is.EqualTo(FeedbackErrorCodes.NotFound));
             Assert.That(await context.FeedbackItems.CountAsync(), Is.EqualTo(1));
             Assert.That(await context.FeedbackItems.AnyAsync(f => f.Id == kept), Is.True);
+        }
+    }
+
+    private static readonly FeedbackClusterKey ProfileBugs = new(FeedbackCategory.Bug, "/dashboard/profile");
+
+    private Task<int> SeedBug(string page = "/dashboard/profile", FeedbackReviewState? state = FeedbackReviewState.New,
+        DateTimeOffset? createdAt = null, string body = "Bug body", string originUrl = "/dashboard") =>
+        Seed(FeedbackCategory.Bug, createdAt, state, FeedbackArea.Profile, page, originUrl, body);
+
+    private Task<int> SeedIdea(string originUrl = "/dashboard", FeedbackReviewState? state = FeedbackReviewState.New,
+        DateTimeOffset? createdAt = null, string body = "Idea body") =>
+        Seed(FeedbackCategory.Idea, createdAt, state, originUrl: originUrl, body: body);
+
+    private async Task<FeedbackReviewState?> StateOf(int id)
+    {
+        using var context = DbContextFactory.CreateDbContext();
+        return (await context.FeedbackItems.AsNoTracking().SingleAsync(f => f.Id == id)).ReviewState;
+    }
+
+    private async Task<int> TotalItems()
+    {
+        using var context = DbContextFactory.CreateDbContext();
+        return await context.FeedbackItems.CountAsync();
+    }
+
+    [Test]
+    public async Task GetQueue_ContainsEveryCategory_AsSeparateClusters()
+    {
+        await SeedBug("/dashboard/profile");
+        await SeedIdea("/dashboard/profile");
+        await Seed(FeedbackCategory.Compliment, reviewState: FeedbackReviewState.New, originUrl: "/dashboard/profile");
+        await Seed(FeedbackCategory.Help, reviewState: FeedbackReviewState.New, originUrl: "/dashboard/profile");
+
+        var queue = await _service.GetQueue();
+
+        Assert.That(queue.Select(c => c.Category),
+            Is.EquivalentTo([FeedbackCategory.Bug, FeedbackCategory.Idea, FeedbackCategory.Compliment, FeedbackCategory.Help]));
+    }
+
+    [TestCase(FeedbackCategory.Compliment)]
+    [TestCase(FeedbackCategory.Help)]
+    public async Task GetQueue_ClustersComplimentsAndHelpByOriginPath(FeedbackCategory category)
+    {
+        await Seed(category, reviewState: FeedbackReviewState.New, originUrl: "/dashboard/profile");
+        await Seed(category, reviewState: FeedbackReviewState.New, originUrl: "/dashboard/profile");
+        await Seed(category, reviewState: FeedbackReviewState.New, originUrl: "/dashboard/leaderboard");
+
+        var queue = await _service.GetQueue();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(queue, Has.Count.EqualTo(2));
+            Assert.That(queue.Single(c => c.Page == "/dashboard/profile").Count, Is.EqualTo(2));
+            Assert.That(queue.Single(c => c.Page == "/dashboard/leaderboard").Count, Is.EqualTo(1));
+        }
+    }
+
+    [Test]
+    public async Task GetQueue_GroupsBugsOnTheSameNormalizedPage_AndSeparatesDifferentPages()
+    {
+        await SeedBug("/dashboard/profile", originUrl: "/dashboard");
+        await SeedBug("/dashboard/profile", originUrl: "/dashboard/leaderboard");
+        await SeedBug("/dashboard/leaderboard");
+
+        var queue = await _service.GetQueue();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(queue, Has.Count.EqualTo(2));
+            Assert.That(queue.Single(c => c.Page == "/dashboard/profile").Count, Is.EqualTo(2));
+            Assert.That(queue.Single(c => c.Page == "/dashboard/leaderboard").Count, Is.EqualTo(1));
+        }
+    }
+
+    [Test]
+    public async Task GetQueue_ClustersIdeasByOriginPath_AndKeepsThemApartFromBugsOnTheSamePage()
+    {
+        await SeedIdea("/dashboard/profile");
+        await SeedIdea("/dashboard/profile");
+        await SeedIdea("/dashboard/leaderboard");
+        await SeedBug("/dashboard/profile");
+
+        var queue = await _service.GetQueue();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(queue, Has.Count.EqualTo(3));
+            Assert.That(queue.Single(c => c.Category == FeedbackCategory.Idea && c.Page == "/dashboard/profile").Count, Is.EqualTo(2));
+            Assert.That(queue.Single(c => c.Category == FeedbackCategory.Bug).Count, Is.EqualTo(1));
+        }
+    }
+
+    [Test]
+    public async Task GetQueue_CarriesCountsFirstAndLastSeenAndTheNewestNewBodyAsSample()
+    {
+        await SeedBug(createdAt: Now.AddDays(-3), body: "oldest", state: FeedbackReviewState.Reviewed);
+        await SeedBug(createdAt: Now.AddDays(-2), body: "older new");
+        await SeedBug(createdAt: Now.AddDays(-1), body: "newest new");
+        await SeedBug(createdAt: Now, body: "newest but handled", state: FeedbackReviewState.Archived);
+
+        var cluster = (await _service.GetQueue()).Single();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(cluster.Key, Is.EqualTo(ProfileBugs));
+            Assert.That(cluster.Count, Is.EqualTo(4));
+            Assert.That(cluster.NewCount, Is.EqualTo(2));
+            Assert.That(cluster.FirstSeen, Is.EqualTo(Now.AddDays(-3)));
+            Assert.That(cluster.LastSeen, Is.EqualTo(Now));
+            Assert.That(cluster.SampleBody, Is.EqualTo("newest new"));
+        }
+    }
+
+    [Test]
+    public async Task GetQueue_ClusterStaysWhileItHasNewItems_AndLeavesWhenNoneRemain()
+    {
+        var first = await SeedBug();
+        var second = await SeedBug();
+
+        await _service.SetItemState(first, FeedbackReviewState.Reviewed);
+        var stillQueued = await _service.GetQueue();
+
+        await _service.SetItemState(second, FeedbackReviewState.Actioned);
+        var cleared = await _service.GetQueue();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(stillQueued.Single().NewCount, Is.EqualTo(1));
+            Assert.That(stillQueued.Single().Count, Is.EqualTo(2));
+            Assert.That(cleared, Is.Empty);
+        }
+    }
+
+    [Test]
+    public async Task GetQueue_OrdersByNewCountThenMostRecentActivity()
+    {
+        await SeedBug("/a", createdAt: Now.AddDays(-5));
+        await SeedBug("/b", createdAt: Now.AddDays(-4));
+        await SeedBug("/b", createdAt: Now.AddDays(-4));
+        await SeedBug("/c", createdAt: Now);
+
+        var queue = await _service.GetQueue();
+
+        Assert.That(queue.Select(c => c.Page), Is.EqualTo(["/b", "/c", "/a"]));
+    }
+
+    [Test]
+    public async Task GetNewCount_CountsNewItemsOfEveryCategory()
+    {
+        await SeedBug();
+        await SeedIdea();
+        await SeedBug(state: FeedbackReviewState.Reviewed);
+        await Seed(FeedbackCategory.Compliment, reviewState: FeedbackReviewState.New);
+        await Seed(FeedbackCategory.Help, reviewState: FeedbackReviewState.New);
+        await Seed(FeedbackCategory.Help, reviewState: FeedbackReviewState.Reviewed);
+
+        Assert.That(await _service.GetNewCount(), Is.EqualTo(4));
+    }
+
+    [Test]
+    public async Task GetClusterItems_ReturnsEveryItemOfThatCluster_NewOnesFirstThenNewestFirst()
+    {
+        var older = await SeedBug(createdAt: Now.AddHours(-4));
+        var newer = await SeedBug(createdAt: Now.AddHours(-3));
+        var handledOld = await SeedBug(createdAt: Now.AddHours(-2), state: FeedbackReviewState.Archived);
+        var handledNew = await SeedBug(createdAt: Now.AddHours(-1), state: FeedbackReviewState.Reviewed);
+        await SeedBug("/dashboard/leaderboard");
+        await SeedIdea("/dashboard/profile");
+
+        var items = await _service.GetClusterItems(ProfileBugs);
+
+        Assert.That(items.Select(i => i.Id), Is.EqualTo([newer, older, handledNew, handledOld]));
+    }
+
+    [Test]
+    public async Task GetClusterItems_ForACompliment_ReturnsOnlyItemsOnThatOriginPath()
+    {
+        var compliment = await Seed(FeedbackCategory.Compliment, reviewState: FeedbackReviewState.New, originUrl: "/dashboard/profile");
+        await Seed(FeedbackCategory.Compliment, reviewState: FeedbackReviewState.New, originUrl: "/dashboard/leaderboard");
+        await Seed(FeedbackCategory.Help, reviewState: FeedbackReviewState.New, originUrl: "/dashboard/profile");
+
+        var items = await _service.GetClusterItems(new FeedbackClusterKey(FeedbackCategory.Compliment, "/dashboard/profile"));
+
+        Assert.That(items.Select(i => i.Id), Is.EqualTo([compliment]));
+    }
+
+    [TestCase(FeedbackReviewState.Reviewed)]
+    [TestCase(FeedbackReviewState.Actioned)]
+    [TestCase(FeedbackReviewState.Archived)]
+    public async Task SetItemState_RemovesTheItemFromTheQueue_ButKeepsItInAllFeedback(FeedbackReviewState state)
+    {
+        var id = await SeedBug();
+        await SeedBug("/dashboard/leaderboard");
+
+        var result = await _service.SetItemState(id, state);
+
+        var all = await _service.GetItems(new FeedbackAdminFilter { ReviewState = state }, 1);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.IsSuccess, Is.True);
+            Assert.That(await StateOf(id), Is.EqualTo(state));
+            Assert.That((await _service.GetQueue()).Select(c => c.Page), Is.EqualTo(["/dashboard/leaderboard"]));
+            Assert.That(all.Items.Select(i => i.Id), Is.EqualTo([id]));
+        }
+    }
+
+    [Test]
+    public async Task SetItemState_TouchesOnlyThatItem()
+    {
+        var target = await SeedBug();
+        var sibling = await SeedBug();
+
+        await _service.SetItemState(target, FeedbackReviewState.Reviewed);
+
+        Assert.That(await StateOf(sibling), Is.EqualTo(FeedbackReviewState.New));
+    }
+
+    [Test]
+    public async Task SetItemState_Missing_ReturnsNotFound()
+    {
+        var result = await _service.SetItemState(999, FeedbackReviewState.Reviewed);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.IsFailure, Is.True);
+            Assert.That(result.Reason.Code, Is.EqualTo(FeedbackErrorCodes.NotFound));
+        }
+    }
+
+    [TestCase(FeedbackCategory.Compliment, FeedbackReviewState.Reviewed)]
+    [TestCase(FeedbackCategory.Compliment, FeedbackReviewState.Archived)]
+    [TestCase(FeedbackCategory.Help, FeedbackReviewState.Reviewed)]
+    [TestCase(FeedbackCategory.Help, FeedbackReviewState.Actioned)]
+    public async Task SetItemState_ForComplimentAndHelp_RemovesThemFromTheQueue_ButKeepsThemInAllFeedback(FeedbackCategory category, FeedbackReviewState state)
+    {
+        var id = await Seed(category, reviewState: FeedbackReviewState.New);
+
+        var result = await _service.SetItemState(id, state);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.IsSuccess, Is.True);
+            Assert.That(await StateOf(id), Is.EqualTo(state));
+            Assert.That(await _service.GetQueue(), Is.Empty);
+            Assert.That(await Ids(new FeedbackAdminFilter { ReviewState = state }), Is.EqualTo([id]));
+        }
+    }
+
+    [Test]
+    public async Task SetItemState_UndefinedState_IsRejected()
+    {
+        var id = await SeedBug();
+
+        var result = await _service.SetItemState(id, (FeedbackReviewState)99);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Reason.Code, Is.EqualTo(FeedbackErrorCodes.StateInvalid));
+            Assert.That(await StateOf(id), Is.EqualTo(FeedbackReviewState.New));
+        }
+    }
+
+    [Test]
+    public async Task SetClusterState_AppliesToNewItemsOnly_AndReportsHowManyChanged()
+    {
+        var newOne = await SeedBug();
+        var newTwo = await SeedBug();
+        var reviewed = await SeedBug(state: FeedbackReviewState.Reviewed);
+        var actioned = await SeedBug(state: FeedbackReviewState.Actioned);
+
+        var result = await _service.SetClusterState(ProfileBugs, FeedbackReviewState.Archived, expectedNewCount: 2);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.IsSuccess, Is.True);
+            Assert.That(result.Value, Is.EqualTo(2));
+            Assert.That(await StateOf(newOne), Is.EqualTo(FeedbackReviewState.Archived));
+            Assert.That(await StateOf(newTwo), Is.EqualTo(FeedbackReviewState.Archived));
+            Assert.That(await StateOf(reviewed), Is.EqualTo(FeedbackReviewState.Reviewed));
+            Assert.That(await StateOf(actioned), Is.EqualTo(FeedbackReviewState.Actioned));
+            Assert.That(await _service.GetQueue(), Is.Empty);
+        }
+    }
+
+    [Test]
+    public async Task SetClusterState_LeavesOtherClustersAlone()
+    {
+        await SeedBug();
+        var otherPage = await SeedBug("/dashboard/leaderboard");
+        var idea = await SeedIdea("/dashboard/profile");
+
+        await _service.SetClusterState(ProfileBugs, FeedbackReviewState.Reviewed, expectedNewCount: 1);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(await StateOf(otherPage), Is.EqualTo(FeedbackReviewState.New));
+            Assert.That(await StateOf(idea), Is.EqualTo(FeedbackReviewState.New));
+        }
+    }
+
+    [Test]
+    public async Task SetClusterState_ForAClusterWithNoItems_ReturnsNotFound()
+    {
+        var result = await _service.SetClusterState(ProfileBugs, FeedbackReviewState.Reviewed, expectedNewCount: 1);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.IsFailure, Is.True);
+            Assert.That(result.Reason.Code, Is.EqualTo(FeedbackErrorCodes.NotFound));
+        }
+    }
+
+    [Test]
+    public async Task SetClusterState_ForAComplimentCluster_AppliesToItsNewItemsOnly()
+    {
+        var key = new FeedbackClusterKey(FeedbackCategory.Compliment, "/dashboard/profile");
+        var newOne = await Seed(FeedbackCategory.Compliment, reviewState: FeedbackReviewState.New, originUrl: "/dashboard/profile");
+        var handled = await Seed(FeedbackCategory.Compliment, reviewState: FeedbackReviewState.Archived, originUrl: "/dashboard/profile");
+        var otherPage = await Seed(FeedbackCategory.Compliment, reviewState: FeedbackReviewState.New, originUrl: "/dashboard/leaderboard");
+        var help = await Seed(FeedbackCategory.Help, reviewState: FeedbackReviewState.New, originUrl: "/dashboard/profile");
+
+        var result = await _service.SetClusterState(key, FeedbackReviewState.Reviewed, expectedNewCount: 1);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Value, Is.EqualTo(1));
+            Assert.That(await StateOf(newOne), Is.EqualTo(FeedbackReviewState.Reviewed));
+            Assert.That(await StateOf(handled), Is.EqualTo(FeedbackReviewState.Archived));
+            Assert.That(await StateOf(otherPage), Is.EqualTo(FeedbackReviewState.New));
+            Assert.That(await StateOf(help), Is.EqualTo(FeedbackReviewState.New));
+        }
+    }
+
+    [Test]
+    public async Task DeleteCluster_HardDeletesEveryItemInItIncludingHandledOnes_AndReturnsTheCount()
+    {
+        await SeedBug();
+        await SeedBug(state: FeedbackReviewState.Reviewed);
+        await SeedBug(state: FeedbackReviewState.Archived);
+        var otherPage = await SeedBug("/dashboard/leaderboard");
+        var idea = await SeedIdea("/dashboard/profile");
+        var compliment = await Seed(FeedbackCategory.Compliment, reviewState: FeedbackReviewState.New, originUrl: "/dashboard/profile");
+
+        var result = await _service.DeleteCluster(ProfileBugs, expectedCount: 3);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.IsSuccess, Is.True);
+            Assert.That(result.Value, Is.EqualTo(3));
+            Assert.That(await Ids(new FeedbackAdminFilter()), Is.EquivalentTo([otherPage, idea, compliment]));
+        }
+    }
+
+    [Test]
+    public async Task DeleteCluster_ALaterMatchingReportStartsAFreshCluster()
+    {
+        await SeedBug(createdAt: Now.AddDays(-5));
+        await SeedBug(createdAt: Now.AddDays(-4));
+        await _service.DeleteCluster(ProfileBugs, expectedCount: 2);
+
+        await SeedBug(createdAt: Now);
+        var cluster = (await _service.GetQueue()).Single();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(cluster.Count, Is.EqualTo(1));
+            Assert.That(cluster.FirstSeen, Is.EqualTo(Now));
+        }
+    }
+
+    [Test]
+    public async Task DeleteCluster_ForAClusterWithNoItems_ReturnsNotFoundAndChangesNothing()
+    {
+        await SeedBug("/dashboard/leaderboard");
+
+        var result = await _service.DeleteCluster(ProfileBugs, expectedCount: 1);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Reason.Code, Is.EqualTo(FeedbackErrorCodes.NotFound));
+            Assert.That(await TotalItems(), Is.EqualTo(1));
+        }
+    }
+
+    [Test]
+    public async Task DeleteCluster_ForAHelpCluster_DeletesOnlyThatClustersItems()
+    {
+        await Seed(FeedbackCategory.Help, reviewState: FeedbackReviewState.New, originUrl: "/dashboard/profile");
+        await Seed(FeedbackCategory.Help, reviewState: FeedbackReviewState.Reviewed, originUrl: "/dashboard/profile");
+        var otherPage = await Seed(FeedbackCategory.Help, reviewState: FeedbackReviewState.New, originUrl: "/dashboard/leaderboard");
+        var compliment = await Seed(FeedbackCategory.Compliment, reviewState: FeedbackReviewState.New, originUrl: "/dashboard/profile");
+
+        var result = await _service.DeleteCluster(new FeedbackClusterKey(FeedbackCategory.Help, "/dashboard/profile"), expectedCount: 2);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Value, Is.EqualTo(2));
+            Assert.That(await Ids(new FeedbackAdminFilter()), Is.EquivalentTo([otherPage, compliment]));
+        }
+    }
+
+    [Test]
+    public async Task GetCluster_ReturnsTheClusterInfoIncludingHandledItems()
+    {
+        await SeedBug(createdAt: Now.AddDays(-2));
+        await SeedBug(createdAt: Now, state: FeedbackReviewState.Reviewed);
+
+        var cluster = await _service.GetCluster(ProfileBugs);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(cluster, Is.Not.Null);
+            Assert.That(cluster!.Count, Is.EqualTo(2));
+            Assert.That(cluster.NewCount, Is.EqualTo(1));
+            Assert.That(cluster.FirstSeen, Is.EqualTo(Now.AddDays(-2)));
+            Assert.That(cluster.LastSeen, Is.EqualTo(Now));
+        }
+    }
+
+    [Test]
+    public async Task GetCluster_ForAFullyHandledCluster_StillReturnsIt()
+    {
+        await SeedBug(state: FeedbackReviewState.Archived);
+
+        var cluster = await _service.GetCluster(ProfileBugs);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(cluster, Is.Not.Null);
+            Assert.That(cluster!.NewCount, Is.EqualTo(0));
+            Assert.That(cluster.SampleBody, Is.EqualTo("Bug body"));
+        }
+    }
+
+    [Test]
+    public async Task GetCluster_Unknown_ReturnsNull()
+    {
+        Assert.That(await _service.GetCluster(ProfileBugs), Is.Null);
+    }
+
+    [Test]
+    public async Task GetItems_FiltersByCluster_IncludingHandledItems()
+    {
+        var newOne = await SeedBug();
+        var handled = await SeedBug(state: FeedbackReviewState.Reviewed);
+        await SeedBug("/dashboard/leaderboard");
+        await SeedIdea("/dashboard/profile");
+
+        var ids = await Ids(new FeedbackAdminFilter { Cluster = ProfileBugs });
+
+        Assert.That(ids, Is.EquivalentTo([newOne, handled]));
+    }
+
+    [Test]
+    public async Task GetItems_FiltersByAnIdeaCluster_UsingTheOriginPath()
+    {
+        var idea = await SeedIdea("/dashboard/profile");
+        await SeedIdea("/dashboard/leaderboard");
+        await SeedBug("/dashboard/profile");
+
+        var ids = await Ids(new FeedbackAdminFilter { Cluster = new FeedbackClusterKey(FeedbackCategory.Idea, "/dashboard/profile") });
+
+        Assert.That(ids, Is.EqualTo([idea]));
+    }
+
+    [Test]
+    public async Task GetItem_ForAClusteredItem_ExposesItsClusterKey()
+    {
+        var id = await SeedBug();
+
+        var result = await _service.GetItem(id);
+
+        Assert.That(result.Value.ClusterKey, Is.EqualTo(ProfileBugs));
+    }
+
+    [Test]
+    public async Task GetItems_FiltersByCluster_UsesTheReportedPageForBugsAndNeverTheirOriginUrl()
+    {
+        var bug = await SeedBug("/dashboard/profile", originUrl: "/dashboard/leaderboard");
+        await SeedBug("/dashboard/leaderboard", originUrl: "/dashboard/profile");
+
+        var onReportedPage = await Ids(new FeedbackAdminFilter { Cluster = ProfileBugs });
+        var onOriginOnly = await Ids(new FeedbackAdminFilter { Cluster = new FeedbackClusterKey(FeedbackCategory.Bug, "/dashboard/leaderboard") });
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(onReportedPage, Is.EqualTo([bug]));
+            Assert.That(onOriginOnly, Has.Count.EqualTo(1));
+            Assert.That(onOriginOnly, Does.Not.Contain(bug));
+        }
+    }
+
+    [Test]
+    public async Task SearchClusterKeys_WithoutATerm_ReturnsEachClusterOnce_IncludingFullyHandledOnes()
+    {
+        await SeedBug(createdAt: Now.AddDays(-2));
+        await SeedBug(createdAt: Now);
+        await SeedBug("/dashboard/leaderboard", state: FeedbackReviewState.Archived);
+        await SeedIdea("/dashboard/profile");
+        await Seed(FeedbackCategory.Compliment, reviewState: FeedbackReviewState.Reviewed, originUrl: "/dashboard/profile");
+
+        var keys = await _service.SearchClusterKeys(null);
+
+        Assert.That(keys, Is.EquivalentTo(new[]
+        {
+            ProfileBugs,
+            new FeedbackClusterKey(FeedbackCategory.Bug, "/dashboard/leaderboard"),
+            new FeedbackClusterKey(FeedbackCategory.Idea, "/dashboard/profile"),
+            new FeedbackClusterKey(FeedbackCategory.Compliment, "/dashboard/profile")
+        }));
+    }
+
+    [Test]
+    public async Task SearchClusterKeys_MatchesOnPageOrTypeLabel_IgnoringCase()
+    {
+        await SeedBug("/dashboard/profile");
+        await SeedBug("/dashboard/leaderboard");
+        await SeedIdea("/dashboard/leaderboard");
+
+        var byPage = await _service.SearchClusterKeys("LEADERBOARD");
+        var byType = await _service.SearchClusterKeys(FeedbackLabelHelper.CategoryLabel(FeedbackCategory.Idea));
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(byPage, Is.EquivalentTo(new[]
+            {
+                new FeedbackClusterKey(FeedbackCategory.Bug, "/dashboard/leaderboard"),
+                new FeedbackClusterKey(FeedbackCategory.Idea, "/dashboard/leaderboard")
+            }));
+            Assert.That(byType, Is.EqualTo([new FeedbackClusterKey(FeedbackCategory.Idea, "/dashboard/leaderboard")]));
+        }
+    }
+
+    [Test]
+    public async Task SearchClusterKeys_ReturnsAtMostTheRequestedNumberOfKeys()
+    {
+        await SeedBug("/a");
+        await SeedBug("/b");
+        await SeedBug("/c");
+
+        var keys = await _service.SearchClusterKeys(null, take: 2);
+
+        Assert.That(keys, Has.Count.EqualTo(2));
+    }
+
+    [Test]
+    public async Task SearchClusterKeys_WithNoFeedback_ReturnsNothing()
+    {
+        Assert.That(await _service.SearchClusterKeys(null), Is.Empty);
+    }
+
+    [Test]
+    public async Task GetCluster_CountsOnlyTheRequestedCluster()
+    {
+        await SeedBug(createdAt: Now.AddDays(-3));
+        await SeedBug("/dashboard/leaderboard", createdAt: Now.AddDays(-9));
+        await SeedIdea("/dashboard/profile", createdAt: Now.AddDays(-8));
+
+        var cluster = await _service.GetCluster(ProfileBugs);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(cluster!.Count, Is.EqualTo(1));
+            Assert.That(cluster.FirstSeen, Is.EqualTo(Now.AddDays(-3)));
+            Assert.That(cluster.LastSeen, Is.EqualTo(Now.AddDays(-3)));
+        }
+    }
+
+    [Test]
+    public async Task SetClusterState_WhenTheNewCountIsNotWhatTheAdminConfirmed_ReturnsConflictAndChangesNothing()
+    {
+        var first = await SeedBug();
+        var second = await SeedBug();
+
+        var result = await _service.SetClusterState(ProfileBugs, FeedbackReviewState.Reviewed, expectedNewCount: 1);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.IsFailure, Is.True);
+            Assert.That(result.Reason.Code, Is.EqualTo(FeedbackErrorCodes.Conflict));
+            Assert.That(await StateOf(first), Is.EqualTo(FeedbackReviewState.New));
+            Assert.That(await StateOf(second), Is.EqualTo(FeedbackReviewState.New));
+        }
+    }
+
+    [Test]
+    public async Task SetClusterState_WhenEveryNewItemWasHandledMeanwhile_ReturnsConflict()
+    {
+        await SeedBug(state: FeedbackReviewState.Reviewed);
+
+        var result = await _service.SetClusterState(ProfileBugs, FeedbackReviewState.Archived, expectedNewCount: 2);
+
+        Assert.That(result.Reason.Code, Is.EqualTo(FeedbackErrorCodes.Conflict));
+    }
+
+    [Test]
+    public async Task DeleteCluster_WhenTheCountIsNotWhatTheAdminConfirmed_ReturnsConflictAndDeletesNothing()
+    {
+        await SeedBug();
+        await SeedBug(state: FeedbackReviewState.Reviewed);
+        await SeedBug();
+
+        var result = await _service.DeleteCluster(ProfileBugs, expectedCount: 2);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.IsFailure, Is.True);
+            Assert.That(result.Reason.Code, Is.EqualTo(FeedbackErrorCodes.Conflict));
+            Assert.That(await TotalItems(), Is.EqualTo(3));
         }
     }
 }

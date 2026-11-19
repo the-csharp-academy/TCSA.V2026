@@ -21,6 +21,8 @@ public class AdminFeedbackTests : BunitContext
     [SetUp]
     public void SetUp()
     {
+        _serviceMock.Setup(s => s.GetQueue()).ReturnsAsync([]);
+        _serviceMock.Setup(s => s.SearchClusterKeys(It.IsAny<string?>(), It.IsAny<int>())).ReturnsAsync([]);
         JSInterop.Mode = JSRuntimeMode.Loose;
         Services.AddMudServices();
         Services.AddSingleton(_serviceMock.Object);
@@ -78,5 +80,50 @@ public class AdminFeedbackTests : BunitContext
             Assert.That(cut.Markup, Does.Contain("&lt;i&gt;/dashboard&lt;/i&gt;"));
             Assert.That(cut.FindAll("td i"), Is.Empty);
         }
+    }
+
+    [Test]
+    public void ClusterFilter_FiltersTheListBySelection()
+    {
+        var profileBugs = new FeedbackClusterKey(FeedbackCategory.Bug, "/dashboard/profile");
+        ReturnItems(Item("body"));
+
+        var cut = Render<AdminFeedback>();
+        var clusterFilter = cut.WaitForComponent<MudBlazor.MudAutocomplete<FeedbackClusterKey>>();
+        cut.InvokeAsync(() => clusterFilter.Instance.SelectOptionAsync(profileBugs)).Wait();
+
+        cut.WaitForAssertion(() => _serviceMock.Verify(
+            s => s.GetItems(It.Is<FeedbackAdminFilter>(f => f.Cluster == profileBugs), 1, It.IsAny<int>()), Times.AtLeastOnce));
+    }
+
+    [Test]
+    public void ClusterFilter_SearchAsksTheServiceForMatchingKeys()
+    {
+        var leaderboardIdeas = new FeedbackClusterKey(FeedbackCategory.Idea, "/dashboard/leaderboard");
+        ReturnItems(Item("body"));
+        _serviceMock.Setup(s => s.SearchClusterKeys("leaderboard", It.IsAny<int>())).ReturnsAsync([leaderboardIdeas]);
+
+        var cut = Render<AdminFeedback>();
+        var clusterFilter = cut.WaitForComponent<MudBlazor.MudAutocomplete<FeedbackClusterKey>>();
+
+        var found = clusterFilter.Instance.SearchFunc!("leaderboard", CancellationToken.None)!.Result.ToList();
+
+        Assert.That(found, Is.EqualTo([leaderboardIdeas]));
+    }
+
+    [Test]
+    public void ClusterFilter_WhenTheSelectedClusterNoLongerExists_IsClearedSoTheListIsNotEmptyForNoReason()
+    {
+        var profileBugs = new FeedbackClusterKey(FeedbackCategory.Bug, "/dashboard/profile");
+        ReturnItems(Item("body"));
+        _serviceMock.Setup(s => s.GetCluster(profileBugs)).ReturnsAsync((FeedbackClusterDto?)null);
+        var state = Services.GetRequiredService<FeedbackDetailState>();
+
+        var cut = Render<AdminFeedback>();
+        var clusterFilter = cut.WaitForComponent<MudBlazor.MudAutocomplete<FeedbackClusterKey>>();
+        cut.InvokeAsync(() => clusterFilter.Instance.SelectOptionAsync(profileBugs)).Wait();
+        cut.InvokeAsync(() => state.NotifyDeletedAsync(1)).Wait();
+
+        cut.WaitForAssertion(() => Assert.That(clusterFilter.Instance.Value, Is.Null));
     }
 }

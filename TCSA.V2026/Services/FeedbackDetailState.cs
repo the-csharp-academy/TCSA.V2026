@@ -3,8 +3,7 @@ using TCSA.V2026.Data.DTOs;
 namespace TCSA.V2026.Services;
 
 /// <summary>
-/// Connects the All Feedback page to the detail drawer. The drawer lives in the LayoutControls island
-/// (so it can sit over the app bar and footer like the navigation drawer), outside the page's component tree.
+/// Connects the admin Feedback page (All feedback and Needs review) to the detail drawer.
 /// </summary>
 public class FeedbackDetailState
 {
@@ -12,6 +11,8 @@ public class FeedbackDetailState
 
     public event Action? OnChange;
     public event Func<int, Task>? OnDeleted;
+    public event Func<Task>? OnStateChanged;
+    public event Func<FeedbackClusterKey, Task>? OnClusterRequested;
 
     public void Open(FeedbackAdminItemDto item)
     {
@@ -27,15 +28,38 @@ public class FeedbackDetailState
         OnChange?.Invoke();
     }
 
-    public async Task NotifyDeletedAsync(int id)
+    /// <summary>Keeps the drawer open on the updated item and tells the page to reload its lists.</summary>
+    public Task NotifyStateChangedAsync(FeedbackAdminItemDto updated)
+    {
+        Selected = updated;
+        OnChange?.Invoke();
+
+        return InvokeAllAsync(OnStateChanged, handler => handler());
+    }
+
+    /// <summary>Asks the page to show every item of a cluster in All feedback.</summary>
+    public Task RequestClusterAsync(FeedbackClusterKey cluster)
     {
         Close();
 
-        if (OnDeleted is null) return;
+        return InvokeAllAsync(OnClusterRequested, handler => handler(cluster));
+    }
 
-        foreach (var handler in OnDeleted.GetInvocationList())
+    public Task NotifyDeletedAsync(int id)
+    {
+        Close();
+
+        return InvokeAllAsync(OnDeleted, handler => handler(id));
+    }
+
+    /// <summary>Awaits each subscriber in turn; a plain event invocation would only await the last one.</summary>
+    private static async Task InvokeAllAsync<THandler>(THandler? handlers, Func<THandler, Task> invoke) where THandler : Delegate
+    {
+        if (handlers is null) return;
+
+        foreach (var handler in handlers.GetInvocationList().Cast<THandler>())
         {
-            await ((Func<int, Task>)handler).Invoke(id);
+            await invoke(handler);
         }
     }
 }

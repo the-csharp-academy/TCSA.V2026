@@ -109,7 +109,7 @@
                     <MudIcon Icon="@Icons.Material.Filled.Check" />
                 </MudAvatar>
                 <MudText Typo="Typo.h6">Thanks for your feedback!</MudText>
-                <MudText Typo="Typo.body2" Class="mud-text-secondary">@ThankYouLine</MudText>
+                <MudText Typo="Typo.body2" Class="mud-text-secondary">It's in the team's review queue.</MudText>
             </MudStack>
         }
     </DialogContent>
@@ -205,10 +205,6 @@
     private bool DescriptionIsValid => (_description?.Trim().Length ?? 0) >= FeedbackLimits.DescriptionMinLength;
 
     private bool PageIsValid => !string.IsNullOrWhiteSpace(_page);
-
-    private string ThankYouLine => _category is FeedbackCategory.Bug or FeedbackCategory.Idea
-        ? "It's in the team's review queue."
-        : "The team reads every message.";
 
     protected override void OnInitialized()
     {

@@ -154,9 +154,9 @@ public class FeedbackServiceTests : IntegrationTestsBase
 
     [TestCase(FeedbackCategory.Bug, FeedbackReviewState.New)]
     [TestCase(FeedbackCategory.Idea, FeedbackReviewState.New)]
-    [TestCase(FeedbackCategory.Help, null)]
-    [TestCase(FeedbackCategory.Compliment, null)]
-    public async Task Submit_ReviewState_DependsOnlyOnCategory(FeedbackCategory category, FeedbackReviewState? expected)
+    [TestCase(FeedbackCategory.Help, FeedbackReviewState.New)]
+    [TestCase(FeedbackCategory.Compliment, FeedbackReviewState.New)]
+    public async Task Submit_EveryWidgetItem_StartsAsNew(FeedbackCategory category, FeedbackReviewState? expected)
     {
         var submission = Bug();
         submission.Category = category;

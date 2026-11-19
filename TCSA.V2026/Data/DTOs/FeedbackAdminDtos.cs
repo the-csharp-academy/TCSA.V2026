@@ -11,10 +11,27 @@ public class FeedbackAdminFilter
     public string? Search { get; set; }
     public DateTimeOffset? From { get; set; }
     public DateTimeOffset? To { get; set; }
+    public FeedbackClusterKey? Cluster { get; set; }
 
     public bool IsActive =>
         Category is not null || ReviewState is not null || Area is not null ||
-        From is not null || To is not null || !string.IsNullOrWhiteSpace(Search);
+        From is not null || To is not null || Cluster is not null || !string.IsNullOrWhiteSpace(Search);
+}
+
+public record FeedbackClusterKey(FeedbackCategory Category, string Page);
+
+public class FeedbackClusterDto
+{
+    public FeedbackCategory Category { get; set; }
+    public string Page { get; set; } = string.Empty;
+    public int Count { get; set; }
+    public int NewCount { get; set; }
+    public DateTimeOffset FirstSeen { get; set; }
+    public DateTimeOffset LastSeen { get; set; }
+
+    public string SampleBody { get; set; } = string.Empty;
+
+    public FeedbackClusterKey Key => new(Category, Page);
 }
 
 public class FeedbackAdminItemDto
@@ -34,4 +51,6 @@ public class FeedbackAdminItemDto
     public string UserLabel => UserDisplayNameHelper.GetDisplayName(UserDisplayName, UserName);
 
     public string Location => !string.IsNullOrEmpty(ReportedPage) ? ReportedPage : OriginUrl;
+
+    public FeedbackClusterKey ClusterKey => new(Category, ReportedPage ?? OriginUrl);
 }
