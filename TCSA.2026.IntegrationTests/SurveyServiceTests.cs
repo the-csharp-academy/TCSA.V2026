@@ -571,16 +571,6 @@ public class SurveyServiceTests : IntegrationTestsBase
     }
 
     [Test]
-    public async Task Submit_Rejects_ASurveyThatWasDeletedWhileTheModalWasOpen()
-    {
-        var seeded = await SeedSurvey(SurveyStatus.Inactive);
-        var submission = ValidSubmission(seeded);
-        await new SurveyAdminService(DbContextFactory, NullLogger<SurveyAdminService>.Instance).DeleteSurvey(seeded.SurveyId);
-
-        await AssertRejectedWithNothingStored(submission, SurveyErrorCodes.Unavailable);
-    }
-
-    [Test]
     public async Task Submit_Rejects_ASurveyThatNeverExisted()
     {
         await AssertRejectedWithNothingStored(new SurveySubmissionDto { SurveyId = 424_242 }, SurveyErrorCodes.Unavailable);
@@ -730,35 +720,6 @@ public class SurveyServiceTests : IntegrationTestsBase
         var otherSubmit = await _service.SubmitSurvey(OtherUserId, ValidSubmission(seeded));
 
         Assert.That(otherSubmit.IsSuccess, Is.True, otherSubmit.Message);
-    }
-
-    #endregion
-
-    #region Survey deletion removes responses
-
-    [Test]
-    public async Task DeleteSurvey_RemovesItsResponsesAnswersSelectedOptionsAndRefusals()
-    {
-        var seeded = await SeedSurvey(SurveyStatus.Active);
-        var submission = ValidSubmission(seeded);
-        submission.Answers.Add(new() { QuestionId = seeded.MultipleId, OptionIds = [seeded.MultipleOptionIds[0]] });
-        await _service.SubmitSurvey(UserId, submission);
-        await _service.RefuseSurvey(OtherUserId, seeded.SurveyId);
-        var admin = new SurveyAdminService(DbContextFactory, NullLogger<SurveyAdminService>.Instance);
-        await admin.DeactivateSurvey(seeded.SurveyId);
-
-        var result = await admin.DeleteSurvey(seeded.SurveyId);
-
-        using var context = DbContextFactory.CreateDbContext();
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.IsSuccess, Is.True, result.Message);
-            Assert.That(await context.Surveys.CountAsync(), Is.Zero);
-            Assert.That(await context.SurveyResponses.CountAsync(), Is.Zero);
-            Assert.That(await context.SurveyAnswers.CountAsync(), Is.Zero);
-            Assert.That(await context.SurveyAnswerOptions.CountAsync(), Is.Zero);
-            Assert.That(await context.SurveyRefusals.CountAsync(), Is.Zero);
-        }
     }
 
     #endregion

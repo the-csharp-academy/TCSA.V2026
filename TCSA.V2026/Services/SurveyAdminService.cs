@@ -156,40 +156,43 @@ public class SurveyAdminService(IDbContextFactory<ApplicationDbContext> _factory
         {
             using var context = _factory.CreateDbContext();
 
-            var survey = await context.Surveys
-                .Include(s => s.Questions).ThenInclude(q => ((ChoiceQuestion)q).Options)
-                .FirstOrDefaultAsync(s => s.Id == id);
+            var status = await context.Surveys
+                .Where(s => s.Id == id)
+                .Select(s => (SurveyStatus?)s.Status)
+                .FirstOrDefaultAsync();
 
-            if (survey is null)
+            if (status is null)
             {
                 return Result.Failure(SurveyErrors.NotFound);
             }
 
-            if (survey.Status == SurveyStatus.Active)
+            if (status == SurveyStatus.Active)
             {
                 return Result.Failure(SurveyErrors.DeleteActive);
             }
 
-            var responses = await context.SurveyResponses
-                .Include(r => r.Answers).ThenInclude(a => ((ChoiceAnswer)a).SelectedOptions)
-                .Where(r => r.SurveyId == id)
-                .ToListAsync();
-            var answers = responses.SelectMany(r => r.Answers).ToList();
+            await using var transaction = await context.Database.BeginTransactionAsync();
 
-            context.SurveyAnswerOptions.RemoveRange(answers.OfType<ChoiceAnswer>().SelectMany(a => a.SelectedOptions));
-            context.SurveyAnswers.RemoveRange(answers);
-            context.SurveyResponses.RemoveRange(responses);
-            context.SurveyRefusals.RemoveRange(await context.SurveyRefusals.Where(r => r.SurveyId == id).ToListAsync());
-            context.SurveyOptions.RemoveRange(survey.Questions.OfType<ChoiceQuestion>().SelectMany(q => q.Options));
-            context.SurveyQuestions.RemoveRange(survey.Questions);
-            context.Surveys.Remove(survey);
-            await context.SaveChangesAsync();
+            await context.SurveyAnswerOptions.Where(o => o.Answer.Response.SurveyId == id).ExecuteDeleteAsync();
+            await context.SurveyAnswers.Where(a => a.Response.SurveyId == id).ExecuteDeleteAsync();
+            await context.SurveyResponses.Where(r => r.SurveyId == id).ExecuteDeleteAsync();
+            await context.SurveyRefusals.Where(r => r.SurveyId == id).ExecuteDeleteAsync();
+            await context.SurveyOptions.Where(o => o.Question.SurveyId == id).ExecuteDeleteAsync();
+            await context.SurveyQuestions.Where(q => q.SurveyId == id).ExecuteDeleteAsync();
+
+            var deleted = await context.Surveys
+                .Where(s => s.Id == id && s.Status != SurveyStatus.Active)
+                .ExecuteDeleteAsync();
+
+            if (deleted == 0)
+            {
+                await transaction.RollbackAsync();
+                return Result.Failure(SurveyErrors.Conflict);
+            }
+
+            await transaction.CommitAsync();
 
             return Result.Success(new Success(SurveyErrorCodes.Deleted, "Survey deleted."));
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            return Result.Failure(SurveyErrors.Conflict);
         }
         catch (Exception ex)
         {
