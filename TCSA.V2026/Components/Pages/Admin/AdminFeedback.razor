@@ -1,0 +1,260 @@
+@page "/admin/feedback"
+
+@using Microsoft.AspNetCore.Authorization
+@using TCSA.V2026.Data.DTOs
+@using TCSA.V2026.Data.Enums
+@using TCSA.V2026.Helpers
+@using TCSA.V2026.Helpers.Constants
+@using TCSA.V2026.Data.Models.Responses
+@using TCSA.V2026.Services
+
+@implements IDisposable
+@attribute [Authorize(Roles = "Admin")]
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+
+<PageTitle>All Feedback</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="py-6">
+    <AdminToolBar Count="_page?.TotalItems" />
+
+    <MudPaper Class="pa-6 mt-3 feedback-hero" Elevation="4">
+        <MudText Typo="Typo.h4">All Feedback</MudText>
+        <MudText Typo="Typo.body1" Color="Color.Secondary">
+            Every piece of feedback sent from the feedback button, newest first.
+        </MudText>
+    </MudPaper>
+
+    <MudPaper Class="pa-4 mt-4 feedback-surface" Elevation="0">
+        <MudGrid Spacing="2">
+            <MudItem xs="12" sm="6" md="3">
+                <MudSelect T="FeedbackCategory?" Label="Type" Variant="Variant.Outlined" Dense="true" Clearable="true"
+                           Value="_filter.Category" ValueChanged="OnCategoryChanged">
+                    @foreach (var category in Enum.GetValues<FeedbackCategory>())
+                    {
+                        <MudSelectItem T="FeedbackCategory?" Value="@category">@FeedbackLabelHelper.CategoryLabel(category)</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12" sm="6" md="3">
+                <MudSelect T="FeedbackReviewState?" Label="Review state" Variant="Variant.Outlined" Dense="true" Clearable="true"
+                           Value="_filter.ReviewState" ValueChanged="OnReviewStateChanged">
+                    @foreach (var state in Enum.GetValues<FeedbackReviewState>())
+                    {
+                        <MudSelectItem T="FeedbackReviewState?" Value="@state">@state</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12" sm="6" md="3">
+                <MudSelect T="FeedbackArea?" Label="Area" Variant="Variant.Outlined" Dense="true" Clearable="true"
+                           Value="_filter.Area" ValueChanged="OnAreaChanged">
+                    @foreach (var area in Enum.GetValues<FeedbackArea>())
+                    {
+                        <MudSelectItem T="FeedbackArea?" Value="@area">@FeedbackLabelHelper.AreaLabel(area)</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12" sm="6" md="3">
+                <MudDateRangePicker Label="Date" Variant="Variant.Outlined" Margin="Margin.Dense" Clearable="true"
+                                    DateRange="_dateRange" DateRangeChanged="OnDateRangeChanged" />
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField T="string" Label="Search text or page" Variant="Variant.Outlined" Margin="Margin.Dense"
+                              Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search"
+                              Clearable="true" DebounceInterval="400"
+                              Value="_search" ValueChanged="OnSearchChanged" />
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+
+    @if (_isLoading && _page is null)
+    {
+        <div class="d-flex justify-center pa-8">
+            <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+        </div>
+    }
+    else if (_page is null || _page.TotalItems == 0)
+    {
+        <MudAlert Class="mt-4" Severity="Severity.Info" Variant="Variant.Outlined">
+            @(_filter.IsActive ?"No feedback matches these filters." : "No feedback has been sent yet.")
+        </MudAlert>
+    }
+    else
+    {
+        <MudPaper Class="pa-2 mt-4 feedback-surface" Elevation="0">
+            <MudTable T="FeedbackAdminItemDto" Items="_page.Items" Hover="true" Dense="true" Breakpoint="Breakpoint.Sm"
+                      RowClass="feedback-row" OnRowClick="OnRowClick">
+                <HeaderContent>
+                    <MudTh>Type</MudTh>
+                    <MudTh>Feedback</MudTh>
+                    <MudTh>Where</MudTh>
+                    <MudTh>User</MudTh>
+                    <MudTh>State</MudTh>
+                    <MudTh>When</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Type">
+                        <MudChip T="string" Size="Size.Small" Color="@FeedbackLabelHelper.CategoryColor(context.Category)"
+                                 Icon="@FeedbackLabelHelper.CategoryIcon(context.Category)">
+                            @FeedbackLabelHelper.CategoryLabel(context.Category)
+                        </MudChip>
+                    </MudTd>
+                    <MudTd DataLabel="Feedback">
+                        <button type="button" class="feedback-open" @onclick:stopPropagation="true" @onclick="() => OpenItem(context)">
+                            @FeedbackLabelHelper.Excerpt(context.Body)
+                        </button>
+                    </MudTd>
+                    <MudTd DataLabel="Where">@context.Location</MudTd>
+                    <MudTd DataLabel="User">@context.UserLabel</MudTd>
+                    <MudTd DataLabel="State">
+                        @if (context.ReviewState is { } state)
+                        {
+                            <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined" Color="@FeedbackLabelHelper.ReviewStateColor(state)">@state</MudChip>
+                        }
+                        else
+                        {
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">Not in queue</MudText>
+                        }
+                    </MudTd>
+                    <MudTd DataLabel="When">@context.CreatedAt.ToLocalTime().ToString("dd MMM yyyy, h:mm tt")</MudTd>
+                </RowTemplate>
+            </MudTable>
+
+            <div class="d-flex flex-wrap align-center justify-space-between gap-3 pa-2">
+                <div class="d-flex align-center gap-2">
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">Rows per page</MudText>
+                    <MudSelect T="int" Dense="true" Variant="Variant.Text" Style="width: 80px"
+                               Value="_pageSize" ValueChanged="OnPageSizeChanged">
+                        @foreach (var size in PagingConstants.AdminFeedbackPageSizeOptions)
+                        {
+                            <MudSelectItem T="int" Value="@size">@size</MudSelectItem>
+                        }
+                    </MudSelect>
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">@_page.TotalItems total</MudText>
+                </div>
+                @if (_page.TotalPages > 1)
+                {
+                    <MudPagination Count="_page.TotalPages" Selected="_pageNumber" SelectedChanged="OnPageChanged"
+                                   ShowFirstButton="true" ShowLastButton="true" Color="Color.Primary" />
+                }
+            </div>
+        </MudPaper>
+    }
+</MudContainer>
+
+@code {
+    [Inject] private IFeedbackAdminService FeedbackAdminService { get; set; } = null!;
+    [Inject] private FeedbackDetailState DetailState { get; set; } = null!;
+
+    private readonly FeedbackAdminFilter _filter = new();
+    private DateRange? _dateRange;
+    private string? _search;
+
+    private PaginatedList<FeedbackAdminItemDto>? _page;
+    private int _pageNumber = 1;
+    private int _pageSize = PagingConstants.AdminFeedbackPageSize;
+    private bool _isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        DetailState.OnDeleted += HandleDeleted;
+        await Load();
+    }
+
+    private async Task HandleDeleted(int id)
+    {
+        await InvokeAsync(async () =>
+        {
+            await Load();
+            StateHasChanged();
+        });
+    }
+
+    public void Dispose()
+    {
+        DetailState.OnDeleted -= HandleDeleted;
+        DetailState.Close();
+    }
+
+    private async Task Load()
+    {
+        _isLoading = true;
+        _page = await FeedbackAdminService.GetItems(_filter, _pageNumber, _pageSize);
+
+        if (_page.Items.Count == 0 && _page.TotalItems > 0 && _pageNumber > _page.TotalPages)
+        {
+            _pageNumber = _page.TotalPages;
+            _page = await FeedbackAdminService.GetItems(_filter, _pageNumber, _pageSize);
+        }
+
+        _isLoading = false;
+    }
+
+    private async Task ApplyFilter(Action change)
+    {
+        change();
+        _pageNumber = 1;
+        await Load();
+    }
+
+    private Task OnCategoryChanged(FeedbackCategory? value) => ApplyFilter(() => _filter.Category = value);
+
+    private Task OnReviewStateChanged(FeedbackReviewState? value) => ApplyFilter(() => _filter.ReviewState = value);
+
+    private Task OnAreaChanged(FeedbackArea? value) => ApplyFilter(() => _filter.Area = value);
+
+    private Task OnSearchChanged(string? value) => ApplyFilter(() =>
+    {
+        _search = value;
+        _filter.Search = value;
+    });
+
+    private Task OnDateRangeChanged(DateRange? range) => ApplyFilter(() =>
+    {
+        _dateRange = range;
+        _filter.From = range?.Start is { } start ? new DateTimeOffset(start.Date) : null;
+        _filter.To = range?.End is { } end ? new DateTimeOffset(end.Date.AddDays(1)) : null;
+    });
+
+    private async Task OnPageChanged(int page)
+    {
+        _pageNumber = page;
+        await Load();
+    }
+
+    private Task OnPageSizeChanged(int size) => ApplyFilter(() => _pageSize = size);
+
+    private void OnRowClick(TableRowClickEventArgs<FeedbackAdminItemDto> args) => OpenItem(args.Item);
+
+    private void OpenItem(FeedbackAdminItemDto item) => DetailState.Open(item);
+}
+
+<style>
+    .feedback-hero {
+        border-radius: 20px;
+        border: 1px solid rgba(var(--mud-palette-primary-rgb), 0.2);
+        background: linear-gradient(140deg, rgba(var(--mud-palette-surface-rgb), 0.98) 0%, rgba(var(--mud-palette-primary-rgb), 0.08) 100%);
+    }
+
+    .feedback-surface {
+        border-radius: 16px;
+        border: 1px solid rgba(var(--mud-palette-lines-default-rgb), 0.6);
+    }
+
+    .feedback-row {
+        cursor: pointer;
+    }
+
+    .feedback-open {
+        all: unset;
+        cursor: pointer;
+        border-radius: 6px;
+        max-width: 38ch;
+        display: block;
+        white-space: normal;
+    }
+
+    .feedback-open:focus-visible {
+        outline: 2px solid var(--mud-palette-primary);
+        outline-offset: 2px;
+    }
+</style>

@@ -10,5 +10,7 @@ public static class FeedbackErrorCodes
     public const string PageRequired = "Feedback.PageRequired";
     public const string PageTooLong = "Feedback.PageTooLong";
     public const string RateLimited = "Feedback.RateLimited";
+    public const string NotFound = "Feedback.NotFound";
+    public const string Deleted = "Feedback.Deleted";
     public const string Unexpected = "Feedback.Unexpected";
 }
