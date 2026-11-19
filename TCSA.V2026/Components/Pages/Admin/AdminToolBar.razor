@@ -5,6 +5,7 @@
         <MudIconButton Icon="@Icons.Material.Outlined.PendingActions" OnClick="NavigateToPending" />
         <MudIconButton Icon="@Icons.Material.Outlined.Comment" OnClick="NavigateToComments" />
         <MudIconButton Icon="@Icons.Material.Outlined.Feedback" OnClick="NavigateToFeedback" />
+        <MudIconButton Icon="@Icons.Material.Outlined.AssignmentTurnedIn" OnClick="NavigateToSurveys" />
         <MudIconButton Icon="@Icons.Material.Outlined.Assessment" OnClick="NavigateToReports" />
         <MudIcon Icon="@Icons.Material.Outlined.Numbers" /> 
         <MudText Style="font-weight: 600; font-size:large">@Count</MudText>
@@ -39,6 +40,11 @@
     private void NavigateToFeedback()
     {
         Navigation.NavigateTo("/admin/feedback");
+    }
+
+    private void NavigateToSurveys()
+    {
+        Navigation.NavigateTo("/admin/surveys");
     }
 
     private void NavigateToReports()

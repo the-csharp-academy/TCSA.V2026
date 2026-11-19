@@ -1,0 +1,152 @@
+@using TCSA.V2026.Data.DTOs
+@using TCSA.V2026.Data.Enums
+@using TCSA.V2026.Helpers
+@using TCSA.V2026.Helpers.Constants
+@using TCSA.V2026.Helpers.SurveyQuestions
+
+<MudPaper Class="pa-3 mb-3 survey-surface" Elevation="0">
+    <MudBreakpointProvider OnBreakpointChanged="BreakpointChanged">
+        <MudStack Row AlignItems="_headerAlignItems" Justify="Justify.SpaceBetween" Spacing="2" Breakpoint="Breakpoint.Xs">
+            <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+                <MudAvatar Size="Size.Small" Color="Color.Primary" Variant="Variant.Outlined">@(Index + 1)</MudAvatar>
+                <MudSelect T="SurveyQuestionType" Value="Question.Type" ValueChanged="TypeChanged" Dense="true" Variant="Variant.Outlined"
+                       Label="Type" Style="max-width: 220px">
+                    @foreach (var definition in SurveyQuestionRegistry.All)
+                    {
+                        <MudSelectItem T="SurveyQuestionType" Value="@definition.Type">
+                            <MudIcon Icon="@definition.Icon" Size="Size.Small" Class="mr-2" />@definition.Label
+                        </MudSelectItem>
+                    }
+                </MudSelect>
+            </MudStack>
+            <MudStack Row AlignItems="AlignItems.Center" Spacing="2" Class="question-toolbar-actions">
+                <MudTooltip Text="Mark as required">
+                    <MudSwitch T="bool" @bind-Value="Question.IsRequired" Label="Required" Color="Color.Primary" />
+                </MudTooltip>
+                <MudIconButton Icon="@Icons.Material.Filled.ArrowUpward" Size="Size.Small" Disabled="@(Index == 0)"
+                               OnClick="() => OnMove.InvokeAsync(-1)" aria-label="Move question up" />
+                <MudIconButton Icon="@Icons.Material.Filled.ArrowDownward" Size="Size.Small" Disabled="@(Index == Count - 1)"
+                               OnClick="() => OnMove.InvokeAsync(1)" aria-label="Move question down" />
+                <MudIconButton Icon="@Icons.Material.Filled.DeleteOutline" Size="Size.Small" Color="Color.Error"
+                               OnClick="OnRemove" aria-label="Remove question" />
+            </MudStack>
+        </MudStack>
+    </MudBreakpointProvider>
+
+    <MudTextField T="string" Value="Question.Text" ValueChanged="OnTextChanged" Immediate="true" Label="Question" Variant="Variant.Outlined" Class="mt-3"
+                  MaxLength="SurveyLimits.QuestionMaxLength" Counter="SurveyLimits.QuestionMaxLength"
+                  Error="@(Touched && string.IsNullOrWhiteSpace(Question.Text))" ErrorText="Question text is required." />
+
+    @if (Question.HasOptions)
+    {
+        <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mt-1 d-block">
+            Options (@SurveyLimits.MinOptions to @SurveyLimits.MaxOptions)
+        </MudText>
+        @for (var i = 0; i < Question.Options.Count; i++)
+        {
+            var index = i;
+            <MudStack Row AlignItems="AlignItems.Center" Spacing="1" Class="mt-1">
+                <MudIcon Icon="@Definition.OptionIcon" Color="Color.Secondary" />
+                <MudTextField T="string" Value="@Question.Options[index]" ValueChanged="@(v => SetOption(index, v))" Immediate="true"
+                              Margin="Margin.Dense" Variant="Variant.Outlined" Placeholder="@($"Option {index + 1}")"
+                              MaxLength="SurveyLimits.OptionMaxLength" />
+                <MudIconButton Icon="@Icons.Material.Filled.ArrowUpward" Size="Size.Small" Disabled="@(index == 0)"
+                               OnClick="() => MoveOption(index, -1)" aria-label="Move option up" />
+                <MudIconButton Icon="@Icons.Material.Filled.ArrowDownward" Size="Size.Small" Disabled="@(index == Question.Options.Count - 1)"
+                               OnClick="() => MoveOption(index, 1)" aria-label="Move option down" />
+                <MudIconButton Icon="@Icons.Material.Filled.Close" Size="Size.Small" Disabled="@(Question.Options.Count <= SurveyLimits.MinOptions)"
+                               OnClick="() => RemoveOption(index)" aria-label="Remove option" />
+            </MudStack>
+        }
+        <MudButton Size="Size.Small" Variant="Variant.Text" StartIcon="@Icons.Material.Filled.Add" Class="mt-1"
+                   Disabled="@(Question.Options.Count >= SurveyLimits.MaxOptions)"
+                   OnClick="AddOption">Add option</MudButton>
+        @if (Touched && Question.NonBlankOptions().Count() < SurveyLimits.MinOptions)
+        {
+            <MudText Typo="Typo.caption" Color="Color.Error" Class="d-block">Add at least two non-empty options.</MudText>
+        }
+    }
+    else
+    {
+        <MudText Typo="Typo.caption" Color="Color.Secondary" Class="d-block">@Definition.Hint</MudText>
+    }
+</MudPaper>
+
+@code {
+    [Parameter, EditorRequired] public SurveyQuestionDraftDto Question { get; set; } = null!;
+    [Parameter] public int Index { get; set; }
+    [Parameter] public int Count { get; set; }
+    [Parameter] public bool Touched { get; set; }
+    [Parameter] public EventCallback OnRemove { get; set; }
+    [Parameter] public EventCallback<int> OnMove { get; set; }
+    [Parameter] public EventCallback OnChanged { get; set; }
+
+    private AlignItems _headerAlignItems = AlignItems.Start;
+
+    private SurveyQuestionDefinition Definition => SurveyQuestionRegistry.Get(Question.Type);
+
+    private void BreakpointChanged(Breakpoint breakpoint)
+    {
+        _headerAlignItems = breakpoint < Breakpoint.Sm ? AlignItems.Start : AlignItems.Center;
+    }
+
+    private Task OnTextChanged(string? text)
+    {
+        Question.Text = text ?? string.Empty;
+        return OnChanged.InvokeAsync();
+    }
+
+    private Task SetOption(int index, string? text)
+    {
+        Question.Options[index] = text ?? string.Empty;
+        return OnChanged.InvokeAsync();
+    }
+
+    private Task RemoveOption(int index)
+    {
+        Question.Options.RemoveAt(index);
+        return OnChanged.InvokeAsync();
+    }
+
+    private Task AddOption()
+    {
+        Question.Options.Add(string.Empty);
+        return OnChanged.InvokeAsync();
+    }
+
+    private Task TypeChanged(SurveyQuestionType type)
+    {
+        Question.Type = type;
+        Definition.PrepareDraft(Question);
+
+        return OnChanged.InvokeAsync();
+    }
+
+    private Task MoveOption(int index, int direction)
+    {
+        var target = index + direction;
+        if (target < 0 || target >= Question.Options.Count) return Task.CompletedTask;
+
+        (Question.Options[index], Question.Options[target]) = (Question.Options[target], Question.Options[index]);
+        return OnChanged.InvokeAsync();
+    }
+}
+
+<style>
+    .survey-surface {
+        border-radius: 16px;
+        border: 1px solid rgba(var(--mud-palette-lines-default-rgb), 0.6);
+    }
+
+    .question-toolbar-actions {
+        width: 100%;
+        margin-top: 8px;
+    }
+
+    @@media (min-width: 600px) {
+        .question-toolbar-actions {
+            width: auto;
+            margin-top: 0;
+        }
+    }
+</style>

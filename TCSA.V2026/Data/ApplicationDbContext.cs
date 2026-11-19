@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using TCSA.V2026.Data.Enums;
 using TCSA.V2026.Data.Models;
 using TCSA.V2026.Models;
 
@@ -25,6 +26,9 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public virtual DbSet<GameScore> GameScores { get; set; }
     public virtual DbSet<Game> Games { get; set; }
     public virtual DbSet<FeedbackItem> FeedbackItems { get; set; }
+    public virtual DbSet<Survey> Surveys { get; set; }
+    public virtual DbSet<SurveyQuestion> SurveyQuestions { get; set; }
+    public virtual DbSet<SurveyOption> SurveyOptions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -162,5 +166,41 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             .WithMany()
             .HasForeignKey(f => f.AppUserId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Survey>()
+            .HasMany(s => s.Questions)
+            .WithOne(q => q.Survey)
+            .HasForeignKey(q => q.SurveyId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<ChoiceQuestion>()
+            .HasMany(q => q.Options)
+            .WithOne(o => o.Question)
+            .HasForeignKey(o => o.SurveyQuestionId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Survey>()
+            .Property(s => s.Status)
+            .IsConcurrencyToken();
+
+        modelBuilder.Entity<SurveyQuestion>(question =>
+        {
+            question.HasDiscriminator(q => q.Type)
+                .HasValue<RatingQuestion>(SurveyQuestionType.Rating)
+                .HasValue<SingleChoiceQuestion>(SurveyQuestionType.SingleChoice)
+                .HasValue<MultipleChoiceQuestion>(SurveyQuestionType.MultipleChoice)
+                .HasValue<FreeTextQuestion>(SurveyQuestionType.FreeText)
+                .HasValue<YesNoQuestion>(SurveyQuestionType.YesNo);
+
+            question.Property(q => q.Type)
+                .HasConversion<string>()
+                .HasMaxLength(30);
+
+            question.HasIndex(q => new { q.SurveyId, q.Order }).IsUnique();
+        });
+
+        modelBuilder.Entity<SurveyOption>()
+            .HasIndex(o => new { o.SurveyQuestionId, o.Order })
+            .IsUnique();
     }
 }

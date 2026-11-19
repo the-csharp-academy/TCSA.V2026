@@ -1,0 +1,302 @@
+@page "/admin/surveys"
+
+@using Microsoft.AspNetCore.Authorization
+@using TCSA.V2026.Components.UI
+@using TCSA.V2026.Data.DTOs
+@using TCSA.V2026.Data.Enums
+@using TCSA.V2026.Data.Models.Responses
+@using TCSA.V2026.Helpers
+@using TCSA.V2026.Helpers.Constants
+@using TCSA.V2026.Helpers.SurveyQuestions
+@using TCSA.V2026.Services
+
+@attribute [Authorize(Roles = "Admin")]
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+
+<PageTitle>Surveys</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="py-6">
+    <AdminToolBar Count="_surveys?.Count" />
+
+    @if (_isBuilding)
+    {
+        <MudStack Row AlignItems="AlignItems.Center" Class="mt-3 mb-2">
+            <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" OnClick="CloseBuilder" aria-label="Back to surveys" />
+            <MudText Typo="Typo.h5">New survey</MudText>
+        </MudStack>
+
+        <MudPaper Class="pa-4 mb-4 survey-surface" Elevation="0">
+            <MudText Typo="Typo.subtitle1" Class="mb-2"><b>Details</b></MudText>
+            <MudTextField T="string" @bind-Value="_draft.Title" Immediate="true" Label="Title" Variant="Variant.Outlined"
+                          MaxLength="SurveyLimits.TitleMaxLength" Counter="SurveyLimits.TitleMaxLength"
+                          Error="@(_touched && string.IsNullOrWhiteSpace(_draft.Title))" ErrorText="Title is required." />
+            <MudTextField T="string" @bind-Value="_draft.Description" Immediate="true" Label="Description" Variant="Variant.Outlined" Class="mt-2"
+                          Lines="2" MaxLength="SurveyLimits.DescriptionMaxLength" Counter="SurveyLimits.DescriptionMaxLength" />
+        </MudPaper>
+
+        <MudStack Row AlignItems="AlignItems.Center" Class="mb-2">
+            <MudText Typo="Typo.subtitle1"><b>Questions</b></MudText>
+            <MudChip T="string" Size="Size.Small">@_draft.Questions.Count / @SurveyLimits.MaxQuestions</MudChip>
+        </MudStack>
+
+        @for (var i = 0; i < _draft.Questions.Count; i++)
+        {
+            var index = i;
+            <SurveyQuestionEditor @key="_draft.Questions[index]" Question="_draft.Questions[index]" Index="index"
+                                  Count="_draft.Questions.Count" Touched="_touched" OnChanged="StateHasChanged"
+                                  OnRemove="() => RemoveQuestion(index)" OnMove="direction => MoveQuestion(index, direction)" />
+        }
+
+        <MudPaper Class="pa-3 survey-surface survey-add-row" Elevation="0">
+            <MudText Typo="Typo.caption" Color="Color.Secondary">Add a question</MudText>
+            <MudStack Row Spacing="2" Class="flex-wrap mt-1">
+                @foreach (var definition in SurveyQuestionRegistry.All)
+                {
+                    var questionType = definition.Type;
+                    <MudButton Size="Size.Small" Variant="Variant.Outlined" Color="Color.Primary"
+                               StartIcon="@definition.Icon"
+                               Disabled="@(_draft.Questions.Count >= SurveyLimits.MaxQuestions)"
+                               OnClick="() => AddQuestion(questionType)">@definition.Label</MudButton>
+                }
+            </MudStack>
+        </MudPaper>
+
+        <MudPaper Class="pa-3 mt-4 survey-savebar" Elevation="6">
+            @{
+                var problems = SurveyDraftValidator.Validate(_draft);
+            }
+            @if (problems.Count == 0)
+            {
+                <MudChip T="string" Size="Size.Small" Color="Color.Success" Icon="@Icons.Material.Filled.CheckCircle">Ready to save</MudChip>
+            }
+            else
+            {
+                <MudChip T="string" Size="Size.Small" Color="Color.Warning" Icon="@Icons.Material.Filled.ErrorOutline">@problems.Count to fix</MudChip>
+            }
+            <MudSpacer />
+            <MudButton Variant="Variant.Text" OnClick="CloseBuilder" Disabled="_isBusy">Cancel</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Save" OnClick="Save" Disabled="_isBusy">Save as draft</MudButton>
+        </MudPaper>
+    }
+    else
+    {
+        <MudPaper Class="pa-6 mt-3 survey-hero" Elevation="4">
+            <MudStack Row AlignItems="AlignItems.Center" Class="flex-wrap" Spacing="3">
+                <div>
+                    <MudText Typo="Typo.h4">Surveys</MudText>
+                    <MudText Typo="Typo.body1" Color="Color.Secondary">
+                        Short surveys appear on each user's profile. Surveys can't be edited once saved.
+                    </MudText>
+                </div>
+                <MudSpacer />
+                <MudButton Class="new-survey-button" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" StartIcon="@Icons.Material.Filled.Add"
+                           OnClick="OpenBuilder">New survey</MudButton>
+            </MudStack>
+        </MudPaper>
+
+        @if (_surveys is null)
+        {
+            <div class="d-flex justify-center pa-8">
+                <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+            </div>
+        }
+        else if (_surveys.Count == 0)
+        {
+            <MudAlert Class="mt-4" Severity="Severity.Info" Variant="Variant.Outlined">No surveys yet. Create the first one.</MudAlert>
+        }
+        else
+        {
+            <MudPaper Class="pa-2 mt-4 survey-surface" Elevation="0">
+                <MudTable T="SurveyListItemDto" Items="_surveys" Dense="true" Hover="false" Breakpoint="Breakpoint.Sm">
+                    <HeaderContent>
+                        <MudTh>Survey</MudTh>
+                        <MudTh>Status</MudTh>
+                        <MudTh>Questions</MudTh>
+                        <MudTh>Responses</MudTh>
+                        <MudTh>Created</MudTh>
+                        <MudTh>Actions</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Survey">
+                            <MudText Typo="Typo.body2"><b>@context.Title</b></MudText>
+                        </MudTd>
+                        <MudTd DataLabel="Status">
+                            <MudChip T="string" Size="Size.Small" Variant="Variant.Filled" Color="@SurveyLabelHelper.StatusColor(context.Status)">@context.Status</MudChip>
+                        </MudTd>
+                        <MudTd DataLabel="Questions">@context.QuestionCount</MudTd>
+                        <MudTd DataLabel="Responses">@context.ResponseCount</MudTd>
+                        <MudTd DataLabel="Created">@context.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")</MudTd>
+                        <MudTd DataLabel="Actions">
+                            <MudStack Row Spacing="1" AlignItems="AlignItems.Center">
+                                @if (context.CanDeactivate)
+                                {
+                                    <MudButton Size="Size.Small" Variant="Variant.Outlined" Disabled="_isBusy"
+                                               OnClick="() => Deactivate(context)">Deactivate</MudButton>
+                                }
+                                else
+                                {
+                                    <MudButton Size="Size.Small" Variant="Variant.Filled" Color="Color.Success" Disabled="_isBusy"
+                                               OnClick="() => Activate(context)">Activate</MudButton>
+                                }
+                                <MudTooltip Text="@(context.CanDelete ? "Delete" : "Deactivate before deleting")">
+                                    <MudIconButton Icon="@Icons.Material.Filled.DeleteOutline" Size="Size.Small" Color="Color.Error"
+                                                   Disabled="@(!context.CanDelete || _isBusy)" OnClick="() => Delete(context)"
+                                                   aria-label="Delete survey" />
+                                </MudTooltip>
+                            </MudStack>
+                        </MudTd>
+                    </RowTemplate>
+                </MudTable>
+            </MudPaper>
+        }
+    }
+</MudContainer>
+
+@code {
+    [Inject] private ISurveyAdminService SurveyAdminService { get; set; } = null!;
+    [Inject] private IDialogService DialogService { get; set; } = null!;
+    [Inject] private ISnackbar Snackbar { get; set; } = null!;
+
+    private List<SurveyListItemDto>? _surveys;
+    private SurveyDraftDto _draft = new();
+    private bool _isBuilding;
+    private bool _touched;
+    private bool _isBusy;
+
+    protected override async Task OnInitializedAsync() => await Load();
+
+    private async Task Load() => _surveys = await SurveyAdminService.GetSurveys();
+
+    private void OpenBuilder()
+    {
+        _draft = new SurveyDraftDto { Questions = [new SurveyQuestionDraftDto()] };
+        _touched = false;
+        _isBuilding = true;
+    }
+
+    private void CloseBuilder() => _isBuilding = false;
+
+    private void AddQuestion(SurveyQuestionType type)
+    {
+        if (_draft.Questions.Count >= SurveyLimits.MaxQuestions) return;
+
+        var question = new SurveyQuestionDraftDto { Type = type };
+        SurveyQuestionRegistry.Get(type).PrepareDraft(question);
+
+        _draft.Questions.Add(question);
+    }
+
+    private void RemoveQuestion(int index) => _draft.Questions.RemoveAt(index);
+
+    private void MoveQuestion(int index, int direction)
+    {
+        var target = index + direction;
+        if (target < 0 || target >= _draft.Questions.Count) return;
+
+        (_draft.Questions[index], _draft.Questions[target]) = (_draft.Questions[target], _draft.Questions[index]);
+    }
+
+    private async Task Save()
+    {
+        _touched = true;
+
+        if (SurveyDraftValidator.Validate(_draft).Count > 0)
+        {
+            Snackbar.Add("Fix the highlighted problems first.", Severity.Warning);
+            return;
+        }
+
+        _isBusy = true;
+        try
+        {
+            var result = await SurveyAdminService.CreateSurvey(_draft);
+
+            if (result.IsFailure)
+            {
+                Snackbar.Add(result.Message, Severity.Error);
+                return;
+            }
+
+            Snackbar.Add("Saved as a draft. Activate it from the list when you're ready.", Severity.Success);
+            _isBuilding = false;
+            await Load();
+        }
+        finally
+        {
+            _isBusy = false;
+        }
+    }
+
+    private Task Activate(SurveyListItemDto survey) => Run(() => SurveyAdminService.ActivateSurvey(survey.Id));
+
+    private Task Deactivate(SurveyListItemDto survey) => Run(() => SurveyAdminService.DeactivateSurvey(survey.Id));
+
+    private async Task Delete(SurveyListItemDto survey)
+    {
+        var parameters = new DialogParameters<TCSADeleteDialog>
+        {
+            { x => x.Title, "Delete survey" },
+            { x => x.Message, $"This permanently deletes \"{survey.Title}\" and its {survey.ResponseCount} {(survey.ResponseCount == 1 ? "response" : "responses")}. It cannot be undone." },
+            { x => x.ConfirmLabel, "Delete" }
+        };
+
+        var dialog = await DialogService.ShowAsync<TCSADeleteDialog>("Delete survey", parameters, new DialogOptions { CloseOnEscapeKey = true });
+        var confirmation = await dialog.Result;
+        if (confirmation is not { Canceled: false }) return;
+
+        await Run(() => SurveyAdminService.DeleteSurvey(survey.Id));
+    }
+
+    private async Task Run(Func<Task<Result>> action)
+    {
+        _isBusy = true;
+        try
+        {
+            var result = await action();
+            Snackbar.Add(result.Message, result.IsSuccess ? Severity.Success : Severity.Error);
+            await Load();
+        }
+        finally
+        {
+            _isBusy = false;
+        }
+    }
+}
+
+<style>
+    .survey-hero {
+        border-radius: 20px;
+        border: 1px solid rgba(var(--mud-palette-primary-rgb), 0.2);
+        background: linear-gradient(140deg, rgba(var(--mud-palette-surface-rgb), 0.98) 0%, rgba(var(--mud-palette-primary-rgb), 0.08) 100%);
+    }
+
+    .survey-surface {
+        border-radius: 16px;
+        border: 1px solid rgba(var(--mud-palette-lines-default-rgb), 0.6);
+    }
+
+    .survey-add-row {
+        border-style: dashed;
+    }
+
+    .survey-savebar {
+        position: sticky;
+        bottom: 12px;
+        z-index: 5;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border-radius: 16px;
+        flex-wrap: wrap;
+    }
+
+    .new-survey-button {
+        width: 100%;
+    }
+
+    @@media (min-width: 600px) {
+        .new-survey-button {
+            width: auto;
+        }
+    }
+</style>
